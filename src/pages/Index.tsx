@@ -1,12 +1,149 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import GlassCard from "@/components/GlassCard";
+import ThreeBackground from "@/components/ThreeBackground";
+import { ArrowRight, Globe, TrendingUp, Shield, Zap } from "lucide-react";
 
 const Index = () => {
+  const navigate = useNavigate();
+
+  const features = [
+    {
+      icon: Globe,
+      title: "Global Network",
+      description: "Connect with verified suppliers and buyers across continents",
+    },
+    {
+      icon: Shield,
+      title: "Secure Trading",
+      description: "End-to-end encryption and verified business partners",
+    },
+    {
+      icon: TrendingUp,
+      title: "Smart Analytics",
+      description: "Real-time market insights and trade analytics",
+    },
+    {
+      icon: Zap,
+      title: "Fast Processing",
+      description: "Streamlined workflows and instant communication",
+    },
+  ];
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen relative overflow-hidden">
+      <ThreeBackground />
+      
+      {/* Hero Section */}
+      <section className="min-h-screen flex items-center justify-center px-4">
+        <div className="max-w-5xl mx-auto text-center space-y-8 animate-fade-in">
+          <div className="space-y-4">
+            <h1 className="text-5xl md:text-7xl font-bold leading-tight">
+              <span className="bg-gradient-primary bg-clip-text text-transparent">
+                TradeLink
+              </span>
+            </h1>
+            <p className="text-2xl md:text-3xl font-semibold text-foreground">
+              Bridging China Industries & Nigerian Markets
+            </p>
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+              The premier platform connecting Chinese manufacturers with Nigerian buyers.
+              Streamline your international trade with powerful tools and verified partners.
+            </p>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+            <Button
+              variant="gradient"
+              size="lg"
+              onClick={() => navigate("/login")}
+              className="text-lg px-8"
+            >
+              Get Started
+              <ArrowRight className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="glass"
+              size="lg"
+              className="text-lg px-8"
+            >
+              Learn More
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-12">
+            <GlassCard className="text-center">
+              <p className="text-3xl font-bold text-primary">500+</p>
+              <p className="text-sm text-muted-foreground">Active Suppliers</p>
+            </GlassCard>
+            <GlassCard className="text-center">
+              <p className="text-3xl font-bold text-secondary">1200+</p>
+              <p className="text-sm text-muted-foreground">Verified Buyers</p>
+            </GlassCard>
+            <GlassCard className="text-center">
+              <p className="text-3xl font-bold text-accent">$45M+</p>
+              <p className="text-sm text-muted-foreground">Trade Volume</p>
+            </GlassCard>
+            <GlassCard className="text-center">
+              <p className="text-3xl font-bold text-primary">98%</p>
+              <p className="text-sm text-muted-foreground">Success Rate</p>
+            </GlassCard>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              Why Choose <span className="bg-gradient-primary bg-clip-text text-transparent">TradeLink</span>
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              Everything you need for successful international trade
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {features.map((feature, i) => (
+              <GlassCard key={i} className="group">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-gradient-primary rounded-xl group-hover:scale-110 transition-transform">
+                    <feature.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                    <p className="text-muted-foreground">{feature.description}</p>
+                  </div>
+                </div>
+              </GlassCard>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 px-4">
+        <div className="max-w-4xl mx-auto">
+          <GlassCard className="text-center p-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Ready to Start Trading?
+            </h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              Join thousands of businesses already connecting through TradeLink
+            </p>
+            <Button
+              variant="gradient"
+              size="lg"
+              onClick={() => navigate("/login")}
+              className="text-lg px-12"
+            >
+              Sign In Now
+              <ArrowRight className="w-5 h-5" />
+            </Button>
+          </GlassCard>
+        </div>
+      </section>
     </div>
   );
 };
