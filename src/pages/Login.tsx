@@ -5,38 +5,72 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import GlassCard from "@/components/GlassCard";
 import ThreeBackground from "@/components/ThreeBackground";
-import { mockLogin, setCurrentUser } from "@/utils/mockAuth";
+import { setCurrentUser } from "@/utils/mockAuth";
 import { toast } from "@/hooks/use-toast";
 import { ArrowRight, Building2, ShoppingBag } from "lucide-react";
+import { z } from "zod";
+
+const loginSchema = z.object({
+  email: z.string().trim().email({ message: "Invalid email address" }),
+  password: z.string().min(1, { message: "Password is required" }),
+  name: z.string().trim().min(2, { message: "Name must be at least 2 characters" }),
+});
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [selectedRole, setSelectedRole] = useState<"industry" | "buyer" | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const user = mockLogin(email, password);
+    // Validate inputs
+    const result = loginSchema.safeParse({ email, password, name });
     
-    if (user) {
-      setCurrentUser(user);
-      toast({
-        title: "Login Successful",
-        description: `Welcome back, ${user.name}!`,
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0].toString()] = err.message;
+        }
       });
-      
-      if (user.role === "industry") {
-        navigate("/industry");
-      } else {
-        navigate("/buyer");
-      }
-    } else {
+      setErrors(fieldErrors);
+      return;
+    }
+
+    if (!selectedRole) {
       toast({
-        title: "Login Failed",
-        description: "Invalid credentials. Try the demo accounts.",
+        title: "Role Required",
+        description: "Please select whether you're a seller or buyer",
         variant: "destructive",
       });
+      return;
+    }
+
+    setErrors({});
+
+    // Accept any credentials and create mock user
+    const user = {
+      id: Math.random().toString(36).substr(2, 9),
+      email: email.trim(),
+      role: selectedRole,
+      name: name.trim(),
+    };
+
+    setCurrentUser(user);
+    
+    toast({
+      title: "Login Successful",
+      description: `Welcome, ${user.name}!`,
+    });
+    
+    if (selectedRole === "industry") {
+      navigate("/industry");
+    } else {
+      navigate("/buyer");
     }
   };
 
@@ -56,28 +90,46 @@ const Login = () => {
           </div>
           
           <div className="space-y-4 pt-4">
-            <h2 className="text-2xl font-semibold text-foreground">Demo Accounts</h2>
+            <h2 className="text-2xl font-semibold text-foreground">Select Your Role</h2>
             
-            <GlassCard className="cursor-pointer" hover>
+            <GlassCard 
+              className={`cursor-pointer transition-all ${
+                selectedRole === "industry" ? "ring-2 ring-primary" : ""
+              }`}
+              onClick={() => setSelectedRole("industry")}
+            >
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-primary/20 rounded-xl">
-                  <Building2 className="w-6 h-6 text-primary" />
+                <div className={`p-3 rounded-xl ${
+                  selectedRole === "industry" ? "bg-primary" : "bg-primary/20"
+                }`}>
+                  <Building2 className={`w-6 h-6 ${
+                    selectedRole === "industry" ? "text-white" : "text-primary"
+                  }`} />
                 </div>
                 <div>
-                  <p className="font-semibold">Industry Account</p>
-                  <p className="text-sm text-muted-foreground">industry@china.com / password</p>
+                  <p className="font-semibold">I'm a Seller</p>
+                  <p className="text-sm text-muted-foreground">Chinese Industry / Manufacturer</p>
                 </div>
               </div>
             </GlassCard>
             
-            <GlassCard className="cursor-pointer" hover>
+            <GlassCard 
+              className={`cursor-pointer transition-all ${
+                selectedRole === "buyer" ? "ring-2 ring-secondary" : ""
+              }`}
+              onClick={() => setSelectedRole("buyer")}
+            >
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-secondary/20 rounded-xl">
-                  <ShoppingBag className="w-6 h-6 text-secondary" />
+                <div className={`p-3 rounded-xl ${
+                  selectedRole === "buyer" ? "bg-secondary" : "bg-secondary/20"
+                }`}>
+                  <ShoppingBag className={`w-6 h-6 ${
+                    selectedRole === "buyer" ? "text-white" : "text-secondary"
+                  }`} />
                 </div>
                 <div>
-                  <p className="font-semibold">Buyer Account</p>
-                  <p className="text-sm text-muted-foreground">buyer@nigeria.com / password</p>
+                  <p className="font-semibold">I'm a Buyer</p>
+                  <p className="text-sm text-muted-foreground">Nigerian Business / Trader</p>
                 </div>
               </div>
             </GlassCard>
@@ -87,11 +139,27 @@ const Login = () => {
         <GlassCard>
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2 text-center">
-              <h2 className="text-3xl font-bold">Welcome Back</h2>
-              <p className="text-muted-foreground">Sign in to continue to your dashboard</p>
+              <h2 className="text-3xl font-bold">Welcome</h2>
+              <p className="text-muted-foreground">Enter your details to continue</p>
             </div>
             
             <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name / Company Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Enter your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="h-12 bg-background/50"
+                />
+                {errors.name && (
+                  <p className="text-sm text-destructive">{errors.name}</p>
+                )}
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -103,6 +171,9 @@ const Login = () => {
                   required
                   className="h-12 bg-background/50"
                 />
+                {errors.email && (
+                  <p className="text-sm text-destructive">{errors.email}</p>
+                )}
               </div>
               
               <div className="space-y-2">
@@ -116,6 +187,9 @@ const Login = () => {
                   required
                   className="h-12 bg-background/50"
                 />
+                {errors.password && (
+                  <p className="text-sm text-destructive">{errors.password}</p>
+                )}
               </div>
             </div>
             
@@ -125,10 +199,7 @@ const Login = () => {
             </Button>
             
             <div className="text-center text-sm text-muted-foreground">
-              Don't have an account?{" "}
-              <a href="#" className="text-primary hover:underline">
-                Contact us
-              </a>
+              All credentials accepted for demo
             </div>
           </form>
         </GlassCard>
