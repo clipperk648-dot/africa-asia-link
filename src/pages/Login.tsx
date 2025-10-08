@@ -78,69 +78,69 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       <ThreeBackground />
       
-      <div className="w-full max-w-6xl grid md:grid-cols-2 gap-8 animate-fade-in">
-        <div className="flex flex-col justify-center space-y-6">
+      <div className="w-full max-w-6xl grid md:grid-cols-2 gap-6 sm:gap-8 animate-fade-in">
+        <div className="flex flex-col justify-center space-y-4 sm:space-y-6">
           <div className="space-y-2">
-            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               TradeLink
             </h1>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-lg sm:text-xl text-muted-foreground">
               Connecting China Industries with Nigerian Buyers
             </p>
           </div>
           
-          <div className="space-y-4 pt-4">
-            <h2 className="text-2xl font-semibold text-foreground">Select Your Role</h2>
+          <div className="space-y-3 sm:space-y-4 pt-2 sm:pt-4">
+            <h2 className="text-xl sm:text-2xl font-semibold text-foreground">Select Your Role</h2>
             
             <GlassCard 
-              className={`cursor-pointer transition-all ${
+              className={`cursor-pointer transition-all p-4 sm:p-6 ${
                 selectedRole === "industry" ? "ring-2 ring-primary" : ""
               }`}
               onClick={() => setSelectedRole("industry")}
             >
-              <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-xl ${
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className={`p-2 sm:p-3 rounded-xl flex-shrink-0 ${
                   selectedRole === "industry" ? "bg-primary" : "bg-primary/20"
                 }`}>
-                  <Building2 className={`w-6 h-6 ${
+                  <Building2 className={`w-5 h-5 sm:w-6 sm:h-6 ${
                     selectedRole === "industry" ? "text-white" : "text-primary"
                   }`} />
                 </div>
-                <div>
-                  <p className="font-semibold">I'm a Seller</p>
-                  <p className="text-sm text-muted-foreground">Chinese Industry / Manufacturer</p>
+                <div className="min-w-0">
+                  <p className="font-semibold text-sm sm:text-base">I'm a Seller</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Chinese Industry / Manufacturer</p>
                 </div>
               </div>
             </GlassCard>
             
             <GlassCard 
-              className={`cursor-pointer transition-all ${
+              className={`cursor-pointer transition-all p-4 sm:p-6 ${
                 selectedRole === "buyer" ? "ring-2 ring-secondary" : ""
               }`}
               onClick={() => setSelectedRole("buyer")}
             >
-              <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-xl ${
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className={`p-2 sm:p-3 rounded-xl flex-shrink-0 ${
                   selectedRole === "buyer" ? "bg-secondary" : "bg-secondary/20"
                 }`}>
-                  <ShoppingBag className={`w-6 h-6 ${
+                  <ShoppingBag className={`w-5 h-5 sm:w-6 sm:h-6 ${
                     selectedRole === "buyer" ? "text-white" : "text-secondary"
                   }`} />
                 </div>
-                <div>
-                  <p className="font-semibold">I'm a Buyer</p>
-                  <p className="text-sm text-muted-foreground">Nigerian Business / Trader</p>
+                <div className="min-w-0">
+                  <p className="font-semibold text-sm sm:text-base">I'm a Buyer</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Nigerian Business / Trader</p>
                 </div>
               </div>
             </GlassCard>
           </div>
         </div>
         
-        <GlassCard>
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div className="space-y-2 text-center">
-              <h2 className="text-3xl font-bold">Welcome</h2>
-              <p className="text-muted-foreground">Enter your details to continue</p>
+        <GlassCard className="p-4 sm:p-6">
+          <form onSubmit={handleLogin} className="space-y-4 sm:space-y-6">
+            <div className="space-y-1 sm:space-y-2 text-center">
+              <h2 className="text-2xl sm:text-3xl font-bold">Welcome</h2>
+              <p className="text-sm sm:text-base text-muted-foreground">Enter your details to continue</p>
             </div>
             
             <div className="space-y-4">
@@ -193,12 +193,12 @@ const Login = () => {
               </div>
             </div>
             
-            <Button type="submit" variant="gradient" size="lg" className="w-full">
+            <Button type="submit" variant="gradient" size="lg" className="w-full h-11 sm:h-12">
               Sign In
               <ArrowRight className="w-5 h-5" />
             </Button>
             
-            <div className="text-center text-sm text-muted-foreground">
+            <div className="text-center text-xs sm:text-sm text-muted-foreground">
               All credentials accepted for demo
             </div>
           </form>

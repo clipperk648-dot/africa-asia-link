@@ -49,37 +49,37 @@ const IndustryDashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-fade-in">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 animate-fade-in">
           {stats.map((stat, i) => (
-            <GlassCard key={i} className="text-center">
-              <stat.icon className={`w-8 h-8 mx-auto mb-2 ${stat.color}`} />
-              <p className="text-2xl font-bold">{stat.value}</p>
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
+            <GlassCard key={i} className="text-center p-4">
+              <stat.icon className={`w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 ${stat.color}`} />
+              <p className="text-xl sm:text-2xl font-bold">{stat.value}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">{stat.label}</p>
             </GlassCard>
           ))}
         </div>
 
         <section className="space-y-4">
-          <h2 className="text-2xl font-bold">Your Products</h2>
+          <h2 className="text-xl sm:text-2xl font-bold">Your Products</h2>
           <div className="grid md:grid-cols-2 gap-4">
             {mockProducts.map((product) => (
-              <GlassCard key={product.id}>
-                <div className="flex gap-4">
+              <GlassCard key={product.id} className="p-4 sm:p-6">
+                <div className="flex gap-3 sm:gap-4">
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-24 h-24 object-cover rounded-lg"
+                    className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg flex-shrink-0"
                   />
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-lg">{product.name}</h3>
-                    <p className="text-sm text-muted-foreground">{product.category}</p>
-                    <div className="flex items-center justify-between mt-2">
-                      <p className="text-xl font-bold text-primary">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-base sm:text-lg truncate">{product.name}</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{product.category}</p>
+                    <div className="flex items-center justify-between mt-2 gap-2">
+                      <p className="text-lg sm:text-xl font-bold text-primary">
                         ${product.price.toLocaleString()}
                       </p>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 flex-shrink-0">
                         <span className="text-accent">★</span>
-                        <span className="text-sm font-medium">{product.rating}</span>
+                        <span className="text-xs sm:text-sm font-medium">{product.rating}</span>
                       </div>
                     </div>
                   </div>
@@ -90,21 +90,23 @@ const IndustryDashboard = () => {
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-2xl font-bold">Recent Orders</h2>
+          <h2 className="text-xl sm:text-2xl font-bold">Recent Orders</h2>
           <div className="space-y-3">
             {mockOrders.map((order) => (
-              <GlassCard key={order.id}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold">{order.productName}</p>
-                    <p className="text-sm text-muted-foreground">
+              <GlassCard key={order.id} className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-base sm:text-lg truncate">{order.productName}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       Order #{order.id} • {order.date}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-lg">${order.total.toLocaleString()}</p>
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="text-left sm:text-right">
+                      <p className="font-bold text-lg sm:text-xl">${order.total.toLocaleString()}</p>
+                    </div>
                     <span
-                      className={`text-xs px-3 py-1 rounded-full ${
+                      className={`text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium whitespace-nowrap ${
                         order.status === "delivered"
                           ? "bg-secondary/20 text-secondary"
                           : order.status === "shipped"

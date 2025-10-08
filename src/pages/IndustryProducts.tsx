@@ -49,32 +49,32 @@ const IndustryProducts = () => {
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-4">
         {mockProducts.map((product) => (
-          <GlassCard key={product.id}>
-            <div className="flex gap-4">
+          <GlassCard key={product.id} className="p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row gap-4">
               <img
                 src={product.image}
                 alt={product.name}
-                className="w-32 h-32 object-cover rounded-lg"
+                className="w-full sm:w-32 h-40 sm:h-32 object-cover rounded-lg flex-shrink-0"
               />
-              <div className="flex-1">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold text-xl">{product.name}</h3>
-                    <p className="text-sm text-muted-foreground">{product.category}</p>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold text-lg sm:text-xl truncate">{product.name}</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground truncate">{product.category}</p>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 flex-shrink-0">
                     <Star className="w-4 h-4 fill-accent text-accent" />
-                    <span className="font-medium">{product.rating}</span>
+                    <span className="text-sm font-medium">{product.rating}</span>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground mt-2">{product.location}</p>
-                <div className="flex items-center justify-between mt-4">
-                  <p className="text-2xl font-bold text-primary">
+                <p className="text-xs sm:text-sm text-muted-foreground mt-2 truncate">{product.location}</p>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 sm:mt-4 gap-3">
+                  <p className="text-xl sm:text-2xl font-bold text-primary">
                     ${product.price.toLocaleString()}
                   </p>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm">Edit</Button>
-                    <Button variant="gradient" size="sm">View Stats</Button>
+                  <div className="flex gap-2 w-full sm:w-auto">
+                    <Button variant="outline" size="sm" className="flex-1 sm:flex-none">Edit</Button>
+                    <Button variant="gradient" size="sm" className="flex-1 sm:flex-none">View Stats</Button>
                   </div>
                 </div>
               </div>

@@ -38,26 +38,26 @@ const Index = () => {
       <section className="min-h-screen flex items-center justify-center px-4">
         <div className="max-w-5xl mx-auto text-center space-y-8 animate-fade-in">
           <div className="space-y-4">
-            <h1 className="text-5xl md:text-7xl font-bold leading-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold leading-tight">
               <span className="bg-gradient-primary bg-clip-text text-transparent">
                 TradeLink
               </span>
             </h1>
-            <p className="text-2xl md:text-3xl font-semibold text-foreground">
+            <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground">
               Bridging China Industries & Nigerian Markets
             </p>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
               The premier platform connecting Chinese manufacturers with Nigerian buyers.
               Streamline your international trade with powerful tools and verified partners.
             </p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4 w-full px-4">
             <Button
               variant="gradient"
               size="lg"
               onClick={() => navigate("/login")}
-              className="text-lg px-8"
+              className="text-base sm:text-lg px-6 sm:px-8 w-full sm:w-auto"
             >
               Get Started
               <ArrowRight className="w-5 h-5" />
@@ -65,28 +65,28 @@ const Index = () => {
             <Button
               variant="glass"
               size="lg"
-              className="text-lg px-8"
+              className="text-base sm:text-lg px-6 sm:px-8 w-full sm:w-auto"
             >
               Learn More
             </Button>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-12">
-            <GlassCard className="text-center">
-              <p className="text-3xl font-bold text-primary">500+</p>
-              <p className="text-sm text-muted-foreground">Active Suppliers</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 pt-12 px-4">
+            <GlassCard className="text-center p-4">
+              <p className="text-2xl sm:text-3xl font-bold text-primary">500+</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Active Suppliers</p>
             </GlassCard>
-            <GlassCard className="text-center">
-              <p className="text-3xl font-bold text-secondary">1200+</p>
-              <p className="text-sm text-muted-foreground">Verified Buyers</p>
+            <GlassCard className="text-center p-4">
+              <p className="text-2xl sm:text-3xl font-bold text-secondary">1200+</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Verified Buyers</p>
             </GlassCard>
-            <GlassCard className="text-center">
-              <p className="text-3xl font-bold text-accent">$45M+</p>
-              <p className="text-sm text-muted-foreground">Trade Volume</p>
+            <GlassCard className="text-center p-4">
+              <p className="text-2xl sm:text-3xl font-bold text-accent">$45M+</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Trade Volume</p>
             </GlassCard>
-            <GlassCard className="text-center">
-              <p className="text-3xl font-bold text-primary">98%</p>
-              <p className="text-sm text-muted-foreground">Success Rate</p>
+            <GlassCard className="text-center p-4">
+              <p className="text-2xl sm:text-3xl font-bold text-primary">98%</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Success Rate</p>
             </GlassCard>
           </div>
         </div>
@@ -95,11 +95,11 @@ const Index = () => {
       {/* Features Section */}
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 px-4">
               Why Choose <span className="bg-gradient-primary bg-clip-text text-transparent">TradeLink</span>
             </h2>
-            <p className="text-xl text-muted-foreground">
+            <p className="text-lg sm:text-xl text-muted-foreground px-4">
               Everything you need for successful international trade
             </p>
           </div>
@@ -125,18 +125,18 @@ const Index = () => {
       {/* CTA Section */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto">
-          <GlassCard className="text-center p-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <GlassCard className="text-center p-6 sm:p-8 md:p-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
               Ready to Start Trading?
             </h2>
-            <p className="text-lg text-muted-foreground mb-8">
+            <p className="text-base sm:text-lg text-muted-foreground mb-6 sm:mb-8">
               Join thousands of businesses already connecting through TradeLink
             </p>
             <Button
               variant="gradient"
               size="lg"
               onClick={() => navigate("/login")}
-              className="text-lg px-12"
+              className="text-base sm:text-lg px-8 sm:px-12 w-full sm:w-auto"
             >
               Sign In Now
               <ArrowRight className="w-5 h-5" />

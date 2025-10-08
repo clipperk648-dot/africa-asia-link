@@ -40,13 +40,13 @@ const IndustrySettings = () => {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-        <GlassCard>
+      <main className="max-w-2xl mx-auto px-4 py-6 space-y-4 sm:space-y-6">
+        <GlassCard className="p-4 sm:p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-primary/20 rounded-lg">
-              <User className="w-5 h-5 text-primary" />
+              <User className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             </div>
-            <h2 className="text-xl font-bold">Profile Information</h2>
+            <h2 className="text-lg sm:text-xl font-bold">Profile Information</h2>
           </div>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -78,44 +78,44 @@ const IndustrySettings = () => {
           </div>
         </GlassCard>
 
-        <GlassCard>
+        <GlassCard className="p-4 sm:p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-secondary/20 rounded-lg">
-              <Bell className="w-5 h-5 text-secondary" />
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-secondary" />
             </div>
-            <h2 className="text-xl font-bold">Notifications</h2>
+            <h2 className="text-lg sm:text-xl font-bold">Notifications</h2>
           </div>
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Order Updates</p>
-                <p className="text-sm text-muted-foreground">Get notified about order status</p>
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-sm sm:text-base">Order Updates</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Get notified about order status</p>
               </div>
-              <Switch defaultChecked />
+              <Switch defaultChecked className="flex-shrink-0" />
             </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">New Messages</p>
-                <p className="text-sm text-muted-foreground">Receive message notifications</p>
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-sm sm:text-base">New Messages</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Receive message notifications</p>
               </div>
-              <Switch defaultChecked />
+              <Switch defaultChecked className="flex-shrink-0" />
             </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">Marketing Emails</p>
-                <p className="text-sm text-muted-foreground">Receive promotional content</p>
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-sm sm:text-base">Marketing Emails</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">Receive promotional content</p>
               </div>
-              <Switch />
+              <Switch className="flex-shrink-0" />
             </div>
           </div>
         </GlassCard>
 
-        <GlassCard>
+        <GlassCard className="p-4 sm:p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-accent/20 rounded-lg">
-              <Lock className="w-5 h-5 text-accent" />
+              <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
             </div>
-            <h2 className="text-xl font-bold">Security</h2>
+            <h2 className="text-lg sm:text-xl font-bold">Security</h2>
           </div>
           <div className="space-y-3">
             <Button variant="outline" className="w-full justify-start">
@@ -127,12 +127,12 @@ const IndustrySettings = () => {
           </div>
         </GlassCard>
 
-        <GlassCard>
+        <GlassCard className="p-4 sm:p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-primary/20 rounded-lg">
-              <Globe className="w-5 h-5 text-primary" />
+              <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             </div>
-            <h2 className="text-xl font-bold">Preferences</h2>
+            <h2 className="text-lg sm:text-xl font-bold">Preferences</h2>
           </div>
           <div className="space-y-4">
             <div className="space-y-2">

@@ -49,43 +49,43 @@ const BuyerDashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-fade-in">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 animate-fade-in">
           {stats.map((stat, i) => (
-            <GlassCard key={i} className="text-center">
-              <stat.icon className={`w-8 h-8 mx-auto mb-2 ${stat.color}`} />
-              <p className="text-2xl font-bold">{stat.value}</p>
-              <p className="text-sm text-muted-foreground">{stat.label}</p>
+            <GlassCard key={i} className="text-center p-4">
+              <stat.icon className={`w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 ${stat.color}`} />
+              <p className="text-xl sm:text-2xl font-bold">{stat.value}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">{stat.label}</p>
             </GlassCard>
           ))}
         </div>
 
         <section className="space-y-4">
-          <h2 className="text-2xl font-bold">Discover Products</h2>
+          <h2 className="text-xl sm:text-2xl font-bold">Discover Products</h2>
           <div className="grid md:grid-cols-2 gap-4">
             {mockProducts.map((product) => (
-              <GlassCard key={product.id}>
+              <GlassCard key={product.id} className="p-4 sm:p-6">
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-48 object-cover rounded-lg mb-4"
+                  className="w-full h-40 sm:h-48 object-cover rounded-lg mb-4"
                 />
                 <div className="space-y-2">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-semibold text-lg">{product.name}</h3>
-                      <p className="text-sm text-muted-foreground">{product.company}</p>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-semibold text-base sm:text-lg truncate">{product.name}</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground truncate">{product.company}</p>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 flex-shrink-0">
                       <span className="text-accent">★</span>
-                      <span className="text-sm font-medium">{product.rating}</span>
+                      <span className="text-xs sm:text-sm font-medium">{product.rating}</span>
                     </div>
                   </div>
-                  <p className="text-sm text-muted-foreground">{product.location}</p>
-                  <div className="flex items-center justify-between pt-2">
-                    <p className="text-2xl font-bold text-primary">
+                  <p className="text-xs sm:text-sm text-muted-foreground truncate">{product.location}</p>
+                  <div className="flex items-center justify-between pt-2 gap-2">
+                    <p className="text-xl sm:text-2xl font-bold text-primary">
                       ${product.price.toLocaleString()}
                     </p>
-                    <Button variant="gradient" size="sm">
+                    <Button variant="gradient" size="sm" className="flex-shrink-0">
                       Inquire
                     </Button>
                   </div>
@@ -96,24 +96,24 @@ const BuyerDashboard = () => {
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-2xl font-bold">My Orders</h2>
+          <h2 className="text-xl sm:text-2xl font-bold">My Orders</h2>
           <div className="space-y-3">
             {mockOrders.map((order) => (
-              <GlassCard key={order.id}>
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div>
-                    <p className="font-semibold text-lg">{order.productName}</p>
-                    <p className="text-sm text-muted-foreground">
+              <GlassCard key={order.id} className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-base sm:text-lg truncate">{order.productName}</p>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       Order #{order.id} • Qty: {order.quantity}
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">{order.date}</p>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <p className="font-bold text-xl">${order.total.toLocaleString()}</p>
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="text-left sm:text-right">
+                      <p className="font-bold text-lg sm:text-xl">${order.total.toLocaleString()}</p>
                     </div>
                     <span
-                      className={`text-xs px-4 py-2 rounded-full font-medium whitespace-nowrap ${
+                      className={`text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium whitespace-nowrap ${
                         order.status === "delivered"
                           ? "bg-secondary/20 text-secondary"
                           : order.status === "shipped"
