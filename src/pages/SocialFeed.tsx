@@ -66,9 +66,9 @@ const SocialFeed = () => {
 
       {/* Header */}
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-3xl mx-auto px-4 py-4">
+        <div className="max-w-3xl mx-auto px-2 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" onClick={goBack}>
                 <ArrowLeft className="w-5 h-5" />
               </Button>
@@ -76,7 +76,7 @@ const SocialFeed = () => {
                 TradeSocial
               </h1>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
               <Button variant="ghost" size="icon">
                 <Search className="w-5 h-5" />
               </Button>
