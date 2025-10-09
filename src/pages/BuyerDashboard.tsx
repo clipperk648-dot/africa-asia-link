@@ -36,9 +36,9 @@ const BuyerDashboard = () => {
       <ThreeBackground />
       
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               {user?.name}
             </h1>
             <p className="text-sm text-muted-foreground">Buyer Dashboard</p>
@@ -62,14 +62,14 @@ const BuyerDashboard = () => {
           {stats.map((stat, i) => (
             <GlassCard key={i} className="text-center p-4">
               <stat.icon className={`w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 ${stat.color}`} />
-              <p className="text-xl sm:text-2xl font-bold">{stat.value}</p>
+              <p className="text-lg sm:text-xl font-bold">{stat.value}</p>
               <p className="text-xs sm:text-sm text-muted-foreground">{stat.label}</p>
             </GlassCard>
           ))}
         </div>
 
         <section className="space-y-4">
-          <h2 className="text-xl sm:text-2xl font-bold">Discover Products</h2>
+          <h2 className="text-lg sm:text-xl font-bold">Discover Products</h2>
           <div className="grid md:grid-cols-2 gap-4">
             {mockProducts.map((product) => (
               <GlassCard key={product.id} className="p-4 sm:p-6">
@@ -81,7 +81,7 @@ const BuyerDashboard = () => {
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-base sm:text-lg truncate">{product.name}</h3>
+                      <h3 className="font-semibold text-sm sm:text-base truncate">{product.name}</h3>
                       <p className="text-xs sm:text-sm text-muted-foreground truncate">{product.company}</p>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
@@ -105,7 +105,7 @@ const BuyerDashboard = () => {
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-xl sm:text-2xl font-bold">My Orders</h2>
+          <h2 className="text-lg sm:text-xl font-bold">My Orders</h2>
           <div className="space-y-3">
             {mockOrders.map((order) => (
               <GlassCard key={order.id} className="p-4 sm:p-6">
