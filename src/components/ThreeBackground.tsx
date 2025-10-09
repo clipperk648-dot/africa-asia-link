@@ -25,7 +25,7 @@ const ThreeBackground = () => {
       "rgba(52, 211, 153, 0.6)",
     ];
 
-    let connectionDistance = 160;
+    let connectionDistance = 200;
     let connectionDistanceSq = connectionDistance * connectionDistance;
     const frameInterval = 1000 / 45;
     const baseSpeed = 1.6;
@@ -63,11 +63,11 @@ const ThreeBackground = () => {
       if (w < 640) {
         minParticleSize = 9;
         maxParticleSize = 16;
-        connectionDistance = 140;
+        connectionDistance = 180;
       } else {
         minParticleSize = 8;
         maxParticleSize = 16;
-        connectionDistance = 160;
+        connectionDistance = 200;
       }
       connectionDistanceSq = connectionDistance * connectionDistance;
     };
@@ -131,7 +131,7 @@ const ThreeBackground = () => {
             if (distanceSq < connectionDistanceSq) {
               const opacity = 0.2 * (1 - Math.sqrt(distanceSq) / connectionDistance);
               context.strokeStyle = `rgba(138, 108, 253, ${opacity})`;
-              context.lineWidth = 2;
+              context.lineWidth = 3;
               context.beginPath();
               context.moveTo(a.x, a.y);
               context.lineTo(b.x, b.y);

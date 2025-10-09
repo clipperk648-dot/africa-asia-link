@@ -27,7 +27,7 @@ const IndustryDashboard = () => {
   const stats = [
     { label: "Total Products", value: "24", icon: Package, color: "text-primary" },
     { label: "Active Orders", value: "18", icon: TrendingUp, color: "text-secondary" },
-    { label: "Revenue", value: "$450K", icon: DollarSign, color: "text-accent" },
+    { label: "Revenue", value: "¥450K", icon: DollarSign, color: "text-accent" },
     { label: "Buyers", value: "156", icon: Users, color: "text-primary" },
   ];
 
@@ -84,7 +84,7 @@ const IndustryDashboard = () => {
                     <p className="text-xs sm:text-sm text-muted-foreground truncate">{product.category}</p>
                     <div className="flex items-center justify-between mt-2 gap-2">
                       <p className="text-lg sm:text-xl font-bold text-primary">
-                        ${product.price.toLocaleString()}
+                        ¥{product.price.toLocaleString()}
                       </p>
                       <div className="flex items-center gap-1 flex-shrink-0">
                         <span className="text-accent">★</span>
@@ -112,7 +112,7 @@ const IndustryDashboard = () => {
                   </div>
                   <div className="flex items-center gap-3 sm:gap-4">
                     <div className="text-left sm:text-right">
-                      <p className="font-bold text-lg sm:text-xl">${order.total.toLocaleString()}</p>
+                      <p className="font-bold text-lg sm:text-xl">¥{order.total.toLocaleString()}</p>
                     </div>
                     <span
                       className={`text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium whitespace-nowrap ${
@@ -130,6 +130,10 @@ const IndustryDashboard = () => {
               </GlassCard>
             ))}
           </div>
+        </section>
+
+        <section className="pt-2 pb-4 text-xs text-muted-foreground text-center">
+          <span className="font-medium">Rates:</span> 1 USD ≈ ¥7.1 • 1 CNY ≈ ₦220
         </section>
       </main>
 
