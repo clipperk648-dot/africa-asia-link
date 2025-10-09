@@ -9,6 +9,7 @@ import IndustryDashboard from "./pages/IndustryDashboard";
 import IndustryProducts from "./pages/IndustryProducts";
 import IndustryNetwork from "./pages/IndustryNetwork";
 import IndustrySettings from "./pages/IndustrySettings";
+import IndustryAddProperty from "./pages/IndustryAddProperty";
 import BuyerDashboard from "./pages/BuyerDashboard";
 import BuyerProducts from "./pages/BuyerProducts";
 import BuyerNetwork from "./pages/BuyerNetwork";
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/industry/products" element={<IndustryProducts />} />
           <Route path="/industry/network" element={<IndustryNetwork />} />
           <Route path="/industry/settings" element={<IndustrySettings />} />
+          <Route path="/industry/add-property" element={<IndustryAddProperty />} />
           <Route path="/buyer" element={<BuyerDashboard />} />
           <Route path="/buyer/products" element={<BuyerProducts />} />
           <Route path="/buyer/network" element={<BuyerNetwork />} />
