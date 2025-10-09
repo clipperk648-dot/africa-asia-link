@@ -25,13 +25,13 @@ const ThreeBackground = () => {
       "rgba(52, 211, 153, 0.6)",
     ];
 
-    let connectionDistance = 120;
+    let connectionDistance = 160;
     let connectionDistanceSq = connectionDistance * connectionDistance;
     const frameInterval = 1000 / 45;
-    const baseSpeed = 0.9;
+    const baseSpeed = 1.6;
     let minParticleSize = 8;
     let maxParticleSize = 16;
-    let enableConnections = window.innerWidth >= 640;
+    let enableConnections = true;
 
     let particles: Particle[] = [];
     let animationFrameId: number | null = null;
@@ -59,15 +59,15 @@ const ThreeBackground = () => {
 
     const applyResponsiveSettings = () => {
       const w = window.innerWidth;
-      enableConnections = w >= 640;
+      enableConnections = true;
       if (w < 640) {
-        minParticleSize = 10;
-        maxParticleSize = 18;
-        connectionDistance = 0; // no lines on small screens
+        minParticleSize = 9;
+        maxParticleSize = 16;
+        connectionDistance = 140;
       } else {
         minParticleSize = 8;
         maxParticleSize = 16;
-        connectionDistance = 120;
+        connectionDistance = 160;
       }
       connectionDistanceSq = connectionDistance * connectionDistance;
     };
@@ -131,7 +131,7 @@ const ThreeBackground = () => {
             if (distanceSq < connectionDistanceSq) {
               const opacity = 0.2 * (1 - Math.sqrt(distanceSq) / connectionDistance);
               context.strokeStyle = `rgba(138, 108, 253, ${opacity})`;
-              context.lineWidth = 1;
+              context.lineWidth = 2;
               context.beginPath();
               context.moveTo(a.x, a.y);
               context.lineTo(b.x, b.y);
