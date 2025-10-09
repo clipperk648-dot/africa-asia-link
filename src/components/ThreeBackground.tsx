@@ -131,7 +131,7 @@ const ThreeBackground = () => {
             if (distanceSq < connectionDistanceSq) {
               const opacity = 0.2 * (1 - Math.sqrt(distanceSq) / connectionDistance);
               context.strokeStyle = `rgba(138, 108, 253, ${opacity})`;
-              context.lineWidth = 3;
+              context.lineWidth = 4;
               context.beginPath();
               context.moveTo(a.x, a.y);
               context.lineTo(b.x, b.y);
