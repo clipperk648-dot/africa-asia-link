@@ -5,8 +5,9 @@ import { mockProducts, mockOrders } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp } from "lucide-react";
+import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Share2 } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
+import { Link } from "react-router-dom";
 
 const BuyerDashboard = () => {
   const navigate = useNavigate();
@@ -42,9 +43,16 @@ const BuyerDashboard = () => {
             </h1>
             <p className="text-sm text-muted-foreground">Buyer Dashboard</p>
           </div>
-          <Button variant="ghost" size="icon" onClick={handleLogout}>
-            <LogOut className="w-5 h-5" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Link to="/social">
+              <Button variant="outline" size="icon">
+                <Share2 className="w-5 h-5" />
+              </Button>
+            </Link>
+            <Button variant="ghost" size="icon" onClick={handleLogout}>
+              <LogOut className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </header>
 

@@ -14,6 +14,7 @@ import BuyerProducts from "./pages/BuyerProducts";
 import BuyerNetwork from "./pages/BuyerNetwork";
 import BuyerSettings from "./pages/BuyerSettings";
 import SocialFeed from "./pages/SocialFeed";
+import Cart from "./pages/Cart";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
           <Route path="/buyer/network" element={<BuyerNetwork />} />
           <Route path="/buyer/settings" element={<BuyerSettings />} />
           <Route path="/social" element={<SocialFeed />} />
+          <Route path="/cart" element={<Cart />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

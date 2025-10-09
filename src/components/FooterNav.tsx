@@ -44,7 +44,7 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
 
           {/* Center Cart Button */}
           <div className="absolute left-1/2 -translate-x-1/2 -top-5">
-            <Link to="/social">
+            <Link to="/cart">
               <Button 
                 size="icon"
                 className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 hover:from-primary/90 hover:via-purple-600 hover:to-pink-600 shadow-2xl shadow-primary/50 border-4 border-background relative overflow-hidden group"

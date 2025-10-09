@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { mockSocialPosts } from "@/utils/mockData";
 import { getCurrentUser } from "@/utils/mockAuth";
-import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,6 +14,8 @@ import {
   ArrowLeft,
   Search,
   Home,
+  Video,
+  Menu,
 } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 
@@ -202,30 +203,28 @@ const SocialFeed = () => {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border">
-        <div className="max-w-3xl mx-auto px-4">
-          <div className="flex items-center justify-around h-16 relative">
-            <Button variant="ghost" size="icon" className="h-11 w-11 text-primary">
-              <Home className="w-7 h-7" fill="currentColor" />
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border/50">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-around h-14 sm:h-16">
+            <Button variant="ghost" className="flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-primary">
+              <Home className="w-6 h-6 sm:w-7 sm:h-7" fill="currentColor" strokeWidth={0} />
+              <span className="text-[10px] sm:text-xs font-medium">Home</span>
             </Button>
-            <Button variant="ghost" size="icon" className="h-11 w-11">
-              <Search className="w-7 h-7" strokeWidth={1.5} />
+            <Button variant="ghost" className="flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
+              <Search className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.5} />
+              <span className="text-[10px] sm:text-xs font-medium">Search</span>
             </Button>
-            <div className="absolute left-1/2 -translate-x-1/2 -top-3">
-              <Button 
-                size="icon" 
-                className="h-14 w-14 rounded-2xl bg-gradient-to-tr from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 shadow-lg"
-              >
-                <Plus className="w-7 h-7" />
-              </Button>
-            </div>
-            <Button variant="ghost" size="icon" className="h-11 w-11">
-              <MessageCircle className="w-7 h-7" strokeWidth={1.5} />
+            <Button variant="ghost" className="flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
+              <Plus className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2} />
+              <span className="text-[10px] sm:text-xs font-medium">Add</span>
             </Button>
-            <Button variant="ghost" size="icon" onClick={goBack} className="h-11 w-11">
-              <div className="w-7 h-7 rounded-lg bg-muted flex items-center justify-center">
-                <div className="w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-md" />
-              </div>
+            <Button variant="ghost" className="flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
+              <MessageCircle className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.5} />
+              <span className="text-[10px] sm:text-xs font-medium">Messages</span>
+            </Button>
+            <Button variant="ghost" className="flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
+              <Menu className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.5} />
+              <span className="text-[10px] sm:text-xs font-medium">Menu</span>
             </Button>
           </div>
         </div>
