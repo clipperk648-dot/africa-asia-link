@@ -15,6 +15,7 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
   const primaryAction = isIndustry
     ? { path: `${basePath}/add-property`, Icon: HomePlus, label: "Add property" }
     : { path: "/cart", Icon: ShoppingCart, label: "View cart" };
+  const PrimaryActionIcon = primaryAction.Icon;
 
   const navItems = [
     { icon: Home, label: "Home", path: basePath },
@@ -55,7 +56,7 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
                 className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 hover:from-primary/90 hover:via-purple-600 hover:to-pink-600 shadow-2xl shadow-primary/50 border-4 border-background relative overflow-hidden group"
               >
                 <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <primaryAction.Icon className="w-7 h-7 relative z-10" strokeWidth={2.5} />
+                <PrimaryActionIcon className="w-7 h-7 relative z-10" strokeWidth={2.5} />
                 <span className="sr-only">{primaryAction.label}</span>
               </Button>
             </Link>
