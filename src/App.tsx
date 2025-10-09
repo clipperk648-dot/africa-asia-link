@@ -21,6 +21,7 @@ import Messages from "./pages/Messages";
 import VideoFeed from "./pages/VideoFeed";
 import SearchPage from "./pages/SearchPage";
 import MenuPage from "./pages/MenuPage";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ const App = () => (
             <Route path="/video" element={<VideoFeed />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/menu" element={<MenuPage />} />
+            <Route path="/profile" element={<Profile />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
