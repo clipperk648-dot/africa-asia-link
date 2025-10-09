@@ -101,7 +101,7 @@ const IndustryAddProperty = () => {
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+            <Button variant="ghost" size="icon" onClick={() => navigate("/industry")}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
@@ -109,7 +109,15 @@ const IndustryAddProperty = () => {
               <p className="text-sm text-muted-foreground">Share detailed information about your industrial space.</p>
             </div>
           </div>
-          <Button variant="outline" size="sm" onClick={() => setFormData(initialFormState(user?.name, user?.email))} disabled={isSubmitting}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setFormData(initialFormState(user?.name, user?.email));
+              setOptions({ featured: true, inspections: true });
+            }}
+            disabled={isSubmitting}
+          >
             Reset form
           </Button>
         </div>
