@@ -79,8 +79,11 @@ const SocialFeed = () => {
               <Button variant="ghost" size="icon">
                 <Search className="w-5 h-5" />
               </Button>
-              <Button variant="gradient" size="sm">
-                <Plus className="w-5 h-5" />
+              <Button variant="ghost" size="icon" onClick={() => navigate("/video")}>
+                <Video className="w-5 h-5" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => navigate("/messages")}>
+                <MessageCircle className="w-5 h-5" />
               </Button>
             </div>
           </div>
