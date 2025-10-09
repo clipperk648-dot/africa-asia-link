@@ -25,20 +25,24 @@ const ThreeBackground = () => {
       "rgba(52, 211, 153, 0.6)",
     ];
 
-    const connectionDistance = 140;
-    const connectionDistanceSq = connectionDistance * connectionDistance;
+    let connectionDistance = 120;
+    let connectionDistanceSq = connectionDistance * connectionDistance;
     const frameInterval = 1000 / 45;
-    const baseSpeed = 1.1;
-    const minParticleSize = 2.8;
-    const maxParticleSize = 4.8;
+    const baseSpeed = 0.9;
+    let minParticleSize = 8;
+    let maxParticleSize = 16;
+    let enableConnections = window.innerWidth >= 640;
 
     let particles: Particle[] = [];
     let animationFrameId: number | null = null;
     let lastFrameTime = performance.now();
 
     const getTargetParticleCount = () => {
-      const area = window.innerWidth * window.innerHeight;
-      return Math.max(35, Math.min(70, Math.round(area / 20000)));
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      if (w < 640) return 16; // fewer particles on mobile, larger size below
+      const area = w * h;
+      return Math.max(20, Math.min(40, Math.round(area / 50000) + 10));
     };
 
     const createParticle = (): Particle => {
@@ -51,6 +55,21 @@ const ThreeBackground = () => {
         velocityY: Math.sin(angle) * baseSpeed,
         color: colors[Math.floor(Math.random() * colors.length)],
       };
+    };
+
+    const applyResponsiveSettings = () => {
+      const w = window.innerWidth;
+      enableConnections = w >= 640;
+      if (w < 640) {
+        minParticleSize = 10;
+        maxParticleSize = 18;
+        connectionDistance = 0; // no lines on small screens
+      } else {
+        minParticleSize = 8;
+        maxParticleSize = 16;
+        connectionDistance = 120;
+      }
+      connectionDistanceSq = connectionDistance * connectionDistance;
     };
 
     const resizeCanvas = () => {
@@ -100,22 +119,24 @@ const ThreeBackground = () => {
         context.fill();
       }
 
-      for (let i = 0; i < particles.length; i++) {
-        const a = particles[i];
-        for (let j = i + 1; j < particles.length; j++) {
-          const b = particles[j];
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const distanceSq = dx * dx + dy * dy;
+      if (enableConnections) {
+        for (let i = 0; i < particles.length; i++) {
+          const a = particles[i];
+          for (let j = i + 1; j < particles.length; j += 1) {
+            const b = particles[j];
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+            const distanceSq = dx * dx + dy * dy;
 
-          if (distanceSq < connectionDistanceSq) {
-            const opacity = 0.2 * (1 - Math.sqrt(distanceSq) / connectionDistance);
-            context.strokeStyle = `rgba(138, 108, 253, ${opacity})`;
-            context.lineWidth = 1;
-            context.beginPath();
-            context.moveTo(a.x, a.y);
-            context.lineTo(b.x, b.y);
-            context.stroke();
+            if (distanceSq < connectionDistanceSq) {
+              const opacity = 0.2 * (1 - Math.sqrt(distanceSq) / connectionDistance);
+              context.strokeStyle = `rgba(138, 108, 253, ${opacity})`;
+              context.lineWidth = 1;
+              context.beginPath();
+              context.moveTo(a.x, a.y);
+              context.lineTo(b.x, b.y);
+              context.stroke();
+            }
           }
         }
       }
@@ -123,10 +144,12 @@ const ThreeBackground = () => {
 
     const handleResize = () => {
       resizeCanvas();
+      applyResponsiveSettings();
       syncParticleCount();
     };
 
     resizeCanvas();
+    applyResponsiveSettings();
     particles = Array.from({ length: getTargetParticleCount() }, createParticle);
     animationFrameId = requestAnimationFrame(animate);
 
