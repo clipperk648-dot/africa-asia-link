@@ -150,7 +150,6 @@ const IndustryAddProperty = () => {
                   <Select
                     value={formData.propertyType}
                     onValueChange={(value) => setFormData((prev) => ({ ...prev, propertyType: value }))}
-                    required
                   >
                     <SelectTrigger className="h-11 bg-background/60">
                       <SelectValue placeholder="Select property type" />
