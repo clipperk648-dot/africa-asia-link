@@ -28,7 +28,9 @@ const ThreeBackground = () => {
     const connectionDistance = 140;
     const connectionDistanceSq = connectionDistance * connectionDistance;
     const frameInterval = 1000 / 45;
-    const speedMultiplier = 1.8;
+    const baseSpeed = 1.1;
+    const minParticleSize = 2.8;
+    const maxParticleSize = 4.8;
 
     let particles: Particle[] = [];
     let animationFrameId: number | null = null;
@@ -39,14 +41,17 @@ const ThreeBackground = () => {
       return Math.max(35, Math.min(70, Math.round(area / 20000)));
     };
 
-    const createParticle = (): Particle => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      size: Math.random() * 2 + 1,
-      velocityX: (Math.random() * 0.4 - 0.2) * speedMultiplier,
-      velocityY: (Math.random() * 0.4 - 0.2) * speedMultiplier,
-      color: colors[Math.floor(Math.random() * colors.length)],
-    });
+    const createParticle = (): Particle => {
+      const angle = Math.random() * Math.PI * 2;
+      return {
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * (maxParticleSize - minParticleSize) + minParticleSize,
+        velocityX: Math.cos(angle) * baseSpeed,
+        velocityY: Math.sin(angle) * baseSpeed,
+        color: colors[Math.floor(Math.random() * colors.length)],
+      };
+    };
 
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
