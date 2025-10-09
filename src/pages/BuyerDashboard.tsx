@@ -44,9 +44,10 @@ const BuyerDashboard = () => {
             <p className="text-sm text-muted-foreground">Buyer Dashboard</p>
           </div>
           <div className="flex items-center gap-2">
-            <Link to="/social">
-              <Button variant="outline" size="icon">
-                <Share2 className="w-5 h-5" />
+            <Link to="/social" aria-label="Open TradeSocial">
+              <Button variant="gradient" size="sm" className="gap-2">
+                <Share2 className="w-4 h-4" />
+                <span>TradeSocial</span>
               </Button>
             </Link>
             <Button variant="ghost" size="icon" onClick={handleLogout}>
