@@ -17,6 +17,7 @@ import {
   Video,
   Menu,
   Repeat2,
+  User,
 } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 
@@ -75,7 +76,7 @@ const SocialFeed = () => {
                 TradeSocial
               </h1>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <Button variant="ghost" size="icon">
                 <Search className="w-5 h-5" />
               </Button>
@@ -225,13 +226,9 @@ const SocialFeed = () => {
               <Plus className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2} />
               <span className="text-[10px] sm:text-xs font-medium">Add</span>
             </Button>
-            <Button variant="ghost" onClick={() => navigate("/video")} className="flex-1 min-w-0 flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
-              <Video className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.5} />
-              <span className="text-[10px] sm:text-xs font-medium">Video</span>
-            </Button>
-            <Button variant="ghost" onClick={() => navigate("/messages")} className="flex-1 min-w-0 flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
-              <MessageCircle className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.5} />
-              <span className="text-[10px] sm:text-xs font-medium">Messages</span>
+            <Button variant="ghost" onClick={() => navigate("/profile")} className="flex-1 min-w-0 flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
+              <User className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.5} />
+              <span className="text-[10px] sm:text-xs font-medium">Profile</span>
             </Button>
             <Button variant="ghost" onClick={() => navigate("/menu")} className="flex-1 min-w-0 flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
               <Menu className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.5} />
