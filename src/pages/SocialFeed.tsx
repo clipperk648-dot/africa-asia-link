@@ -17,6 +17,7 @@ import {
   Video,
   Menu,
   Repeat2,
+  User,
 } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 
@@ -65,9 +66,9 @@ const SocialFeed = () => {
 
       {/* Header */}
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-3xl mx-auto px-4 py-4">
+        <div className="max-w-3xl mx-auto px-2 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" onClick={goBack}>
                 <ArrowLeft className="w-5 h-5" />
               </Button>
@@ -75,12 +76,15 @@ const SocialFeed = () => {
                 TradeSocial
               </h1>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-0.5">
               <Button variant="ghost" size="icon">
                 <Search className="w-5 h-5" />
               </Button>
-              <Button variant="gradient" size="sm">
-                <Plus className="w-5 h-5" />
+              <Button variant="ghost" size="icon" onClick={() => navigate("/video")}>
+                <Video className="w-5 h-5" />
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => navigate("/messages")}>
+                <MessageCircle className="w-5 h-5" />
               </Button>
             </div>
           </div>
@@ -207,30 +211,26 @@ const SocialFeed = () => {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border/50">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-around h-14 sm:h-16">
-            <Button variant="ghost" className="flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-primary">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border/50" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+        <div className="max-w-3xl mx-auto px-2">
+          <div className="flex items-stretch justify-between h-14 sm:h-16 gap-1">
+            <Button variant="ghost" className="flex-1 min-w-0 flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-primary">
               <Home className="w-6 h-6 sm:w-7 sm:h-7" fill="currentColor" strokeWidth={0} />
               <span className="text-[10px] sm:text-xs font-medium">Home</span>
             </Button>
-            <Button variant="ghost" onClick={() => navigate("/search")} className="flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
+            <Button variant="ghost" onClick={() => navigate("/search")} className="flex-1 min-w-0 flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
               <Search className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.5} />
               <span className="text-[10px] sm:text-xs font-medium">Search</span>
             </Button>
-            <Button variant="ghost" className="flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
+            <Button variant="ghost" className="flex-1 min-w-0 flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
               <Plus className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2} />
               <span className="text-[10px] sm:text-xs font-medium">Add</span>
             </Button>
-            <Button variant="ghost" onClick={() => navigate("/video")} className="flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
-              <Video className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.5} />
-              <span className="text-[10px] sm:text-xs font-medium">Video</span>
+            <Button variant="ghost" onClick={() => navigate("/profile")} className="flex-1 min-w-0 flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
+              <User className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.5} />
+              <span className="text-[10px] sm:text-xs font-medium">Profile</span>
             </Button>
-            <Button variant="ghost" onClick={() => navigate("/messages")} className="flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
-              <MessageCircle className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.5} />
-              <span className="text-[10px] sm:text-xs font-medium">Messages</span>
-            </Button>
-            <Button variant="ghost" onClick={() => navigate("/menu")} className="flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
+            <Button variant="ghost" onClick={() => navigate("/menu")} className="flex-1 min-w-0 flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
               <Menu className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.5} />
               <span className="text-[10px] sm:text-xs font-medium">Menu</span>
             </Button>

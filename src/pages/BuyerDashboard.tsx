@@ -28,7 +28,7 @@ const BuyerDashboard = () => {
     { label: "Active Orders", value: "8", icon: ShoppingCart, color: "text-primary" },
     { label: "Pending", value: "3", icon: Clock, color: "text-accent" },
     { label: "Completed", value: "45", icon: CheckCircle, color: "text-secondary" },
-    { label: "Saved", value: "$78K", icon: TrendingUp, color: "text-primary" },
+    { label: "Saved", value: "₦78K", icon: TrendingUp, color: "text-primary" },
   ];
 
   return (
@@ -36,17 +36,18 @@ const BuyerDashboard = () => {
       <ThreeBackground />
       
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               {user?.name}
             </h1>
             <p className="text-sm text-muted-foreground">Buyer Dashboard</p>
           </div>
           <div className="flex items-center gap-2">
-            <Link to="/social">
-              <Button variant="outline" size="icon">
-                <Share2 className="w-5 h-5" />
+            <Link to="/social" aria-label="Open TradeSocial">
+              <Button variant="gradient" size="sm" className="gap-2">
+                <Share2 className="w-4 h-4" />
+                <span>TradeSocial</span>
               </Button>
             </Link>
             <Button variant="ghost" size="icon" onClick={handleLogout}>
@@ -61,14 +62,14 @@ const BuyerDashboard = () => {
           {stats.map((stat, i) => (
             <GlassCard key={i} className="text-center p-4">
               <stat.icon className={`w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 ${stat.color}`} />
-              <p className="text-xl sm:text-2xl font-bold">{stat.value}</p>
+              <p className="text-lg sm:text-xl font-bold">{stat.value}</p>
               <p className="text-xs sm:text-sm text-muted-foreground">{stat.label}</p>
             </GlassCard>
           ))}
         </div>
 
         <section className="space-y-4">
-          <h2 className="text-xl sm:text-2xl font-bold">Discover Products</h2>
+          <h2 className="text-lg sm:text-xl font-bold">Discover Products</h2>
           <div className="grid md:grid-cols-2 gap-4">
             {mockProducts.map((product) => (
               <GlassCard key={product.id} className="p-4 sm:p-6">
@@ -80,7 +81,7 @@ const BuyerDashboard = () => {
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-base sm:text-lg truncate">{product.name}</h3>
+                      <h3 className="font-semibold text-sm sm:text-base truncate">{product.name}</h3>
                       <p className="text-xs sm:text-sm text-muted-foreground truncate">{product.company}</p>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
@@ -91,7 +92,7 @@ const BuyerDashboard = () => {
                   <p className="text-xs sm:text-sm text-muted-foreground truncate">{product.location}</p>
                   <div className="flex items-center justify-between pt-2 gap-2">
                     <p className="text-xl sm:text-2xl font-bold text-primary">
-                      ${product.price.toLocaleString()}
+                      ₦{product.price.toLocaleString()}
                     </p>
                     <Button variant="gradient" size="sm" className="flex-shrink-0">
                       Inquire
@@ -104,7 +105,7 @@ const BuyerDashboard = () => {
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-xl sm:text-2xl font-bold">My Orders</h2>
+          <h2 className="text-lg sm:text-xl font-bold">My Orders</h2>
           <div className="space-y-3">
             {mockOrders.map((order) => (
               <GlassCard key={order.id} className="p-4 sm:p-6">
@@ -118,7 +119,7 @@ const BuyerDashboard = () => {
                   </div>
                   <div className="flex items-center gap-3 sm:gap-4">
                     <div className="text-left sm:text-right">
-                      <p className="font-bold text-lg sm:text-xl">${order.total.toLocaleString()}</p>
+                      <p className="font-bold text-lg sm:text-xl">₦{order.total.toLocaleString()}</p>
                     </div>
                     <span
                       className={`text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium whitespace-nowrap ${
@@ -136,6 +137,10 @@ const BuyerDashboard = () => {
               </GlassCard>
             ))}
           </div>
+        </section>
+
+        <section className="pt-2 pb-4 text-xs text-muted-foreground text-center">
+          <span className="font-medium">Rates:</span> 1 USD ≈ ₦1,600 • 1 CNY ≈ ₦220
         </section>
       </main>
 

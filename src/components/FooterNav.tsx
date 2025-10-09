@@ -1,4 +1,4 @@
-import { Home, Package, Users, ShoppingCart, Settings, Building2 } from "lucide-react";
+import { Home, Package, Users, ShoppingCart, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
   const isIndustry = dashboardType === "industry";
 
   const primaryAction = isIndustry
-    ? { path: `${basePath}/add-property`, Icon: Building2, label: "Add property" }
+    ? { path: `${basePath}/add-property`, Icon: Package, label: "Add goods" }
     : { path: "/cart", Icon: ShoppingCart, label: "View cart" };
   const PrimaryActionIcon = primaryAction.Icon;
 

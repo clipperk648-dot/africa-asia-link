@@ -16,12 +16,13 @@ import {
   HelpCircle
 } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
-import { useState } from "react";
+import { useTheme } from "next-themes";
 
 const MenuPage = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
-  const [darkMode, setDarkMode] = useState(true);
+  const { resolvedTheme, setTheme } = useTheme();
+  const darkMode = resolvedTheme === "dark";
 
   const menuItems = [
     { icon: Settings, label: "Settings", onClick: () => navigate(user?.role === "buyer" ? "/buyer/settings" : "/industry/settings") },
@@ -80,7 +81,7 @@ const MenuPage = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setDarkMode(!darkMode)}
+            onClick={() => setTheme(darkMode ? "light" : "dark")}
             className="text-primary"
           >
             {darkMode ? "On" : "Off"}
