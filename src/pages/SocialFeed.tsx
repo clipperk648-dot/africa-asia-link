@@ -16,6 +16,7 @@ import {
   Home,
   Video,
   Menu,
+  Repeat2,
 } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 
@@ -165,6 +166,9 @@ const SocialFeed = () => {
                     <MessageCircle className="w-7 h-7" strokeWidth={1.5} />
                   </Button>
                   <Button variant="ghost" size="icon" className="h-9 w-9">
+                    <Repeat2 className="w-7 h-7" strokeWidth={1.5} />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-9 w-9">
                     <Send className="w-7 h-7" strokeWidth={1.5} />
                   </Button>
                 </div>
@@ -210,7 +214,7 @@ const SocialFeed = () => {
               <Home className="w-6 h-6 sm:w-7 sm:h-7" fill="currentColor" strokeWidth={0} />
               <span className="text-[10px] sm:text-xs font-medium">Home</span>
             </Button>
-            <Button variant="ghost" className="flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
+            <Button variant="ghost" onClick={() => navigate("/search")} className="flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
               <Search className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.5} />
               <span className="text-[10px] sm:text-xs font-medium">Search</span>
             </Button>
@@ -218,11 +222,15 @@ const SocialFeed = () => {
               <Plus className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2} />
               <span className="text-[10px] sm:text-xs font-medium">Add</span>
             </Button>
-            <Button variant="ghost" className="flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
+            <Button variant="ghost" onClick={() => navigate("/video")} className="flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
+              <Video className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.5} />
+              <span className="text-[10px] sm:text-xs font-medium">Video</span>
+            </Button>
+            <Button variant="ghost" onClick={() => navigate("/messages")} className="flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
               <MessageCircle className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.5} />
               <span className="text-[10px] sm:text-xs font-medium">Messages</span>
             </Button>
-            <Button variant="ghost" className="flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
+            <Button variant="ghost" onClick={() => navigate("/menu")} className="flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
               <Menu className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.5} />
               <span className="text-[10px] sm:text-xs font-medium">Menu</span>
             </Button>

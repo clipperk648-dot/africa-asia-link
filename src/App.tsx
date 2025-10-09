@@ -15,6 +15,10 @@ import BuyerNetwork from "./pages/BuyerNetwork";
 import BuyerSettings from "./pages/BuyerSettings";
 import SocialFeed from "./pages/SocialFeed";
 import Cart from "./pages/Cart";
+import Messages from "./pages/Messages";
+import VideoFeed from "./pages/VideoFeed";
+import SearchPage from "./pages/SearchPage";
+import MenuPage from "./pages/MenuPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +42,10 @@ const App = () => (
           <Route path="/buyer/settings" element={<BuyerSettings />} />
           <Route path="/social" element={<SocialFeed />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/video" element={<VideoFeed />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/menu" element={<MenuPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
