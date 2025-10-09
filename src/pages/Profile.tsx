@@ -1,14 +1,25 @@
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "@/utils/mockAuth";
 import { mockSocialPosts } from "@/utils/mockData";
 import { Button } from "@/components/ui/button";
 import ThreeBackground from "@/components/ThreeBackground";
-import { ArrowLeft, MoreVertical } from "lucide-react";
+import { ArrowLeft, MoreVertical, Grid, Film, Bookmark, Repeat2 } from "lucide-react";
 
 const Profile = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
   const username = user?.email?.split("@")[0] || "user";
+
+  const posts = mockSocialPosts;
+  const videos = useMemo(() => posts.filter((_, i) => i % 3 === 0), [posts]);
+  const saved = useMemo(() => posts.filter((_, i) => i % 2 === 0), [posts]);
+  const reposts = useMemo(() => posts.filter((_, i) => i % 3 === 1), [posts]);
+
+  type Tab = "posts" | "videos" | "saved" | "reposts";
+  const [active, setActive] = useState<Tab>("posts");
+
+  const activeItems = active === "posts" ? posts : active === "videos" ? videos : active === "saved" ? saved : reposts;
 
   return (
     <div className="min-h-screen pb-4 relative">
@@ -41,7 +52,7 @@ const Profile = () => {
           />
           <div className="flex-1 grid grid-cols-3 text-center">
             <div>
-              <p className="text-lg font-bold">{mockSocialPosts.length}</p>
+              <p className="text-lg font-bold">{posts.length}</p>
               <p className="text-xs text-muted-foreground">Posts</p>
             </div>
             <div>
@@ -65,12 +76,33 @@ const Profile = () => {
           </div>
         </section>
 
-        {/* Posts Grid */}
+        {/* Tabs */}
+        <section>
+          <div className="flex items-center justify-around border-t border-b border-border/50">
+            <button onClick={() => setActive("posts")} className={`flex items-center gap-2 py-3 px-4 text-xs font-medium ${active === 'posts' ? 'text-primary border-b-2 border-primary' : 'text-muted-foreground'}`}>
+              <Grid className="w-4 h-4" /> Posts
+            </button>
+            <button onClick={() => setActive("videos")} className={`flex items-center gap-2 py-3 px-4 text-xs font-medium ${active === 'videos' ? 'text-primary border-b-2 border-primary' : 'text-muted-foreground'}`}>
+              <Film className="w-4 h-4" /> Videos
+            </button>
+            <button onClick={() => setActive("saved")} className={`flex items-center gap-2 py-3 px-4 text-xs font-medium ${active === 'saved' ? 'text-primary border-b-2 border-primary' : 'text-muted-foreground'}`}>
+              <Bookmark className="w-4 h-4" /> Saved
+            </button>
+            <button onClick={() => setActive("reposts")} className={`flex items-center gap-2 py-3 px-4 text-xs font-medium ${active === 'reposts' ? 'text-primary border-b-2 border-primary' : 'text-muted-foreground'}`}>
+              <Repeat2 className="w-4 h-4" /> Reposts
+            </button>
+          </div>
+        </section>
+
+        {/* Content Grid */}
         <section>
           <div className="grid grid-cols-3 gap-0.5">
-            {mockSocialPosts.map((post) => (
-              <button key={post.id} className="relative group">
-                <img src={post.image} alt="Post" className="aspect-square w-full object-cover" />
+            {activeItems.map((item) => (
+              <button key={item.id} className="relative group">
+                <img src={item.image} alt="Post" className="aspect-square w-full object-cover" />
+                {active === 'videos' && (
+                  <div className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1 rounded">VIDEO</div>
+                )}
               </button>
             ))}
           </div>
