@@ -28,6 +28,7 @@ const ThreeBackground = () => {
     const connectionDistance = 140;
     const connectionDistanceSq = connectionDistance * connectionDistance;
     const frameInterval = 1000 / 45;
+    const speedMultiplier = 1.8;
 
     let particles: Particle[] = [];
     let animationFrameId: number | null = null;
@@ -42,8 +43,8 @@ const ThreeBackground = () => {
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
       size: Math.random() * 2 + 1,
-      velocityX: Math.random() * 0.4 - 0.2,
-      velocityY: Math.random() * 0.4 - 0.2,
+      velocityX: (Math.random() * 0.4 - 0.2) * speedMultiplier,
+      velocityY: (Math.random() * 0.4 - 0.2) * speedMultiplier,
       color: colors[Math.floor(Math.random() * colors.length)],
     });
 
