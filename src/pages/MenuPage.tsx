@@ -16,12 +16,12 @@ import {
   HelpCircle
 } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
-import { useTheme } from "next-themes";
+import { useTheme as useNextTheme } from "next-themes";
 
 const MenuPage = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
-  const { resolvedTheme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useNextTheme();
   const darkMode = resolvedTheme === "dark";
 
   const menuItems = [
