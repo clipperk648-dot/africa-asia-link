@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser, logout } from "@/utils/mockAuth";
 import { mockProducts, mockOrders } from "@/utils/mockData";
+import { getProductsWithOverrides } from "@/utils/productStorage";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
