@@ -113,7 +113,7 @@ const IndustryNetwork = () => {
                     </div>
                   </div>
                   <div className="flex gap-2 w-full sm:w-auto">
-                    <Button variant="gradient" size="sm" className="flex-1 sm:flex-none">
+                    <Button variant="gradient" size="sm" className="flex-1 sm:flex-none" onClick={() => navigate("/messages")}>
                       <MessageCircle className="w-4 h-4" />
                     </Button>
                     <Button
