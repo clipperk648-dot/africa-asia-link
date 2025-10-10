@@ -69,7 +69,17 @@ const IndustryDashboard = () => {
         </div>
 
         <section className="space-y-4">
-          <h2 className="text-lg sm:text-xl font-bold">Your Products</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg sm:text-xl font-bold">Your Products</h2>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => navigate("/industry/products")}>
+                See all
+              </Button>
+              <Button variant="gradient" size="sm" onClick={() => navigate("/industry/analytics")}>
+                Analytics
+              </Button>
+            </div>
+          </div>
           <div className="grid md:grid-cols-2 gap-4">
             {mockProducts.map((product) => (
               <GlassCard key={product.id} className="p-4 sm:p-6">
