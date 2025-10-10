@@ -42,6 +42,7 @@ const App = () => (
             <Route path="/industry/network" element={<IndustryNetwork />} />
             <Route path="/industry/settings" element={<IndustrySettings />} />
             <Route path="/industry/add-property" element={<IndustryAddProperty />} />
+            <Route path="/industry/analytics" element={<IndustryAnalytics />} />
             <Route path="/buyer" element={<BuyerDashboard />} />
             <Route path="/buyer/products" element={<BuyerProducts />} />
             <Route path="/buyer/network" element={<BuyerNetwork />} />
