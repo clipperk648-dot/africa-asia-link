@@ -25,11 +25,16 @@ const IndustryProducts = () => {
       
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/industry")}>
-              <ArrowLeft className="w-5 h-5" />
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="icon" onClick={() => navigate("/industry")}>
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <h1 className="text-2xl font-bold">My Products</h1>
+            </div>
+            <Button variant="gradient" size="sm" onClick={() => navigate("/industry/analytics")}>
+              Analytics
             </Button>
-            <h1 className="text-2xl font-bold">My Products</h1>
           </div>
           
           <div className="flex gap-2 mt-4">
@@ -74,7 +79,14 @@ const IndustryProducts = () => {
                   </p>
                   <div className="flex gap-2 w-full sm:w-auto">
                     <Button variant="outline" size="sm" className="flex-1 sm:flex-none">Edit</Button>
-                    <Button variant="gradient" size="sm" className="flex-1 sm:flex-none">View Stats</Button>
+                    <Button
+                      variant="gradient"
+                      size="sm"
+                      className="flex-1 sm:flex-none"
+                      onClick={() => navigate(`/industry/analytics?productId=${product.id}`)}
+                    >
+                      View Stats
+                    </Button>
                   </div>
                 </div>
               </div>
