@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser, logout } from "@/utils/mockAuth";
 import { mockProducts } from "@/utils/mockData";
+import { getProductsWithOverrides } from "@/utils/productStorage";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
@@ -53,7 +54,7 @@ const IndustryProducts = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-4">
-        {mockProducts.map((product) => (
+        {getProductsWithOverrides(mockProducts).map((product) => (
           <GlassCard key={product.id} className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row gap-4">
               <img
@@ -78,7 +79,7 @@ const IndustryProducts = () => {
                     ${product.price.toLocaleString()}
                   </p>
                   <div className="flex gap-2 w-full sm:w-auto">
-                    <Button variant="outline" size="sm" className="flex-1 sm:flex-none">Edit</Button>
+                    <Button variant="outline" size="sm" className="flex-1 sm:flex-none" onClick={() => navigate(`/industry/products/${product.id}/edit`)}>Edit</Button>
                     <Button
                       variant="gradient"
                       size="sm"
