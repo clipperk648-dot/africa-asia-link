@@ -22,6 +22,7 @@ import VideoFeed from "./pages/VideoFeed";
 import SearchPage from "./pages/SearchPage";
 import MenuPage from "./pages/MenuPage";
 import Profile from "./pages/Profile";
+import IndustryAnalytics from "./pages/IndustryAnalytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
