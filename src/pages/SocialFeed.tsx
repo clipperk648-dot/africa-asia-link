@@ -166,7 +166,7 @@ const SocialFeed = () => {
                       strokeWidth={1.5}
                     />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9">
+                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => navigate("/messages")}>
                     <MessageCircle className="w-7 h-7" strokeWidth={1.5} />
                   </Button>
                   <Button variant="ghost" size="icon" className="h-9 w-9">
