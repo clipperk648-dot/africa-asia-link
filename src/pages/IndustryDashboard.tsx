@@ -82,7 +82,7 @@ const IndustryDashboard = () => {
             </div>
           </div>
           <div className="grid md:grid-cols-2 gap-4">
-            {mockProducts.map((product) => (
+            {getProductsWithOverrides(mockProducts).map((product) => (
               <GlassCard key={product.id} className="p-4 sm:p-6">
                 <div className="flex gap-3 sm:gap-4">
                   <img
