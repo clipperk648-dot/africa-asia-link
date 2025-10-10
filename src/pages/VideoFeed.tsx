@@ -97,6 +97,7 @@ const VideoFeed = () => {
                   variant="ghost"
                   size="icon"
                   className="h-12 w-12 rounded-full bg-background/20 backdrop-blur-sm text-white hover:bg-background/30"
+                  onClick={() => navigate("/messages")}
                 >
                   <MessageCircle className="w-7 h-7" />
                 </Button>
