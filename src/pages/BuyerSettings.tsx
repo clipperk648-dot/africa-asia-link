@@ -118,10 +118,10 @@ const BuyerSettings = () => {
             <h2 className="text-lg sm:text-xl font-bold">Security</h2>
           </div>
           <div className="space-y-3">
-            <Button variant="outline" className="w-full justify-start">
+            <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/buyer/settings/password')}>
               Change Password
             </Button>
-            <Button variant="outline" className="w-full justify-start">
+            <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/buyer/settings/2fa')}>
               Two-Factor Authentication
             </Button>
           </div>
