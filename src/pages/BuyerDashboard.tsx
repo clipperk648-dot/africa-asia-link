@@ -5,7 +5,7 @@ import { mockProducts, mockOrders } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Share2 } from "lucide-react";
+import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Share2, Bell, BarChart3 } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Link } from "react-router-dom";
 
@@ -36,40 +36,53 @@ const BuyerDashboard = () => {
       <ThreeBackground />
       
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 py-1 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <h1 className="text-lg font-bold bg-gradient-primary bg-clip-text text-transparent">
               {user?.name}
             </h1>
-            <p className="text-sm text-muted-foreground">Buyer Dashboard</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link to="/social" aria-label="Open TradeSocial">
-              <Button variant="gradient" size="sm" className="gap-2">
-                <Share2 className="w-4 h-4" />
-                <span>TradeSocial</span>
-              </Button>
-            </Link>
-            <Button variant="ghost" size="icon" onClick={handleLogout}>
-              <LogOut className="w-5 h-5" />
-            </Button>
+            <p className="text-xs text-muted-foreground">Buyer Dashboard</p>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 animate-fade-in">
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 animate-fade-in">
           {stats.map((stat, i) => (
             <GlassCard key={i} className="text-center p-4">
-              <stat.icon className={`w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 ${stat.color}`} />
-              <p className="text-lg sm:text-xl font-bold">{stat.value}</p>
-              <p className="text-xs sm:text-sm text-muted-foreground">{stat.label}</p>
+              <stat.icon className={`w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1.5 ${stat.color}`} />
+              <p className="text-base sm:text-lg font-bold">{stat.value}</p>
+              <p className="text-[11px] sm:text-xs text-muted-foreground">{stat.label}</p>
             </GlassCard>
           ))}
         </div>
 
-        <section className="space-y-4">
-          <h2 className="text-lg sm:text-xl font-bold">Discover Products</h2>
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base sm:text-lg font-bold">Discover Products</h2>
+            <div className="flex items-center gap-2 overflow-x-auto">
+              <Link to="/buyer/analytics" aria-label="Open Insights">
+                <Button variant="outline" size="sm" className="gap-2 px-2">
+                  <BarChart3 className="w-4 h-4" />
+                  <span className="hidden sm:inline">Insights</span>
+                </Button>
+              </Link>
+              <Link to="/social" aria-label="Open TradeSocial">
+                <Button variant="gradient" size="sm" className="gap-2 px-2">
+                  <Share2 className="w-4 h-4" />
+                  <span className="hidden sm:inline">Social</span>
+                </Button>
+              </Link>
+              <Link to="/notifications" aria-label="Open Notifications">
+                <Button variant="ghost" size="icon">
+                  <Bell className="w-5 h-5" />
+                </Button>
+              </Link>
+              <Button variant="ghost" size="icon" onClick={handleLogout}>
+                <LogOut className="w-5 h-5" />
+              </Button>
+            </div>
+          </div>
           <div className="grid md:grid-cols-2 gap-4">
             {mockProducts.map((product) => (
               <GlassCard key={product.id} className="p-4 sm:p-6">

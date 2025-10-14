@@ -24,8 +24,8 @@ const IndustryProducts = () => {
       <ThreeBackground />
       
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-4 py-2">
+          <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" onClick={() => navigate("/industry")}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
@@ -54,6 +54,7 @@ const IndustryProducts = () => {
               <img
                 src={product.image}
                 alt={product.name}
+                loading="lazy"
                 className="w-full sm:w-32 h-40 sm:h-32 object-cover rounded-lg flex-shrink-0"
               />
               <div className="flex-1 min-w-0">
@@ -73,8 +74,8 @@ const IndustryProducts = () => {
                     ${product.price.toLocaleString()}
                   </p>
                   <div className="flex gap-2 w-full sm:w-auto">
-                    <Button variant="outline" size="sm" className="flex-1 sm:flex-none">Edit</Button>
-                    <Button variant="gradient" size="sm" className="flex-1 sm:flex-none">View Stats</Button>
+                    <Button variant="outline" size="sm" className="flex-1 sm:flex-none" onClick={() => navigate(`/industry/products/${product.id}/edit`)}>Edit</Button>
+                    <Button variant="gradient" size="sm" className="flex-1 sm:flex-none" onClick={() => navigate(`/industry/products/${product.id}/stats`)}>View Stats</Button>
                   </div>
                 </div>
               </div>

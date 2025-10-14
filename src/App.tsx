@@ -11,6 +11,10 @@ import IndustryProducts from "./pages/IndustryProducts";
 import IndustryNetwork from "./pages/IndustryNetwork";
 import IndustrySettings from "./pages/IndustrySettings";
 import IndustryAddProperty from "./pages/IndustryAddProperty";
+import IndustryProductEdit from "./pages/IndustryProductEdit";
+import IndustryProductStats from "./pages/IndustryProductStats";
+import Analytics from "./pages/Analytics";
+import BuyerAnalytics from "./pages/BuyerAnalytics";
 import BuyerDashboard from "./pages/BuyerDashboard";
 import BuyerProducts from "./pages/BuyerProducts";
 import BuyerNetwork from "./pages/BuyerNetwork";
@@ -23,6 +27,10 @@ import SearchPage from "./pages/SearchPage";
 import MenuPage from "./pages/MenuPage";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import Notifications from "./pages/Notifications";
+import ProductDetails from "./pages/ProductDetails";
+import BuyerChangePassword from "./pages/BuyerChangePassword";
+import BuyerTwoFactor from "./pages/BuyerTwoFactor";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +46,8 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/industry" element={<IndustryDashboard />} />
             <Route path="/industry/products" element={<IndustryProducts />} />
+            <Route path="/industry/products/:id/edit" element={<IndustryProductEdit />} />
+            <Route path="/industry/products/:id/stats" element={<IndustryProductStats />} />
             <Route path="/industry/network" element={<IndustryNetwork />} />
             <Route path="/industry/settings" element={<IndustrySettings />} />
             <Route path="/industry/add-property" element={<IndustryAddProperty />} />
@@ -45,6 +55,10 @@ const App = () => (
             <Route path="/buyer/products" element={<BuyerProducts />} />
             <Route path="/buyer/network" element={<BuyerNetwork />} />
             <Route path="/buyer/settings" element={<BuyerSettings />} />
+            <Route path="/buyer/settings/password" element={<BuyerChangePassword />} />
+            <Route path="/buyer/settings/2fa" element={<BuyerTwoFactor />} />
+            <Route path="/buyer/products/:id" element={<ProductDetails />} />
+            <Route path="/notifications" element={<Notifications />} />
             <Route path="/social" element={<SocialFeed />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/messages" element={<Messages />} />
@@ -52,6 +66,8 @@ const App = () => (
             <Route path="/search" element={<SearchPage />} />
             <Route path="/menu" element={<MenuPage />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/buyer/analytics" element={<BuyerAnalytics />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
