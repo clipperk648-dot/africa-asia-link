@@ -49,6 +49,10 @@ const App = () => (
             <Route path="/buyer/products" element={<BuyerProducts />} />
             <Route path="/buyer/network" element={<BuyerNetwork />} />
             <Route path="/buyer/settings" element={<BuyerSettings />} />
+            <Route path="/buyer/settings/password" element={<BuyerChangePassword />} />
+            <Route path="/buyer/settings/2fa" element={<BuyerTwoFactor />} />
+            <Route path="/buyer/products/:id" element={<ProductDetails />} />
+            <Route path="/notifications" element={<Notifications />} />
             <Route path="/social" element={<SocialFeed />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/messages" element={<Messages />} />
