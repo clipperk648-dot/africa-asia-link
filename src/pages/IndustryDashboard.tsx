@@ -5,7 +5,7 @@ import { mockProducts, mockOrders } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, TrendingUp, Package, DollarSign, Users, Share2, Bell } from "lucide-react";
+import { LogOut, TrendingUp, Package, DollarSign, Users, Share2, Bell, BarChart3 } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Link } from "react-router-dom";
 
@@ -44,6 +44,12 @@ const IndustryDashboard = () => {
             <p className="text-sm text-muted-foreground">Industry Dashboard</p>
           </div>
           <div className="flex items-center gap-2">
+            <Link to="/analytics" aria-label="Open Analytics" className="hidden sm:block">
+              <Button variant="outline" size="sm" className="gap-2 px-3">
+                <BarChart3 className="w-4 h-4" />
+                <span>Analytics</span>
+              </Button>
+            </Link>
             <Link to="/social" aria-label="Open TradeSocial">
               <Button variant="gradient" size="sm" className="gap-2 px-3">
                 <Share2 className="w-4 h-4" />

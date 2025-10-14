@@ -11,6 +11,9 @@ import IndustryProducts from "./pages/IndustryProducts";
 import IndustryNetwork from "./pages/IndustryNetwork";
 import IndustrySettings from "./pages/IndustrySettings";
 import IndustryAddProperty from "./pages/IndustryAddProperty";
+import IndustryProductEdit from "./pages/IndustryProductEdit";
+import IndustryProductStats from "./pages/IndustryProductStats";
+import Analytics from "./pages/Analytics";
 import BuyerDashboard from "./pages/BuyerDashboard";
 import BuyerProducts from "./pages/BuyerProducts";
 import BuyerNetwork from "./pages/BuyerNetwork";
@@ -42,6 +45,8 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/industry" element={<IndustryDashboard />} />
             <Route path="/industry/products" element={<IndustryProducts />} />
+            <Route path="/industry/products/:id/edit" element={<IndustryProductEdit />} />
+            <Route path="/industry/products/:id/stats" element={<IndustryProductStats />} />
             <Route path="/industry/network" element={<IndustryNetwork />} />
             <Route path="/industry/settings" element={<IndustrySettings />} />
             <Route path="/industry/add-property" element={<IndustryAddProperty />} />
@@ -60,6 +65,7 @@ const App = () => (
             <Route path="/search" element={<SearchPage />} />
             <Route path="/menu" element={<MenuPage />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/analytics" element={<Analytics />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
