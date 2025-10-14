@@ -23,6 +23,10 @@ import SearchPage from "./pages/SearchPage";
 import MenuPage from "./pages/MenuPage";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import Notifications from "./pages/Notifications";
+import ProductDetails from "./pages/ProductDetails";
+import BuyerChangePassword from "./pages/BuyerChangePassword";
+import BuyerTwoFactor from "./pages/BuyerTwoFactor";
 
 const queryClient = new QueryClient();
 
