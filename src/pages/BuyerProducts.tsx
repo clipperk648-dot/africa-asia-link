@@ -54,6 +54,7 @@ const BuyerProducts = () => {
               <img
                 src={product.image}
                 alt={product.name}
+                loading="lazy"
                 className="w-full md:w-40 h-40 object-cover rounded-lg"
               />
               <div className="flex-1">
@@ -74,10 +75,20 @@ const BuyerProducts = () => {
                     ${product.price.toLocaleString()}
                   </p>
                   <div className="flex gap-2 w-full sm:w-auto">
-                    <Button variant="outline" size="sm" className="flex-1 sm:flex-none">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 sm:flex-none"
+                      onClick={() => navigate(`/buyer/products/${product.id}`)}
+                    >
                       Details
                     </Button>
-                    <Button variant="gradient" size="sm" className="flex-1 sm:flex-none">
+                    <Button
+                      variant="gradient"
+                      size="sm"
+                      className="flex-1 sm:flex-none"
+                      onClick={() => navigate(`/messages?product=${product.id}`)}
+                    >
                       <ShoppingCart className="w-4 h-4" />
                       Inquire
                     </Button>
