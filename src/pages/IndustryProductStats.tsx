@@ -2,6 +2,7 @@ import { useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCurrentUser } from "@/utils/mockAuth";
 import { mockProducts, mockOrders } from "@/utils/mockData";
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, Legend } from "recharts";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
@@ -18,10 +19,26 @@ const IndustryProductStats = () => {
   }, [user, navigate]);
 
   const product = useMemo(() => mockProducts.find((p) => String(p.id) === id), [id]);
-  const orders = useMemo(() => mockOrders.filter((o) => String(o.productId || "") === id), [id]);
+  const orders = useMemo(() => mockOrders.filter((o) => (product ? o.productName === product.name : false)), [product]);
 
   const totalRevenue = orders.reduce((acc, o) => acc + (o.total || 0), 0);
   const totalOrders = orders.length;
+
+  const revenueByMonth = useMemo(() => {
+    const map = new Map<string, number>();
+    orders.forEach((o) => {
+      const d = new Date(o.date);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      map.set(key, (map.get(key) || 0) + (o.total || 0));
+    });
+    return Array.from(map.entries()).sort((a,b)=>a[0].localeCompare(b[0])).map(([month, revenue]) => ({ month, revenue }));
+  }, [orders]);
+
+  const qtyByStatus = useMemo(() => {
+    const counts: Record<string, number> = {};
+    orders.forEach((o) => { counts[o.status] = (counts[o.status] || 0) + 1; });
+    return Object.entries(counts).map(([status, count]) => ({ status, count }));
+  }, [orders]);
 
   return (
     <div className="min-h-screen pb-24 relative">
@@ -59,6 +76,43 @@ const IndustryProductStats = () => {
                 <GlassCard className="p-3 text-center"><p className="text-xs text-muted-foreground">Rating</p><p className="text-xl font-bold text-primary">{product.rating}</p></GlassCard>
                 <GlassCard className="p-3 text-center"><p className="text-xs text-muted-foreground">Orders</p><p className="text-xl font-bold text-primary">{totalOrders}</p></GlassCard>
                 <GlassCard className="p-3 text-center"><p className="text-xs text-muted-foreground">Revenue</p><p className="text-xl font-bold text-primary">${totalRevenue.toLocaleString()}</p></GlassCard>
+              </div>
+            </GlassCard>
+
+            <GlassCard className="p-4">
+              <h3 className="font-semibold mb-3">Revenue Over Time</h3>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={revenueByMonth} margin={{ left: 0, right: 8, top: 10, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorProductRev" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.6} />
+                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <Tooltip />
+                    <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fill="url(#colorProductRev)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </GlassCard>
+
+            <GlassCard className="p-4">
+              <h3 className="font-semibold mb-3">Orders by Status</h3>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={qtyByStatus} margin={{ left: 0, right: 8, top: 10, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                    <XAxis dataKey="status" tick={{ fontSize: 12 }} />
+                    <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="count" fill="hsl(var(--secondary))" />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </GlassCard>
           </>

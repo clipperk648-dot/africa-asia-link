@@ -14,6 +14,7 @@ import IndustryAddProperty from "./pages/IndustryAddProperty";
 import IndustryProductEdit from "./pages/IndustryProductEdit";
 import IndustryProductStats from "./pages/IndustryProductStats";
 import Analytics from "./pages/Analytics";
+import BuyerAnalytics from "./pages/BuyerAnalytics";
 import BuyerDashboard from "./pages/BuyerDashboard";
 import BuyerProducts from "./pages/BuyerProducts";
 import BuyerNetwork from "./pages/BuyerNetwork";
@@ -66,6 +67,7 @@ const App = () => (
             <Route path="/menu" element={<MenuPage />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/buyer/analytics" element={<BuyerAnalytics />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

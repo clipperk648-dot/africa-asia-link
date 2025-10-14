@@ -44,7 +44,7 @@ const IndustryDashboard = () => {
             <p className="text-sm text-muted-foreground">Industry Dashboard</p>
           </div>
           <div className="flex items-center gap-2">
-            <Link to="/analytics" aria-label="Open Analytics" className="hidden sm:block">
+            <Link to="/analytics" aria-label="Open Analytics">
               <Button variant="outline" size="sm" className="gap-2 px-3">
                 <BarChart3 className="w-4 h-4" />
                 <span>Analytics</span>

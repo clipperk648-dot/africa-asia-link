@@ -44,10 +44,10 @@ const BuyerDashboard = () => {
             <p className="text-sm text-muted-foreground">Buyer Dashboard</p>
           </div>
           <div className="flex items-center gap-2">
-            <Link to="/analytics" aria-label="Open Analytics" className="hidden sm:block">
+            <Link to="/buyer/analytics" aria-label="Open Insights">
               <Button variant="outline" size="sm" className="gap-2 px-3">
                 <BarChart3 className="w-4 h-4" />
-                <span>Analytics</span>
+                <span>Insights</span>
               </Button>
             </Link>
             <Link to="/social" aria-label="Open TradeSocial">
