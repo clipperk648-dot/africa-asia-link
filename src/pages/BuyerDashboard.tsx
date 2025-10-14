@@ -5,7 +5,7 @@ import { mockProducts, mockOrders } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Share2 } from "lucide-react";
+import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Share2, Bell } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Link } from "react-router-dom";
 
@@ -45,9 +45,14 @@ const BuyerDashboard = () => {
           </div>
           <div className="flex items-center gap-2">
             <Link to="/social" aria-label="Open TradeSocial">
-              <Button variant="gradient" size="sm" className="gap-2">
+              <Button variant="gradient" size="sm" className="gap-2 px-3">
                 <Share2 className="w-4 h-4" />
-                <span>TradeSocial</span>
+                <span>Social</span>
+              </Button>
+            </Link>
+            <Link to="/notifications" aria-label="Open Notifications">
+              <Button variant="ghost" size="icon">
+                <Bell className="w-5 h-5" />
               </Button>
             </Link>
             <Button variant="ghost" size="icon" onClick={handleLogout}>
