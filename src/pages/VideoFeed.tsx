@@ -47,7 +47,7 @@ const VideoFeed = () => {
       <ThreeBackground />
 
       {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-40 backdrop-blur-md bg-background/20">
+      <header className="absolute top-0 left-0 right-0 z-40 backdrop-blur-md bg-background/40">
         <div className="max-w-3xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-white">
@@ -67,7 +67,7 @@ const VideoFeed = () => {
           <div key={video.id} className="snap-start h-screen relative">
             {/* Video Thumbnail/Player */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative h-full max-h-screen aspect-[9/16] rounded-2xl border border-white/20 overflow-hidden shadow-2xl">
+              <div className="relative h-[85vh] max-h-[85vh] aspect-[9/16] rounded-2xl border border-white/20 overflow-hidden shadow-2xl">
                 <img
                   src={video.thumbnail}
                   alt="Video"
@@ -83,7 +83,7 @@ const VideoFeed = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-12 rounded-full bg-background/20 backdrop-blur-sm text-white hover:bg-background/30"
+                  className="h-12 w-12 rounded-full bg-background/60 backdrop-blur-md text-white hover:bg-background/70"
                   onClick={() => handleLike(video.id)}
                 >
                   <Heart
@@ -98,7 +98,7 @@ const VideoFeed = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-12 rounded-full bg-background/20 backdrop-blur-sm text-white hover:bg-background/30"
+                  className="h-12 w-12 rounded-full bg-background/60 backdrop-blur-md text-white hover:bg-background/70"
                 >
                   <MessageCircle className="w-7 h-7" />
                 </Button>
@@ -109,7 +109,7 @@ const VideoFeed = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-12 rounded-full bg-background/20 backdrop-blur-sm text-white hover:bg-background/30"
+                  className="h-12 w-12 rounded-full bg-background/60 backdrop-blur-md text-white hover:bg-background/70"
                 >
                   <Share2 className="w-7 h-7" />
                 </Button>
@@ -120,7 +120,7 @@ const VideoFeed = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-12 rounded-full bg-background/20 backdrop-blur-sm text-white hover:bg-background/30"
+                  className="h-12 w-12 rounded-full bg-background/60 backdrop-blur-md text-white hover:bg-background/70"
                 >
                   <MoreVertical className="w-7 h-7" />
                 </Button>
