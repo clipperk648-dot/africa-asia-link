@@ -84,6 +84,7 @@ const BuyerProducts = () => {
                     >
                       Details
                     </Button>
+                    <RateButton productId={product.id} productName={product.name} />
                     <Button
                       variant="gradient"
                       size="sm"
