@@ -7,6 +7,8 @@ import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
+import RateButton from "@/components/RateButton";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const ProductDetails = () => {
   const navigate = useNavigate();
@@ -38,15 +40,24 @@ const ProductDetails = () => {
         ) : (
           <GlassCard className="p-4 sm:p-6">
             <img src={product.image} alt={product.name} loading="lazy" className="w-full h-56 sm:h-72 object-cover rounded-lg" />
-            <div className="mt-4 space-y-2">
+            <div className="mt-4 space-y-3">
               <h2 className="text-lg sm:text-xl font-bold">{product.name}</h2>
-              <p className="text-sm text-muted-foreground">{product.company}</p>
-              <p className="text-sm text-muted-foreground">{product.location}</p>
+              <div className="flex items-center gap-3">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={product.avatar} alt={product.username} />
+                  <AvatarFallback>{product.username.slice(0,1).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="text-sm font-medium">{product.company}</p>
+                  <p className="text-xs text-muted-foreground">@{product.username} • {product.location}</p>
+                </div>
+              </div>
               <p className="text-sm text-muted-foreground">Category: {product.category}</p>
-              <p className="text-xl sm:text-2xl font-bold text-primary mt-2">${product.price.toLocaleString()}</p>
-              <div className="flex gap-2 mt-3">
+              <p className="text-xl sm:text-2xl font-bold text-primary">${product.price.toLocaleString()}</p>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <RateButton productId={product.id} productName={product.name} size="sm" />
                 <Button variant="outline" onClick={() => navigate(`/messages?product=${product.id}`)}>Contact Seller</Button>
-                <Button variant="gradient">
+                <Button variant="gradient" onClick={() => navigate(`/messages?product=${product.id}`)}>
                   <ShoppingCart className="w-4 h-4" />
                   Inquire
                 </Button>
