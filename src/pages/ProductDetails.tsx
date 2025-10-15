@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCurrentUser } from "@/utils/mockAuth";
-import { mockProducts } from "@/utils/mockData";
+import { mockProducts, mockOrders } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ const ProductDetails = () => {
   }, [user, navigate]);
 
   const product = mockProducts.find((p) => String(p.id) === id);
+  const interested = product ? mockOrders.filter((o) => o.productName === product.name).length : 0;
 
   return (
     <div className="min-h-screen pb-24 relative">
@@ -102,7 +103,7 @@ const ProductDetails = () => {
                 </div>
                 <div className="space-y-2 sm:col-span-2">
                   <p className="text-sm font-semibold">Interested customers</p>
-                  <p className="text-xs text-muted-foreground">{(Array.isArray([]) ? 0 : 0) + (0)} customers are interested based on recent orders.</p>
+                  <p className="text-xs text-muted-foreground">{interested} customer{interested === 1 ? "" : "s"} interested based on recent orders.</p>
                 </div>
               </div>
             </div>
