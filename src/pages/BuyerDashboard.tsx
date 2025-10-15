@@ -5,11 +5,13 @@ import { mockProducts, mockOrders } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Share2, Bell, BarChart3 } from "lucide-react";
+import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Share2, Bell, BarChart3, PlusCircle } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import RateButton from "@/components/RateButton";
+import { addToCart } from "@/utils/cart";
+import { toast } from "@/components/ui/sonner";
 
 const BuyerDashboard = () => {
   const navigate = useNavigate();
@@ -118,8 +120,15 @@ const BuyerDashboard = () => {
                       ₦{product.price.toLocaleString()}
                     </p>
                     <div className="flex items-center gap-2">
-                      <RateButton productId={product.id} productName={product.name} />
-                      <Button variant="gradient" size="sm" className="flex-shrink-0" onClick={() => navigate(`/messages?product=${product.id}`)}>
+                      <RateButton productId={product.id} productName={product.name} size="xs" />
+                      <Button variant="accent" size="xs" className="flex-shrink-0" onClick={() => {
+                        addToCart({ id: product.id, name: product.name, price: product.price, image: product.image, company: product.company });
+                        toast.success("Added to cart");
+                      }}>
+                        <PlusCircle className="w-4 h-4" />
+                        Add to cart
+                      </Button>
+                      <Button variant="gradient" size="xs" className="flex-shrink-0" onClick={() => navigate(`/messages?product=${product.id}`)}>
                         Inquire
                       </Button>
                     </div>
