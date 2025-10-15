@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "@/utils/mockAuth";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Trash2, Plus, Minus, ShoppingBag } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
+import { getCart, updateQuantity as updateQty, removeFromCart, setCart } from "@/utils/cart";
 
 interface CartItem {
   id: string;
@@ -18,24 +19,7 @@ interface CartItem {
 const Cart = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: "1",
-      name: "Industrial Machinery",
-      price: 45000,
-      quantity: 2,
-      image: "https://images.unsplash.com/photo-1581092160562-40aa08e78837",
-      company: "Shanghai Heavy Industries",
-    },
-    {
-      id: "2",
-      name: "Electronics Components",
-      price: 12000,
-      quantity: 5,
-      image: "https://images.unsplash.com/photo-1518770660439-4636190af475",
-      company: "Shenzhen Tech Ltd",
-    },
-  ]);
+  const [cartItems, setCartItems] = useState<CartItem[]>(getCart());
 
   const goBack = () => {
     if (user?.role === "industry") {
@@ -48,23 +32,23 @@ const Cart = () => {
   };
 
   const updateQuantity = (id: string, delta: number) => {
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
-      )
-    );
+    const updated = updateQty(id, delta);
+    setCartItems(updated);
   };
 
   const removeItem = (id: string) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+    const updated = removeFromCart(id);
+    setCartItems(updated);
   };
 
   const total = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+
+  useEffect(() => {
+    setCart(cartItems);
+  }, [cartItems]);
 
   return (
     <div className="min-h-screen pb-24 relative">
