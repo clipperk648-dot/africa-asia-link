@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Search, Filter, Star, ShoppingCart } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
+import RateButton from "@/components/RateButton";
 
 const BuyerProducts = () => {
   const navigate = useNavigate();
