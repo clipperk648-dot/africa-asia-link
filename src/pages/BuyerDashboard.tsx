@@ -88,7 +88,7 @@ const BuyerDashboard = () => {
                 </Button>
               </Link>
               <Link to="/social" aria-label="Open TradeSocial">
-                <Button variant="gradient" size="sm" className="gap-2 px-2">
+                <Button variant="gradient" size="xs" className="gap-2 px-2">
                   <Share2 className="w-4 h-4" />
                   <span className="hidden sm:inline">Social</span>
                 </Button>
