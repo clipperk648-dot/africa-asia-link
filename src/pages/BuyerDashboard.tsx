@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Share2, Bell, BarChart3 } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Link } from "react-router-dom";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import RateButton from "@/components/RateButton";
 
 const BuyerDashboard = () => {
   const navigate = useNavigate();
@@ -43,6 +45,22 @@ const BuyerDashboard = () => {
             </h1>
             <p className="text-xs text-muted-foreground">Buyer Dashboard</p>
           </div>
+          <div className="flex items-center gap-2">
+            <Link to="/notifications" aria-label="Open Notifications">
+              <Button variant="ghost" size="icon">
+                <Bell className="w-5 h-5" />
+              </Button>
+            </Link>
+            <Link to="/profile" aria-label="Open Profile">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email || 'user'}`} alt={user?.name || 'Profile'} />
+                <AvatarFallback>{(user?.name?.[0] || 'U')}</AvatarFallback>
+              </Avatar>
+            </Link>
+            <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Log out">
+              <LogOut className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -73,14 +91,6 @@ const BuyerDashboard = () => {
                   <span className="hidden sm:inline">Social</span>
                 </Button>
               </Link>
-              <Link to="/notifications" aria-label="Open Notifications">
-                <Button variant="ghost" size="icon">
-                  <Bell className="w-5 h-5" />
-                </Button>
-              </Link>
-              <Button variant="ghost" size="icon" onClick={handleLogout}>
-                <LogOut className="w-5 h-5" />
-              </Button>
             </div>
           </div>
           <div className="grid md:grid-cols-2 gap-4">
@@ -107,9 +117,12 @@ const BuyerDashboard = () => {
                     <p className="text-xl sm:text-2xl font-bold text-primary">
                       ₦{product.price.toLocaleString()}
                     </p>
-                    <Button variant="gradient" size="sm" className="flex-shrink-0">
-                      Inquire
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <RateButton productId={product.id} productName={product.name} />
+                      <Button variant="gradient" size="sm" className="flex-shrink-0" onClick={() => navigate(`/messages?product=${product.id}`)}>
+                        Inquire
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </GlassCard>
