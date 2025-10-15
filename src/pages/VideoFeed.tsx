@@ -62,9 +62,9 @@ const VideoFeed = () => {
       </header>
 
       {/* Video Feed */}
-      <div className="snap-y snap-mandatory h-screen overflow-y-scroll scrollbar-hide">
+      <div className="snap-y snap-mandatory h-[80vh] overflow-y-scroll scrollbar-hide">
         {videos.map((video) => (
-          <div key={video.id} className="snap-start h-screen relative">
+          <div key={video.id} className="snap-start h-[80vh] relative">
             {/* Video Thumbnail/Player */}
             <div className="absolute inset-0">
               <img
@@ -76,7 +76,7 @@ const VideoFeed = () => {
             </div>
 
             {/* Right Side Actions */}
-            <div className="absolute right-4 bottom-24 flex flex-col gap-6 z-30">
+            <div className="absolute right-4 bottom-16 flex flex-col gap-6 z-30">
               <div className="flex flex-col items-center gap-1">
                 <Button
                   variant="ghost"
@@ -126,7 +126,7 @@ const VideoFeed = () => {
             </div>
 
             {/* Bottom Info */}
-            <div className="absolute bottom-24 left-4 right-20 z-30 text-white">
+            <div className="absolute bottom-16 left-4 right-20 z-30 text-white">
               <div className="flex items-center gap-3 mb-3">
                 <img
                   src={video.avatar}
@@ -135,11 +135,11 @@ const VideoFeed = () => {
                 />
                 <span className="font-semibold">{video.username}</span>
                 <Button
-                  variant="outline"
+                  variant="gradient"
                   size="sm"
-                  className="ml-auto border-white text-white hover:bg-white hover:text-background"
+                  className="ml-auto shadow-lg"
                 >
-                  Follow
+                  Subscribe
                 </Button>
               </div>
               <p className="text-sm">{video.caption}</p>
