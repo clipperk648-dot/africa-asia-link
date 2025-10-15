@@ -1,3 +1,4 @@
+import React from "react";
 import { cn } from "@/lib/utils";
 
 interface GlassCardProps {
@@ -23,4 +24,4 @@ const GlassCard = ({ children, className, hover = true, onClick }: GlassCardProp
   );
 };
 
-export default GlassCard;
+export default React.memo(GlassCard);
