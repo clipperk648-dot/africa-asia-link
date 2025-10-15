@@ -82,7 +82,7 @@ const BuyerDashboard = () => {
             <h2 className="text-base sm:text-lg font-bold">Discover Products</h2>
             <div className="flex items-center gap-2 overflow-x-auto">
               <Link to="/buyer/analytics" aria-label="Open Insights">
-                <Button variant="outline" size="sm" className="gap-2 px-2">
+                <Button variant="outline" size="xs" className="gap-2 px-2">
                   <BarChart3 className="w-4 h-4" />
                   <span className="hidden sm:inline">Insights</span>
                 </Button>
