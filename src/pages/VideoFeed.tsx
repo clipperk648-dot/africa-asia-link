@@ -62,21 +62,23 @@ const VideoFeed = () => {
       </header>
 
       {/* Video Feed */}
-      <div className="snap-y snap-mandatory h-[80vh] overflow-y-scroll scrollbar-hide">
+      <div className="snap-y snap-mandatory h-screen overflow-y-scroll scrollbar-hide">
         {videos.map((video) => (
-          <div key={video.id} className="snap-start h-[80vh] relative">
+          <div key={video.id} className="snap-start h-screen relative">
             {/* Video Thumbnail/Player */}
-            <div className="absolute inset-0">
-              <img
-                src={video.thumbnail}
-                alt="Video"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/60" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="relative h-full max-h-screen aspect-[9/16] rounded-2xl border border-white/20 overflow-hidden shadow-2xl">
+                <img
+                  src={video.thumbnail}
+                  alt="Video"
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/60" />
+              </div>
             </div>
 
             {/* Right Side Actions */}
-            <div className="absolute right-4 bottom-16 flex flex-col gap-6 z-30">
+            <div className="absolute right-4 bottom-24 flex flex-col gap-6 z-30">
               <div className="flex flex-col items-center gap-1">
                 <Button
                   variant="ghost"
@@ -126,7 +128,7 @@ const VideoFeed = () => {
             </div>
 
             {/* Bottom Info */}
-            <div className="absolute bottom-16 left-4 right-20 z-30 text-white">
+            <div className="absolute bottom-24 left-4 right-20 z-30 text-white">
               <div className="flex items-center gap-3 mb-3">
                 <img
                   src={video.avatar}
