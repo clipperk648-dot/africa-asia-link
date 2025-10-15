@@ -6,9 +6,11 @@ import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Search, Filter, Star, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Search, Filter, Star, ShoppingCart, PlusCircle } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import RateButton from "@/components/RateButton";
+import { addToCart } from "@/utils/cart";
+import { toast } from "@/components/ui/sonner";
 
 const BuyerProducts = () => {
   const navigate = useNavigate();
@@ -78,16 +80,28 @@ const BuyerProducts = () => {
                   <div className="flex gap-2 w-full sm:w-auto">
                     <Button
                       variant="outline"
-                      size="sm"
+                      size="xs"
                       className="flex-1 sm:flex-none"
                       onClick={() => navigate(`/buyer/products/${product.id}`)}
                     >
                       Details
                     </Button>
-                    <RateButton productId={product.id} productName={product.name} />
+                    <RateButton productId={product.id} productName={product.name} size="xs" />
+                    <Button
+                      variant="accent"
+                      size="xs"
+                      className="flex-1 sm:flex-none"
+                      onClick={() => {
+                        addToCart({ id: product.id, name: product.name, price: product.price, image: product.image, company: product.company });
+                        toast.success("Added to cart");
+                      }}
+                    >
+                      <PlusCircle className="w-4 h-4" />
+                      Add to cart
+                    </Button>
                     <Button
                       variant="gradient"
-                      size="sm"
+                      size="xs"
                       className="flex-1 sm:flex-none"
                       onClick={() => navigate(`/messages?product=${product.id}`)}
                     >
