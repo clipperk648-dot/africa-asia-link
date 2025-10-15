@@ -43,14 +43,23 @@ const ProductDetails = () => {
             <div className="mt-4 space-y-3">
               <h2 className="text-lg sm:text-xl font-bold">{product.name}</h2>
               <div className="flex items-center gap-3">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={product.avatar} alt={product.username} />
-                  <AvatarFallback>{product.username.slice(0,1).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-sm font-medium">{product.company}</p>
-                  <p className="text-xs text-muted-foreground">@{product.username} • {product.location}</p>
-                </div>
+                {/** Derive seller display name and avatar seed from available product fields */}
+                {(() => {
+                  const seller = (product as any).username || product.company || product.name || "Seller";
+                  const seed = encodeURIComponent(String((product as any).username || product.company || product.name || "seller"));
+                  return (
+                    <>
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}`} alt={seller} />
+                        <AvatarFallback>{String(seller).slice(0, 1).toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="text-sm font-medium">{product.company || seller}</p>
+                        <p className="text-xs text-muted-foreground">{(product as any).username ? `@${(product as any).username} • ${product.location}` : product.location}</p>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
               <p className="text-sm text-muted-foreground">Category: {product.category}</p>
               <p className="text-xl sm:text-2xl font-bold text-primary">${product.price.toLocaleString()}</p>
