@@ -5,7 +5,7 @@ import { mockProducts, mockOrders } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Share2, Bell, BarChart3, PlusCircle } from "lucide-react";
+import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Music2, Bell, BarChart3, PlusCircle } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -89,7 +89,7 @@ const BuyerDashboard = () => {
               </Link>
               <Link to="/social" aria-label="Open TradeSocial">
                 <Button variant="gradient" size="xs" className="gap-2 px-2">
-                  <Share2 className="w-4 h-4" />
+                  <Music2 className="w-4 h-4" />
                   <span className="hidden sm:inline">Social</span>
                 </Button>
               </Link>
