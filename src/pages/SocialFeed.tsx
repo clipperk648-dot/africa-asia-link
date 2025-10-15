@@ -4,6 +4,9 @@ import { mockSocialPosts } from "@/utils/mockData";
 import { getCurrentUser } from "@/utils/mockAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/sonner";
 import {
   Heart,
   MessageCircle,
@@ -26,6 +29,18 @@ const SocialFeed = () => {
   const user = getCurrentUser();
   const [posts, setPosts] = useState(mockSocialPosts);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+  const [activePostId, setActivePostId] = useState<string | null>(null);
+  const [commentDraft, setCommentDraft] = useState("");
+  const [commentsByPost, setCommentsByPost] = useState<Record<string, { id: string; author: string; text: string; time: string }[]>>(() => {
+    const seed = {} as Record<string, { id: string; author: string; text: string; time: string }[]>;
+    for (const p of mockSocialPosts) {
+      seed[p.id] = [
+        { id: "c1", author: "sarah_j", text: "Love this!", time: "2h" },
+        { id: "c2", author: "michael_c", text: "Great update 👏", time: "1h" },
+      ];
+    }
+    return seed;
+  });
 
   const handleLike = (postId: string) => {
     setLikedPosts((prev) => {
@@ -58,6 +73,22 @@ const SocialFeed = () => {
     } else {
       navigate("/login");
     }
+  };
+
+  const openComments = (postId: string) => setActivePostId(postId);
+  const closeComments = () => {
+    setActivePostId(null);
+    setCommentDraft("");
+  };
+
+  const submitComment = () => {
+    if (!activePostId || !commentDraft.trim()) return;
+    setCommentsByPost((prev) => {
+      const list = prev[activePostId] || [];
+      return { ...prev, [activePostId]: [...list, { id: crypto.randomUUID(), author: user?.name || "you", text: commentDraft.trim(), time: "now" }] };
+    });
+    setPosts((prev) => prev.map((p) => (p.id === activePostId ? { ...p, comments: p.comments + 1 } : p)));
+    setCommentDraft("");
   };
 
   return (
@@ -166,13 +197,13 @@ const SocialFeed = () => {
                       strokeWidth={1.5}
                     />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9">
+                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => openComments(post.id)}>
                     <MessageCircle className="w-7 h-7" strokeWidth={1.5} />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9">
+                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => toast("Reposted") }>
                     <Repeat2 className="w-7 h-7" strokeWidth={1.5} />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9">
+                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => toast("Shared") }>
                     <Send className="w-7 h-7" strokeWidth={1.5} />
                   </Button>
                 </div>
@@ -191,18 +222,14 @@ const SocialFeed = () => {
               </div>
 
               {/* Comments */}
-              <button className="text-sm text-muted-foreground mb-2">
+              <button className="text-sm text-muted-foreground mb-2" onClick={() => openComments(post.id)}>
                 View all {post.comments} comments
               </button>
 
               {/* Add Comment */}
               <div className="flex items-center gap-2 pt-1 border-t border-border/50">
-                <Input
-                  placeholder="Add a comment..."
-                  className="h-9 bg-transparent border-none text-sm px-0 focus-visible:ring-0"
-                />
-                <Button variant="ghost" size="sm" className="text-sm text-primary hover:text-primary/80">
-                  Post
+                <Button variant="ghost" size="sm" className="text-sm text-primary hover:text-primary/80 px-0" onClick={() => openComments(post.id)}>
+                  Add a comment…
                 </Button>
               </div>
             </div>
@@ -237,6 +264,36 @@ const SocialFeed = () => {
           </div>
         </div>
       </nav>
+      <Sheet open={!!activePostId} onOpenChange={(o) => (o ? null : closeComments())}>
+        <SheetContent side="bottom" className="h-[70vh] p-0">
+          <SheetHeader className="px-4 pt-4 pb-2">
+            <SheetTitle>Comments</SheetTitle>
+          </SheetHeader>
+          <div className="px-4 pb-24 overflow-y-auto space-y-4">
+            {(activePostId && commentsByPost[activePostId])?.map((c) => (
+              <div key={c.id} className="flex items-start gap-3">
+                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(c.author)}`} alt={c.author} className="w-8 h-8 rounded-full" />
+                <div className="flex-1">
+                  <p className="text-sm"><span className="font-semibold mr-2">{c.author}</span>{c.text}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{c.time} ago</p>
+                </div>
+              </div>
+            ))}
+            {activePostId && (!commentsByPost[activePostId] || commentsByPost[activePostId].length === 0) && (
+              <p className="text-sm text-muted-foreground">No comments yet. Be the first to comment.</p>
+            )}
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 border-t border-border bg-background p-3 flex items-center gap-2">
+            <Textarea
+              placeholder="Add a comment…"
+              value={commentDraft}
+              onChange={(e) => setCommentDraft(e.target.value)}
+              className="min-h-10 h-10 resize-none"
+            />
+            <Button variant="gradient" size="sm" onClick={submitComment}>Post</Button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
