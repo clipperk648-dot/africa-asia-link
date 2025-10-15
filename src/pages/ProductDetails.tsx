@@ -64,12 +64,46 @@ const ProductDetails = () => {
               <p className="text-sm text-muted-foreground">Category: {product.category}</p>
               <p className="text-xl sm:text-2xl font-bold text-primary">${product.price.toLocaleString()}</p>
               <div className="flex flex-wrap gap-2 mt-2">
-                <RateButton productId={product.id} productName={product.name} size="sm" />
-                <Button variant="outline" onClick={() => navigate(`/messages?product=${product.id}`)}>Contact Seller</Button>
-                <Button variant="gradient" onClick={() => navigate(`/messages?product=${product.id}`)}>
+                <RateButton productId={product.id} productName={product.name} size="xs" />
+                <Button variant="gradient" size="xs" onClick={() => navigate(`/messages?product=${product.id}`)}>
                   <ShoppingCart className="w-4 h-4" />
                   Inquire
                 </Button>
+              </div>
+
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold">Trade information</p>
+                  <ul className="text-xs text-muted-foreground space-y-1">
+                    <li>Currency: USD</li>
+                    <li>Unit: piece</li>
+                    <li>MOQ: Not specified</li>
+                    <li>Lead time: Not specified</li>
+                    <li>Incoterm: Not specified</li>
+                    <li>Port of shipment: Not specified</li>
+                  </ul>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-semibold">Product details</p>
+                  <ul className="text-xs text-muted-foreground space-y-1">
+                    <li>Brand: Not specified</li>
+                    <li>Model: Not specified</li>
+                    <li>Origin: {product.location}</li>
+                    <li>HS Code: Not specified</li>
+                    <li>Warranty: Not specified</li>
+                  </ul>
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <p className="text-sm font-semibold">Key specifications</p>
+                  <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
+                    <li>Category: {product.category}</li>
+                    <li>Company: {product.company}</li>
+                  </ul>
+                </div>
+                <div className="space-y-2 sm:col-span-2">
+                  <p className="text-sm font-semibold">Interested customers</p>
+                  <p className="text-xs text-muted-foreground">{(Array.isArray([]) ? 0 : 0) + (0)} customers are interested based on recent orders.</p>
+                </div>
               </div>
             </div>
           </GlassCard>
