@@ -130,7 +130,7 @@ const VideoFeed = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-12 rounded-full bg-background/80 backdrop-blur-md text-white hover:bg-background/70"
+                  className="h-12 w-12 rounded-full bg-background/80 backdrop-blur-md text-white hover:bg-background/90"
                   onClick={() => handleLike(video.id)}
                 >
                   <Heart
@@ -145,7 +145,7 @@ const VideoFeed = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-12 rounded-full bg-background/80 backdrop-blur-md text-white hover:bg-background/70"
+                  className="h-12 w-12 rounded-full bg-background/80 backdrop-blur-md text-white hover:bg-background/90"
                   onClick={() => openComments(video.id)}
                 >
                   <MessageCircle className="w-7 h-7" />
@@ -157,7 +157,7 @@ const VideoFeed = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-12 rounded-full bg-background/80 backdrop-blur-md text-white hover:bg-background/70"
+                  className="h-12 w-12 rounded-full bg-background/80 backdrop-blur-md text-white hover:bg-background/90"
                   onClick={() => toast("Shared")}
                 >
                   <Share2 className="w-7 h-7" />
@@ -169,7 +169,7 @@ const VideoFeed = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-12 rounded-full bg-background/80 backdrop-blur-md text-white hover:bg-background/70"
+                  className="h-12 w-12 rounded-full bg-background/80 backdrop-blur-md text-white hover:bg-background/90"
                   onClick={() => handleSave(video.id)}
                 >
                   <Bookmark className="w-7 h-7" />
@@ -181,7 +181,7 @@ const VideoFeed = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-12 rounded-full bg-background/80 backdrop-blur-md text-white hover:bg-background/70"
+                  className="h-12 w-12 rounded-full bg-background/80 backdrop-blur-md text-white hover:bg-background/90"
                 >
                   <MoreVertical className="w-7 h-7" />
                 </Button>
