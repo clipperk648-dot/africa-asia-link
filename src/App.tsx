@@ -34,6 +34,7 @@ const BuyerChangePassword = lazy(() => import("./pages/BuyerChangePassword"));
 const BuyerTwoFactor = lazy(() => import("./pages/BuyerTwoFactor"));
 const Wallet = lazy(() => import("./pages/Wallet"));
 const SupportChat = lazy(() => import("./pages/SupportChat"));
+const WalletActions = lazy(() => import("./pages/WalletActions"));
 
 const queryClient = new QueryClient();
 
@@ -73,6 +74,7 @@ const App = () => (
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/buyer/analytics" element={<BuyerAnalytics />} />
               <Route path="/wallet" element={<Wallet />} />
+              <Route path="/wallet/actions" element={<WalletActions />} />
               <Route path="/support-chat" element={<SupportChat />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
