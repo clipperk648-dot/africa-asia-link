@@ -5,9 +5,10 @@ import { mockProducts, mockOrders } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, TrendingUp, Package, DollarSign, Users, Share2, Bell, BarChart3 } from "lucide-react";
+import { LogOut, TrendingUp, Package, DollarSign, Users, Music2, Bell, BarChart3 } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Link } from "react-router-dom";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const IndustryDashboard = () => {
   const navigate = useNavigate();
@@ -43,6 +44,22 @@ const IndustryDashboard = () => {
             </h1>
             <p className="text-xs text-muted-foreground">Industry Dashboard</p>
           </div>
+          <div className="flex items-center gap-2">
+            <Link to="/notifications" aria-label="Open Notifications">
+              <Button variant="ghost" size="icon">
+                <Bell className="w-5 h-5" />
+              </Button>
+            </Link>
+            <Link to="/profile" aria-label="Open Profile">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email || 'user'}`} alt={user?.name || 'Profile'} />
+                <AvatarFallback>{(user?.name?.[0] || 'U')}</AvatarFallback>
+              </Avatar>
+            </Link>
+            <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Log out">
+              <LogOut className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -62,14 +79,14 @@ const IndustryDashboard = () => {
             <h2 className="text-base sm:text-lg font-bold">Your Products</h2>
             <div className="flex items-center gap-2 overflow-x-auto">
               <Link to="/analytics" aria-label="Open Analytics">
-                <Button variant="outline" size="sm" className="gap-2 px-2">
+                <Button variant="outline" size="xs" className="gap-2 px-2">
                   <BarChart3 className="w-4 h-4" />
                   <span className="hidden sm:inline">Analytics</span>
                 </Button>
               </Link>
               <Link to="/social" aria-label="Open TradeSocial">
-                <Button variant="gradient" size="sm" className="gap-2 px-2">
-                  <Share2 className="w-4 h-4" />
+                <Button variant="gradient" size="xs" className="gap-2 px-2">
+                  <Music2 className="w-4 h-4" />
                   <span className="hidden sm:inline">Social</span>
                 </Button>
               </Link>
@@ -78,9 +95,6 @@ const IndustryDashboard = () => {
                   <Bell className="w-5 h-5" />
                 </Button>
               </Link>
-              <Button variant="ghost" size="icon" onClick={handleLogout}>
-                <LogOut className="w-5 h-5" />
-              </Button>
             </div>
           </div>
           <div className="grid md:grid-cols-2 gap-4">
