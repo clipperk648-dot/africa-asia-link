@@ -5,7 +5,7 @@ import { mockProducts, mockOrders, type Product } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, TrendingUp, Package, DollarSign, Users, Music2, Bell, BarChart3, LineChart, Pencil } from "lucide-react";
+import { LogOut, TrendingUp, Package, DollarSign, Users, Music2, Bell, BarChart3, LineChart, Pencil, Wallet as WalletIcon, Bot } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
@@ -90,6 +90,11 @@ const IndustryDashboard = () => {
                 <AvatarFallback>{user?.name?.[0] || "U"}</AvatarFallback>
               </Avatar>
             </Link>
+            <Link to="/wallet" aria-label="Open Wallet">
+              <Button variant="ghost" size="icon">
+                <WalletIcon className="w-5 h-5" />
+              </Button>
+            </Link>
             <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Log out">
               <LogOut className="w-5 h-5" />
             </Button>
@@ -126,11 +131,6 @@ const IndustryDashboard = () => {
               </Link>
               <Link to="/industry/products" aria-label="View all products">
                 <Button variant="ghost" size="xs">View All</Button>
-              </Link>
-              <Link to="/notifications" aria-label="Open Notifications">
-                <Button variant="ghost" size="icon">
-                  <Bell className="w-5 h-5" />
-                </Button>
               </Link>
             </div>
           </div>
@@ -188,6 +188,13 @@ const IndustryDashboard = () => {
           <span className="font-medium">Rates:</span> 1 USD ≈ ¥7.1 • 1 CNY ≈ ₦220
         </section>
       </main>
+
+      <Link to="/support-chat" aria-label="Open Support Chat" className="fixed right-4 bottom-24 sm:bottom-28 z-50">
+        <Button size="lg" variant="gradient" className="rounded-full shadow-2xl">
+          <Bot className="w-5 h-5" />
+          Chat
+        </Button>
+      </Link>
 
       <FooterNav dashboardType="industry" />
     </div>

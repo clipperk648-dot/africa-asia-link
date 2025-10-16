@@ -5,7 +5,7 @@ import { mockProducts, mockOrders } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Music2, Bell, BarChart3, PlusCircle } from "lucide-react";
+import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Music2, Bell, BarChart3, PlusCircle, Wallet as WalletIcon, Bot } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -58,6 +58,11 @@ const BuyerDashboard = () => {
                 <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email || 'user'}`} alt={user?.name || 'Profile'} />
                 <AvatarFallback>{(user?.name?.[0] || 'U')}</AvatarFallback>
               </Avatar>
+            </Link>
+            <Link to="/wallet" aria-label="Open Wallet">
+              <Button variant="ghost" size="icon">
+                <WalletIcon className="w-5 h-5" />
+              </Button>
             </Link>
             <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Log out">
               <LogOut className="w-5 h-5" />
@@ -178,6 +183,13 @@ const BuyerDashboard = () => {
           <span className="font-medium">Rates:</span> 1 USD ≈ ₦1,600 • 1 CNY ≈ ₦220
         </section>
       </main>
+
+      <Link to="/support-chat" aria-label="Open Support Chat" className="fixed right-4 bottom-24 sm:bottom-28 z-50">
+        <Button size="lg" variant="gradient" className="rounded-full shadow-2xl">
+          <Bot className="w-5 h-5" />
+          Chat
+        </Button>
+      </Link>
 
       <FooterNav dashboardType="buyer" />
     </div>
