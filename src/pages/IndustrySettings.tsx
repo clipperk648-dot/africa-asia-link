@@ -7,12 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, User, Bell, Lock, Globe, LogOut } from "lucide-react";
+import { ArrowLeft, User, Bell, Lock, Globe, LogOut, Image as ImageIcon } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { useState } from "react";
+import { getProfileImage, setProfileImage, getUserPrefs, setUserPrefs } from "@/utils/profile";
 
 const IndustrySettings = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(() => getProfileImage(user?.id));
+  const [prefs, setPrefs] = useState(() => getUserPrefs(user?.id));
 
   useEffect(() => {
     if (!user || user.role !== "industry") {
@@ -49,6 +55,24 @@ const IndustrySettings = () => {
             <h2 className="text-lg sm:text-xl font-bold">Profile Information</h2>
           </div>
           <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <Avatar className="h-16 w-16">
+                <AvatarImage src={avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email || 'user'}`} />
+                <AvatarFallback>{user?.name?.[0] || 'U'}</AvatarFallback>
+              </Avatar>
+              <div>
+                <input id="avatar-ind" type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                  const f = e.target.files?.[0];
+                  if (f && user?.id) {
+                    const url = await setProfileImage(user.id, f);
+                    setAvatarUrl(url);
+                  }
+                }} />
+                <Button variant="outline" size="sm" onClick={() => document.getElementById('avatar-ind')?.click()} className="gap-2">
+                  <ImageIcon className="w-4 h-4" /> Change photo
+                </Button>
+              </div>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="company-name">Company Name</Label>
               <Input
@@ -136,20 +160,28 @@ const IndustrySettings = () => {
           </div>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="language">Language</Label>
-              <Input
-                id="language"
-                defaultValue="English"
-                className="h-11 bg-background/50"
-              />
+              <Label>Language</Label>
+              <Select value={prefs.language} onValueChange={(v) => { const next = { ...prefs, language: v }; setPrefs(next); setUserPrefs(user?.id, next); }}>
+                <SelectTrigger className="h-11 bg-background/50"><SelectValue placeholder="Select language" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="English">English</SelectItem>
+                  <SelectItem value="中文">中文</SelectItem>
+                  <SelectItem value="Français">Français</SelectItem>
+                  <SelectItem value="العربية">العربية</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="currency">Currency</Label>
-              <Input
-                id="currency"
-                defaultValue="USD"
-                className="h-11 bg-background/50"
-              />
+              <Label>Currency</Label>
+              <Select value={prefs.currency} onValueChange={(v) => { const next = { ...prefs, currency: v }; setPrefs(next); setUserPrefs(user?.id, next); }}>
+                <SelectTrigger className="h-11 bg-background/50"><SelectValue placeholder="Select currency" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="USD">USD ($)</SelectItem>
+                  <SelectItem value="NGN">NGN (₦)</SelectItem>
+                  <SelectItem value="CNY">CNY (¥)</SelectItem>
+                  <SelectItem value="EUR">EUR (€)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </GlassCard>
