@@ -5,9 +5,13 @@ import { mockProducts, mockOrders } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Share2, Bell, BarChart3 } from "lucide-react";
+import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Music2, Bell, BarChart3, PlusCircle, Wallet as WalletIcon, Bot } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Link } from "react-router-dom";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import RateButton from "@/components/RateButton";
+import { addToCart } from "@/utils/cart";
+import { toast } from "@/components/ui/sonner";
 
 const BuyerDashboard = () => {
   const navigate = useNavigate();
@@ -43,6 +47,27 @@ const BuyerDashboard = () => {
             </h1>
             <p className="text-xs text-muted-foreground">Buyer Dashboard</p>
           </div>
+          <div className="flex items-center gap-2">
+            <Link to="/notifications" aria-label="Open Notifications">
+              <Button variant="ghost" size="icon">
+                <Bell className="w-5 h-5" />
+              </Button>
+            </Link>
+            <Link to="/profile" aria-label="Open Profile">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email || 'user'}`} alt={user?.name || 'Profile'} />
+                <AvatarFallback>{(user?.name?.[0] || 'U')}</AvatarFallback>
+              </Avatar>
+            </Link>
+            <Link to="/wallet" aria-label="Open Wallet">
+              <Button variant="ghost" size="icon">
+                <WalletIcon className="w-5 h-5" />
+              </Button>
+            </Link>
+            <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Log out">
+              <LogOut className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -62,25 +87,17 @@ const BuyerDashboard = () => {
             <h2 className="text-base sm:text-lg font-bold">Discover Products</h2>
             <div className="flex items-center gap-2 overflow-x-auto">
               <Link to="/buyer/analytics" aria-label="Open Insights">
-                <Button variant="outline" size="sm" className="gap-2 px-2">
+                <Button variant="outline" size="xs" className="gap-2 px-2">
                   <BarChart3 className="w-4 h-4" />
                   <span className="hidden sm:inline">Insights</span>
                 </Button>
               </Link>
               <Link to="/social" aria-label="Open TradeSocial">
-                <Button variant="gradient" size="sm" className="gap-2 px-2">
-                  <Share2 className="w-4 h-4" />
+                <Button variant="gradient" size="xs" className="gap-2 px-2">
+                  <Music2 className="w-4 h-4" />
                   <span className="hidden sm:inline">Social</span>
                 </Button>
               </Link>
-              <Link to="/notifications" aria-label="Open Notifications">
-                <Button variant="ghost" size="icon">
-                  <Bell className="w-5 h-5" />
-                </Button>
-              </Link>
-              <Button variant="ghost" size="icon" onClick={handleLogout}>
-                <LogOut className="w-5 h-5" />
-              </Button>
             </div>
           </div>
           <div className="grid md:grid-cols-2 gap-4">
@@ -107,9 +124,19 @@ const BuyerDashboard = () => {
                     <p className="text-xl sm:text-2xl font-bold text-primary">
                       ₦{product.price.toLocaleString()}
                     </p>
-                    <Button variant="gradient" size="sm" className="flex-shrink-0">
-                      Inquire
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <RateButton productId={product.id} productName={product.name} size="xs" />
+                      <Button variant="accent" size="xs" className="flex-shrink-0" onClick={() => {
+                        addToCart({ id: product.id, name: product.name, price: product.price, image: product.image, company: product.company });
+                        toast.success("Added to cart");
+                      }}>
+                        <PlusCircle className="w-4 h-4" />
+                        Add to cart
+                      </Button>
+                      <Button variant="gradient" size="xs" className="flex-shrink-0" onClick={() => navigate(`/messages?product=${product.id}`)}>
+                        Inquire
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </GlassCard>
@@ -156,6 +183,13 @@ const BuyerDashboard = () => {
           <span className="font-medium">Rates:</span> 1 USD ≈ ₦1,600 • 1 CNY ≈ ₦220
         </section>
       </main>
+
+      <Link to="/support-chat" aria-label="Open Support Chat" className="fixed right-4 bottom-24 sm:bottom-28 z-50">
+        <Button size="lg" variant="gradient" className="rounded-full shadow-2xl">
+          <Bot className="w-5 h-5" />
+          Chat
+        </Button>
+      </Link>
 
       <FooterNav dashboardType="buyer" />
     </div>

@@ -1,13 +1,28 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Heart, MessageCircle, Share2, MoreVertical, Volume2, VolumeX } from "lucide-react";
+import { ArrowLeft, Heart, MessageCircle, Share2, MoreVertical, Volume2, VolumeX, Bookmark } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/sonner";
 
 const VideoFeed = () => {
   const navigate = useNavigate();
   const [muted, setMuted] = useState(true);
   const [likedVideos, setLikedVideos] = useState<Set<number>>(new Set());
+  const [savedVideos, setSavedVideos] = useState<Set<number>>(new Set());
+  const [activeVideoId, setActiveVideoId] = useState<number | null>(null);
+  const [commentDraft, setCommentDraft] = useState("");
+  const [commentsByVideo, setCommentsByVideo] = useState<Record<number, { id: string; author: string; text: string; time: string }[]>>({
+    1: [
+      { id: "c1", author: "sarah_j", text: "So cool!", time: "1h" },
+      { id: "c2", author: "michael_c", text: "Love this demo", time: "40m" },
+    ],
+    2: [
+      { id: "c3", author: "emily_d", text: "Inspiring ✨", time: "2h" },
+    ],
+  });
 
   const videos = [
     {
@@ -42,12 +57,42 @@ const VideoFeed = () => {
     });
   };
 
+  const handleSave = (videoId: number) => {
+    setSavedVideos((prev) => {
+      const next = new Set(prev);
+      if (next.has(videoId)) {
+        next.delete(videoId);
+        toast("Removed from saved");
+      } else {
+        next.add(videoId);
+        toast.success("Saved");
+      }
+      return next;
+    });
+  };
+
+  const openComments = (id: number) => setActiveVideoId(id);
+  const closeComments = () => {
+    setActiveVideoId(null);
+    setCommentDraft("");
+  };
+
+  const submitComment = () => {
+    if (!activeVideoId || !commentDraft.trim()) return;
+    const id = activeVideoId;
+    setCommentsByVideo((prev) => {
+      const list = prev[id] || [];
+      return { ...prev, [id]: [...list, { id: Math.random().toString(36).slice(2), author: "you", text: commentDraft.trim(), time: "now" }] };
+    });
+    setCommentDraft("");
+  };
+
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
+    <div className="min-h-screen bg-black relative overflow-hidden">
       <ThreeBackground />
 
       {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-40 backdrop-blur-md bg-background/20">
+      <header className="absolute top-0 left-0 right-0 z-40 bg-black">
         <div className="max-w-3xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-white">
@@ -66,14 +111,18 @@ const VideoFeed = () => {
         {videos.map((video) => (
           <div key={video.id} className="snap-start h-screen relative">
             {/* Video Thumbnail/Player */}
-            <div className="absolute inset-0">
-              <img
-                src={video.thumbnail}
-                alt="Video"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/60" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="relative h-[92vh] max-h-[92vh] aspect-[9/16] rounded-2xl border border-white/20 overflow-hidden shadow-2xl z-20">
+                <img
+                  src={video.thumbnail}
+                  alt="Video"
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/60" />
+              </div>
             </div>
+            <div className="absolute top-0 left-0 right-0 h-24 bg-black pointer-events-none z-10" />
+            <div className="absolute bottom-0 left-0 right-0 h-32 bg-black pointer-events-none z-10" />
 
             {/* Right Side Actions */}
             <div className="absolute right-4 bottom-24 flex flex-col gap-6 z-30">
@@ -81,7 +130,7 @@ const VideoFeed = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-12 rounded-full bg-background/20 backdrop-blur-sm text-white hover:bg-background/30"
+                  className="h-12 w-12 rounded-full bg-black  text-white hover:bg-black"
                   onClick={() => handleLike(video.id)}
                 >
                   <Heart
@@ -89,25 +138,27 @@ const VideoFeed = () => {
                     fill={likedVideos.has(video.id) ? "currentColor" : "none"}
                   />
                 </Button>
-                <span className="text-xs font-semibold text-white">{video.likes.toLocaleString()}</span>
+                <span className="text-xs font-semibold text-white">{(video.likes + (likedVideos.has(video.id) ? 1 : 0)).toLocaleString()}</span>
               </div>
 
               <div className="flex flex-col items-center gap-1">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-12 rounded-full bg-background/20 backdrop-blur-sm text-white hover:bg-background/30"
+                  className="h-12 w-12 rounded-full bg-black  text-white hover:bg-black"
+                  onClick={() => openComments(video.id)}
                 >
                   <MessageCircle className="w-7 h-7" />
                 </Button>
-                <span className="text-xs font-semibold text-white">{video.comments}</span>
+                <span className="text-xs font-semibold text-white">{(commentsByVideo[video.id]?.length ?? 0) + video.comments}</span>
               </div>
 
               <div className="flex flex-col items-center gap-1">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-12 rounded-full bg-background/20 backdrop-blur-sm text-white hover:bg-background/30"
+                  className="h-12 w-12 rounded-full bg-black  text-white hover:bg-black"
+                  onClick={() => toast("Shared")}
                 >
                   <Share2 className="w-7 h-7" />
                 </Button>
@@ -118,7 +169,19 @@ const VideoFeed = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-12 rounded-full bg-background/20 backdrop-blur-sm text-white hover:bg-background/30"
+                  className="h-12 w-12 rounded-full bg-black  text-white hover:bg-black"
+                  onClick={() => handleSave(video.id)}
+                >
+                  <Bookmark className="w-7 h-7" />
+                </Button>
+                <span className="text-xs font-semibold text-white">{savedVideos.has(video.id) ? "Saved" : "Save"}</span>
+              </div>
+
+              <div className="flex flex-col items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-12 w-12 rounded-full bg-black  text-white hover:bg-black"
                 >
                   <MoreVertical className="w-7 h-7" />
                 </Button>
@@ -135,11 +198,11 @@ const VideoFeed = () => {
                 />
                 <span className="font-semibold">{video.username}</span>
                 <Button
-                  variant="outline"
+                  variant="gradient"
                   size="sm"
-                  className="ml-auto border-white text-white hover:bg-white hover:text-background"
+                  className="ml-auto shadow-lg"
                 >
-                  Follow
+                  Subscribe
                 </Button>
               </div>
               <p className="text-sm">{video.caption}</p>
@@ -147,6 +210,36 @@ const VideoFeed = () => {
           </div>
         ))}
       </div>
+      <Sheet open={activeVideoId !== null} onOpenChange={(o) => (o ? null : closeComments())}>
+        <SheetContent side="bottom" className="h-[70vh] p-0">
+          <SheetHeader className="px-4 pt-4 pb-2">
+            <SheetTitle>Comments</SheetTitle>
+          </SheetHeader>
+          <div className="px-4 pb-24 overflow-y-auto space-y-4">
+            {(activeVideoId && commentsByVideo[activeVideoId])?.map((c) => (
+              <div key={c.id} className="flex items-start gap-3">
+                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(c.author)}`} alt={c.author} className="w-8 h-8 rounded-full" />
+                <div className="flex-1">
+                  <p className="text-sm"><span className="font-semibold mr-2">{c.author}</span>{c.text}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{c.time} ago</p>
+                </div>
+              </div>
+            ))}
+            {activeVideoId && (!commentsByVideo[activeVideoId] || commentsByVideo[activeVideoId].length === 0) && (
+              <p className="text-sm text-muted-foreground">No comments yet. Be the first to comment.</p>
+            )}
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 border-t border-border bg-black p-3 flex items-center gap-2">
+            <Textarea
+              placeholder="Add a comment…"
+              value={commentDraft}
+              onChange={(e) => setCommentDraft(e.target.value)}
+              className="min-h-10 h-10 resize-none"
+            />
+            <Button variant="gradient" size="sm" onClick={submitComment}>Post</Button>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
