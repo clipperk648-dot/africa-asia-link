@@ -16,12 +16,29 @@ import { toast } from "@/components/ui/sonner";
 const BuyerDashboard = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
+  const [showBotTooltip, setShowBotTooltip] = useState(false);
+  const [tooltipText, setTooltipText] = useState("Hi there!");
+
+  const ctaTexts = ["Hi there!", "Need help?", "Chat with us!", "Ask anything!", "We're here!"];
+  let tooltipIndex = 0;
+
+  const cycleBotTooltip = () => {
+    setShowBotTooltip(true);
+    setTooltipText(ctaTexts[tooltipIndex]);
+    tooltipIndex = (tooltipIndex + 1) % ctaTexts.length;
+    setTimeout(() => setShowBotTooltip(false), 2000);
+  };
 
   useEffect(() => {
     if (!user || user.role !== "buyer") {
       navigate("/login");
     }
   }, [user, navigate]);
+
+  useEffect(() => {
+    const interval = setInterval(cycleBotTooltip, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = () => {
     logout();
