@@ -204,22 +204,22 @@ const BuyerDashboard = () => {
       <Link to="/support-chat" aria-label="Open Support Chat" className="fixed right-4 bottom-24 sm:bottom-28 z-50">
         <div className="relative">
           {showBotTooltip && (
-            <div className="absolute right-16 bottom-2 bg-gradient-primary text-white text-xs px-3 py-2 rounded-lg shadow-lg animate-fade-in whitespace-nowrap">
+            <div className="absolute right-14 bottom-1.5 bg-gradient-primary text-white text-xs px-2.5 py-1 rounded-lg shadow-lg animate-fade-in whitespace-nowrap">
               {tooltipText}
-              <div className="absolute left-[-4px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-4 border-b-4 border-r-4 border-t-transparent border-b-transparent" style={{ borderRightColor: "hsl(var(--primary))" }}></div>
+              <div className="absolute left-[-3px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-3 border-b-3 border-r-3 border-t-transparent border-b-transparent" style={{ borderRightColor: "hsl(var(--primary))" }}></div>
             </div>
           )}
           <Button
-            size="lg"
+            size="icon"
             variant="gradient"
-            className="rounded-full shadow-2xl hover:scale-110 transition-transform"
+            className="rounded-full shadow-lg hover:scale-110 transition-transform h-12 w-12"
             onClick={(e) => {
               e.preventDefault();
               cycleBotTooltip();
               setTimeout(() => navigate("/support-chat"), 300);
             }}
           >
-            <Bot className="w-6 h-6" />
+            <Bot className="w-5 h-5" />
           </Button>
         </div>
       </Link>
