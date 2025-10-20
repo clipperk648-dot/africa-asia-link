@@ -1,9 +1,9 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { getCurrentUser } from "@/utils/mockAuth";
 import { useEffect } from "react";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Phone, DollarSign, Globe } from "lucide-react";
+import { ArrowLeft, Phone, DollarSign } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 
 const BottomNav = ({ active }: { active: "wallet" | "pay" | "apps" }) => {
@@ -18,10 +18,10 @@ const BottomNav = ({ active }: { active: "wallet" | "pay" | "apps" }) => {
       <div className="max-w-3xl mx-auto px-8">
         <div className="grid grid-cols-3 h-16">
           {items.map(({ key, to, label, Icon }) => (
-            <a key={key} href={to} className={`flex flex-col items-center justify-center gap-1 ${active === key ? "text-primary" : "text-muted-foreground"}`}>
+            <Link key={key} to={to} className={`flex flex-col items-center justify-center gap-1 ${active === key ? "text-primary" : "text-muted-foreground"}`}>
               <Icon />
               <span className="text-[11px] font-medium">{label}</span>
-            </a>
+            </Link>
           ))}
         </div>
       </div>
@@ -37,57 +37,51 @@ const WalletPay = () => {
     if (!user) navigate("/login");
   }, [user, navigate]);
 
-  const paymentMethods = [
-    {
-      icon: Phone,
-      title: "Phone number",
-      subtitle: "To any MiniPay user",
-      color: "bg-muted/50"
-    },
-    {
-      icon: DollarSign,
-      title: "Shareable Cash Link",
-      subtitle: "To anyone not on MiniPay yet",
-      color: "bg-muted/50"
-    }
-  ];
-
   return (
     <div className="min-h-screen pb-24 relative">
       <ThreeBackground />
       
-      <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-start gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Go back">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-base sm:text-lg font-bold">Pay via</h1>
-        </div>
-      </header>
-
       <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+        <h1 className="text-3xl font-bold">Pay via</h1>
+
         <div className="space-y-3">
-          {paymentMethods.map((method, index) => (
-            <button
-              key={index}
-              className={`w-full p-4 rounded-2xl ${method.color} border border-border/50 hover:border-primary/50 transition-colors text-left flex items-start gap-4`}
-            >
-              <div className="w-12 h-12 rounded-full bg-card border border-border/50 flex items-center justify-center flex-shrink-0 mt-1">
-                <method.icon className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-base">{method.title}</h3>
-                <p className="text-sm text-muted-foreground mt-1">{method.subtitle}</p>
-              </div>
-            </button>
-          ))}
+          <button className="w-full p-5 rounded-3xl bg-muted/50 border border-border/50 hover:border-primary/50 transition-colors text-left flex items-start gap-4">
+            <div className="w-12 h-12 rounded-full bg-card border border-border/50 flex items-center justify-center flex-shrink-0 mt-1">
+              <Phone className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-base">Phone number</h3>
+              <p className="text-sm text-muted-foreground mt-1">To any MiniPay user</p>
+            </div>
+          </button>
+
+          <button className="w-full p-5 rounded-3xl bg-muted/50 border border-border/50 hover:border-primary/50 transition-colors text-left flex items-start gap-4">
+            <div className="w-12 h-12 rounded-full bg-card border border-border/50 flex items-center justify-center flex-shrink-0 mt-1">
+              <DollarSign className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-base">Shareable Cash Link</h3>
+              <p className="text-sm text-muted-foreground mt-1">To anyone not on MiniPay yet</p>
+            </div>
+          </button>
         </div>
 
-        <div className="flex flex-col items-center justify-center py-12">
-          <div className="w-48 h-48 rounded-full bg-gradient-to-br from-secondary/20 to-primary/20 flex items-center justify-center mb-6">
-            <Globe className="w-24 h-24 text-secondary/40" />
+        <div className="flex flex-col items-center justify-center py-16">
+          <div className="w-56 h-56 rounded-full bg-gradient-to-br from-secondary/20 via-primary/10 to-secondary/20 flex items-center justify-center mb-6 relative overflow-hidden">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <svg viewBox="0 0 200 200" className="w-full h-full opacity-60">
+                <circle cx="100" cy="100" r="80" fill="url(#grad)" stroke="none"/>
+                <defs>
+                  <radialGradient id="grad">
+                    <stop offset="0%" stopColor="hsl(var(--primary))"/>
+                    <stop offset="100%" stopColor="hsl(var(--secondary))"/>
+                  </radialGradient>
+                </defs>
+              </svg>
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center text-4xl">🌍</div>
           </div>
-          <p className="text-center text-muted-foreground text-sm">
+          <p className="text-center text-muted-foreground text-sm max-w-xs">
             Keep an eye here for local payment<br />methods coming soon!
           </p>
         </div>
