@@ -106,36 +106,12 @@ const Wallet = () => {
               <X className="w-4 h-4" />
             </button>
             <h3 className="text-lg font-extrabold">You're almost there!</h3>
-            <p className="text-xs mt-1 opacity-90">Get a bonus on your first deposit. Earn weekly rewards on your savings.</p>
+            <p className="text-xs mt-1 opacity-90">Get up to $0.25 back on your first deposit transaction. Earn 2% weekly on your savi...</p>
             <div className="mt-4">
               <Button variant="glass" className="bg-foreground text-background hover:opacity-90" onClick={() => navigate("/wallet/actions#deposit")}>Deposit</Button>
             </div>
           </div>
         )}
-
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          <GlassCard className="p-4">
-            <div className="flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-primary" />
-              <p className="text-xs text-muted-foreground">Current Balance</p>
-            </div>
-            <p className="mt-2 text-2xl font-extrabold">{currency} {balance.toLocaleString()}</p>
-          </GlassCard>
-          <GlassCard className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <ArrowDownCircle className="w-5 h-5 text-secondary" />
-              <p className="text-sm font-medium">Add Funds</p>
-            </div>
-            <Button size="sm" onClick={() => navigate("/wallet/actions#deposit")}>Deposit</Button>
-          </GlassCard>
-          <GlassCard className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <ArrowUpRight className="w-5 h-5 text-accent" />
-              <p className="text-sm font-medium">Withdraw</p>
-            </div>
-            <Button size="sm" variant="outline" onClick={() => navigate("/wallet/actions#transfer")}>Withdraw</Button>
-          </GlassCard>
-        </div>
 
         <section className="space-y-3">
           <div className="flex items-center justify-between">
