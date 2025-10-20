@@ -54,6 +54,9 @@ const Wallet = () => {
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Go back">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
             <WalletIcon className="w-5 h-5 text-primary" />
             <h1 className="text-base sm:text-lg font-bold">Wallet</h1>
           </div>
