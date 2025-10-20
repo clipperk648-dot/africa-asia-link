@@ -13,6 +13,47 @@ import RateButton from "@/components/RateButton";
 import { addToCart } from "@/utils/cart";
 import { toast } from "@/components/ui/sonner";
 
+const ProductCard = ({ product, navigate }: { product: Product; navigate: any }) => (
+  <GlassCard className="p-4 sm:p-6 min-w-[280px] sm:min-w-0">
+    <img
+      src={product.image}
+      alt={product.name}
+      className="w-full h-40 sm:h-48 object-cover rounded-lg mb-4"
+    />
+    <div className="space-y-2">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <h3 className="font-semibold text-sm sm:text-base truncate">{product.name}</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground truncate">{product.company}</p>
+        </div>
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <span className="text-accent">★</span>
+          <span className="text-xs sm:text-sm font-medium">{product.rating}</span>
+        </div>
+      </div>
+      <p className="text-xs sm:text-sm text-muted-foreground truncate">{product.location}</p>
+      <div className="flex items-center justify-between pt-2 gap-2">
+        <p className="text-xl sm:text-2xl font-bold text-primary">
+          ₦{product.price.toLocaleString()}
+        </p>
+        <div className="flex items-center gap-2">
+          <RateButton productId={product.id} productName={product.name} size="xs" />
+          <Button variant="accent" size="xs" className="flex-shrink-0" onClick={() => {
+            addToCart({ id: product.id, name: product.name, price: product.price, image: product.image, company: product.company });
+            toast.success("Added to cart");
+          }}>
+            <PlusCircle className="w-4 h-4" />
+            Add to cart
+          </Button>
+          <Button variant="gradient" size="xs" className="flex-shrink-0" onClick={() => navigate(`/messages?product=${product.id}`)}>
+            Inquire
+          </Button>
+        </div>
+      </div>
+    </div>
+  </GlassCard>
+);
+
 const BuyerDashboard = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
