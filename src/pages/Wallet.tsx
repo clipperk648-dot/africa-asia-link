@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/utils/mockAuth";
 import { getBalance, getTransactions, type WalletTx } from "@/utils/wallet";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
-import { DollarSign, ArrowDownCircle, ArrowUpRight, History, Wallet as WalletIcon, X, ChevronDown, Grid2X2, Send } from "lucide-react";
+import { DollarSign, ArrowDownCircle, ArrowUpRight, History, Wallet as WalletIcon, X, ChevronDown, Grid2X2, Send, ArrowLeft, TrendingUp } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 
 const currencies = ["USD", "NGN"] as const;
@@ -54,6 +54,9 @@ const Wallet = () => {
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Go back">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
             <WalletIcon className="w-5 h-5 text-primary" />
             <h1 className="text-base sm:text-lg font-bold">Wallet</h1>
           </div>
@@ -106,36 +109,12 @@ const Wallet = () => {
               <X className="w-4 h-4" />
             </button>
             <h3 className="text-lg font-extrabold">You're almost there!</h3>
-            <p className="text-xs mt-1 opacity-90">Get a bonus on your first deposit. Earn weekly rewards on your savings.</p>
+            <p className="text-xs mt-1 opacity-90">Get up to $0.25 back on your first deposit transaction. Earn 2% weekly on your savi...</p>
             <div className="mt-4">
               <Button variant="glass" className="bg-foreground text-background hover:opacity-90" onClick={() => navigate("/wallet/actions#deposit")}>Deposit</Button>
             </div>
           </div>
         )}
-
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          <GlassCard className="p-4">
-            <div className="flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-primary" />
-              <p className="text-xs text-muted-foreground">Current Balance</p>
-            </div>
-            <p className="mt-2 text-2xl font-extrabold">{currency} {balance.toLocaleString()}</p>
-          </GlassCard>
-          <GlassCard className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <ArrowDownCircle className="w-5 h-5 text-secondary" />
-              <p className="text-sm font-medium">Add Funds</p>
-            </div>
-            <Button size="sm" onClick={() => navigate("/wallet/actions#deposit")}>Deposit</Button>
-          </GlassCard>
-          <GlassCard className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <ArrowUpRight className="w-5 h-5 text-accent" />
-              <p className="text-sm font-medium">Withdraw</p>
-            </div>
-            <Button size="sm" variant="outline" onClick={() => navigate("/wallet/actions#transfer")}>Withdraw</Button>
-          </GlassCard>
-        </div>
 
         <section className="space-y-3">
           <div className="flex items-center justify-between">
@@ -144,28 +123,66 @@ const Wallet = () => {
           </div>
           <GlassCard className="p-0">
             <div className="divide-y">
-              {txs.length === 0 && (
-                <p className="p-4 text-xs text-muted-foreground">No transactions yet.</p>
-              )}
-              {txs.map((t: WalletTx) => {
-                const positive = t.type === "deposit";
-                return (
-                  <div key={t.id} className="p-4 flex items-center justify-between">
+              {txs.length === 0 ? (
+                <>
+                  <div className="p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${positive ? "bg-secondary/20 text-secondary" : "bg-destructive/10 text-destructive"}`}>
-                        {positive ? <ArrowDownCircle className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-secondary/20">
+                        <TrendingUp className="w-5 h-5 text-secondary" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium">{positive ? "Deposit" : (t.note?.includes("Withdrawal") ? "Withdrawal" : "Payment")}</p>
-                        {t.note && <p className="text-xs text-muted-foreground mt-0.5">{t.note}</p>}
+                        <p className="text-sm font-medium">MiniPay Boost</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Yesterday</p>
                       </div>
                     </div>
-                    <div className={`text-sm font-semibold ${positive ? "text-green-600" : "text-red-600"}`}>
-                      {positive ? "+" : "-"}{t.currency} {t.amount.toLocaleString()}
-                    </div>
+                    <div className="text-sm font-semibold text-green-600">+$0.01</div>
                   </div>
-                );
-              })}
+                  <div className="p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-secondary/20">
+                        <TrendingUp className="w-5 h-5 text-secondary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">MiniPay Boost</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">2 days ago</p>
+                      </div>
+                    </div>
+                    <div className="text-sm font-semibold text-green-600">+$0.01</div>
+                  </div>
+                  <div className="p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-secondary/20">
+                        <TrendingUp className="w-5 h-5 text-secondary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">MiniPay Boost</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">3 days ago</p>
+                      </div>
+                    </div>
+                    <div className="text-sm font-semibold text-green-600">+$0.01</div>
+                  </div>
+                </>
+              ) : (
+                txs.map((t: WalletTx) => {
+                  const positive = t.type === "deposit";
+                  return (
+                    <div key={t.id} className="p-4 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${positive ? "bg-secondary/20 text-secondary" : "bg-destructive/10 text-destructive"}`}>
+                          {positive ? <ArrowDownCircle className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">{positive ? "Deposit" : (t.note?.includes("Withdrawal") ? "Withdrawal" : "Payment")}</p>
+                          {t.note && <p className="text-xs text-muted-foreground mt-0.5">{t.note}</p>}
+                        </div>
+                      </div>
+                      <div className={`text-sm font-semibold ${positive ? "text-green-600" : "text-red-600"}`}>
+                        {positive ? "+" : "-"}{t.currency} {t.amount.toLocaleString()}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </GlassCard>
         </section>
