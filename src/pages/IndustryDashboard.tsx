@@ -68,6 +68,11 @@ const IndustryDashboard = () => {
     }
   }, [user, navigate]);
 
+  useEffect(() => {
+    const interval = setInterval(cycleBotTooltip, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleLogout = () => {
     logout();
     navigate("/login");
