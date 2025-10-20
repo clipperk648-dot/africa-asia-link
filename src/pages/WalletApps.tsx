@@ -1,9 +1,8 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { getCurrentUser } from "@/utils/mockAuth";
 import { useEffect, useState } from "react";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Phone, Zap, Gamepad2, DollarSign, Gift } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 
 const BottomNav = ({ active }: { active: "wallet" | "pay" | "apps" }) => {
@@ -18,10 +17,10 @@ const BottomNav = ({ active }: { active: "wallet" | "pay" | "apps" }) => {
       <div className="max-w-3xl mx-auto px-8">
         <div className="grid grid-cols-3 h-16">
           {items.map(({ key, to, label, Icon }) => (
-            <a key={key} href={to} className={`flex flex-col items-center justify-center gap-1 ${active === key ? "text-primary" : "text-muted-foreground"}`}>
+            <Link key={key} to={to} className={`flex flex-col items-center justify-center gap-1 ${active === key ? "text-primary" : "text-muted-foreground"}`}>
               <Icon />
               <span className="text-[11px] font-medium">{label}</span>
-            </a>
+            </Link>
           ))}
         </div>
       </div>
@@ -43,37 +42,35 @@ const WalletApps = () => {
   const featuredApps = [
     {
       title: "Daily Rewards",
-      subtitle: "MiniPay Claim",
-      description: "Get rewarded for coming back everyday",
-      gradient: "from-green-500 to-emerald-600",
-      icon: "🎁"
+      subtitle: "Get 1",
+      gradient: "from-emerald-500 to-emerald-600",
+      emoji: "🎁"
     },
     {
       title: "Buy Airtime",
-      subtitle: "Get 1% bonus",
-      description: "Purchase airtime instantly",
-      gradient: "from-green-500 to-emerald-600",
-      icon: "📞"
+      subtitle: "Get 1",
+      gradient: "from-emerald-500 to-emerald-600",
+      emoji: "📞"
     }
   ];
 
   const apps = [
     {
-      icon: "📱",
+      emoji: "📱",
       title: "Airtime",
       description: "Every recharge gives you more",
       category: "Payments & Utilities",
       isNew: true
     },
     {
-      icon: "💰",
+      emoji: "💰",
       title: "Deposit with Daimo",
       description: "Bring your funds to MiniPay!",
       category: "Finance",
       isNew: true
     },
     {
-      icon: "⚽",
+      emoji: "⚽",
       title: "Fantasy Football",
       description: "Set Your Squad",
       category: "Finance",
@@ -89,32 +86,28 @@ const WalletApps = () => {
     <div className="min-h-screen pb-24 relative">
       <ThreeBackground />
       
-      <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-start gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Go back">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-base sm:text-lg font-bold">Mini Apps</h1>
-        </div>
-      </header>
-
       <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+        <h1 className="text-3xl font-bold">Mini Apps</h1>
+
         {/* Featured Apps Carousel */}
         <section className="space-y-3">
           <div className="-mx-4 px-4 pb-2 overflow-x-auto snap-x snap-mandatory flex gap-3">
             {featuredApps.map((app, index) => (
-              <div key={index} className="snap-start shrink-0 w-[80%] sm:w-full">
-                <GlassCard className={`p-6 bg-gradient-to-br ${app.gradient} text-white rounded-3xl min-h-[180px] flex flex-col justify-between`}>
+              <div key={index} className="snap-start shrink-0 w-[85%] sm:w-full">
+                <GlassCard className={`p-6 bg-gradient-to-br ${app.gradient} text-white rounded-3xl min-h-[160px] flex flex-col justify-between`}>
                   <div>
                     <h3 className="text-2xl font-bold">{app.title}</h3>
                     <p className="text-white/80 text-sm mt-1">{app.subtitle}</p>
                   </div>
-                  <p className="text-sm opacity-90">{app.description}</p>
+                  <div className="text-5xl text-right opacity-40">{app.emoji}</div>
                 </GlassCard>
               </div>
             ))}
           </div>
         </section>
+
+        {/* Divider */}
+        <div className="border-t border-border/50"></div>
 
         {/* Category Filter */}
         <section className="space-y-3">
@@ -126,7 +119,7 @@ const WalletApps = () => {
                 className={`px-4 py-2 rounded-full font-medium text-sm whitespace-nowrap transition-all ${
                   selectedCategory === category
                     ? "bg-foreground text-background"
-                    : "bg-card border border-border/50 text-foreground hover:border-border"
+                    : "bg-transparent text-foreground hover:text-primary"
                 }`}
               >
                 {category}
@@ -138,10 +131,10 @@ const WalletApps = () => {
         {/* Apps List */}
         <section className="space-y-3">
           {filteredApps.map((app, index) => (
-            <GlassCard key={index} className="p-4 flex items-center justify-between">
+            <GlassCard key={index} className="p-4 flex items-center justify-between hover:bg-card/70 transition-colors">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center text-2xl">
-                  {app.icon}
+                <div className="w-12 h-12 rounded-lg bg-gradient-primary flex items-center justify-center text-2xl flex-shrink-0">
+                  {app.emoji}
                 </div>
                 <div>
                   <p className="font-semibold text-sm">{app.title}</p>
@@ -149,7 +142,7 @@ const WalletApps = () => {
                 </div>
               </div>
               {app.isNew && (
-                <span className="bg-secondary text-white text-[10px] px-2.5 py-1 rounded-full font-medium">New</span>
+                <span className="bg-secondary text-white text-[10px] px-2.5 py-1 rounded-full font-medium flex-shrink-0">New</span>
               )}
             </GlassCard>
           ))}
