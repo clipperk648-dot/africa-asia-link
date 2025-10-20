@@ -161,46 +161,20 @@ const BuyerDashboard = () => {
               </Link>
             </div>
           </div>
-          <div className="grid md:grid-cols-2 gap-4">
-            {mockProducts.slice(0, 2).map((product) => (
-              <GlassCard key={product.id} className="p-4 sm:p-6">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-40 sm:h-48 object-cover rounded-lg mb-4"
-                />
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-sm sm:text-base truncate">{product.name}</h3>
-                      <p className="text-xs sm:text-sm text-muted-foreground truncate">{product.company}</p>
-                    </div>
-                    <div className="flex items-center gap-1 flex-shrink-0">
-                      <span className="text-accent">���</span>
-                      <span className="text-xs sm:text-sm font-medium">{product.rating}</span>
-                    </div>
-                  </div>
-                  <p className="text-xs sm:text-sm text-muted-foreground truncate">{product.location}</p>
-                  <div className="flex items-center justify-between pt-2 gap-2">
-                    <p className="text-xl sm:text-2xl font-bold text-primary">
-                      ₦{product.price.toLocaleString()}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <RateButton productId={product.id} productName={product.name} size="xs" />
-                      <Button variant="accent" size="xs" className="flex-shrink-0" onClick={() => {
-                        addToCart({ id: product.id, name: product.name, price: product.price, image: product.image, company: product.company });
-                        toast.success("Added to cart");
-                      }}>
-                        <PlusCircle className="w-4 h-4" />
-                        Add to cart
-                      </Button>
-                      <Button variant="gradient" size="xs" className="flex-shrink-0" onClick={() => navigate(`/messages?product=${product.id}`)}>
-                        Inquire
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </GlassCard>
+
+          <div className="md:hidden -mx-4 px-4 pb-2 overflow-x-auto snap-x snap-mandatory flex gap-3">
+            {mockProducts.map((p) => (
+              <div key={p.id} className="snap-start shrink-0">
+                <ProductCard product={p} navigate={navigate} />
+              </div>
+            ))}
+          </div>
+
+          <div className="hidden md:grid md:grid-cols-2 gap-4">
+            {mockProducts.map((p) => (
+              <Fragment key={p.id}>
+                <ProductCard product={p} navigate={navigate} />
+              </Fragment>
             ))}
           </div>
         </section>
@@ -253,9 +227,9 @@ const BuyerDashboard = () => {
               <div className="absolute left-[-3px] top-1/2 -translate-y-1/2 w-0 h-0 border-t-3 border-b-3 border-r-3 border-t-transparent border-b-transparent" style={{ borderRightColor: "hsl(var(--primary))" }}></div>
             </div>
           )}
-          <Button
-            size="icon"
-            variant="gradient"
+          <Button 
+            size="icon" 
+            variant="gradient" 
             className="rounded-full shadow-lg hover:scale-110 transition-transform h-12 w-12"
             onClick={(e) => {
               e.preventDefault();
