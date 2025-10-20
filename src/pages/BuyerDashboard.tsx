@@ -115,10 +115,13 @@ const BuyerDashboard = () => {
                   <span className="hidden sm:inline">Social</span>
                 </Button>
               </Link>
+              <Link to="/buyer/products" aria-label="View all products">
+                <Button variant="ghost" size="xs">View All</Button>
+              </Link>
             </div>
           </div>
           <div className="grid md:grid-cols-2 gap-4">
-            {mockProducts.map((product) => (
+            {mockProducts.slice(0, 2).map((product) => (
               <GlassCard key={product.id} className="p-4 sm:p-6">
                 <img
                   src={product.image}
@@ -132,7 +135,7 @@ const BuyerDashboard = () => {
                       <p className="text-xs sm:text-sm text-muted-foreground truncate">{product.company}</p>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      <span className="text-accent">★</span>
+                      <span className="text-accent">���</span>
                       <span className="text-xs sm:text-sm font-medium">{product.rating}</span>
                     </div>
                   </div>
