@@ -35,6 +35,8 @@ const BuyerTwoFactor = lazy(() => import("./pages/BuyerTwoFactor"));
 const Wallet = lazy(() => import("./pages/Wallet"));
 const SupportChat = lazy(() => import("./pages/SupportChat"));
 const WalletActions = lazy(() => import("./pages/WalletActions"));
+const WalletPay = lazy(() => import("./pages/WalletPay"));
+const WalletApps = lazy(() => import("./pages/WalletApps"));
 
 const queryClient = new QueryClient();
 
