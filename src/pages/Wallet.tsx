@@ -123,28 +123,66 @@ const Wallet = () => {
           </div>
           <GlassCard className="p-0">
             <div className="divide-y">
-              {txs.length === 0 && (
-                <p className="p-4 text-xs text-muted-foreground">No transactions yet.</p>
-              )}
-              {txs.map((t: WalletTx) => {
-                const positive = t.type === "deposit";
-                return (
-                  <div key={t.id} className="p-4 flex items-center justify-between">
+              {txs.length === 0 ? (
+                <>
+                  <div className="p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${positive ? "bg-secondary/20 text-secondary" : "bg-destructive/10 text-destructive"}`}>
-                        {positive ? <ArrowDownCircle className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-secondary/20">
+                        <TrendingUp className="w-5 h-5 text-secondary" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium">{positive ? "Deposit" : (t.note?.includes("Withdrawal") ? "Withdrawal" : "Payment")}</p>
-                        {t.note && <p className="text-xs text-muted-foreground mt-0.5">{t.note}</p>}
+                        <p className="text-sm font-medium">MiniPay Boost</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Yesterday</p>
                       </div>
                     </div>
-                    <div className={`text-sm font-semibold ${positive ? "text-green-600" : "text-red-600"}`}>
-                      {positive ? "+" : "-"}{t.currency} {t.amount.toLocaleString()}
-                    </div>
+                    <div className="text-sm font-semibold text-green-600">+$0.01</div>
                   </div>
-                );
-              })}
+                  <div className="p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-secondary/20">
+                        <TrendingUp className="w-5 h-5 text-secondary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">MiniPay Boost</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">2 days ago</p>
+                      </div>
+                    </div>
+                    <div className="text-sm font-semibold text-green-600">+$0.01</div>
+                  </div>
+                  <div className="p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-secondary/20">
+                        <TrendingUp className="w-5 h-5 text-secondary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">MiniPay Boost</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">3 days ago</p>
+                      </div>
+                    </div>
+                    <div className="text-sm font-semibold text-green-600">+$0.01</div>
+                  </div>
+                </>
+              ) : (
+                txs.map((t: WalletTx) => {
+                  const positive = t.type === "deposit";
+                  return (
+                    <div key={t.id} className="p-4 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${positive ? "bg-secondary/20 text-secondary" : "bg-destructive/10 text-destructive"}`}>
+                          {positive ? <ArrowDownCircle className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">{positive ? "Deposit" : (t.note?.includes("Withdrawal") ? "Withdrawal" : "Payment")}</p>
+                          {t.note && <p className="text-xs text-muted-foreground mt-0.5">{t.note}</p>}
+                        </div>
+                      </div>
+                      <div className={`text-sm font-semibold ${positive ? "text-green-600" : "text-red-600"}`}>
+                        {positive ? "+" : "-"}{t.currency} {t.amount.toLocaleString()}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </GlassCard>
         </section>
