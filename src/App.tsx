@@ -38,6 +38,9 @@ const WalletActions = lazy(() => import("./pages/WalletActions"));
 const WalletPay = lazy(() => import("./pages/WalletPay"));
 const WalletApps = lazy(() => import("./pages/WalletApps"));
 const Invest = lazy(() => import("./pages/Invest"));
+const InvestPortfolio = lazy(() => import("./pages/InvestPortfolio"));
+const InvestCreate = lazy(() => import("./pages/InvestCreate"));
+const InvestAnalytics = lazy(() => import("./pages/InvestAnalytics"));
 
 const queryClient = new QueryClient();
 
