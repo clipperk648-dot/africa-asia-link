@@ -47,8 +47,8 @@ const ProductCard = ({ product, navigate }: { product: Product; navigate: any })
             <PlusCircle className="w-4 h-4" />
             Add to cart
           </Button>
-          <Button variant="gradient" size="xs" className="flex-shrink-0" onClick={() => navigate(`/messages?product=${product.id}`)}>
-            Inquire
+          <Button variant="outline" size="xs" className="flex-shrink-0" onClick={() => navigate(`/buyer/products/${product.id}`)}>
+            View
           </Button>
         </div>
       </div>
