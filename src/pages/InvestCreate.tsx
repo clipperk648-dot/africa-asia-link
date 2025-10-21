@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/sonner";
 import { getCurrentUser } from "@/utils/mockAuth";
 import ThreeBackground from "@/components/ThreeBackground";
-import { ArrowLeft, Plus, Trash2, CheckCircle } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, CheckCircle, AlertCircle } from "lucide-react";
 
 type Project = {
   id: string;
@@ -24,6 +24,8 @@ type Project = {
   documents?: string[];
   createdAt?: string;
   image?: string;
+  riskLevel?: "low" | "medium" | "high";
+  verified?: boolean;
 };
 
 const PROJECTS_KEY = "echina_projects_v1";
@@ -49,7 +51,6 @@ const InvestCreate = () => {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Form fields
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [shortDesc, setShortDesc] = useState("");
@@ -61,6 +62,7 @@ const InvestCreate = () => {
   const [documents, setDocuments] = useState<string[]>([]);
   const [newDoc, setNewDoc] = useState("");
   const [image, setImage] = useState("");
+  const [riskLevel, setRiskLevel] = useState<"low" | "medium" | "high">("medium");
 
   useEffect(() => {
     if (!user) {
@@ -73,52 +75,52 @@ const InvestCreate = () => {
     }
   }, [user?.id]);
 
-  const handleAddDocument = () => {
+  const handleAddDocument = useCallback(() => {
     if (!newDoc.trim()) {
-      toast.error("Please enter a document title");
+      toast.error("Enter a document title");
       return;
     }
     setDocuments([...documents, newDoc]);
     setNewDoc("");
     toast.success("Document added");
-  };
+  }, [newDoc, documents]);
 
-  const handleRemoveDocument = (index: number) => {
+  const handleRemoveDocument = useCallback((index: number) => {
     setDocuments(documents.filter((_, i) => i !== index));
-  };
+  }, [documents]);
 
-  const validateStep = () => {
+  const validateStep = (): boolean => {
     if (step === 1) {
       if (!title || !shortDesc || !category) {
-        toast.error("Please fill in all basic information");
+        toast.error("Fill all fields");
         return false;
       }
       if (title.length < 5) {
-        toast.error("Title must be at least 5 characters");
+        toast.error("Title must be 5+ characters");
         return false;
       }
     } else if (step === 2) {
       if (!description || !targetAmount) {
-        toast.error("Please fill in all details");
+        toast.error("Fill all fields");
         return false;
       }
       if (Number(targetAmount) <= 0) {
-        toast.error("Target amount must be greater than 0");
+        toast.error("Target must be > 0");
         return false;
       }
       if (Number(returnPercent) < 0 || Number(returnPercent) > 100) {
-        toast.error("Return percentage must be between 0 and 100");
+        toast.error("Return % between 0-100");
         return false;
       }
       if (Number(durationMonths) < 1) {
-        toast.error("Duration must be at least 1 month");
+        toast.error("Duration ≥ 1 month");
         return false;
       }
     }
     return true;
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     if (!validateStep()) return;
 
     setIsSubmitting(true);
@@ -139,82 +141,94 @@ const InvestCreate = () => {
         documents,
         createdAt: new Date().toISOString(),
         image: image || undefined,
+        riskLevel,
+        verified: false,
       };
 
       projects.push(newProject);
       saveProjects(projects);
 
-      toast.success("Campaign submitted for approval! ✨");
+      toast.success("Campaign submitted! ✨");
       setTimeout(() => {
         navigate("/invest");
-      }, 1500);
-    } catch (error) {
-      toast.error("Failed to submit campaign");
+      }, 1200);
+    } catch {
+      toast.error("Failed to submit");
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [title, description, targetAmount, returnPercent, durationMonths, category, image, pitchUrl, documents, riskLevel, user?.id, navigate]);
+
+  const handleGoBack = useCallback(() => {
+    if (step > 1) {
+      setStep(step - 1);
+    } else {
+      navigate("/invest");
+    }
+  }, [step, navigate]);
 
   return (
     <div className="min-h-screen pb-24 relative">
       <ThreeBackground />
 
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/invest")}>
-              <ArrowLeft className="w-5 h-5" />
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <Button variant="ghost" size="icon" onClick={handleGoBack} className="flex-shrink-0" aria-label="Go back">
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
-            <h1 className="text-base sm:text-lg font-bold">Create Campaign</h1>
+            <h1 className="text-sm sm:text-lg font-bold truncate">Create Campaign</h1>
           </div>
-          <div className="text-sm text-muted-foreground">Step {step} of 3</div>
+          <div className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap flex-shrink-0">
+            Step {step}/3
+          </div>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-        {/* Progress Indicator */}
+      <main className="max-w-4xl mx-auto px-3 sm:px-4 py-6 sm:py-8 space-y-6">
+        {/* Progress */}
         <div className="flex gap-2">
           {[1, 2, 3].map((s) => (
-            <div key={s} className={`h-2 flex-1 rounded-full transition-all ${s <= step ? "bg-primary" : "bg-muted"}`} />
+            <div key={s} className={`h-1.5 sm:h-2 flex-1 rounded-full transition-all ${s <= step ? "bg-primary" : "bg-muted"}`} />
           ))}
         </div>
 
-        {/* Step 1: Basic Information */}
+        {/* Step 1: Basic */}
         {step === 1 && (
-          <GlassCard className="p-6 sm:p-8 space-y-6">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold">Basic Information</h2>
-              <p className="text-muted-foreground">Tell us about your business and campaign</p>
+          <GlassCard className="p-4 sm:p-8 space-y-4 sm:space-y-6">
+            <div className="space-y-1">
+              <h2 className="text-xl sm:text-2xl font-bold">Basic Information</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground">About your business</p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Campaign Title *</label>
+                <label className="text-xs sm:text-sm font-medium mb-1.5 block">Campaign Title *</label>
                 <Input
-                  placeholder="e.g., AI-Powered E-commerce Platform"
+                  placeholder="e.g., AI E-commerce Platform"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="bg-background/50"
+                  className="bg-background/50 text-xs sm:text-sm"
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block">Short Description *</label>
+                <label className="text-xs sm:text-sm font-medium mb-1.5 block">Description *</label>
                 <Input
-                  placeholder="One-line description of your business"
+                  placeholder="One-line description"
                   value={shortDesc}
                   onChange={(e) => setShortDesc(e.target.value)}
-                  className="bg-background/50"
+                  className="bg-background/50 text-xs sm:text-sm"
                   maxLength={100}
                 />
-                <p className="text-xs text-muted-foreground mt-1">{shortDesc.length}/100</p>
+                <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">{shortDesc.length}/100</p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Category *</label>
-                  <select className="w-full px-3 py-2 border border-border rounded-lg bg-background/50 text-sm" value={category} onChange={(e) => setCategory(e.target.value)}>
-                    <option value="">Select a category</option>
+                  <label className="text-xs sm:text-sm font-medium mb-1.5 block">Category *</label>
+                  <select className="w-full px-3 py-2 border border-border rounded-lg bg-background/50 text-xs sm:text-sm" value={category} onChange={(e) => setCategory(e.target.value)}>
+                    <option value="">Select category</option>
                     {categories.map((c) => (
                       <option key={c} value={c}>
                         {c}
@@ -224,136 +238,145 @@ const InvestCreate = () => {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Campaign Image URL</label>
-                  <Input placeholder="https://example.com/image.jpg" value={image} onChange={(e) => setImage(e.target.value)} className="bg-background/50" />
+                  <label className="text-xs sm:text-sm font-medium mb-1.5 block">Risk Level</label>
+                  <select className="w-full px-3 py-2 border border-border rounded-lg bg-background/50 text-xs sm:text-sm" value={riskLevel} onChange={(e) => setRiskLevel(e.target.value as any)}>
+                    <option value="low">Low Risk</option>
+                    <option value="medium">Medium Risk</option>
+                    <option value="high">High Risk</option>
+                  </select>
                 </div>
+              </div>
+
+              <div>
+                <label className="text-xs sm:text-sm font-medium mb-1.5 block">Image URL</label>
+                <Input placeholder="https://..." value={image} onChange={(e) => setImage(e.target.value)} className="bg-background/50 text-xs sm:text-sm" />
               </div>
             </div>
 
-            <div className="flex gap-3 pt-4">
-              <Button variant="outline" className="flex-1" onClick={() => navigate("/invest")}>
+            <div className="flex gap-2 pt-4">
+              <Button variant="outline" className="flex-1 text-xs sm:text-sm" onClick={() => navigate("/invest")}>
                 Cancel
               </Button>
-              <Button variant="gradient" className="flex-1" onClick={() => validateStep() && setStep(2)}>
+              <Button variant="gradient" className="flex-1 text-xs sm:text-sm" onClick={() => validateStep() && setStep(2)}>
                 Next
               </Button>
             </div>
           </GlassCard>
         )}
 
-        {/* Step 2: Campaign Details */}
+        {/* Step 2: Details */}
         {step === 2 && (
-          <GlassCard className="p-6 sm:p-8 space-y-6">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold">Campaign Details</h2>
-              <p className="text-muted-foreground">Define your funding goal and investment terms</p>
+          <GlassCard className="p-4 sm:p-8 space-y-4 sm:space-y-6">
+            <div className="space-y-1">
+              <h2 className="text-xl sm:text-2xl font-bold">Campaign Details</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground">Funding & terms</p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">Full Description *</label>
+                <label className="text-xs sm:text-sm font-medium mb-1.5 block">Full Description *</label>
                 <Textarea
-                  placeholder="Describe your business, problem you're solving, and how you plan to use the funds..."
+                  placeholder="Your business, problem, solution, use of funds..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="bg-background/50 min-h-[120px]"
+                  className="bg-background/50 min-h-[100px] sm:min-h-[120px] text-xs sm:text-sm"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Funding Target (₦) *</label>
+                  <label className="text-xs sm:text-sm font-medium mb-1.5 block">Target Amount (₦) *</label>
                   <Input
                     type="number"
                     placeholder="e.g., 5000000"
                     value={targetAmount}
                     onChange={(e) => setTargetAmount(e.target.value)}
-                    className="bg-background/50"
+                    className="bg-background/50 text-xs sm:text-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Expected Return (%) *</label>
-                  <Input type="number" placeholder="e.g., 15" value={returnPercent} onChange={(e) => setReturnPercent(e.target.value)} className="bg-background/50" />
+                  <label className="text-xs sm:text-sm font-medium mb-1.5 block">Expected Return (%) *</label>
+                  <Input type="number" placeholder="e.g., 15" value={returnPercent} onChange={(e) => setReturnPercent(e.target.value)} className="bg-background/50 text-xs sm:text-sm" />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Investment Duration (Months) *</label>
+                  <label className="text-xs sm:text-sm font-medium mb-1.5 block">Duration (Months) *</label>
                   <Input
                     type="number"
                     placeholder="e.g., 12"
                     value={durationMonths}
                     onChange={(e) => setDurationMonths(e.target.value)}
-                    className="bg-background/50"
+                    className="bg-background/50 text-xs sm:text-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Pitch Video URL</label>
-                  <Input placeholder="YouTube or Vimeo URL" value={pitchUrl} onChange={(e) => setPitchUrl(e.target.value)} className="bg-background/50" />
+                  <label className="text-xs sm:text-sm font-medium mb-1.5 block">Pitch Video URL</label>
+                  <Input placeholder="YouTube/Vimeo URL" value={pitchUrl} onChange={(e) => setPitchUrl(e.target.value)} className="bg-background/50 text-xs sm:text-sm" />
                 </div>
               </div>
 
               {targetAmount && (
-                <GlassCard className="p-4 bg-primary/10 border-primary/30">
-                  <p className="text-sm">
-                    <span className="font-semibold">Funding Target:</span> {format(Number(targetAmount))}
+                <GlassCard className="p-3 sm:p-4 bg-primary/10 border-primary/30">
+                  <p className="text-[11px] sm:text-sm">
+                    <span className="font-semibold">Target:</span> {format(Number(targetAmount))}
                   </p>
-                  <p className="text-sm mt-1">
-                    <span className="font-semibold">Expected Return:</span> {format(Math.round((Number(targetAmount) * Number(returnPercent)) / 100))}
+                  <p className="text-[11px] sm:text-sm mt-1">
+                    <span className="font-semibold">Return:</span> {format(Math.round((Number(targetAmount) * Number(returnPercent)) / 100))}
                   </p>
                 </GlassCard>
               )}
             </div>
 
-            <div className="flex gap-3 pt-4">
-              <Button variant="outline" className="flex-1" onClick={() => setStep(1)}>
+            <div className="flex gap-2 pt-4">
+              <Button variant="outline" className="flex-1 text-xs sm:text-sm" onClick={() => setStep(1)}>
                 Back
               </Button>
-              <Button variant="gradient" className="flex-1" onClick={() => validateStep() && setStep(3)}>
+              <Button variant="gradient" className="flex-1 text-xs sm:text-sm" onClick={() => validateStep() && setStep(3)}>
                 Next
               </Button>
             </div>
           </GlassCard>
         )}
 
-        {/* Step 3: Documents & Review */}
+        {/* Step 3: Documents */}
         {step === 3 && (
-          <GlassCard className="p-6 sm:p-8 space-y-6">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold">Documents & Review</h2>
-              <p className="text-muted-foreground">Add supporting documents and review your campaign</p>
+          <GlassCard className="p-4 sm:p-8 space-y-4 sm:space-y-6">
+            <div className="space-y-1">
+              <h2 className="text-xl sm:text-2xl font-bold">Documents & Review</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground">Supporting docs</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              <div className="space-y-3">
                 <div>
-                  <label className="text-sm font-medium mb-2 block">Supporting Documents</label>
+                  <label className="text-xs sm:text-sm font-medium mb-1.5 block">Documents</label>
                   <div className="flex gap-2">
                     <Input
-                      placeholder="e.g., Business License, Financial Projections"
+                      placeholder="e.g., Business License"
                       value={newDoc}
                       onChange={(e) => setNewDoc(e.target.value)}
-                      className="bg-background/50"
+                      className="bg-background/50 text-xs sm:text-sm"
                       onKeyPress={(e) => e.key === "Enter" && handleAddDocument()}
                     />
-                    <Button variant="outline" onClick={handleAddDocument}>
-                      <Plus className="w-4 h-4" />
+                    <Button variant="outline" onClick={handleAddDocument} size="sm" className="flex-shrink-0">
+                      <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
                     </Button>
                   </div>
                 </div>
 
                 {documents.length > 0 && (
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Added Documents ({documents.length})</label>
-                    <div className="space-y-2">
+                    <p className="text-xs font-medium">Added ({documents.length})</p>
+                    <div className="space-y-1">
                       {documents.map((doc, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
-                          <span className="text-sm">{doc}</span>
-                          <Button variant="ghost" size="icon" onClick={() => handleRemoveDocument(idx)}>
-                            <Trash2 className="w-4 h-4 text-destructive" />
+                        <div key={idx} className="flex items-center justify-between p-2 bg-background/50 rounded text-xs">
+                          <span className="truncate">{doc}</span>
+                          <Button variant="ghost" size="icon" onClick={() => handleRemoveDocument(idx)} className="flex-shrink-0 h-6 w-6">
+                            <Trash2 className="w-3 h-3 text-destructive" />
                           </Button>
                         </div>
                       ))}
@@ -363,49 +386,46 @@ const InvestCreate = () => {
               </div>
 
               <div className="space-y-3">
-                <label className="text-sm font-medium mb-2 block">Campaign Summary</label>
-                <GlassCard className="p-4 bg-background/50 space-y-3">
-                  <div>
-                    <p className="text-xs text-muted-foreground">Title</p>
-                    <p className="font-semibold">{title}</p>
+                <p className="text-xs sm:text-sm font-medium">Summary</p>
+                <GlassCard className="p-3 bg-background/50 space-y-2">
+                  <div className="text-[11px] sm:text-xs">
+                    <p className="text-muted-foreground">Title</p>
+                    <p className="font-semibold truncate">{title}</p>
                   </div>
                   <div className="h-px bg-border" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Category</p>
+                  <div className="text-[11px] sm:text-xs">
+                    <p className="text-muted-foreground">Category</p>
                     <p className="font-semibold">{category}</p>
                   </div>
                   <div className="h-px bg-border" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Funding Target</p>
-                    <p className="font-semibold">{format(Number(targetAmount))}</p>
+                  <div className="text-[11px] sm:text-xs">
+                    <p className="text-muted-foreground">Target</p>
+                    <p className="font-semibold">{format(Number(targetAmount) || 0)}</p>
                   </div>
                   <div className="h-px bg-border" />
-                  <div>
-                    <p className="text-xs text-muted-foreground">Returns & Duration</p>
+                  <div className="text-[11px] sm:text-xs">
+                    <p className="text-muted-foreground">Returns</p>
                     <p className="font-semibold">
-                      {returnPercent}% over {durationMonths} months
+                      {returnPercent}% / {durationMonths}m
                     </p>
                   </div>
                 </GlassCard>
               </div>
             </div>
 
-            <GlassCard className="p-4 bg-blue-500/10 border-blue-500/30 space-y-2">
-              <div className="flex gap-2">
-                <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-semibold text-blue-600">Ready to submit?</p>
-                  <p className="text-sm text-blue-600/80">Your campaign will be reviewed by our team within 24-48 hours. Approved campaigns will be visible to investors immediately.</p>
-                </div>
-              </div>
+            <GlassCard className="p-3 sm:p-4 bg-blue-500/10 border-blue-500/30 flex gap-2 sm:gap-3">
+              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <p className="text-[11px] sm:text-xs text-blue-600 leading-tight">
+                <strong>Ready to submit?</strong> Reviewed within 24-48h. Approved campaigns go live immediately.
+              </p>
             </GlassCard>
 
-            <div className="flex gap-3 pt-4">
-              <Button variant="outline" className="flex-1" onClick={() => setStep(2)}>
+            <div className="flex gap-2 pt-4">
+              <Button variant="outline" className="flex-1 text-xs sm:text-sm" onClick={() => setStep(2)}>
                 Back
               </Button>
-              <Button variant="gradient" className="flex-1" onClick={handleSubmit} disabled={isSubmitting}>
-                {isSubmitting ? "Submitting..." : "Submit Campaign"}
+              <Button variant="gradient" className="flex-1 text-xs sm:text-sm" onClick={handleSubmit} disabled={isSubmitting}>
+                {isSubmitting ? "Submitting..." : "Submit"}
               </Button>
             </div>
           </GlassCard>
