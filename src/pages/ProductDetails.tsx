@@ -28,7 +28,7 @@ const ProductDetails = () => {
 
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-2 flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <Button variant="ghost" size="icon" onClick={() => { if (window.history.length > 1) navigate(-1); else navigate('/buyer/products'); }}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h1 className="text-xl font-bold">Product Details</h1>
@@ -40,70 +40,56 @@ const ProductDetails = () => {
           <GlassCard className="p-4">Product not found.</GlassCard>
         ) : (
           <GlassCard className="p-4 sm:p-6">
-            <img src={product.image} alt={product.name} loading="lazy" className="w-full h-56 sm:h-72 object-cover rounded-lg" />
-            <div className="mt-4 space-y-3">
-              <h2 className="text-lg sm:text-xl font-bold">{product.name}</h2>
-              <div className="flex items-center gap-3">
-                {/** Derive seller display name and avatar seed from available product fields */}
-                {(() => {
-                  const seller = (product as any).username || product.company || product.name || "Seller";
-                  const seed = encodeURIComponent(String((product as any).username || product.company || product.name || "seller"));
-                  return (
-                    <>
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}`} alt={seller} />
-                        <AvatarFallback>{String(seller).slice(0, 1).toUpperCase()}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium">{product.company || seller}</p>
-                        <p className="text-xs text-muted-foreground">{(product as any).username ? `@${(product as any).username} • ${product.location}` : product.location}</p>
-                      </div>
-                    </>
-                  );
-                })()}
-              </div>
-              <p className="text-sm text-muted-foreground">Category: {product.category}</p>
-              <p className="text-xl sm:text-2xl font-bold text-primary">${product.price.toLocaleString()}</p>
-              <div className="flex flex-wrap gap-2 mt-2">
-                <RateButton productId={product.id} productName={product.name} size="xs" />
-                <Button variant="gradient" size="xs" onClick={() => navigate(`/messages?product=${product.id}`)}>
-                  <ShoppingCart className="w-4 h-4" />
-                  Inquire
-                </Button>
+            <div className="space-y-4">
+              <div className="w-full">
+                <img src={product.image} alt={product.name} loading="lazy" className="w-full h-64 sm:h-96 object-cover rounded-lg" />
+                <div className="mt-3 flex gap-2">
+                  {new Array(5).fill(product.image).map((img, idx) => (
+                    <img key={idx} src={img} alt={`${product.name} ${idx}`} className="w-16 h-12 object-cover rounded-md border" />
+                  ))}
+                </div>
               </div>
 
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <p className="text-sm font-semibold">Trade information</p>
-                  <ul className="text-xs text-muted-foreground space-y-1">
-                    <li>Currency: USD</li>
-                    <li>Unit: piece</li>
-                    <li>MOQ: Not specified</li>
-                    <li>Lead time: Not specified</li>
-                    <li>Incoterm: Not specified</li>
-                    <li>Port of shipment: Not specified</li>
-                  </ul>
+              <div className="space-y-2">
+                <h2 className="text-lg sm:text-2xl font-bold">{product.name}</h2>
+                <p className="text-sm text-muted-foreground">{product.company} • {product.location}</p>
+                <p className="text-2xl font-extrabold text-primary">${product.price.toLocaleString()}</p>
+
+                <div className="flex items-center gap-3">
+                  <RateButton productId={product.id} productName={product.name} size="sm" />
+                  <Button variant="outline" size="sm" onClick={() => navigate(`/buyer/products/${product.id}`)}>
+                    View
+                  </Button>
+                  <Button variant="gradient" size="sm" onClick={() => navigate(`/messages?product=${product.id}`)}>
+                    <ShoppingCart className="w-4 h-4" />
+                    Inquire
+                  </Button>
                 </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-semibold">Product details</p>
-                  <ul className="text-xs text-muted-foreground space-y-1">
-                    <li>Brand: Not specified</li>
-                    <li>Model: Not specified</li>
-                    <li>Origin: {product.location}</li>
-                    <li>HS Code: Not specified</li>
-                    <li>Warranty: Not specified</li>
-                  </ul>
-                </div>
-                <div className="space-y-2 sm:col-span-2">
-                  <p className="text-sm font-semibold">Key specifications</p>
-                  <ul className="text-xs text-muted-foreground list-disc pl-5 space-y-1">
-                    <li>Category: {product.category}</li>
-                    <li>Company: {product.company}</li>
-                  </ul>
-                </div>
-                <div className="space-y-2 sm:col-span-2">
-                  <p className="text-sm font-semibold">Interested customers</p>
-                  <p className="text-xs text-muted-foreground">{interested} customer{interested === 1 ? "" : "s"} interested based on recent orders.</p>
+
+                <p className="text-sm text-muted-foreground mt-4">Experience premium quality from {product.company}. This {product.category} item is sourced from {product.location} and has a track record of strong customer satisfaction. Contact the seller for specifics on MOQ, lead times, and shipping options.</p>
+
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <p className="text-sm font-semibold">Amenities & Features</p>
+                    <ul className="text-xs text-muted-foreground mt-2 space-y-1">
+                      <li>• High quality materials</li>
+                      <li>• Factory inspected</li>
+                      <li>• Customizable options</li>
+                      <li>• Competitive pricing</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-semibold">Location & Shipping</p>
+                    <div className="mt-2 rounded border overflow-hidden">
+                      <iframe
+                        title="location"
+                        src={`https://www.google.com/maps?q=${encodeURIComponent(product.location)}&output=embed`}
+                        className="w-full h-40"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">Port of shipment and shipping options vary; contact the seller for details.</p>
+                  </div>
                 </div>
               </div>
             </div>
