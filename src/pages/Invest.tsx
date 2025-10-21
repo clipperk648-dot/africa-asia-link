@@ -151,7 +151,7 @@ const Invest = () => {
     setInvestments(loadInvestments());
     setWalletBalance(getBalance(user.id, "NGN"));
     setUserRole(user.role === "industry" ? "fundraiser" : "investor");
-  }, [user, navigate]);
+  }, [user?.id]);
 
   useEffect(() => saveProjects(projects), [projects]);
   useEffect(() => saveInvestments(investments), [investments]);
