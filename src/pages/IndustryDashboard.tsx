@@ -5,10 +5,11 @@ import { mockProducts, mockOrders, type Product } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, TrendingUp, Package, DollarSign, Users, Music2, Bell, BarChart3, LineChart, Pencil, Wallet as WalletIcon, Bot, Menu } from "lucide-react";
+import { LogOut, TrendingUp, Package, DollarSign, Users, Music2, Bell, BarChart3, LineChart, Pencil, Wallet as WalletIcon, Bot, Menu, Twitter, Instagram, Facebook } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { APP_NAME, SOCIAL_LINKS } from "@/config/app";
 
 const ProductCard = ({ product }: { product: Product }) => (
   <GlassCard className="p-4 sm:p-6 min-w-[280px] sm:min-w-0">
