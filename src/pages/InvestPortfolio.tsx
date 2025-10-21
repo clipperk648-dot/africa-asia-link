@@ -48,7 +48,7 @@ const InvestPortfolio = () => {
       return;
     }
     setInvestments(loadInvestments());
-  }, [user, navigate]);
+  }, [user?.id]);
 
   const userInvestments = useMemo(() => investments.filter((inv) => inv.userId === user?.id), [investments, user]);
 
