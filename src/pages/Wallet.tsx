@@ -43,11 +43,8 @@ const Wallet = () => {
   const [showPromo, setShowPromo] = useState(true);
 
   const goBack = () => {
-    if (window.history.length > 1) {
-      navigate(-1);
-    } else {
-      navigate(user?.role === "industry" ? "/industry" : "/buyer");
-    }
+    const dest = user?.role === "industry" ? "/industry" : "/buyer";
+    navigate(dest);
   };
 
   const promoSlides = [
