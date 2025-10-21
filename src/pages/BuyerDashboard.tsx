@@ -101,11 +101,11 @@ const BuyerDashboard = () => {
       <ThreeBackground />
       
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-2">
+        <div className="max-w-7xl mx-auto px-3 py-1">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 bg-primary text-white rounded-md flex items-center justify-center font-bold">E</div>
-              <span className="text-lg font-bold">{APP_NAME}</span>
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 bg-primary text-white rounded-md flex items-center justify-center font-bold text-sm">E</div>
+              <span className="text-lg font-bold -ml-1">china</span>
             </div>
 
             <div className="flex items-center gap-2">
@@ -161,12 +161,12 @@ const BuyerDashboard = () => {
 
           </div>
 
-          <div className="mt-3 flex items-center justify-between">
+          <div className="mt-2 flex items-center justify-between">
             <div>
-              <h1 className="text-lg font-bold">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Buyer'}!</h1>
+              <h1 className="text-base font-semibold">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Buyer'}!</h1>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <div className="relative">
                 <Link to="/notifications" aria-label="Open Notifications">
                   <Button variant="ghost" size="icon">
@@ -180,8 +180,8 @@ const BuyerDashboard = () => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-2 px-2 py-1 rounded-md">
-                    <div className="h-9 w-9 rounded-full border-2 border-border/60 overflow-hidden flex items-center justify-center">
-                      <Avatar className="h-9 w-9">
+                    <div className="h-8 w-8 rounded-full border-2 border-border/60 overflow-hidden flex items-center justify-center">
+                      <Avatar className="h-8 w-8">
                         <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email || 'user'}`} alt={user?.name || 'Profile'} />
                         <AvatarFallback>{(user?.name?.[0] || 'U')}</AvatarFallback>
                       </Avatar>
