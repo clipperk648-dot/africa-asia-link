@@ -14,8 +14,8 @@ type Currency = typeof currencies[number];
 const BottomNav = ({ active }: { active: "wallet" | "pay" | "apps" }) => {
   const items = [
     { key: "wallet" as const, to: "/wallet", label: "Wallet", Icon: WalletIcon },
-    { key: "pay" as const, to: "/wallet/actions#transfer", label: "Pay", Icon: Send },
-    { key: "apps" as const, to: "/menu", label: "Apps", Icon: Grid2X2 },
+    { key: "pay" as const, to: "/wallet/pay", label: "Pay", Icon: Send },
+    { key: "apps" as const, to: "/wallet/apps", label: "Apps", Icon: Grid2X2 },
   ];
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-t border-border/50">
