@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { DollarSign, ArrowDownCircle, ArrowUpRight, History, Wallet as WalletIcon, X, ChevronDown, Grid2X2, Send, ArrowLeft, TrendingUp } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import SlideshowBanner from "@/components/SlideshowBanner";
+import { APP_NAME } from "@/config/app";
 
 const currencies = ["USD", "NGN"] as const;
 
