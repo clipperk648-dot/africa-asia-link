@@ -101,12 +101,14 @@ const BuyerDashboard = () => {
       <ThreeBackground />
       
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-1 flex items-center justify-between">
-          <div>
-            <h1 className="text-lg font-bold">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Buyer'}!</h1>
-            <p className="text-xs text-muted-foreground">Good to see you — ready to discover new products?</p>
+        <div className="max-w-7xl mx-auto px-4 py-2 flex flex-col">
+          {/* Top row: app name only */}
+          <div className="w-full flex items-center justify-center py-1">
+            <h1 className="text-lg font-bold">{APP_NAME}</h1>
           </div>
-          <div className="flex items-center gap-3">
+
+          {/* Bottom row: controls */}
+          <div className="w-full flex items-center justify-end gap-3 pt-1">
             <div className="relative">
               <Link to="/notifications" aria-label="Open Notifications">
                 <Button variant="ghost" size="icon">
@@ -116,23 +118,36 @@ const BuyerDashboard = () => {
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-semibold rounded-full px-1.5 leading-none">2</span>
             </div>
 
-            <div className="relative">
-              <Link to="/profile" aria-label="Open Profile">
-                <div className="h-9 w-9 rounded-full border-2 border-border/60 overflow-hidden flex items-center justify-center">
+            {/* Profile dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="h-9 w-9 rounded-full border-2 border-border/60 overflow-hidden flex items-center justify-center">
                   <Avatar className="h-9 w-9">
                     <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email || 'user'}`} alt={user?.name || 'Profile'} />
                     <AvatarFallback>{(user?.name?.[0] || 'U')}</AvatarFallback>
                   </Avatar>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <div className="px-3 py-2">
+                  <p className="text-sm font-medium">{user?.name || 'User'}</p>
+                  <p className="text-xs text-muted-foreground">{user?.email}</p>
                 </div>
-              </Link>
-              <span className="absolute bottom-0 right-0 block h-2 w-2 rounded-full bg-green-400 border-2 border-white" />
-            </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/profile')}>My Profile</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/buyer/settings')}>Account Settings</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/notifications')}>Notifications</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>Sign Out</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <Link to="/wallet" aria-label="Open Wallet">
               <Button variant="ghost" size="icon">
                 <WalletIcon className="w-5 h-5" />
               </Button>
             </Link>
+
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" aria-label="Open menu">
