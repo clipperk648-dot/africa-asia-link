@@ -134,9 +134,28 @@ const IndustryDashboard = () => {
                   <Link to="/wallet">
                     <Button variant="ghost" className="w-full justify-start">Wallet</Button>
                   </Link>
+                  <Link to="/invest">
+                    <Button variant="ghost" className="w-full justify-start">Invest</Button>
+                  </Link>
                   <Link to="/notifications">
                     <Button variant="ghost" className="w-full justify-start">Notifications</Button>
                   </Link>
+
+                  <div className="pt-2 border-t border-border/40 mt-2">
+                    <p className="text-xs text-muted-foreground px-2 mb-2">Follow us</p>
+                    <div className="flex gap-2 px-2">
+                      <a href={SOCIAL_LINKS[0].href} target="_blank" rel="noreferrer">
+                        <Button variant="ghost" className="p-2"><Twitter className="w-4 h-4" /></Button>
+                      </a>
+                      <a href={SOCIAL_LINKS[1].href} target="_blank" rel="noreferrer">
+                        <Button variant="ghost" className="p-2"><Instagram className="w-4 h-4" /></Button>
+                      </a>
+                      <a href={SOCIAL_LINKS[2].href} target="_blank" rel="noreferrer">
+                        <Button variant="ghost" className="p-2"><Facebook className="w-4 h-4" /></Button>
+                      </a>
+                    </div>
+                  </div>
+
                   <Button className="w-full justify-start mt-4" variant="destructive" onClick={handleLogout}>
                     <LogOut className="w-4 h-4 mr-2" /> Logout
                   </Button>
