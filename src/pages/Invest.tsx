@@ -1,10 +1,14 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/sonner";
 import { getCurrentUser } from "@/utils/mockAuth";
+import { getBalance } from "@/utils/wallet";
+import ThreeBackground from "@/components/ThreeBackground";
+import { TrendingUp, Target, Users, ArrowRight, Star, Clock, Zap, Plus, ArrowDown, Search, Filter, ArrowLeft, Shield, AlertCircle } from "lucide-react";
 
 type Project = {
   id: string;
@@ -19,298 +23,466 @@ type Project = {
   status?: "pending" | "approved" | "funded";
   pitchUrl?: string;
   documents?: string[];
+  createdAt?: string;
+  image?: string;
+  riskLevel?: "low" | "medium" | "high";
+  verified?: boolean;
 };
 
-type Tx = { id: string; type: "deposit" | "withdraw" | "invest"; amount: number; date: string; note?: string };
+type Investment = {
+  id: string;
+  userId: string;
+  projectId: string;
+  projectTitle: string;
+  amount: number;
+  returnPercent: number;
+  durationMonths: number;
+  date: string;
+  expectedReturn: number;
+};
 
 const PROJECTS_KEY = "echina_projects_v1";
-const WALLET_KEY = "echina_wallet_v1";
-const TX_KEY = "echina_txs_v1";
+const INVESTMENTS_KEY = "echina_investments_v1";
 
 const loadProjects = (): Project[] => {
   try {
     const raw = localStorage.getItem(PROJECTS_KEY);
     return raw ? JSON.parse(raw) : [];
-  } catch (e) {
+  } catch {
     return [];
   }
 };
+
 const saveProjects = (items: Project[]) => localStorage.setItem(PROJECTS_KEY, JSON.stringify(items));
 
-const loadWallet = (): number => {
+const loadInvestments = (): Investment[] => {
   try {
-    const raw = localStorage.getItem(WALLET_KEY);
-    return raw ? Number(raw) : 0;
-  } catch (e) {
-    return 0;
-  }
-};
-const saveWallet = (amt: number) => localStorage.setItem(WALLET_KEY, String(amt));
-
-const loadTxs = (): Tx[] => {
-  try {
-    const raw = localStorage.getItem(TX_KEY);
+    const raw = localStorage.getItem(INVESTMENTS_KEY);
     return raw ? JSON.parse(raw) : [];
-  } catch (e) {
+  } catch {
     return [];
   }
 };
-const saveTxs = (txs: Tx[]) => localStorage.setItem(TX_KEY, JSON.stringify(txs));
+
+const saveInvestments = (items: Investment[]) => localStorage.setItem(INVESTMENTS_KEY, JSON.stringify(items));
 
 const format = (n: number) => `₦${n.toLocaleString()}`;
 
+const getRiskColor = (risk?: string) => {
+  switch (risk) {
+    case "low":
+      return "text-green-600 bg-green-500/20";
+    case "medium":
+      return "text-yellow-600 bg-yellow-500/20";
+    case "high":
+      return "text-red-600 bg-red-500/20";
+    default:
+      return "text-blue-600 bg-blue-500/20";
+  }
+};
+
+const ProjectCard = ({ project, onInvest }: { project: Project; onInvest: (id: string) => void }) => {
+  const percent = Math.min(100, Math.round((project.funded / project.target) * 100));
+  const daysLeft = Math.max(0, Math.floor(Math.random() * 30) + 5);
+
+  return (
+    <GlassCard className="p-3 sm:p-4 flex flex-col h-full hover:shadow-2xl transition-all duration-300">
+      <div className="relative mb-3 -mx-3 -mt-3 sm:-mx-4 sm:-mt-4 bg-gradient-to-br from-primary/40 to-accent/40 rounded-t-2xl h-32 sm:h-40 flex items-center justify-center overflow-hidden">
+        {project.image ? (
+          <img src={project.image} alt={project.title} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-white/40 text-3xl sm:text-5xl">📊</div>
+        )}
+      </div>
+
+      <div className="flex-1 space-y-3">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <h3 className="font-bold text-xs sm:text-sm line-clamp-2">{project.title}</h3>
+            {project.verified && (
+              <div className="flex items-center gap-1 mt-1">
+                <Shield className="w-3 h-3 text-green-600" />
+                <span className="text-[10px] text-green-600 font-semibold">Verified</span>
+              </div>
+            )}
+          </div>
+          <span className={`px-2 py-1 rounded-full text-[10px] font-semibold flex-shrink-0 ${project.status === "approved" ? "bg-green-500/20 text-green-600" : project.status === "pending" ? "bg-yellow-500/20 text-yellow-600" : "bg-primary/20 text-primary"}`}>
+            {project.status === "pending" ? "Pending" : project.status === "approved" ? "Live" : "Funded"}
+          </span>
+        </div>
+
+        <p className="text-[11px] sm:text-xs text-muted-foreground line-clamp-2">{project.description}</p>
+
+        <div className="flex items-center gap-2 text-[11px] sm:text-xs flex-wrap">
+          <div className="flex items-center gap-1">
+            <span className="font-semibold text-primary">{project.returnPercent}%</span>
+            <span className="text-muted-foreground">Return</span>
+          </div>
+          <div className="h-1 w-px bg-border"></div>
+          <div className="flex items-center gap-1">
+            <span className="font-semibold">{project.durationMonths}m</span>
+          </div>
+          {project.riskLevel && (
+            <>
+              <div className="h-1 w-px bg-border"></div>
+              <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${getRiskColor(project.riskLevel)}`}>{project.riskLevel}</span>
+            </>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-[11px] sm:text-xs">
+            <span className="text-muted-foreground">Progress</span>
+            <span className="font-semibold">{percent}%</span>
+          </div>
+          <div className="w-full bg-muted h-1.5 rounded-full overflow-hidden">
+            <div style={{ width: `${percent}%` }} className="h-1.5 bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-300" />
+          </div>
+          <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+            <span>{format(project.funded)}</span>
+            <span>{format(project.target)}</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+          <Clock className="w-3 h-3" />
+          <span>{daysLeft}d left</span>
+        </div>
+      </div>
+
+      <Button onClick={() => onInvest(project.id)} disabled={project.status === "pending"} className="w-full text-xs sm:text-sm mt-3" variant={project.status === "approved" ? "gradient" : "outline"}>
+        <ArrowRight className="w-3 h-3 mr-1" />
+        {project.status === "pending" ? "Pending" : "Invest"}
+      </Button>
+    </GlassCard>
+  );
+};
+
 const Invest = () => {
+  const navigate = useNavigate();
   const user = getCurrentUser();
+  const [userRole, setUserRole] = useState<"investor" | "fundraiser" | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [wallet, setWallet] = useState<number>(0);
-  const [txs, setTxs] = useState<Tx[]>([]);
+  const [investments, setInvestments] = useState<Investment[]>([]);
+  const [walletBalance, setWalletBalance] = useState(0);
 
-  // form state for creating campaigns
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [target, setTarget] = useState<number | "">("");
-  const [category, setCategory] = useState("");
-  const [returnPercent, setReturnPercent] = useState<number | "">(10);
-  const [durationMonths, setDurationMonths] = useState<number | "">(12);
-  const [pitchUrl, setPitchUrl] = useState("");
-
-  // browsing filters
   const [filterCategory, setFilterCategory] = useState("");
-  const [minReturn, setMinReturn] = useState<number | "">("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    setProjects(loadProjects());
-    setWallet(loadWallet());
-    setTxs(loadTxs());
-  }, []);
-
-  useEffect(() => saveProjects(projects), [projects]);
-  useEffect(() => saveWallet(wallet), [wallet]);
-  useEffect(() => saveTxs(txs), [txs]);
-
-  const createProject = () => {
-    if (!title || !description || !target || Number(target) <= 0) {
-      toast.error("Please provide valid project details");
+    if (!user) {
+      navigate("/login");
       return;
     }
-    const p: Project = {
-      id: Date.now().toString(36),
-      ownerId: user?.id ?? null,
-      title,
-      description,
-      target: Number(target),
-      funded: 0,
-      category: category || "General",
-      returnPercent: Number(returnPercent) || 10,
-      durationMonths: Number(durationMonths) || 12,
-      status: "pending",
-      pitchUrl: pitchUrl || undefined,
-      documents: [],
-    };
-    setProjects((s) => [p, ...s]);
-    setTitle("");
-    setDescription("");
-    setTarget("");
-    setCategory("");
-    setReturnPercent(10);
-    setDurationMonths(12);
-    setPitchUrl("");
-    toast.success("Project submitted for approval");
-  };
+    setProjects(loadProjects());
+    setInvestments(loadInvestments());
+    setWalletBalance(getBalance(user.id, "NGN"));
+    setUserRole(user.role === "industry" ? "fundraiser" : "investor");
+  }, [user?.id]);
 
-  const deposit = () => {
-    const amountStr = prompt("Enter deposit amount (₦)");
-    if (!amountStr) return;
-    const amount = Number(amountStr);
-    if (isNaN(amount) || amount <= 0) return toast.error("Invalid amount");
-    setWallet((w) => w + amount);
-    const tx: Tx = { id: Date.now().toString(36), type: "deposit", amount, date: new Date().toISOString(), note: "Wallet deposit" };
-    setTxs((s) => [tx, ...s]);
-    toast.success(`Deposited ${format(amount)}`);
-  };
-
-  const withdraw = () => {
-    const amountStr = prompt("Enter withdraw amount (₦)");
-    if (!amountStr) return;
-    const amount = Number(amountStr);
-    if (isNaN(amount) || amount <= 0) return toast.error("Invalid amount");
-    if (amount > wallet) return toast.error("Insufficient balance");
-    setWallet((w) => w - amount);
-    const tx: Tx = { id: Date.now().toString(36), type: "withdraw", amount, date: new Date().toISOString(), note: "Wallet withdrawal" };
-    setTxs((s) => [tx, ...s]);
-    toast.success(`Withdrew ${format(amount)}`);
-  };
-
-  const investInProject = (projectId: string) => {
-    const project = projects.find((p) => p.id === projectId);
-    if (!project) return;
-    const amountStr = prompt(`Enter amount to invest in ${project.title} (₦)`);
-    if (!amountStr) return;
-    const amount = Number(amountStr);
-    if (isNaN(amount) || amount <= 0) return toast.error("Invalid amount");
-    if (amount > wallet) return toast.error("Insufficient wallet balance. Please deposit funds.");
-    // deduct
-    setWallet((w) => w - amount);
-    const tx: Tx = { id: Date.now().toString(36), type: "invest", amount, date: new Date().toISOString(), note: `Invested in ${project.title}` };
-    setTxs((s) => [tx, ...s]);
-    // update project
-    setProjects((s) => s.map((p) => (p.id === projectId ? { ...p, funded: p.funded + amount } : p)));
-    toast.success(`Invested ${format(amount)} in ${project.title}`);
-  };
-
-  const approveProject = (id: string) => {
-    setProjects((s) => s.map((p) => (p.id === id ? { ...p, status: "approved" } : p)));
-    toast.success("Project approved");
-  };
+  useEffect(() => saveProjects(projects), [projects]);
+  useEffect(() => saveInvestments(investments), [investments]);
 
   const categories = useMemo(() => Array.from(new Set(projects.map((p) => p.category || "General"))), [projects]);
 
   const filtered = projects.filter((p) => {
     if (filterCategory && p.category !== filterCategory) return false;
-    if (statusFilter && p.status !== (statusFilter as any)) return false;
-    if (minReturn && Number(p.returnPercent || 0) < Number(minReturn)) return false;
+    if (filterStatus && p.status !== filterStatus) return false;
+    if (searchTerm && !p.title.toLowerCase().includes(searchTerm.toLowerCase())) return false;
     return true;
   });
 
-  const totalFunded = projects.reduce((a, b) => a + b.funded, 0);
-  const totalTarget = projects.reduce((a, b) => a + b.target, 0);
+  const userInvestments = investments.filter((inv) => inv.userId === user?.id);
+  const userProjects = projects.filter((p) => p.ownerId === user?.id);
+
+  const totalInvested = userInvestments.reduce((a, b) => a + b.amount, 0);
+  const totalExpectedReturn = userInvestments.reduce((a, b) => a + b.expectedReturn, 0);
+  const totalProjectsFunded = userProjects.reduce((a, b) => a + b.funded, 0);
+
+  const investInProject = useCallback((projectId: string) => {
+    const project = projects.find((p) => p.id === projectId);
+    if (!project) return;
+
+    const amountStr = prompt(`Invest in "${project.title}"\n\nMax available: ${format(walletBalance)}`);
+    if (!amountStr) return;
+
+    const amount = Number(amountStr);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("Invalid amount");
+      return;
+    }
+    if (amount > walletBalance) {
+      toast.error("Insufficient wallet balance");
+      return;
+    }
+
+    const investment: Investment = {
+      id: Date.now().toString(36),
+      userId: user!.id,
+      projectId,
+      projectTitle: project.title,
+      amount,
+      returnPercent: project.returnPercent || 10,
+      durationMonths: project.durationMonths || 12,
+      date: new Date().toISOString(),
+      expectedReturn: Math.round((amount * (project.returnPercent || 10)) / 100),
+    };
+
+    setInvestments((s) => [investment, ...s]);
+    setProjects((s) => s.map((p) => (p.id === projectId ? { ...p, funded: p.funded + amount } : p)));
+    setWalletBalance((w) => w - amount);
+
+    toast.success(`Invested ${format(amount)}! 🎉`);
+  }, [projects, user?.id, walletBalance]);
+
+  const handleGoBack = useCallback(() => {
+    navigate(userRole === "fundraiser" ? "/industry" : "/buyer");
+  }, [userRole, navigate]);
 
   return (
     <div className="min-h-screen pb-24 relative">
-      <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
-        <div className="grid md:grid-cols-3 gap-4">
-          <div className="md:col-span-2 space-y-4">
-            <h1 className="text-2xl font-bold">Investment Platform</h1>
+      <ThreeBackground />
 
-            <GlassCard className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Wallet balance</p>
-                  <p className="text-2xl font-extrabold">{format(wallet)}</p>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={deposit}>Deposit</Button>
-                  <Button variant="ghost" onClick={withdraw}>Withdraw</Button>
-                </div>
-              </div>
-            </GlassCard>
+      <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3">
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <Button variant="ghost" size="icon" onClick={handleGoBack} className="flex-shrink-0" aria-label="Go back">
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+              </Button>
+              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
+              <h1 className="text-sm sm:text-lg font-bold truncate">Investment Hub</h1>
+            </div>
+            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+              <Link to="/invest/analytics">
+                <Button variant="outline" size="sm" className="text-xs sm:text-sm">Analytics</Button>
+              </Link>
+              {userRole === "investor" && (
+                <Link to="/invest/portfolio">
+                  <Button variant="outline" size="sm" className="text-xs sm:text-sm">Portfolio</Button>
+                </Link>
+              )}
+              {userRole === "fundraiser" && (
+                <Link to="/invest/create">
+                  <Button variant="gradient" size="sm" className="text-xs sm:text-sm">
+                    <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    <span className="hidden sm:inline">Create</span>
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      </header>
 
-            <section>
-              <h2 className="text-lg font-semibold mb-2">Create fundraising campaign</h2>
-              <GlassCard className="p-4 space-y-3">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
-                  <Input placeholder="Category" value={category} onChange={(e) => setCategory(e.target.value)} />
-                  <Input placeholder="Target amount (₦)" value={target as any} onChange={(e) => setTarget(e.target.value ? Number(e.target.value) : "")} />
-                  <Input placeholder="Return % (e.g., 12)" value={returnPercent as any} onChange={(e) => setReturnPercent(e.target.value ? Number(e.target.value) : "")} />
-                </div>
-                <Textarea placeholder="Short description" value={description} onChange={(e) => setDescription(e.target.value)} />
-                <Input placeholder="Pitch video URL (optional)" value={pitchUrl} onChange={(e) => setPitchUrl(e.target.value)} />
-                <div className="flex gap-2">
-                  <Button variant="gradient" onClick={createProject}>Submit for approval</Button>
-                  <Button variant="outline" onClick={() => { setTitle(""); setDescription(""); setTarget(""); setCategory(""); setReturnPercent(10); setDurationMonths(12); setPitchUrl(""); }}>Reset</Button>
-                </div>
-              </GlassCard>
-            </section>
-
-            <section>
-              <h2 className="text-lg font-semibold">Browse opportunities</h2>
-              <GlassCard className="p-4 mb-3">
-                <div className="flex flex-wrap gap-2 mb-3">
-                  <select className="px-2 py-1 border rounded" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
-                    <option value="">All categories</option>
-                    {categories.map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
-
-                  <select className="px-2 py-1 border rounded" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                    <option value="">All statuses</option>
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="funded">Funded</option>
-                  </select>
-
-                  <Input placeholder="Min return %" value={minReturn as any} onChange={(e) => setMinReturn(e.target.value ? Number(e.target.value) : "")} />
-                </div>
-
-                {filtered.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No opportunities match your filters.</p>
-                ) : (
-                  filtered.map((p) => {
-                    const percent = Math.min(100, Math.round((p.funded / p.target) * 100));
-                    return (
-                      <div key={p.id} className="mb-3">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-semibold">{p.title} {p.status === "pending" && <span className="text-xs text-muted-foreground">(Pending)</span>}</h3>
-                            <p className="text-xs text-muted-foreground">{p.category} • {p.returnPercent}% • {p.durationMonths} months</p>
-                            <p className="text-sm mt-1">{p.description}</p>
-                            <p className="text-xs mt-2">{format(p.funded)} raised of {format(p.target)}</p>
-                            <div className="w-full bg-muted h-2 rounded mt-2 overflow-hidden">
-                              <div style={{ width: `${percent}%` }} className="h-2 bg-primary" />
-                            </div>
-                          </div>
-                          <div className="flex flex-col items-end gap-2">
-                            <div className="text-right">
-                              <p className="text-lg font-bold">{format(p.target)}</p>
-                              <p className="text-xs text-muted-foreground">Target</p>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button size="sm" variant="outline" onClick={() => investInProject(p.id)}>Invest</Button>
-                              {p.ownerId === user?.id && p.status === "pending" && (
-                                <Button size="sm" variant="gradient" onClick={() => approveProject(p.id)}>Approve</Button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </GlassCard>
-            </section>
-
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-6 sm:py-8 space-y-6 sm:space-y-8">
+        {/* Hero Section */}
+        <section className="space-y-3 sm:space-y-6">
+          <div className="space-y-1 sm:space-y-2">
+            <h2 className="text-2xl sm:text-4xl font-bold">Welcome, {user?.name?.split(" ")[0]}! 👋</h2>
+            <p className="text-xs sm:text-base text-muted-foreground">Grow your wealth with investment opportunities</p>
           </div>
 
-          <aside className="space-y-4">
-            <GlassCard className="p-4">
-              <p className="text-sm text-muted-foreground">Overview</p>
-              <p className="text-xl font-bold mt-1">Total funded: {format(totalFunded)}</p>
-              <p className="text-sm text-muted-foreground">Across {projects.length} projects</p>
-              <div className="mt-3">
-                <p className="text-xs text-muted-foreground">Funding progress</p>
-                <div className="w-full bg-muted h-2 rounded mt-2 overflow-hidden">
-                  <div style={{ width: `${totalTarget ? Math.min(100, Math.round((totalFunded / totalTarget) * 100)) : 0}%` }} className="h-2 bg-accent" />
+          {/* KPI Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <GlassCard className="p-3 sm:p-6">
+              <div className="flex items-start justify-between">
+                <div className="min-w-0">
+                  <p className="text-[11px] sm:text-sm text-muted-foreground">Wallet Balance</p>
+                  <p className="text-lg sm:text-3xl font-bold mt-1 sm:mt-2 truncate">{format(walletBalance)}</p>
+                </div>
+                <div className="p-2 bg-primary/20 rounded-lg flex-shrink-0">
+                  <Target className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                </div>
+              </div>
+              <Link to="/wallet">
+                <Button variant="ghost" size="sm" className="mt-3 sm:mt-4 w-full text-xs">
+                  Manage
+                </Button>
+              </Link>
+            </GlassCard>
+
+            {userRole === "investor" && (
+              <>
+                <GlassCard className="p-3 sm:p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="min-w-0">
+                      <p className="text-[11px] sm:text-sm text-muted-foreground">Total Invested</p>
+                      <p className="text-lg sm:text-3xl font-bold mt-1 sm:mt-2 truncate">{format(totalInvested)}</p>
+                    </div>
+                    <div className="p-2 bg-secondary/20 rounded-lg flex-shrink-0">
+                      <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-secondary" />
+                    </div>
+                  </div>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-3 sm:mt-4">{userInvestments.length} projects</p>
+                </GlassCard>
+
+                <GlassCard className="p-3 sm:p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="min-w-0">
+                      <p className="text-[11px] sm:text-sm text-muted-foreground">Expected Returns</p>
+                      <p className="text-lg sm:text-3xl font-bold mt-1 sm:mt-2 text-green-600 truncate">{format(totalExpectedReturn)}</p>
+                    </div>
+                    <div className="p-2 bg-green-500/20 rounded-lg flex-shrink-0">
+                      <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+                    </div>
+                  </div>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-3 sm:mt-4">Estimated earnings</p>
+                </GlassCard>
+
+                <GlassCard className="p-3 sm:p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="min-w-0">
+                      <p className="text-[11px] sm:text-sm text-muted-foreground">Active Projects</p>
+                      <p className="text-lg sm:text-3xl font-bold mt-1 sm:mt-2">{projects.filter((p) => p.status === "approved").length}</p>
+                    </div>
+                    <div className="p-2 bg-accent/20 rounded-lg flex-shrink-0">
+                      <Star className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
+                    </div>
+                  </div>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-3 sm:mt-4">Ready to invest</p>
+                </GlassCard>
+              </>
+            )}
+
+            {userRole === "fundraiser" && (
+              <>
+                <GlassCard className="p-3 sm:p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="min-w-0">
+                      <p className="text-[11px] sm:text-sm text-muted-foreground">Total Funded</p>
+                      <p className="text-lg sm:text-3xl font-bold mt-1 sm:mt-2 truncate">{format(totalProjectsFunded)}</p>
+                    </div>
+                    <div className="p-2 bg-secondary/20 rounded-lg flex-shrink-0">
+                      <ArrowDown className="w-4 h-4 sm:w-5 sm:h-5 text-secondary" />
+                    </div>
+                  </div>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-3 sm:mt-4">{userProjects.length} campaigns</p>
+                </GlassCard>
+
+                <GlassCard className="p-3 sm:p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="min-w-0">
+                      <p className="text-[11px] sm:text-sm text-muted-foreground">Active Campaigns</p>
+                      <p className="text-lg sm:text-3xl font-bold mt-1 sm:mt-2">{userProjects.filter((p) => p.status === "approved").length}</p>
+                    </div>
+                    <div className="p-2 bg-accent/20 rounded-lg flex-shrink-0">
+                      <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
+                    </div>
+                  </div>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-3 sm:mt-4">Seeking investors</p>
+                </GlassCard>
+
+                <GlassCard className="p-3 sm:p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="min-w-0">
+                      <p className="text-[11px] sm:text-sm text-muted-foreground">Total Investors</p>
+                      <p className="text-lg sm:text-3xl font-bold mt-1 sm:mt-2">{new Set(investments.filter((inv) => userProjects.map((p) => p.id).includes(inv.projectId)).map((inv) => inv.userId)).size}</p>
+                    </div>
+                    <div className="p-2 bg-primary/20 rounded-lg flex-shrink-0">
+                      <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                    </div>
+                  </div>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-3 sm:mt-4">Backing you</p>
+                </GlassCard>
+              </>
+            )}
+          </div>
+        </section>
+
+        {/* Browse/Filter Section */}
+        {userRole === "investor" && (
+          <section className="space-y-3 sm:space-y-4">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-lg sm:text-2xl font-bold truncate">Opportunities</h3>
+              <Button variant="outline" size="sm" className="text-xs sm:text-sm flex-shrink-0">
+                <Filter className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                <span className="hidden sm:inline">Filter</span>
+              </Button>
+            </div>
+
+            <GlassCard className="p-3 sm:p-4">
+              <div className="space-y-2 sm:space-y-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-9 text-xs sm:text-sm" />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <select className="px-3 py-2 border border-border rounded-lg bg-background text-xs sm:text-sm" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
+                    <option value="">All Categories</option>
+                    {categories.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                  <select className="px-3 py-2 border border-border rounded-lg bg-background text-xs sm:text-sm" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+                    <option value="">All Status</option>
+                    <option value="approved">Live</option>
+                    <option value="pending">Pending</option>
+                  </select>
                 </div>
               </div>
             </GlassCard>
 
-            <GlassCard className="p-4">
-              <p className="text-sm text-muted-foreground">Transactions</p>
-              <div className="mt-2 space-y-2 max-h-56 overflow-auto">
-                {txs.length === 0 ? <p className="text-xs text-muted-foreground">No transactions</p> : txs.map((t) => (
-                  <div key={t.id} className="flex items-center justify-between text-xs">
-                    <div>
-                      <p className="font-medium">{t.type.toUpperCase()}</p>
-                      <p className="text-muted-foreground">{t.note}</p>
-                    </div>
-                    <div className={`font-semibold ${t.type === "deposit" ? "text-green-600" : t.type === "withdraw" ? "text-red-600" : "text-primary"}`}>{format(t.amount)}</div>
-                  </div>
+            {filtered.length === 0 ? (
+              <GlassCard className="p-8 sm:p-12 text-center">
+                <p className="text-xs sm:text-base text-muted-foreground mb-4">No opportunities match your filters.</p>
+                <Button variant="outline" size="sm" onClick={() => { setFilterCategory(""); setFilterStatus(""); setSearchTerm(""); }}>
+                  Clear
+                </Button>
+              </GlassCard>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+                {filtered.map((p) => (
+                  <ProjectCard key={p.id} project={p} onInvest={investInProject} />
                 ))}
               </div>
-            </GlassCard>
+            )}
+          </section>
+        )}
 
-            <GlassCard className="p-4">
-              <p className="text-sm text-muted-foreground">Quick Actions</p>
-              <div className="mt-3 flex flex-col gap-2">
-                <Button variant="outline" onClick={() => { const amt = prompt('Quick deposit amount (₦)'); if (!amt) return; const a=Number(amt); if (isNaN(a)||a<=0) return toast.error('Invalid'); setWallet(w=>w+a); setTxs(s=>[{id:Date.now().toString(36), type:'deposit', amount:a, date:new Date().toISOString(), note:'Quick deposit'}, ...s]); toast.success(`Deposited ${format(a)}`); }}>Quick deposit</Button>
-                <Button variant="ghost" onClick={() => { navigator.clipboard?.writeText(window.location.href); toast.success('Link copied'); }}>Share platform</Button>
+        {/* Fundraiser Section */}
+        {userRole === "fundraiser" && (
+          <section className="space-y-3 sm:space-y-4">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="text-lg sm:text-2xl font-bold truncate">Your Campaigns</h3>
+              <Link to="/invest/create">
+                <Button variant="gradient" size="sm" className="text-xs sm:text-sm flex-shrink-0">
+                  <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                  <span className="hidden sm:inline">New</span>
+                </Button>
+              </Link>
+            </div>
+
+            {userProjects.length === 0 ? (
+              <GlassCard className="p-8 sm:p-12 text-center">
+                <Target className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                <p className="text-xs sm:text-base text-muted-foreground mb-4">No campaigns yet.</p>
+                <Link to="/invest/create">
+                  <Button variant="gradient" size="sm">Create Campaign</Button>
+                </Link>
+              </GlassCard>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                {userProjects.map((p) => (
+                  <ProjectCard key={p.id} project={p} onInvest={() => {}} />
+                ))}
               </div>
-            </GlassCard>
-          </aside>
-        </div>
+            )}
+          </section>
+        )}
+
+        {/* Risk Warning */}
+        {userRole === "investor" && filtered.length > 0 && (
+          <GlassCard className="p-3 sm:p-4 bg-yellow-500/10 border-yellow-500/30 flex gap-3">
+            <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+            <p className="text-[11px] sm:text-xs text-yellow-600">
+              <strong>Risk Warning:</strong> Investment carries risk. Review each project's risk level and verified status before investing.
+            </p>
+          </GlassCard>
+        )}
       </main>
     </div>
   );
