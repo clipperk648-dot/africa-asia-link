@@ -60,7 +60,7 @@ const IndustryProductEdit = () => {
               </div>
             </div>
             <div className="mt-4 flex gap-2">
-              <Button variant="gradient" onClick={() => navigate(-1)}>Save</Button>
+              <Button variant="gradient" onClick={() => { if (window.history.length > 1) navigate(-1); else navigate('/industry/products'); }}>Save</Button>
               <Button variant="outline" onClick={() => navigate(`/industry/products/${product.id}/stats`)}>
                 <BarChart3 className="w-4 h-4" />
                 View Stats
