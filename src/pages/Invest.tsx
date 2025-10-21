@@ -1,43 +1,50 @@
 import React, { useEffect, useMemo, useState } from "react";
-import GlassCard from "@/components/GlassCard";
 import ThreeBackground from "@/components/ThreeBackground";
+import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/components/ui/sonner";
-import { getCurrentUser } from "@/utils/mockAuth";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { toast } from "@/components/ui/sonner";
+import { getCurrentUser } from "@/utils/mockAuth";
 import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-} from "recharts";
-import {
+  Wallet as WalletIcon,
   TrendingUp,
-  Wallet2,
-  Target,
-  Clock,
-  Sparkles,
+  PiggyBank,
+  Timer,
+  Filter as FilterIcon,
+  PlusCircle,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  Search as SearchIcon,
+  Rocket,
+  PieChart as PieChartIcon,
   LineChart as LineChartIcon,
-  ShieldCheck,
-  UsersRound,
-  ArrowDownUp,
-  PlayCircle,
 } from "lucide-react";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, PieChart, Pie, Cell } from "recharts";
+
+// Types
 
 type Project = {
   id: string;
@@ -56,15 +63,17 @@ type Project = {
 
 type Tx = { id: string; type: "deposit" | "withdraw" | "invest"; amount: number; date: string; note?: string };
 
+// Storage keys
 const PROJECTS_KEY = "echina_projects_v1";
 const WALLET_KEY = "echina_wallet_v1";
 const TX_KEY = "echina_txs_v1";
 
+// Persistence helpers
 const loadProjects = (): Project[] => {
   try {
     const raw = localStorage.getItem(PROJECTS_KEY);
     return raw ? JSON.parse(raw) : [];
-  } catch (e) {
+  } catch {
     return [];
   }
 };
@@ -74,7 +83,7 @@ const loadWallet = (): number => {
   try {
     const raw = localStorage.getItem(WALLET_KEY);
     return raw ? Number(raw) : 0;
-  } catch (e) {
+  } catch {
     return 0;
   }
 };
@@ -84,13 +93,15 @@ const loadTxs = (): Tx[] => {
   try {
     const raw = localStorage.getItem(TX_KEY);
     return raw ? JSON.parse(raw) : [];
-  } catch (e) {
+  } catch {
     return [];
   }
 };
 const saveTxs = (txs: Tx[]) => localStorage.setItem(TX_KEY, JSON.stringify(txs));
 
-const format = (n: number) => `₦${n.toLocaleString()}`;
+// Utils
+const formatCurrency = (n: number) => `₦${n.toLocaleString()}`;
+const toDay = (iso: string) => iso.slice(0, 10);
 
 const Invest = () => {
   const user = getCurrentUser();
@@ -98,27 +109,30 @@ const Invest = () => {
   const [wallet, setWallet] = useState<number>(0);
   const [txs, setTxs] = useState<Tx[]>([]);
 
-  // form state for creating campaigns
+  // Create campaign form
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [target, setTarget] = useState<number | "">("");
   const [category, setCategory] = useState("");
-  const [returnPercent, setReturnPercent] = useState<number | "">(10);
+  const [returnPercent, setReturnPercent] = useState<number | "">(12);
   const [durationMonths, setDurationMonths] = useState<number | "">(12);
   const [pitchUrl, setPitchUrl] = useState("");
 
-  // browsing filters
-  const [filterCategory, setFilterCategory] = useState("");
-  const [minReturn, setMinReturn] = useState<number | "">("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-
-  // dialogs
-  const [depositOpen, setDepositOpen] = useState(false);
-  const [withdrawOpen, setWithdrawOpen] = useState(false);
+  // Overlays
+  const [showCreate, setShowCreate] = useState(false);
+  const [showDeposit, setShowDeposit] = useState(false);
+  const [showWithdraw, setShowWithdraw] = useState(false);
+  const [depositAmt, setDepositAmt] = useState<number | "">("");
+  const [withdrawAmt, setWithdrawAmt] = useState<number | "">("");
   const [investOpen, setInvestOpen] = useState(false);
-  const [amountInput, setAmountInput] = useState<string>("");
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [investAmt, setInvestAmt] = useState<number | "">("");
+  const [investProjectId, setInvestProjectId] = useState<string | null>(null);
+
+  // Browsing/filters
+  const [search, setSearch] = useState("");
+  const [filterCategory, setFilterCategory] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [minReturn, setMinReturn] = useState<number>(0);
 
   useEffect(() => {
     setProjects(loadProjects());
@@ -130,7 +144,8 @@ const Invest = () => {
   useEffect(() => saveWallet(wallet), [wallet]);
   useEffect(() => saveTxs(txs), [txs]);
 
-  const createProject = () => {
+  // Actions
+  const handleCreateProject = () => {
     if (!title || !description || !target || Number(target) <= 0) {
       toast.error("Please provide valid project details");
       return;
@@ -150,43 +165,85 @@ const Invest = () => {
       documents: [],
     };
     setProjects((s) => [p, ...s]);
+
+    // reset and close
     setTitle("");
     setDescription("");
     setTarget("");
     setCategory("");
-    setReturnPercent(10);
+    setReturnPercent(12);
     setDurationMonths(12);
     setPitchUrl("");
+    setShowCreate(false);
+
     toast.success("Project submitted for approval");
   };
 
-  const handleDeposit = (amount: number) => {
-    if (isNaN(amount) || amount <= 0) return toast.error("Invalid amount");
+  const handleDeposit = () => {
+    if (depositAmt === "" || isNaN(Number(depositAmt)) || Number(depositAmt) <= 0) {
+      toast.error("Enter a valid amount");
+      return;
+    }
+    const amount = Number(depositAmt);
     setWallet((w) => w + amount);
     const tx: Tx = { id: Date.now().toString(36), type: "deposit", amount, date: new Date().toISOString(), note: "Wallet deposit" };
     setTxs((s) => [tx, ...s]);
-    toast.success(`Deposited ${format(amount)}`);
+    setDepositAmt("");
+    setShowDeposit(false);
+    toast.success(`Deposited ${formatCurrency(amount)}`);
   };
 
-  const handleWithdraw = (amount: number) => {
-    if (isNaN(amount) || amount <= 0) return toast.error("Invalid amount");
-    if (amount > wallet) return toast.error("Insufficient balance");
+  const handleWithdraw = () => {
+    if (withdrawAmt === "" || isNaN(Number(withdrawAmt)) || Number(withdrawAmt) <= 0) {
+      toast.error("Enter a valid amount");
+      return;
+    }
+    const amount = Number(withdrawAmt);
+    if (amount > wallet) {
+      toast.error("Insufficient balance");
+      return;
+    }
     setWallet((w) => w - amount);
     const tx: Tx = { id: Date.now().toString(36), type: "withdraw", amount, date: new Date().toISOString(), note: "Wallet withdrawal" };
     setTxs((s) => [tx, ...s]);
-    toast.success(`Withdrew ${format(amount)}`);
+    setWithdrawAmt("");
+    setShowWithdraw(false);
+    toast.success(`Withdrew ${formatCurrency(amount)}`);
   };
 
-  const investInProject = (projectId: string, amount: number) => {
-    const project = projects.find((p) => p.id === projectId);
+  const openInvestFor = (projectId: string) => {
+    setInvestProjectId(projectId);
+    setInvestAmt("");
+    setInvestOpen(true);
+  };
+
+  const handleInvest = () => {
+    if (!investProjectId) return;
+    if (investAmt === "" || isNaN(Number(investAmt)) || Number(investAmt) <= 0) {
+      toast.error("Enter a valid amount");
+      return;
+    }
+    const amount = Number(investAmt);
+    if (amount > wallet) {
+      toast.error("Insufficient wallet balance. Please deposit funds.");
+      return;
+    }
+
+    const project = projects.find((p) => p.id === investProjectId);
     if (!project) return;
-    if (isNaN(amount) || amount <= 0) return toast.error("Invalid amount");
-    if (amount > wallet) return toast.error("Insufficient wallet balance. Please deposit funds.");
+
     setWallet((w) => w - amount);
-    const tx: Tx = { id: Date.now().toString(36), type: "invest", amount, date: new Date().toISOString(), note: `Invested in ${project.title}` };
+    const tx: Tx = {
+      id: Date.now().toString(36),
+      type: "invest",
+      amount,
+      date: new Date().toISOString(),
+      note: `Invested in ${project.title}`,
+    };
     setTxs((s) => [tx, ...s]);
-    setProjects((s) => s.map((p) => (p.id === projectId ? { ...p, funded: p.funded + amount } : p)));
-    toast.success(`Invested ${format(amount)} in ${project.title}`);
+    setProjects((s) => s.map((p) => (p.id === investProjectId ? { ...p, funded: p.funded + amount } : p)));
+    setInvestOpen(false);
+    toast.success(`Invested ${formatCurrency(amount)} in ${project.title}`);
   };
 
   const approveProject = (id: string) => {
@@ -194,459 +251,463 @@ const Invest = () => {
     toast.success("Project approved");
   };
 
+  // Derived values
   const categories = useMemo(() => Array.from(new Set(projects.map((p) => p.category || "General"))), [projects]);
 
   const filtered = projects.filter((p) => {
     if (filterCategory && p.category !== filterCategory) return false;
     if (statusFilter && p.status !== (statusFilter as any)) return false;
     if (minReturn && Number(p.returnPercent || 0) < Number(minReturn)) return false;
-    if (searchQuery && !(`${p.title} ${p.description} ${p.category}`.toLowerCase().includes(searchQuery.toLowerCase()))) return false;
+    if (search && !`${p.title} ${p.description}`.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
   const totalFunded = projects.reduce((a, b) => a + b.funded, 0);
   const totalTarget = projects.reduce((a, b) => a + b.target, 0);
-
+  const totalInvested = txs.filter((t) => t.type === "invest").reduce((a, b) => a + b.amount, 0);
+  const activeProjects = projects.filter((p) => p.status !== "funded").length;
   const avgReturn = projects.length
     ? Math.round(
-        projects.reduce((acc, p) => acc + (p.returnPercent || 0), 0) / projects.length,
+        projects.reduce((a, b) => a + Number(b.returnPercent || 0), 0) / projects.length,
       )
     : 0;
 
-  // derive investments per project from tx notes (demo data model)
-  const investmentByProjectId = useMemo(() => {
+  const investByDate = useMemo(() => {
     const map = new Map<string, number>();
     txs
-      .filter((t) => t.type === "invest" && t.note?.startsWith("Invested in "))
+      .filter((t) => t.type === "invest")
       .forEach((t) => {
-        const title = t.note?.replace("Invested in ", "").trim();
-        const proj = projects.find((p) => p.title === title);
-        if (proj) {
-          map.set(proj.id, (map.get(proj.id) || 0) + t.amount);
-        }
+        const d = toDay(t.date);
+        map.set(d, (map.get(d) || 0) + t.amount);
       });
-    return map;
-  }, [txs, projects]);
+    return Array.from(map.entries())
+      .sort((a, b) => (a[0] < b[0] ? -1 : 1))
+      .map(([date, amount]) => ({ date, label: date.slice(5), amount }));
+  }, [txs]);
 
-  const myPortfolioProjects = projects.filter((p) => investmentByProjectId.has(p.id));
-
-  // build chart data of wallet balance and cumulative invested over time
-  const chartData = useMemo(() => {
-    const sorted = [...txs].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    let runningWallet = 0;
-    let cumulativeInvested = 0;
-    const data: { date: string; wallet: number; invested: number }[] = [];
-    sorted.forEach((t) => {
-      if (t.type === "deposit") runningWallet += t.amount;
-      if (t.type === "withdraw") runningWallet -= t.amount;
-      if (t.type === "invest") {
-        runningWallet -= t.amount;
-        cumulativeInvested += t.amount;
-      }
-      data.push({
-        date: new Date(t.date).toLocaleDateString(),
-        wallet: Math.max(0, runningWallet),
-        invested: cumulativeInvested,
-      });
+  const statusDistribution = useMemo(() => {
+    const counts = { pending: 0, approved: 0, funded: 0 } as Record<NonNullable<Project["status"]>, number>;
+    projects.forEach((p) => {
+      const key = (p.status || "pending") as NonNullable<Project["status"]>;
+      counts[key] += 1;
     });
-    return data.length ? data : [{ date: new Date().toLocaleDateString(), wallet, invested: 0 }];
-  }, [txs, wallet]);
-
-  const chartConfig = {
-    wallet: {
-      label: "Wallet",
-      color: "hsl(var(--secondary))",
-    },
-    invested: {
-      label: "Invested",
-      color: "hsl(var(--primary))",
-    },
-  } as const;
+    return [
+      { name: "Pending", value: counts.pending, color: "hsl(var(--muted-foreground))" },
+      { name: "Approved", value: counts.approved, color: "hsl(var(--accent))" },
+      { name: "Funded", value: counts.funded, color: "hsl(var(--primary))" },
+    ];
+  }, [projects]);
 
   return (
-    <div className="min-h-screen pb-24 relative">
+    <div className="min-h-screen relative pb-24">
       <ThreeBackground />
-      <header className="relative overflow-hidden">
-        <div className="max-w-6xl mx-auto px-4 pt-10 pb-8">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-gradient-accent px-3 py-1 text-xs font-semibold text-accent-foreground shadow-md animate-fade-in">
-                <Sparkles className="h-4 w-4" />
-                Smart, secure and transparent
+      <main className="relative max-w-6xl mx-auto px-4 py-10 space-y-8">
+        {/* Hero */}
+        <section className="rounded-3xl overflow-hidden border bg-gradient-hero shadow-[var(--shadow-soft)]">
+          <div className="p-6 md:p-10 grid md:grid-cols-3 gap-6 items-center">
+            <div className="md:col-span-2 space-y-3">
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">Beta</Badge>
+                <span className="text-xs text-muted-foreground">Secure • Transparent • High-ROI</span>
               </div>
-              <h1 className="mt-3 text-3xl md:text-4xl font-extrabold tracking-tight">
-                Invest with confidence
+              <h1 className="text-3xl md:text-4xl font-black tracking-tight">
+                Invest with confidence in vetted opportunities
               </h1>
-              <p className="mt-2 text-sm md:text-base text-muted-foreground max-w-2xl">
-                Discover vetted opportunities, monitor performance, and grow your wealth with professional-grade tools.
+              <p className="text-sm md:text-base text-muted-foreground max-w-2xl">
+                Discover, fund, and track real projects with clear return timelines and fast wallet flows.
               </p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <Dialog open={depositOpen} onOpenChange={setDepositOpen}>
+              <div className="flex flex-wrap gap-3 pt-2">
+                <Dialog open={showCreate} onOpenChange={setShowCreate}>
                   <DialogTrigger asChild>
-                    <Button variant="gradient" size="lg"><Wallet2 /> Deposit</Button>
+                    <Button variant="gradient" size="lg" className="gap-2">
+                      <Rocket className="size-4" /> Launch a campaign
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Launch a fundraising campaign</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-3">
+                      <Input aria-label="Title" placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <Input
+                          aria-label="Category"
+                          placeholder="Category (e.g., Agriculture)"
+                          value={category}
+                          onChange={(e) => setCategory(e.target.value)}
+                        />
+                        <Input
+                          aria-label="Target amount"
+                          placeholder="Target amount (₦)"
+                          value={target as any}
+                          onChange={(e) => setTarget(e.target.value ? Number(e.target.value) : "")}
+                        />
+                        <Input
+                          aria-label="Return percent"
+                          placeholder="Return % (e.g., 12)"
+                          value={returnPercent as any}
+                          onChange={(e) => setReturnPercent(e.target.value ? Number(e.target.value) : "")}
+                        />
+                        <Input
+                          aria-label="Duration months"
+                          placeholder="Duration (months)"
+                          value={durationMonths as any}
+                          onChange={(e) => setDurationMonths(e.target.value ? Number(e.target.value) : "")}
+                        />
+                      </div>
+                      <Textarea aria-label="Short description" placeholder="Short description" value={description} onChange={(e) => setDescription(e.target.value)} />
+                      <Input aria-label="Pitch video URL" placeholder="Pitch video URL (optional)" value={pitchUrl} onChange={(e) => setPitchUrl(e.target.value)} />
+                    </div>
+                    <DialogFooter>
+                      <div className="flex w-full justify-end gap-2">
+                        <Button variant="ghost" onClick={() => setShowCreate(false)}>Cancel</Button>
+                        <Button variant="gradient" onClick={handleCreateProject}>Submit for approval</Button>
+                      </div>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+                <Dialog open={showDeposit} onOpenChange={setShowDeposit}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="lg" className="gap-2"><ArrowDownToLine className="size-4" /> Deposit</Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Deposit funds</DialogTitle>
-                      <DialogDescription>Top up your wallet to invest instantly.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-3">
-                      <Input inputMode="numeric" placeholder="Amount (₦)" value={amountInput} onChange={(e) => setAmountInput(e.target.value)} />
-                      <Button
-                        onClick={() => {
-                          const amt = Number(amountInput);
-                          if (Number.isNaN(amt) || amt <= 0) return toast.error("Enter a valid amount");
-                          handleDeposit(amt);
-                          setAmountInput("");
-                          setDepositOpen(false);
-                        }}
-                      >Confirm deposit</Button>
+                      <Input aria-label="Deposit amount" placeholder="Amount (₦)" value={depositAmt as any} onChange={(e) => setDepositAmt(e.target.value ? Number(e.target.value) : "")} />
                     </div>
+                    <DialogFooter>
+                      <div className="flex w-full justify-end gap-2">
+                        <Button variant="ghost" onClick={() => setShowDeposit(false)}>Cancel</Button>
+                        <Button variant="gradient" onClick={handleDeposit}>Deposit</Button>
+                      </div>
+                    </DialogFooter>
                   </DialogContent>
                 </Dialog>
 
-                <Dialog open={withdrawOpen} onOpenChange={setWithdrawOpen}>
+                <Dialog open={showWithdraw} onOpenChange={setShowWithdraw}>
                   <DialogTrigger asChild>
-                    <Button variant="outline" size="lg"><ArrowDownUp /> Withdraw</Button>
+                    <Button variant="ghost" size="lg" className="gap-2"><ArrowUpFromLine className="size-4" /> Withdraw</Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>Withdraw funds</DialogTitle>
-                      <DialogDescription>Move money from your wallet to your bank.</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-3">
-                      <Input inputMode="numeric" placeholder="Amount (₦)" value={amountInput} onChange={(e) => setAmountInput(e.target.value)} />
-                      <Button
-                        onClick={() => {
-                          const amt = Number(amountInput);
-                          if (Number.isNaN(amt) || amt <= 0) return toast.error("Enter a valid amount");
-                          handleWithdraw(amt);
-                          setAmountInput("");
-                          setWithdrawOpen(false);
-                        }}
-                      >Confirm withdraw</Button>
+                      <Input aria-label="Withdraw amount" placeholder="Amount (₦)" value={withdrawAmt as any} onChange={(e) => setWithdrawAmt(e.target.value ? Number(e.target.value) : "")} />
                     </div>
+                    <DialogFooter>
+                      <div className="flex w-full justify-end gap-2">
+                        <Button variant="ghost" onClick={() => setShowWithdraw(false)}>Cancel</Button>
+                        <Button variant="gradient" onClick={handleWithdraw}>Withdraw</Button>
+                      </div>
+                    </DialogFooter>
                   </DialogContent>
                 </Dialog>
               </div>
             </div>
-            <GlassCard className="p-4 md:p-6 min-w-[260px] animate-slide-in">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-muted-foreground">Wallet balance</p>
-                  <p className="text-2xl md:text-3xl font-extrabold">{format(wallet)}</p>
-                </div>
-                <Wallet2 className="h-8 w-8 text-primary animate-glow" />
-              </div>
-              <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
-                <div className="space-y-1">
-                  <p className="text-muted-foreground">Total funded</p>
-                  <p className="font-semibold">{format(totalFunded)}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-muted-foreground">Avg return</p>
-                  <p className="font-semibold">{avgReturn}%</p>
-                </div>
-              </div>
-            </GlassCard>
-          </div>
-        </div>
-      </header>
 
-      <main className="max-w-6xl mx-auto px-4 pb-10 space-y-6">
+            <div className="md:col-span-1">
+              <GlassCard className="p-5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <WalletIcon className="size-5" />
+                    </span>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Wallet balance</p>
+                      <p className="text-xl md:text-2xl font-extrabold">{formatCurrency(wallet)}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setShowDeposit(true)}>Deposit</Button>
+                  <Button variant="ghost" size="sm" onClick={() => setShowWithdraw(true)}>Withdraw</Button>
+                </div>
+              </GlassCard>
+            </div>
+          </div>
+        </section>
+
         {/* KPIs */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <section className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <GlassCard className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-muted-foreground">Projects</p>
-                <p className="text-xl font-bold">{projects.length}</p>
+                <p className="text-xs text-muted-foreground">Total invested</p>
+                <p className="text-xl font-bold">{formatCurrency(totalInvested)}</p>
               </div>
-              <Target className="h-5 w-5 text-primary" />
-            </div>
-            <div className="mt-2">
-              <Progress value={totalTarget ? Math.min(100, Math.round((totalFunded / totalTarget) * 100)) : 0} />
-              <p className="mt-1 text-[11px] text-muted-foreground">{format(totalFunded)} of {format(totalTarget)} raised</p>
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15 text-accent-foreground">
+                <TrendingUp className="size-5" />
+              </span>
             </div>
           </GlassCard>
           <GlassCard className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs text-muted-foreground">Avg ROI</p>
+                <p className="text-xs text-muted-foreground">Total funded</p>
+                <p className="text-xl font-bold">{formatCurrency(totalFunded)}</p>
+              </div>
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <PiggyBank className="size-5" />
+              </span>
+            </div>
+          </GlassCard>
+          <GlassCard className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Active projects</p>
+                <p className="text-xl font-bold">{activeProjects}</p>
+              </div>
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-secondary/15 text-secondary-foreground">
+                <Timer className="size-5" />
+              </span>
+            </div>
+          </GlassCard>
+          <GlassCard className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Avg. return</p>
                 <p className="text-xl font-bold">{avgReturn}%</p>
               </div>
-              <TrendingUp className="h-5 w-5 text-primary" />
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-foreground/70">
+                <LineChartIcon className="size-5" />
+              </span>
             </div>
-            <p className="mt-1 text-[11px] text-muted-foreground">Across all listed opportunities</p>
           </GlassCard>
-          <GlassCard className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground">Your projects</p>
-                <p className="text-xl font-bold">{myPortfolioProjects.length}</p>
-              </div>
-              <UsersRound className="h-5 w-5 text-primary" />
-            </div>
-            <p className="mt-1 text-[11px] text-muted-foreground">You hold positions in these</p>
-          </GlassCard>
-          <GlassCard className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs text-muted-foreground">Risk</p>
-                <p className="text-xl font-bold">Moderate</p>
-              </div>
-              <ShieldCheck className="h-5 w-5 text-primary" />
-            </div>
-            <p className="mt-1 text-[11px] text-muted-foreground">Diversify across categories</p>
-          </GlassCard>
-        </div>
+        </section>
 
-        {/* Performance Chart */}
-        <GlassCard className="p-4">
+        {/* Insights */}
+        <section className="grid lg:grid-cols-3 gap-4">
+          <GlassCard className="p-4 lg:col-span-2">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <LineChartIcon className="size-4 text-muted-foreground" />
+                <h2 className="text-sm font-semibold">Investment activity</h2>
+              </div>
+              <span className="text-xs text-muted-foreground">by day</span>
+            </div>
+            <ChartContainer
+              className="h-56"
+              config={{ amount: { label: "Invested", color: "hsl(var(--primary))" } }}
+            >
+              {() => (
+                <BarChart data={investByDate}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                  <ChartTooltip content={<ChartTooltipContent />} />
+                  <Bar dataKey="amount" fill="var(--color-amount)" radius={[6, 6, 0, 0]} />
+                </BarChart>
+              )}
+            </ChartContainer>
+          </GlassCard>
+
+          <GlassCard className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <PieChartIcon className="size-4 text-muted-foreground" />
+              <h2 className="text-sm font-semibold">Project statuses</h2>
+            </div>
+            <div className="h-56">
+              <PieChart>
+                <Pie data={statusDistribution} dataKey="value" nameKey="name" outerRadius={80} innerRadius={50}>
+                  {statusDistribution.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </div>
+            <div className="mt-2 flex justify-center gap-4 text-xs text-muted-foreground">
+              {statusDistribution.map((s) => (
+                <div key={s.name} className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-sm" style={{ backgroundColor: s.color }} />
+                  {s.name} ({s.value})
+                </div>
+              ))}
+            </div>
+          </GlassCard>
+        </section>
+
+        {/* Discover */}
+        <section className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <LineChartIcon className="h-4 w-4" />
-              <h2 className="text-sm font-semibold">Performance</h2>
+              <FilterIcon className="size-4 text-muted-foreground" />
+              <h2 className="text-sm font-semibold">Discover opportunities</h2>
             </div>
-            <Badge variant="secondary">Live</Badge>
+            <span className="text-xs text-muted-foreground">{filtered.length} result{filtered.length === 1 ? "" : "s"}</span>
           </div>
-          <div className="mt-3">
-            <ChartContainer config={chartConfig} className="h-[260px] w-full">
-              <AreaChart data={chartData} margin={{ left: 8, right: 8, top: 8, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tickLine={false} axisLine={false} fontSize={12} />
-                <YAxis tickLine={false} axisLine={false} fontSize={12} />
-                <Area type="monotone" dataKey="invested" stroke="var(--color-invested)" fill="var(--color-invested)" fillOpacity={0.2} />
-                <Area type="monotone" dataKey="wallet" stroke="var(--color-wallet)" fill="var(--color-wallet)" fillOpacity={0.15} />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <ChartLegend content={<ChartLegendContent />} />
-              </AreaChart>
-            </ChartContainer>
-          </div>
-        </GlassCard>
 
-        {/* Content Tabs */}
-        <Tabs defaultValue="marketplace">
-          <TabsList className="bg-muted/60">
-            <TabsTrigger value="marketplace">Marketplace</TabsTrigger>
-            <TabsTrigger value="portfolio">My Portfolio</TabsTrigger>
-            <TabsTrigger value="activity">Activity</TabsTrigger>
-            <TabsTrigger value="create">Create</TabsTrigger>
-          </TabsList>
-
-          {/* Marketplace */}
-          <TabsContent value="marketplace" className="mt-4">
-            <GlassCard className="p-4">
-              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-4">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1">
-                  <div className="flex items-center gap-2">
-                    <Select value={filterCategory} onValueChange={setFilterCategory}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="All categories" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">All categories</SelectItem>
-                        {categories.map((c) => (
-                          <SelectItem key={c} value={String(c)}>{c}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="All statuses" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">All statuses</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="approved">Approved</SelectItem>
-                        <SelectItem value="funded">Funded</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Input placeholder="Min return %" value={minReturn as any} onChange={(e) => setMinReturn(e.target.value ? Number(e.target.value) : "")} />
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <Input placeholder="Search by title, description" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+          <GlassCard className="p-4">
+            <div className="grid md:grid-cols-5 gap-3 items-center">
+              <div className="md:col-span-2">
+                <div className="relative">
+                  <SearchIcon className="absolute left-2 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                  <Input aria-label="Search" placeholder="Search by title or description" className="pl-8" value={search} onChange={(e) => setSearch(e.target.value)} />
                 </div>
               </div>
 
-              {filtered.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No opportunities match your filters.</p>
-              ) : (
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {filtered.map((p) => {
-                    const percent = Math.min(100, Math.round((p.funded / p.target) * 100));
-                    return (
-                      <GlassCard key={p.id} className="p-3">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-semibold text-sm">{p.title}</h3>
-                              {p.status && (
-                                <Badge variant={p.status === "approved" ? "secondary" : p.status === "funded" ? "default" : "outline"}>
-                                  {p.status}
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="text-[12px] text-muted-foreground">{p.category} • {p.durationMonths}m</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm font-bold">{p.returnPercent}%</p>
-                            <p className="text-[11px] text-muted-foreground">Target ROI</p>
-                          </div>
-                        </div>
-                        <p className="text-xs mt-2 line-clamp-2">{p.description}</p>
-                        <div className="mt-3">
-                          <div className="flex items-center justify-between text-[11px]">
-                            <span>{format(p.funded)}</span>
-                            <span>{format(p.target)}</span>
-                          </div>
-                          <div className="mt-1 w-full bg-muted h-2 rounded overflow-hidden">
-                            <div style={{ width: `${percent}%` }} className="h-2 bg-primary" />
-                          </div>
-                        </div>
-                        <div className="mt-3 flex items-center justify-between">
-                          <Button size="sm" variant="outline" onClick={() => { setSelectedProjectId(p.id); setInvestOpen(true); }}>
-                            Invest
-                          </Button>
-                          {p.ownerId === user?.id && p.status === "pending" && (
-                            <Button size="sm" variant="gradient" onClick={() => approveProject(p.id)}>Approve</Button>
-                          )}
-                        </div>
-                      </GlassCard>
-                    );
-                  })}
+              <div>
+                <Select value={filterCategory} onValueChange={setFilterCategory}>
+                  <SelectTrigger aria-label="Category"><SelectValue placeholder="All categories" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Categories</SelectLabel>
+                      <SelectItem value="">All</SelectItem>
+                      {categories.map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger aria-label="Status"><SelectValue placeholder="All statuses" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Status</SelectLabel>
+                      <SelectItem value="">All</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="approved">Approved</SelectItem>
+                      <SelectItem value="funded">Funded</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="md:col-span-1">
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>Min return</span>
+                    <span>{minReturn}%</span>
+                  </div>
+                  <Slider value={[minReturn]} max={40} step={1} onValueChange={(v) => setMinReturn(v[0] ?? 0)} />
                 </div>
-              )}
+              </div>
+            </div>
+          </GlassCard>
+
+          {filtered.length === 0 ? (
+            <GlassCard className="p-6 text-center">
+              <p className="text-sm text-muted-foreground">No opportunities match your filters. Try adjusting filters or <button className="underline" onClick={() => setShowCreate(true)}>launch a campaign</button>.</p>
             </GlassCard>
-          </TabsContent>
-
-          {/* Portfolio */}
-          <TabsContent value="portfolio" className="mt-4">
-            {myPortfolioProjects.length === 0 ? (
-              <GlassCard className="p-6 text-sm text-muted-foreground">
-                You have no investments yet. Explore opportunities in the Marketplace.
-              </GlassCard>
-            ) : (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {myPortfolioProjects.map((p) => {
-                  const myAmt = investmentByProjectId.get(p.id) || 0;
-                  const percent = Math.min(100, Math.round((p.funded / p.target) * 100));
-                  return (
-                    <GlassCard key={p.id} className="p-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-sm">{p.title}</h3>
-                        <Badge variant="outline">{p.category}</Badge>
-                      </div>
-                      <p className="mt-1 text-xs text-muted-foreground">Your position: <span className="font-semibold">{format(myAmt)}</span></p>
-                      <div className="mt-2">
-                        <div className="flex items-center justify-between text-[11px]">
-                          <span>{format(p.funded)} raised</span>
-                          <span>{percent}%</span>
-                        </div>
-                        <div className="mt-1 w-full bg-muted h-2 rounded overflow-hidden">
-                          <div style={{ width: `${percent}%` }} className="h-2 bg-accent" />
-                        </div>
-                      </div>
-                      <div className="mt-3 flex items-center gap-2">
-                        <Button size="xs" variant="outline" onClick={() => { setSelectedProjectId(p.id); setInvestOpen(true); }}>Add funds</Button>
-                        <Button size="xs" variant="ghost" onClick={() => { navigator.clipboard?.writeText(window.location.href); toast.success("Link copied"); }}>Share</Button>
-                      </div>
-                    </GlassCard>
-                  );
-                })}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Activity */}
-          <TabsContent value="activity" className="mt-4">
-            <GlassCard className="p-4">
-              <p className="text-sm font-semibold">Recent activity</p>
-              <div className="mt-2 space-y-2 max-h-80 overflow-auto">
-                {txs.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">No transactions</p>
-                ) : (
-                  txs.map((t) => (
-                    <div key={t.id} className="flex items-center justify-between text-xs">
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filtered.map((p) => {
+                const percent = Math.min(100, Math.round((p.funded / p.target) * 100));
+                return (
+                  <GlassCard key={p.id} className="p-4 group">
+                    <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="font-medium uppercase">{t.type}</p>
-                        <p className="text-muted-foreground">{t.note}</p>
+                        <h3 className="font-semibold leading-tight">
+                          {p.title}
+                        </h3>
+                        <div className="mt-1 flex items-center gap-2">
+                          {p.status && (
+                            <Badge variant={p.status === "approved" ? "secondary" : p.status === "funded" ? "default" : "outline"}>{p.status}</Badge>
+                          )}
+                          {p.category && <Badge variant="outline">{p.category}</Badge>}
+                        </div>
                       </div>
-                      <div className={`font-semibold ${t.type === "deposit" ? "text-green-600" : t.type === "withdraw" ? "text-red-600" : "text-primary"}`}>{format(t.amount)}</div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold">{p.returnPercent}%</div>
+                        <div className="text-xs text-muted-foreground">ROI • {p.durationMonths ?? 12}m</div>
+                      </div>
                     </div>
-                  ))
-                )}
-              </div>
-            </GlassCard>
-          </TabsContent>
 
-          {/* Create Campaign */}
-          <TabsContent value="create" className="mt-4">
-            <GlassCard className="p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <PlayCircle className="h-4 w-4" />
-                <h2 className="text-sm font-semibold">Create fundraising campaign</h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
-                <Input placeholder="Category" value={category} onChange={(e) => setCategory(e.target.value)} />
-                <Input placeholder="Target amount (₦)" value={target as any} onChange={(e) => setTarget(e.target.value ? Number(e.target.value) : "")} />
-                <Input placeholder="Return % (e.g., 12)" value={returnPercent as any} onChange={(e) => setReturnPercent(e.target.value ? Number(e.target.value) : "")} />
-                <Input placeholder="Duration (months)" value={durationMonths as any} onChange={(e) => setDurationMonths(e.target.value ? Number(e.target.value) : "")} />
-              </div>
-              <Textarea placeholder="Short description" value={description} onChange={(e) => setDescription(e.target.value)} />
-              <Input placeholder="Pitch video URL (optional)" value={pitchUrl} onChange={(e) => setPitchUrl(e.target.value)} />
-              <div className="flex gap-2">
-                <Button variant="gradient" onClick={createProject}>Submit for approval</Button>
-                <Button variant="outline" onClick={() => { setTitle(""); setDescription(""); setTarget(""); setCategory(""); setReturnPercent(10); setDurationMonths(12); setPitchUrl(""); }}>Reset</Button>
-              </div>
-            </GlassCard>
-          </TabsContent>
-        </Tabs>
+                    <p className="text-sm text-muted-foreground mt-3 line-clamp-3">{p.description}</p>
 
-        {/* Invest dialog */}
-        <Dialog open={investOpen} onOpenChange={setInvestOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Invest in project</DialogTitle>
-              <DialogDescription>Enter an amount to invest from your wallet.</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-3">
-              <Select value={selectedProjectId ?? ""} onValueChange={(v) => setSelectedProjectId(v)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select project" />
-                </SelectTrigger>
-                <SelectContent>
-                  {projects.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Input inputMode="numeric" placeholder="Amount (₦)" value={amountInput} onChange={(e) => setAmountInput(e.target.value)} />
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>Available</span>
-                <span className="font-semibold">{format(wallet)}</span>
-              </div>
-              <Button
-                disabled={!selectedProjectId}
-                onClick={() => {
-                  const amt = Number(amountInput);
-                  if (!selectedProjectId) return;
-                  if (Number.isNaN(amt) || amt <= 0) return toast.error("Enter a valid amount");
-                  investInProject(selectedProjectId, amt);
-                  setAmountInput("");
-                  setInvestOpen(false);
-                }}
-              >Confirm investment</Button>
+                    <div className="mt-4">
+                      <Progress value={percent} />
+                      <div className="mt-1 flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">{formatCurrency(p.funded)} raised</span>
+                        <span className="font-medium">{formatCurrency(p.target)}</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 flex items-center justify-between">
+                      <div className="text-xs text-muted-foreground">
+                        {percent}% funded
+                      </div>
+                      <div className="flex gap-2">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button size="sm" variant="outline" onClick={() => openInvestFor(p.id)}>Invest</Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Invest from your wallet</TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        {p.ownerId === user?.id && p.status === "pending" && (
+                          <Button size="sm" variant="gradient" onClick={() => approveProject(p.id)}>Approve</Button>
+                        )}
+                      </div>
+                    </div>
+                  </GlassCard>
+                );
+              })}
             </div>
-          </DialogContent>
-        </Dialog>
+          )}
+        </section>
+
+        {/* Recent activity */}
+        <section>
+          <GlassCard className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <WalletIcon className="size-4 text-muted-foreground" />
+              <h2 className="text-sm font-semibold">Recent activity</h2>
+            </div>
+            <div className="space-y-2 max-h-64 overflow-auto scrollbar-hide">
+              {txs.length === 0 ? (
+                <p className="text-xs text-muted-foreground">No transactions yet</p>
+              ) : (
+                txs.slice(0, 10).map((t) => (
+                  <div key={t.id} className="flex items-center justify-between text-xs">
+                    <div>
+                      <p className="font-medium">{t.type.toUpperCase()}</p>
+                      <p className="text-muted-foreground">{t.note}</p>
+                    </div>
+                    <div
+                      className={
+                        t.type === "deposit"
+                          ? "font-semibold text-green-600"
+                          : t.type === "withdraw"
+                            ? "font-semibold text-red-600"
+                            : "font-semibold text-primary"
+                      }
+                    >
+                      {formatCurrency(t.amount)}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </GlassCard>
+        </section>
       </main>
+
+      {/* Invest dialog */}
+      <Dialog open={investOpen} onOpenChange={setInvestOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Invest in project</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input aria-label="Investment amount" placeholder="Amount (₦)" value={investAmt as any} onChange={(e) => setInvestAmt(e.target.value ? Number(e.target.value) : "")} />
+            <p className="text-xs text-muted-foreground">Available: {formatCurrency(wallet)}</p>
+          </div>
+          <DialogFooter>
+            <div className="flex w-full justify-end gap-2">
+              <Button variant="ghost" onClick={() => setInvestOpen(false)}>Cancel</Button>
+              <Button variant="gradient" onClick={handleInvest}>Invest</Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
