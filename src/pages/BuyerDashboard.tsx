@@ -101,101 +101,109 @@ const BuyerDashboard = () => {
       <ThreeBackground />
       
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-2 flex flex-col">
-          {/* Top row: app name only */}
-          <div className="w-full flex items-center justify-center py-1">
-            <h1 className="text-lg font-bold">{APP_NAME}</h1>
-          </div>
-
-          {/* Bottom row: controls */}
-          <div className="w-full flex items-center justify-end gap-3 pt-1">
-            <div className="relative">
-              <Link to="/notifications" aria-label="Open Notifications">
-                <Button variant="ghost" size="icon">
-                  <Bell className="w-5 h-5" />
-                </Button>
-              </Link>
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-semibold rounded-full px-1.5 leading-none">2</span>
+        <div className="max-w-7xl mx-auto px-4 py-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-9 w-9 bg-primary text-white rounded-md flex items-center justify-center font-bold">E</div>
+              <span className="text-lg font-bold">{APP_NAME}</span>
             </div>
 
-            {/* Profile dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="h-9 w-9 rounded-full border-2 border-border/60 overflow-hidden flex items-center justify-center">
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email || 'user'}`} alt={user?.name || 'Profile'} />
-                    <AvatarFallback>{(user?.name?.[0] || 'U')}</AvatarFallback>
-                  </Avatar>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <div className="px-3 py-2">
-                  <p className="text-sm font-medium">{user?.name || 'User'}</p>
-                  <p className="text-xs text-muted-foreground">{user?.email}</p>
-                </div>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/profile')}>My Profile</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/buyer/settings')}>Account Settings</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/notifications')}>Notifications</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>Sign Out</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <Link to="/wallet" aria-label="Open Wallet">
-              <Button variant="ghost" size="icon">
-                <WalletIcon className="w-5 h-5" />
-              </Button>
-            </Link>
-
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" aria-label="Open menu">
-                  <Menu className="w-5 h-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-72 sm:w-80">
-                <SheetHeader>
-                  <SheetTitle>Menu</SheetTitle>
-                </SheetHeader>
-                <div className="mt-4 space-y-2">
-                  <Link to="/profile">
-                    <Button variant="ghost" className="w-full justify-start">Profile</Button>
-                  </Link>
-                  <Link to="/buyer/settings">
-                    <Button variant="ghost" className="w-full justify-start">Settings</Button>
-                  </Link>
-                  <Link to="/wallet">
-                    <Button variant="ghost" className="w-full justify-start">Wallet</Button>
-                  </Link>
-                  <Link to="/invest">
-                    <Button variant="ghost" className="w-full justify-start">Invest</Button>
-                  </Link>
-                  <Link to="/notifications">
-                    <Button variant="ghost" className="w-full justify-start">Notifications</Button>
-                  </Link>
-
-                  <div className="pt-2 border-t border-border/40 mt-2">
-                    <p className="text-xs text-muted-foreground px-2 mb-2">Follow us</p>
-                    <div className="flex gap-2 px-2">
-                      <a href={SOCIAL_LINKS[0].href} target="_blank" rel="noreferrer">
-                        <Button variant="ghost" className="p-2"><Twitter className="w-4 h-4" /></Button>
-                      </a>
-                      <a href={SOCIAL_LINKS[1].href} target="_blank" rel="noreferrer">
-                        <Button variant="ghost" className="p-2"><Instagram className="w-4 h-4" /></Button>
-                      </a>
-                      <a href={SOCIAL_LINKS[2].href} target="_blank" rel="noreferrer">
-                        <Button variant="ghost" className="p-2"><Facebook className="w-4 h-4" /></Button>
-                      </a>
-                    </div>
-                  </div>
-
-                  <Button className="w-full justify-start mt-4" variant="destructive" onClick={handleLogout}>
-                    <LogOut className="w-4 h-4 mr-2" /> Logout
+            <div className="flex items-center gap-2">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" aria-label="Open menu">
+                    <Menu className="w-5 h-5" />
                   </Button>
-                </div>
-              </SheetContent>
-            </Sheet>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-72 sm:w-80">
+                  <SheetHeader>
+                    <SheetTitle>Menu</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-4 space-y-2">
+                    <Link to="/profile">
+                      <Button variant="ghost" className="w-full justify-start">Profile</Button>
+                    </Link>
+                    <Link to="/buyer/settings">
+                      <Button variant="ghost" className="w-full justify-start">Settings</Button>
+                    </Link>
+                    <Link to="/wallet">
+                      <Button variant="ghost" className="w-full justify-start">Wallet</Button>
+                    </Link>
+                    <Link to="/invest">
+                      <Button variant="ghost" className="w-full justify-start">Invest</Button>
+                    </Link>
+                    <Link to="/notifications">
+                      <Button variant="ghost" className="w-full justify-start">Notifications</Button>
+                    </Link>
+
+                    <div className="pt-2 border-t border-border/40 mt-2">
+                      <p className="text-xs text-muted-foreground px-2 mb-2">Follow us</p>
+                      <div className="flex gap-2 px-2">
+                        <a href={SOCIAL_LINKS[0].href} target="_blank" rel="noreferrer">
+                          <Button variant="ghost" className="p-2"><Twitter className="w-4 h-4" /></Button>
+                        </a>
+                        <a href={SOCIAL_LINKS[1].href} target="_blank" rel="noreferrer">
+                          <Button variant="ghost" className="p-2"><Instagram className="w-4 h-4" /></Button>
+                        </a>
+                        <a href={SOCIAL_LINKS[2].href} target="_blank" rel="noreferrer">
+                          <Button variant="ghost" className="p-2"><Facebook className="w-4 h-4" /></Button>
+                        </a>
+                      </div>
+                    </div>
+
+                    <Button className="w-full justify-start mt-4" variant="destructive" onClick={handleLogout}>
+                      <LogOut className="w-4 h-4 mr-2" /> Logout
+                    </Button>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+
+          </div>
+
+          <div className="mt-3 flex items-center justify-between">
+            <div>
+              <h1 className="text-lg font-bold">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Buyer'}!</h1>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Link to="/notifications" aria-label="Open Notifications">
+                  <Button variant="ghost" size="icon">
+                    <Bell className="w-5 h-5" />
+                  </Button>
+                </Link>
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-semibold rounded-full px-1.5 leading-none">2</span>
+              </div>
+
+              {/* Profile dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 px-2 py-1 rounded-md">
+                    <div className="h-9 w-9 rounded-full border-2 border-border/60 overflow-hidden flex items-center justify-center">
+                      <Avatar className="h-9 w-9">
+                        <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email || 'user'}`} alt={user?.name || 'Profile'} />
+                        <AvatarFallback>{(user?.name?.[0] || 'U')}</AvatarFallback>
+                      </Avatar>
+                    </div>
+                    <svg className="w-4 h-4 text-muted-foreground" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <div className="px-3 py-2">
+                    <p className="text-sm font-medium">{user?.name || 'User'}</p>
+                    <p className="text-xs text-muted-foreground">{user?.email}</p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/profile')}>My Profile</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/buyer/settings')}>Account Settings</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/notifications')}>Notifications</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>Sign Out</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+            </div>
           </div>
         </div>
       </header>
