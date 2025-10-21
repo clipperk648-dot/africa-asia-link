@@ -1,4 +1,4 @@
-import { useEffect, Fragment } from "react";
+import { useEffect, useState, Fragment } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { getCurrentUser, logout } from "@/utils/mockAuth";
 import { mockProducts, mockOrders, type Product } from "@/utils/mockData";
