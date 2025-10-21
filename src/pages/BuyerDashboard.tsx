@@ -102,10 +102,8 @@ const BuyerDashboard = () => {
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-1 flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold bg-gradient-primary bg-clip-text text-transparent">
-              {APP_NAME}
-            </h1>
-            <p className="text-xs text-muted-foreground">Buyer Dashboard</p>
+            <h1 className="text-lg font-bold">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Buyer'}!</h1>
+            <p className="text-xs text-muted-foreground">Good to see you — ready to discover new products?</p>
           </div>
           <div className="flex items-center gap-2">
             <Link to="/notifications" aria-label="Open Notifications">
