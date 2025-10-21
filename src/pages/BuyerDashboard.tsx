@@ -105,18 +105,28 @@ const BuyerDashboard = () => {
             <h1 className="text-lg font-bold">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Buyer'}!</h1>
             <p className="text-xs text-muted-foreground">Good to see you — ready to discover new products?</p>
           </div>
-          <div className="flex items-center gap-2">
-            <Link to="/notifications" aria-label="Open Notifications">
-              <Button variant="ghost" size="icon">
-                <Bell className="w-5 h-5" />
-              </Button>
-            </Link>
-            <Link to="/profile" aria-label="Open Profile">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email || 'user'}`} alt={user?.name || 'Profile'} />
-                <AvatarFallback>{(user?.name?.[0] || 'U')}</AvatarFallback>
-              </Avatar>
-            </Link>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <Link to="/notifications" aria-label="Open Notifications">
+                <Button variant="ghost" size="icon">
+                  <Bell className="w-5 h-5" />
+                </Button>
+              </Link>
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-semibold rounded-full px-1.5 leading-none">2</span>
+            </div>
+
+            <div className="relative">
+              <Link to="/profile" aria-label="Open Profile">
+                <div className="h-9 w-9 rounded-full border-2 border-border/60 overflow-hidden flex items-center justify-center">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email || 'user'}`} alt={user?.name || 'Profile'} />
+                    <AvatarFallback>{(user?.name?.[0] || 'U')}</AvatarFallback>
+                  </Avatar>
+                </div>
+              </Link>
+              <span className="absolute bottom-0 right-0 block h-2 w-2 rounded-full bg-green-400 border-2 border-white" />
+            </div>
+
             <Link to="/wallet" aria-label="Open Wallet">
               <Button variant="ghost" size="icon">
                 <WalletIcon className="w-5 h-5" />
