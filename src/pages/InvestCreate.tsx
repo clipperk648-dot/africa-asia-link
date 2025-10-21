@@ -71,7 +71,7 @@ const InvestCreate = () => {
       navigate("/invest");
       return;
     }
-  }, [user, navigate]);
+  }, [user?.id]);
 
   const handleAddDocument = () => {
     if (!newDoc.trim()) {
