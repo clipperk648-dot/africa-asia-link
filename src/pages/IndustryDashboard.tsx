@@ -94,7 +94,7 @@ const IndustryDashboard = () => {
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-1 flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold bg-gradient-primary bg-clip-text text-transparent">{user?.name}</h1>
+            <h1 className="text-lg font-bold bg-gradient-primary bg-clip-text text-transparent">{APP_NAME}</h1>
             <p className="text-xs text-muted-foreground">Industry Dashboard</p>
           </div>
           <div className="flex items-center gap-2">
