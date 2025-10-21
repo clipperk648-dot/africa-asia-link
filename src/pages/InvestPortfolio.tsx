@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/sonner";
 import { getCurrentUser } from "@/utils/mockAuth";
 import ThreeBackground from "@/components/ThreeBackground";
-import { ArrowLeft, TrendingUp, Target, Clock, CheckCircle, AlertCircle, Percent } from "lucide-react";
+import { ArrowLeft, TrendingUp, Target, Clock, CheckCircle, AlertCircle, Percent, Download } from "lucide-react";
 
 type Investment = {
   id: string;
@@ -50,7 +50,7 @@ const InvestPortfolio = () => {
     setInvestments(loadInvestments());
   }, [user?.id]);
 
-  const userInvestments = useMemo(() => investments.filter((inv) => inv.userId === user?.id), [investments, user]);
+  const userInvestments = useMemo(() => investments.filter((inv) => inv.userId === user?.id), [investments, user?.id]);
 
   const filteredInvestments = useMemo(() => {
     const now = new Date();
@@ -83,6 +83,7 @@ const InvestPortfolio = () => {
       activeInvestments: activeCount,
       completedInvestments: userInvestments.length - activeCount,
       averageReturn: userInvestments.length > 0 ? Math.round(userInvestments.reduce((a, b) => a + b.returnPercent, 0) / userInvestments.length) : 0,
+      roiPercentage: totalInvested > 0 ? Math.round((totalExpectedReturn / totalInvested) * 100) : 0,
     };
   }, [userInvestments]);
 
@@ -98,7 +99,7 @@ const InvestPortfolio = () => {
         status: "completed" as const,
         daysRemaining: 0,
         progressPercent: 100,
-        message: `Completed ${daysPassed} days ago`,
+        message: `Completed ${daysPassed}d ago`,
       };
     }
 
@@ -111,177 +112,191 @@ const InvestPortfolio = () => {
       status: "active" as const,
       daysRemaining,
       progressPercent,
-      message: `${daysRemaining} days remaining`,
+      message: `${daysRemaining}d remaining`,
     };
   };
+
+  const handleGoBack = useCallback(() => {
+    navigate("/invest");
+  }, [navigate]);
+
+  const handleClaimReturns = useCallback((investment: Investment) => {
+    toast.success(`Claimed ${format(investment.expectedReturn)} returns! 🎉`);
+  }, []);
 
   return (
     <div className="min-h-screen pb-24 relative">
       <ThreeBackground />
 
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/invest")}>
-              <ArrowLeft className="w-5 h-5" />
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <Button variant="ghost" size="icon" onClick={handleGoBack} className="flex-shrink-0" aria-label="Go back">
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
-            <TrendingUp className="w-5 h-5 text-primary" />
-            <h1 className="text-base sm:text-lg font-bold">My Portfolio</h1>
+            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-primary flex-shrink-0" />
+            <h1 className="text-sm sm:text-lg font-bold truncate">Portfolio</h1>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-6 sm:py-8 space-y-6 sm:space-y-8">
         {/* Stats Section */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          <GlassCard className="p-4 sm:p-6">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+          <GlassCard className="p-3 sm:p-6">
             <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs sm:text-sm text-muted-foreground">Total Invested</p>
-                <p className="text-2xl sm:text-3xl font-bold mt-2">{format(stats.totalInvested)}</p>
+              <div className="min-w-0">
+                <p className="text-[11px] sm:text-sm text-muted-foreground">Total Invested</p>
+                <p className="text-lg sm:text-3xl font-bold mt-1 sm:mt-2 truncate">{format(stats.totalInvested)}</p>
               </div>
-              <div className="p-2 bg-primary/20 rounded-lg">
-                <Target className="w-5 h-5 text-primary" />
+              <div className="p-2 bg-primary/20 rounded-lg flex-shrink-0">
+                <Target className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
             </div>
           </GlassCard>
 
-          <GlassCard className="p-4 sm:p-6">
+          <GlassCard className="p-3 sm:p-6">
             <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs sm:text-sm text-muted-foreground">Expected Returns</p>
-                <p className="text-2xl sm:text-3xl font-bold mt-2 text-green-600">{format(stats.totalExpectedReturn)}</p>
+              <div className="min-w-0">
+                <p className="text-[11px] sm:text-sm text-muted-foreground">Expected Returns</p>
+                <p className="text-lg sm:text-3xl font-bold mt-1 sm:mt-2 text-green-600 truncate">{format(stats.totalExpectedReturn)}</p>
               </div>
-              <div className="p-2 bg-green-500/20 rounded-lg">
-                <TrendingUp className="w-5 h-5 text-green-600" />
+              <div className="p-2 bg-green-500/20 rounded-lg flex-shrink-0">
+                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
               </div>
             </div>
           </GlassCard>
 
-          <GlassCard className="p-4 sm:p-6">
+          <GlassCard className="p-3 sm:p-6">
             <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs sm:text-sm text-muted-foreground">Active Investments</p>
-                <p className="text-2xl sm:text-3xl font-bold mt-2">{stats.activeInvestments}</p>
+              <div className="min-w-0">
+                <p className="text-[11px] sm:text-sm text-muted-foreground">ROI</p>
+                <p className="text-lg sm:text-3xl font-bold mt-1 sm:mt-2 text-primary">{stats.roiPercentage}%</p>
               </div>
-              <div className="p-2 bg-secondary/20 rounded-lg">
-                <Clock className="w-5 h-5 text-secondary" />
+              <div className="p-2 bg-primary/20 rounded-lg flex-shrink-0">
+                <Percent className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
             </div>
           </GlassCard>
 
-          <GlassCard className="p-4 sm:p-6">
+          <GlassCard className="p-3 sm:p-6">
             <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs sm:text-sm text-muted-foreground">Completed</p>
-                <p className="text-2xl sm:text-3xl font-bold mt-2">{stats.completedInvestments}</p>
+              <div className="min-w-0">
+                <p className="text-[11px] sm:text-sm text-muted-foreground">Active</p>
+                <p className="text-lg sm:text-3xl font-bold mt-1 sm:mt-2">{stats.activeInvestments}</p>
               </div>
-              <div className="p-2 bg-accent/20 rounded-lg">
-                <CheckCircle className="w-5 h-5 text-accent" />
+              <div className="p-2 bg-secondary/20 rounded-lg flex-shrink-0">
+                <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-secondary" />
               </div>
             </div>
           </GlassCard>
 
-          <GlassCard className="p-4 sm:p-6">
+          <GlassCard className="p-3 sm:p-6">
             <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs sm:text-sm text-muted-foreground">Avg Return</p>
-                <p className="text-2xl sm:text-3xl font-bold mt-2 text-primary">{stats.averageReturn}%</p>
+              <div className="min-w-0">
+                <p className="text-[11px] sm:text-sm text-muted-foreground">Completed</p>
+                <p className="text-lg sm:text-3xl font-bold mt-1 sm:mt-2">{stats.completedInvestments}</p>
               </div>
-              <div className="p-2 bg-primary/20 rounded-lg">
-                <Percent className="w-5 h-5 text-primary" />
+              <div className="p-2 bg-accent/20 rounded-lg flex-shrink-0">
+                <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
               </div>
             </div>
           </GlassCard>
         </section>
 
         {/* Filter Tabs */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-1">
           {["all", "active", "completed"].map((f) => (
             <Button
               key={f}
               variant={filter === f ? "gradient" : "outline"}
               onClick={() => setFilter(f as any)}
-              className="capitalize"
+              className="capitalize text-xs sm:text-sm whitespace-nowrap"
             >
-              {f === "all" ? "All Investments" : f === "active" ? "Active" : "Completed"}
+              {f === "all" ? "All" : f === "active" ? "Active" : "Completed"}
             </Button>
           ))}
         </div>
 
         {/* Investments List */}
         {filteredInvestments.length === 0 ? (
-          <GlassCard className="p-12 text-center">
-            <AlertCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <p className="text-muted-foreground mb-4">
+          <GlassCard className="p-8 sm:p-12 text-center">
+            <AlertCircle className="w-8 h-8 sm:w-12 sm:h-12 mx-auto mb-3 sm:mb-4 text-muted-foreground opacity-50" />
+            <p className="text-xs sm:text-base text-muted-foreground mb-4">
               {filter === "all"
-                ? "You haven't made any investments yet."
+                ? "No investments yet."
                 : filter === "active"
                 ? "No active investments."
                 : "No completed investments yet."}
             </p>
-            <Button variant="outline" onClick={() => navigate("/invest")}>
+            <Button variant="outline" size="sm" onClick={() => navigate("/invest")} className="text-xs sm:text-sm">
               Explore Opportunities
             </Button>
           </GlassCard>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {filteredInvestments.map((investment) => {
               const statusInfo = getInvestmentStatus(investment);
               return (
-                <GlassCard key={investment.id} className="p-4 sm:p-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div>
-                      <h3 className="font-bold text-base sm:text-lg mb-1">{investment.projectTitle}</h3>
-                      <p className="text-xs sm:text-sm text-muted-foreground">
-                        Invested {new Date(investment.date).toLocaleDateString()}
-                      </p>
+                <GlassCard key={investment.id} className="p-3 sm:p-6">
+                  <div className="space-y-3 sm:space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+                      <div className="min-w-0">
+                        <h3 className="font-bold text-sm sm:text-lg truncate">{investment.projectTitle}</h3>
+                        <p className="text-[11px] sm:text-xs text-muted-foreground mt-1">
+                          {new Date(investment.date).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <span
+                        className={`text-[11px] sm:text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap flex-shrink-0 ${
+                          statusInfo.status === "active" ? "bg-secondary/20 text-secondary" : "bg-green-500/20 text-green-600"
+                        }`}
+                      >
+                        {statusInfo.status === "active" ? "Active" : "Completed"}
+                      </span>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs sm:text-sm">
                       <div>
-                        <p className="text-xs text-muted-foreground">Amount</p>
-                        <p className="font-bold text-sm">{format(investment.amount)}</p>
+                        <p className="text-muted-foreground text-[10px] sm:text-xs">Amount</p>
+                        <p className="font-bold text-sm sm:text-base">{format(investment.amount)}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Return</p>
-                        <p className="font-bold text-sm text-primary">{investment.returnPercent}%</p>
+                        <p className="text-muted-foreground text-[10px] sm:text-xs">Return Rate</p>
+                        <p className="font-bold text-sm sm:text-base text-primary">{investment.returnPercent}%</p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Expected</p>
-                        <p className="font-bold text-sm text-green-600">{format(investment.expectedReturn)}</p>
+                        <p className="text-muted-foreground text-[10px] sm:text-xs">Expected Return</p>
+                        <p className="font-bold text-sm sm:text-base text-green-600">{format(investment.expectedReturn)}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground text-[10px] sm:text-xs">Duration</p>
+                        <p className="font-bold text-sm sm:text-base">{investment.durationMonths}m</p>
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center justify-between text-[11px] sm:text-xs">
                         <span className="text-muted-foreground">{statusInfo.message}</span>
-                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${statusInfo.status === "active" ? "bg-secondary/20 text-secondary" : "bg-green-500/20 text-green-600"}`}>
-                          {statusInfo.status === "active" ? "Active" : "Completed"}
-                        </span>
+                        <span className="font-semibold">{statusInfo.progressPercent}%</span>
                       </div>
                       <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-                        <div style={{ width: `${statusInfo.progressPercent}%` }} className="h-2 bg-gradient-to-r from-primary to-accent transition-all duration-300" />
+                        <div
+                          style={{ width: `${statusInfo.progressPercent}%` }}
+                          className="h-2 bg-gradient-to-r from-primary to-accent transition-all duration-300"
+                        />
                       </div>
-                      <p className="text-xs text-muted-foreground">{statusInfo.progressPercent}% Complete</p>
                     </div>
 
-                    <div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        onClick={() => {
-                          if (statusInfo.status === "completed") {
-                            toast.success(`Claimed ${format(investment.expectedReturn)} returns! 🎉`);
-                          } else {
-                            toast.info("Your investment is maturing. Returns will be available soon.");
-                          }
-                        }}
-                      >
-                        {statusInfo.status === "completed" ? "Claim Returns" : "View Details"}
-                      </Button>
-                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full text-xs sm:text-sm"
+                      onClick={() => handleClaimReturns(investment)}
+                    >
+                      <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                      {statusInfo.status === "completed" ? "Claim Returns" : "View Details"}
+                    </Button>
                   </div>
                 </GlassCard>
               );
