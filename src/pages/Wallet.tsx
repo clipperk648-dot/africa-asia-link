@@ -6,6 +6,8 @@ import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
 import { DollarSign, ArrowDownCircle, ArrowUpRight, History, Wallet as WalletIcon, X, ChevronDown, Grid2X2, Send, ArrowLeft, TrendingUp } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
+import SlideshowBanner from "@/components/SlideshowBanner";
+import { APP_NAME } from "@/config/app";
 
 const currencies = ["USD", "NGN"] as const;
 
@@ -41,6 +43,42 @@ const Wallet = () => {
   const [currency, setCurrency] = useState<Currency>("USD");
   const [showPromo, setShowPromo] = useState(true);
 
+  const goBack = () => {
+    const dest = user?.role === "industry" ? "/industry" : "/buyer";
+    navigate(dest);
+  };
+
+  const promoSlides = [
+    {
+      image: "https://images.pexels.com/photos/6236114/pexels-photo-6236114.jpeg",
+      title: "You're almost there!",
+      subtitle: "Get up to $0.25 back on your first deposit transaction. Earn 2% weekly on your savings.",
+      ctaLabel: "Deposit",
+      ctaHref: "/wallet/actions#deposit",
+    },
+    {
+      image: "https://images.pexels.com/photos/7621136/pexels-photo-7621136.jpeg",
+      title: "Deposit and earn",
+      subtitle: "Add funds securely and start earning weekly boosts on your balance.",
+      ctaLabel: "Deposit",
+      ctaHref: "/wallet/actions#deposit",
+    },
+    {
+      image: "https://images.pexels.com/photos/1602726/pexels-photo-1602726.jpeg",
+      title: "Save more, earn more",
+      subtitle: "Grow your savings with steady weekly returns when you deposit.",
+      ctaLabel: "Deposit",
+      ctaHref: "/wallet/actions#deposit",
+    },
+    {
+      image: "https://images.pexels.com/photos/2451622/pexels-photo-2451622.jpeg",
+      title: "Fast and secure",
+      subtitle: "Top up your wallet in seconds and enjoy instant rewards.",
+      ctaLabel: "Deposit",
+      ctaHref: "/wallet/actions#deposit",
+    },
+  ];
+
   useEffect(() => {
     if (!user) navigate("/login");
   }, [user, navigate]);
@@ -54,13 +92,13 @@ const Wallet = () => {
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Go back">
+            <Button variant="ghost" size="icon" onClick={goBack} aria-label="Go back">
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <WalletIcon className="w-5 h-5 text-primary" />
             <h1 className="text-base sm:text-lg font-bold">Wallet</h1>
           </div>
-          <div className="text-xs text-muted-foreground">{user?.name}</div>
+          <div className="text-xs text-muted-foreground">{APP_NAME}</div>
         </div>
       </header>
 
@@ -104,15 +142,11 @@ const Wallet = () => {
         </div>
 
         {showPromo && (
-          <div className="relative overflow-hidden rounded-2xl p-4 sm:p-5 bg-gradient-accent text-foreground shadow">
-            <button aria-label="Close" className="absolute right-3 top-3 text-foreground/70 hover:text-foreground" onClick={() => setShowPromo(false)}>
+          <div className="relative overflow-hidden rounded-2xl bg-card text-foreground shadow">
+            <button aria-label="Close" className="absolute right-3 top-3 z-20 text-foreground/90 hover:opacity-80" onClick={() => setShowPromo(false)}>
               <X className="w-4 h-4" />
             </button>
-            <h3 className="text-lg font-extrabold">You're almost there!</h3>
-            <p className="text-xs mt-1 opacity-90">Get up to $0.25 back on your first deposit transaction. Earn 2% weekly on your savi...</p>
-            <div className="mt-4">
-              <Button variant="glass" className="bg-foreground text-background hover:opacity-90" onClick={() => navigate("/wallet/actions#deposit")}>Deposit</Button>
-            </div>
+            <SlideshowBanner slides={promoSlides} heightClassName="h-36 sm:h-44" />
           </div>
         )}
 

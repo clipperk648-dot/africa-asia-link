@@ -5,9 +5,11 @@ import { mockProducts, mockOrders, type Product } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, TrendingUp, Package, DollarSign, Users, Music2, Bell, BarChart3, LineChart, Pencil, Wallet as WalletIcon, Bot } from "lucide-react";
+import { LogOut, TrendingUp, Package, DollarSign, Users, Music2, Bell, BarChart3, LineChart, Pencil, Wallet as WalletIcon, Bot, Menu, Twitter, Instagram, Facebook } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { APP_NAME, SOCIAL_LINKS } from "@/config/app";
 
 const ProductCard = ({ product }: { product: Product }) => (
   <GlassCard className="p-4 sm:p-6 min-w-[280px] sm:min-w-0">
@@ -92,7 +94,7 @@ const IndustryDashboard = () => {
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-1 flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-bold bg-gradient-primary bg-clip-text text-transparent">{user?.name}</h1>
+            <h1 className="text-lg font-bold bg-gradient-primary bg-clip-text text-transparent">{APP_NAME}</h1>
             <p className="text-xs text-muted-foreground">Industry Dashboard</p>
           </div>
           <div className="flex items-center gap-2">
@@ -112,9 +114,54 @@ const IndustryDashboard = () => {
                 <WalletIcon className="w-5 h-5" />
               </Button>
             </Link>
-            <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Log out">
-              <LogOut className="w-5 h-5" />
-            </Button>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="Open menu">
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-72 sm:w-80">
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+                <div className="mt-4 space-y-2">
+                  <Link to="/profile">
+                    <Button variant="ghost" className="w-full justify-start">Profile</Button>
+                  </Link>
+                  <Link to="/industry/settings">
+                    <Button variant="ghost" className="w-full justify-start">Settings</Button>
+                  </Link>
+                  <Link to="/wallet">
+                    <Button variant="ghost" className="w-full justify-start">Wallet</Button>
+                  </Link>
+                  <Link to="/invest">
+                    <Button variant="ghost" className="w-full justify-start">Invest</Button>
+                  </Link>
+                  <Link to="/notifications">
+                    <Button variant="ghost" className="w-full justify-start">Notifications</Button>
+                  </Link>
+
+                  <div className="pt-2 border-t border-border/40 mt-2">
+                    <p className="text-xs text-muted-foreground px-2 mb-2">Follow us</p>
+                    <div className="flex gap-2 px-2">
+                      <a href={SOCIAL_LINKS[0].href} target="_blank" rel="noreferrer">
+                        <Button variant="ghost" className="p-2"><Twitter className="w-4 h-4" /></Button>
+                      </a>
+                      <a href={SOCIAL_LINKS[1].href} target="_blank" rel="noreferrer">
+                        <Button variant="ghost" className="p-2"><Instagram className="w-4 h-4" /></Button>
+                      </a>
+                      <a href={SOCIAL_LINKS[2].href} target="_blank" rel="noreferrer">
+                        <Button variant="ghost" className="p-2"><Facebook className="w-4 h-4" /></Button>
+                      </a>
+                    </div>
+                  </div>
+
+                  <Button className="w-full justify-start mt-4" variant="destructive" onClick={handleLogout}>
+                    <LogOut className="w-4 h-4 mr-2" /> Logout
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>

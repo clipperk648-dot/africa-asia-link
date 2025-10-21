@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
 import ThreeBackground from "@/components/ThreeBackground";
+import SlideshowBanner from "@/components/SlideshowBanner";
 
 const BottomNav = ({ active }: { active: "wallet" | "pay" | "apps" }) => {
   const items = [
@@ -42,16 +43,39 @@ const WalletApps = () => {
   const featuredApps = [
     {
       title: "Daily Rewards",
-      subtitle: "Get 1",
+      subtitle: "Earn bonuses every day when you check in and use your wallet.",
       gradient: "from-emerald-500 to-emerald-600",
       emoji: "🎁"
     },
     {
       title: "Buy Airtime",
-      subtitle: "Get 1",
+      subtitle: "Recharge your phone quickly and securely.",
       gradient: "from-emerald-500 to-emerald-600",
       emoji: "📞"
     }
+  ];
+
+  const appSlides = [
+    {
+      image: "https://images.pexels.com/photos/6236114/pexels-photo-6236114.jpeg",
+      title: "Daily Rewards",
+      subtitle: "Earn bonuses every day when you check in and use your wallet.",
+    },
+    {
+      image: "https://images.pexels.com/photos/2451622/pexels-photo-2451622.jpeg",
+      title: "Buy Airtime",
+      subtitle: "Recharge your phone quickly and securely.",
+    },
+    {
+      image: "https://images.pexels.com/photos/7621136/pexels-photo-7621136.jpeg",
+      title: "Easy Payments",
+      subtitle: "Make contactless payments in seconds.",
+    },
+    {
+      image: "https://images.pexels.com/photos/1602726/pexels-photo-1602726.jpeg",
+      title: "Save as you spend",
+      subtitle: "Grow your balance with steady returns.",
+    },
   ];
 
   const apps = [
@@ -89,21 +113,9 @@ const WalletApps = () => {
       <main className="max-w-3xl mx-auto px-4 py-6 space-y-6">
         <h1 className="text-3xl font-bold">Mini Apps</h1>
 
-        {/* Featured Apps Carousel */}
+        {/* Featured Apps Slideshow */}
         <section className="space-y-3">
-          <div className="-mx-4 px-4 pb-2 overflow-x-auto snap-x snap-mandatory flex gap-3">
-            {featuredApps.map((app, index) => (
-              <div key={index} className="snap-start shrink-0 w-[85%] sm:w-full">
-                <GlassCard className={`p-6 bg-gradient-to-br ${app.gradient} text-white rounded-3xl min-h-[160px] flex flex-col justify-between`}>
-                  <div>
-                    <h3 className="text-2xl font-bold">{app.title}</h3>
-                    <p className="text-white/80 text-sm mt-1">{app.subtitle}</p>
-                  </div>
-                  <div className="text-5xl text-right opacity-40">{app.emoji}</div>
-                </GlassCard>
-              </div>
-            ))}
-          </div>
+          <SlideshowBanner slides={appSlides} heightClassName="h-40 sm:h-48" />
         </section>
 
         {/* Divider */}
