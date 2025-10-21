@@ -68,7 +68,7 @@ const InvestAnalytics = () => {
     }
     setProjects(loadProjects());
     setInvestments(loadInvestments());
-  }, [user, navigate]);
+  }, [user?.id]);
 
   // Chart Data: Funding by Category
   const categoryData = useMemo(() => {
