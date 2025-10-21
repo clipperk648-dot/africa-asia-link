@@ -103,7 +103,7 @@ const BuyerDashboard = () => {
         <div className="max-w-7xl mx-auto px-4 py-1 flex items-center justify-between">
           <div>
             <h1 className="text-lg font-bold bg-gradient-primary bg-clip-text text-transparent">
-              {user?.name}
+              {APP_NAME}
             </h1>
             <p className="text-xs text-muted-foreground">Buyer Dashboard</p>
           </div>
