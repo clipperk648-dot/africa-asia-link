@@ -1,30 +1,67 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCurrentUser } from "@/utils/mockAuth";
-import { mockProducts, mockOrders } from "@/utils/mockData";
+import { mockProducts } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ShoppingCart, MessageCircle, Phone, Mail, Download, Check, X, Award } from "lucide-react";
+import {
+  ArrowLeft,
+  ShoppingCart,
+  MessageCircle,
+  Phone,
+  Mail,
+  Download,
+  Check,
+  X,
+  Award,
+  Share2,
+  Bookmark,
+  Maximize2,
+  Play,
+} from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import RateButton from "@/components/RateButton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { addToCart } from "@/utils/cart";
 
 const ProductDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const user = getCurrentUser();
-  const [selectedImage, setSelectedImage] = useState(0);
-  const [showVideo, setShowVideo] = useState(false);
+  const { toast } = useToast();
+
+  const product = mockProducts.find((p) => String(p.id) === id);
+
+  const images = product?.images || [product?.image].filter(Boolean) as string[];
+  const media = useMemo(() => {
+    const base = images ?? [];
+    return product?.videoUrl ? [...base, "__VIDEO__"] : base;
+  }, [images, product?.videoUrl]);
+
+  const [api, setApi] = useState<CarouselApi | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [qty, setQty] = useState<number>(1);
 
   useEffect(() => {
     if (!user) navigate("/login");
   }, [user, navigate]);
 
-  const product = mockProducts.find((p) => String(p.id) === id);
-  const inquiries = product?.inquiries || 0;
-  const images = product?.images || [product?.image];
-  const mainImage = images?.[selectedImage] || product?.image;
+  useEffect(() => {
+    if (!api) return;
+    const onSelect = () => setActiveIndex(api.selectedScrollSnap());
+    api.on("select", onSelect);
+    onSelect();
+    return () => {
+      api.off("select", onSelect);
+    };
+  }, [api]);
 
   if (!product) {
     return (
@@ -48,6 +85,29 @@ const ProductDetails = () => {
     );
   }
 
+  const isVideo = (idx: number) => media[idx] === "__VIDEO__";
+  const mainImage = !isVideo(activeIndex) ? (media[activeIndex] as string) : images[0];
+  const inquiries = product.inquiries || 0;
+
+  const goTo = (idx: number) => {
+    api?.scrollTo(idx);
+  };
+
+  const addItemToCart = () => {
+    const validQty = Number.isFinite(qty) && qty > 0 ? Math.floor(qty) : 1;
+    addToCart(
+      {
+        id: product.id,
+        name: product.name,
+        price: product.unitPrice || product.price,
+        image: product.image,
+        company: product.company,
+      },
+      validQty,
+    );
+    toast({ title: "Added to cart", description: `${validQty} × ${product.name}` });
+  };
+
   return (
     <div className="min-h-screen pb-24 relative">
       <ThreeBackground />
@@ -62,51 +122,66 @@ const ProductDetails = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        {/* Image Gallery and Video Section */}
+        {/* Media Gallery + Sidebar */}
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Main Image and Gallery */}
+          {/* Media Gallery */}
           <div className="lg:col-span-2 space-y-4">
             <GlassCard className="p-4 overflow-hidden">
-              {/* Main Image */}
-              <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden mb-4">
-                <img src={mainImage} alt={product.name} className="w-full h-full object-cover" />
-                {product.videoUrl && !showVideo && (
-                  <button
-                    onClick={() => setShowVideo(true)}
-                    className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/50 transition-colors"
-                  >
-                    <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">
-                      <div className="w-0 h-0 border-l-8 border-l-white border-t-5 border-t-transparent border-b-5 border-b-transparent ml-1" />
-                    </div>
-                  </button>
-                )}
+              <div className="relative">
+                <Carousel setApi={setApi} className="w-full" opts={{ loop: false }}>
+                  <CarouselContent>
+                    {media.map((m, idx) => (
+                      <CarouselItem key={idx}>
+                        <div className="relative">
+                          <AspectRatio ratio={16 / 9}>
+                            {!isVideo(idx) ? (
+                              <img
+                                src={m as string}
+                                alt={`${product.name} ${idx + 1}`}
+                                className="w-full h-full object-cover rounded-lg"
+                                onClick={() => setLightboxOpen(true)}
+                              />
+                            ) : (
+                              <div className="w-full h-full rounded-lg overflow-hidden relative bg-black">
+                                <iframe
+                                  src={product.videoUrl}
+                                  title="Product Video"
+                                  width="100%"
+                                  height="100%"
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                />
+                              </div>
+                            )}
+                          </AspectRatio>
+                          {!isVideo(idx) && (
+                            <Button
+                              size="icon"
+                              variant="glass"
+                              className="absolute bottom-3 right-3"
+                              onClick={() => setLightboxOpen(true)}
+                              aria-label="Open fullscreen"
+                            >
+                              <Maximize2 className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
               </div>
 
-              {/* Video Section */}
-              {product.videoUrl && showVideo && (
-                <div className="w-full aspect-video mb-4 rounded-lg overflow-hidden">
-                  <iframe
-                    width="100%"
-                    height="100%"
-                    src={product.videoUrl}
-                    title="Product Video"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-              )}
-
-              {/* Thumbnail Gallery */}
-              <div className="flex gap-2 overflow-x-auto">
+              {/* Thumbnails */}
+              <div className="mt-4 flex gap-2 overflow-x-auto">
                 {images?.map((img, idx) => (
                   <button
                     key={idx}
-                    onClick={() => {
-                      setSelectedImage(idx);
-                      setShowVideo(false);
-                    }}
+                    onClick={() => goTo(idx)}
                     className={`flex-shrink-0 w-20 h-16 rounded-lg border-2 overflow-hidden transition-colors ${
-                      selectedImage === idx ? "border-primary" : "border-muted hover:border-primary/50"
+                      activeIndex === idx ? "border-primary" : "border-muted hover:border-primary/50"
                     }`}
                   >
                     <img src={img} alt={`${product.name} ${idx}`} className="w-full h-full object-cover" />
@@ -114,21 +189,21 @@ const ProductDetails = () => {
                 ))}
                 {product.videoUrl && (
                   <button
-                    onClick={() => setShowVideo(true)}
+                    onClick={() => goTo(media.length - 1)}
                     className={`flex-shrink-0 w-20 h-16 rounded-lg border-2 overflow-hidden transition-colors flex items-center justify-center bg-muted ${
-                      showVideo ? "border-primary" : "border-muted hover:border-primary/50"
+                      isVideo(activeIndex) ? "border-primary" : "border-muted hover:border-primary/50"
                     }`}
                   >
-                    <span className="text-xs font-semibold">Video</span>
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold"><Play className="w-3 h-3" /> Video</span>
                   </button>
                 )}
               </div>
             </GlassCard>
           </div>
 
-          {/* Quick Info Sidebar */}
+          {/* Sidebar */}
           <div className="space-y-4">
-            {/* Price and Rating */}
+            {/* Price & Rating */}
             <GlassCard className="p-6">
               <div className="space-y-4">
                 <div>
@@ -137,15 +212,12 @@ const ProductDetails = () => {
                     {product.currency} {(product.unitPrice || product.price).toLocaleString()}
                   </p>
                 </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1">
-                      <span className="text-yellow-500 text-lg">★</span>
-                      <span className="font-semibold">{product.rating}</span>
-                    </div>
-                    <span className="text-xs text-muted-foreground">({product.reviews || 0} reviews)</span>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    <span className="text-yellow-500 text-lg">★</span>
+                    <span className="font-semibold">{product.rating}</span>
                   </div>
+                  <span className="text-xs text-muted-foreground">({product.reviews || 0} reviews)</span>
                 </div>
 
                 <div className="pt-4 border-t space-y-2">
@@ -155,30 +227,65 @@ const ProductDetails = () => {
               </div>
             </GlassCard>
 
-            {/* Action Buttons */}
-            <GlassCard className="p-4 space-y-2">
-              <Button variant="gradient" className="w-full gap-2" onClick={() => navigate(`/messages?product=${product.id}`)}>
-                <ShoppingCart className="w-4 h-4" />
-                Send Inquiry
+            {/* Actions */}
+            <GlassCard className="p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  min={1}
+                  value={qty}
+                  onChange={(e) => setQty(parseInt(e.target.value || "1", 10))}
+                  className="w-24"
+                />
+                <span className="text-sm text-muted-foreground">{product.unit || "pc"}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Button className="w-full gap-2" onClick={addItemToCart}>
+                  <ShoppingCart className="w-4 h-4" /> Add to Cart
+                </Button>
+                <Button variant="outline" className="w-full" onClick={() => navigate(`/messages?product=${product.id}`)}>
+                  Send Inquiry
+                </Button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <RateButton productId={product.id} productName={product.name} size="sm" />
+                <Button variant="ghost" className="w-full" onClick={() => toast({ title: "Saved" })}>
+                  <Bookmark className="w-4 h-4" /> Save
+                </Button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Button variant="outline" className="w-full gap-2" onClick={() => window.open(`tel:${product.contactPhone}`)}>
+                  <Phone className="w-4 h-4" /> Call
+                </Button>
+                <Button variant="outline" className="w-full gap-2" onClick={() => window.open(`mailto:${product.contactEmail}`)}>
+                  <Mail className="w-4 h-4" /> Email
+                </Button>
+              </div>
+              <Button variant="ghost" className="w-full" onClick={() => toast({ title: "Share link copied" })}>
+                <Share2 className="w-4 h-4" /> Share
               </Button>
-              <RateButton productId={product.id} productName={product.name} size="sm" />
-              <Button variant="outline" className="w-full gap-2" onClick={() => window.open(`tel:${product.contactPhone}`)}>
-                <Phone className="w-4 h-4" />
-                Call Seller
-              </Button>
-              <Button variant="outline" className="w-full gap-2" onClick={() => window.open(`mailto:${product.contactEmail}`)}>
-                <Mail className="w-4 h-4" />
-                Email
-              </Button>
+            </GlassCard>
+
+            {/* Seller card */}
+            <GlassCard className="p-4">
+              <div className="flex items-center gap-3">
+                <Avatar>
+                  <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(product.company)}`} />
+                  <AvatarFallback>{product.company.slice(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <div className="min-w-0">
+                  <p className="font-semibold truncate">{product.company}</p>
+                  <p className="text-xs text-muted-foreground truncate">{product.location}</p>
+                </div>
+              </div>
             </GlassCard>
           </div>
         </div>
 
         {/* Product Overview */}
         <GlassCard className="p-6 lg:p-8">
-          <h2 className="text-2xl font-bold mb-4">{product.name}</h2>
+          <h2 className="text-2xl font-bold mb-1">{product.name}</h2>
           {product.nameZH && <p className="text-muted-foreground mb-4 text-lg">{product.nameZH}</p>}
-
           <p className="text-muted-foreground mb-6 leading-relaxed">{product.description}</p>
 
           {/* Key Trading Info */}
@@ -249,7 +356,7 @@ const ProductDetails = () => {
                   <span className="font-semibold">{product.portOfShipment}</span>
                 </div>
               )}
-              {product.origin && (
+              {product.originCountry && (
                 <div className="flex justify-between py-2">
                   <span className="text-muted-foreground">Origin</span>
                   <span className="font-semibold">
@@ -362,7 +469,10 @@ const ProductDetails = () => {
               <h4 className="font-semibold mb-4">Contact Methods</h4>
               <div className="space-y-3">
                 {product.contactEmail && (
-                  <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => window.open(`mailto:${product.contactEmail}`)}>
+                  <div
+                    className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => window.open(`mailto:${product.contactEmail}`)}
+                  >
                     <Mail className="w-4 h-4 text-primary" />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-muted-foreground">Email</p>
@@ -371,7 +481,10 @@ const ProductDetails = () => {
                   </div>
                 )}
                 {product.contactPhone && (
-                  <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => window.open(`tel:${product.contactPhone}`)}>
+                  <div
+                    className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => window.open(`tel:${product.contactPhone}`)}
+                  >
                     <Phone className="w-4 h-4 text-primary" />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs text-muted-foreground">Phone</p>
@@ -409,7 +522,7 @@ const ProductDetails = () => {
               <Download className="w-5 h-5" />
               Resources
             </h3>
-            <Button variant="outline" className="gap-2" onClick={() => window.open(product.brochureUrl, "_blank")}>
+            <Button variant="outline" className="gap-2" onClick={() => window.open(product.brochureUrl!, "_blank") }>
               <Download className="w-4 h-4" />
               Download Product Brochure (PDF)
             </Button>
@@ -418,6 +531,28 @@ const ProductDetails = () => {
       </main>
 
       <FooterNav dashboardType="buyer" />
+
+      {/* Lightbox */}
+      <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
+        <DialogContent className="max-w-5xl bg-black/90 p-2">
+          <div className="relative">
+            <AspectRatio ratio={16 / 9}>
+              {!isVideo(activeIndex) ? (
+                <img src={mainImage} alt={product.name} className="w-full h-full object-contain rounded" />
+              ) : (
+                <iframe
+                  src={product.videoUrl}
+                  title="Product Video"
+                  width="100%"
+                  height="100%"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              )}
+            </AspectRatio>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
