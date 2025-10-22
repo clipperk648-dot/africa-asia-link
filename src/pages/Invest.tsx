@@ -239,9 +239,75 @@ const Invest = () => {
     }
   };
 
+  const handleNavigateBack = () => {
+    if (user?.role === "industry") {
+      navigate("/industry");
+    } else {
+      navigate("/buyer");
+    }
+  };
+
+  const handleFooterButtonClick = (page: string) => {
+    navigate(`/invest/${page}`);
+  };
+
   return (
-    <div className="min-h-screen pb-24 relative">
-      <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+    <div className="min-h-screen pb-32 relative flex flex-col">
+      {/* Header with Back Button */}
+      <div className="border-b sticky top-0 z-40 bg-background/95 backdrop-blur">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleNavigateBack}
+              className="gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Back to Dashboard
+            </Button>
+            <h1 className="text-2xl font-bold">Echina Investments</h1>
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation Tabs */}
+      <div className="border-b sticky top-14 z-40 bg-background/95 backdrop-blur">
+        <div className="max-w-5xl mx-auto px-4 flex gap-2 overflow-x-auto">
+          <button
+            onClick={() => setCurrentView("home")}
+            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              currentView === "home"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Home
+          </button>
+          <button
+            onClick={() => setCurrentView("create")}
+            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              currentView === "create"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Create Campaign
+          </button>
+          <button
+            onClick={() => setCurrentView("browse")}
+            className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+              currentView === "browse"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Browse
+          </button>
+        </div>
+      </div>
+
+      <main className="max-w-5xl mx-auto px-4 py-6 space-y-6 flex-1">
         <div className="grid md:grid-cols-3 gap-4">
           <div className="md:col-span-2 space-y-4">
             <h1 className="text-2xl font-bold">Investment Platform</h1>
