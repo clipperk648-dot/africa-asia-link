@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/sonner";
 import { getCurrentUser } from "@/utils/mockAuth";
+import { ArrowLeft, BarChart3, MessageCircle, FileText, Settings, History, Lock, TrendingUp, DollarSign, Target } from "lucide-react";
 
 type Project = {
   id: string;
