@@ -115,9 +115,11 @@ const BuyerProducts = () => {
               <Input
                 placeholder="Search products..."
                 className="pl-10 h-11 bg-background/50"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
               />
             </div>
-            <Button variant="glass" size="icon" className="h-11 w-11">
+            <Button variant="glass" size="icon" className="h-11 w-11" onClick={() => setFilterOpen(true)}>
               <Filter className="w-5 h-5" />
             </Button>
           </div>
