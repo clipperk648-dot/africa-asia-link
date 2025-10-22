@@ -69,6 +69,8 @@ const format = (n: number) => `₦${n.toLocaleString()}`;
 
 const Invest = () => {
   const user = getCurrentUser();
+  const navigate = useNavigate();
+  const [currentView, setCurrentView] = useState<"home" | "create" | "browse">("home");
   const [projects, setProjects] = useState<Project[]>([]);
   const [wallet, setWallet] = useState<number>(0);
   const [txs, setTxs] = useState<Tx[]>([]);
