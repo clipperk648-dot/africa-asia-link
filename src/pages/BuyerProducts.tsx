@@ -183,7 +183,7 @@ const BuyerProducts = () => {
                 <p className="text-sm text-muted-foreground mt-2">{product.location}</p>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-4 gap-3">
                   <p className="text-2xl font-bold text-primary">
-                    ${product.price.toLocaleString()}
+                    {product.currency || "USD"} {product.price.toLocaleString()}
                   </p>
                   <div className="flex gap-2 w-full sm:w-auto">
                     <Button
