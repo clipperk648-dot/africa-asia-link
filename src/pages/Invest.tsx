@@ -79,6 +79,7 @@ const Invest = () => {
   const [returnPercent, setReturnPercent] = useState<number | "">(10);
   const [durationMonths, setDurationMonths] = useState<number | "">(12);
   const [pitchUrl, setPitchUrl] = useState("");
+  const [riskLevel, setRiskLevel] = useState<"low" | "medium" | "high">("medium");
 
   // browsing filters
   const [filterCategory, setFilterCategory] = useState("");
