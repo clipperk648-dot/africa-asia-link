@@ -40,7 +40,7 @@ const Index = () => {
           <div className="space-y-4">
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold leading-tight">
               <span className="bg-gradient-primary bg-clip-text text-transparent">
-                TradeLink
+                Echina
               </span>
             </h1>
             <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground">
@@ -97,7 +97,7 @@ const Index = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12 sm:mb-16">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 px-4">
-              Why Choose <span className="bg-gradient-primary bg-clip-text text-transparent">TradeLink</span>
+              Why Choose <span className="bg-gradient-primary bg-clip-text text-transparent">Echina</span>
             </h2>
             <p className="text-lg sm:text-xl text-muted-foreground px-4">
               Everything you need for successful international trade
@@ -130,7 +130,7 @@ const Index = () => {
               Ready to Start Trading?
             </h2>
             <p className="text-base sm:text-lg text-muted-foreground mb-6 sm:mb-8">
-              Join thousands of businesses already connecting through TradeLink
+              Join thousands of businesses already connecting through Echina
             </p>
             <Button
               variant="gradient"

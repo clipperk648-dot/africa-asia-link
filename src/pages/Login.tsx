@@ -82,7 +82,7 @@ const Login = () => {
         <div className="flex flex-col justify-center space-y-4 sm:space-y-6">
           <div className="space-y-2">
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              TradeLink
+              Echina
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground">
               Connecting China Industries with Nigerian Buyers
