@@ -39,14 +39,54 @@ const BuyerProducts = () => {
   const user = getCurrentUser();
 
   const [active, setActive] = useState<string>("All");
+  const [query, setQuery] = useState("");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [priceTier, setPriceTier] = useState<"none" | "cheap" | "expensive">("none");
+  const [qtyTier, setQtyTier] = useState<"none" | "large" | "small">("none");
+  const [minRating, setMinRating] = useState<number>(0);
+  const [inStockOnly, setInStockOnly] = useState<boolean>(false);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
 
   const products = mockProducts;
 
+  const median = (arr: number[]) => {
+    const a = [...arr].sort((x, y) => x - y);
+    const mid = Math.floor(a.length / 2);
+    return a.length % 2 ? a[mid] : (a[mid - 1] + a[mid]) / 2;
+  };
+  const priceMedian = useMemo(() => median(products.map((p) => p.price || p.unitPrice || 0)), [products]);
+  const qtyMedian = useMemo(() => median(products.map((p) => p.quantityAvailable || 0)), [products]);
+
   const filtered = useMemo(() => {
-    if (active === "All") return products;
-    return products.filter((p) => p.category.toLowerCase() === active.toLowerCase());
-  }, [products, active]);
+    let list = products;
+
+    // category
+    if (active !== "All") list = list.filter((p) => p.category.toLowerCase() === active.toLowerCase());
+
+    // search
+    const q = query.trim().toLowerCase();
+    if (q) {
+      list = list.filter((p) =>
+        [p.name, p.company, p.category, p.location].some((v) => (v || "").toLowerCase().includes(q)),
+      );
+    }
+
+    // price tier
+    if (priceTier === "cheap") list = list.filter((p) => (p.price || p.unitPrice || 0) <= priceMedian);
+    if (priceTier === "expensive") list = list.filter((p) => (p.price || p.unitPrice || 0) >= priceMedian);
+
+    // quantity tier
+    if (qtyTier === "large") list = list.filter((p) => (p.quantityAvailable || 0) >= qtyMedian);
+    if (qtyTier === "small") list = list.filter((p) => (p.quantityAvailable || 0) > 0 && (p.quantityAvailable || 0) < qtyMedian);
+
+    // rating
+    if (minRating > 0) list = list.filter((p) => (p.rating || 0) >= minRating);
+
+    // stock
+    if (inStockOnly) list = list.filter((p) => (p.quantityAvailable || 0) > 0);
+
+    return list;
+  }, [products, active, query, priceTier, qtyTier, minRating, inStockOnly, priceMedian, qtyMedian]);
 
   useEffect(() => {
     if (!user || user.role !== "buyer") {
