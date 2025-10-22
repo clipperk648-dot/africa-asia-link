@@ -94,14 +94,66 @@ const IndustryDashboard = () => {
 
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-3 py-1">
-          <div className="flex items-center justify-start">
-            <div className="h-8 w-8 bg-primary text-white rounded-md flex items-center justify-center font-bold text-sm">E</div>
-            <span className="text-lg font-bold -ml-1">china</span>
+          {/* Row 1: brand + menu */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 bg-primary text-white rounded-md flex items-center justify-center font-bold text-sm">E</div>
+              <span className="text-lg font-bold -ml-1">china</span>
+            </div>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="Open menu">
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-72 sm:w-80">
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+                <div className="mt-4 space-y-2">
+                  <Link to="/profile">
+                    <Button variant="ghost" className="w-full justify-start">Profile</Button>
+                  </Link>
+                  <Link to="/industry/settings">
+                    <Button variant="ghost" className="w-full justify-start">Settings</Button>
+                  </Link>
+                  <Link to="/wallet">
+                    <Button variant="ghost" className="w-full justify-start">Wallet</Button>
+                  </Link>
+                  <Link to="/invest">
+                    <Button variant="ghost" className="w-full justify-start">Invest</Button>
+                  </Link>
+                  <Link to="/notifications">
+                    <Button variant="ghost" className="w-full justify-start">Notifications</Button>
+                  </Link>
+
+                  <div className="pt-2 border-t border-border/40 mt-2">
+                    <p className="text-xs text-muted-foreground px-2 mb-2">Follow us</p>
+                    <div className="flex gap-2 px-2">
+                      <a href={SOCIAL_LINKS[0].href} target="_blank" rel="noreferrer">
+                        <Button variant="ghost" className="p-2"><Twitter className="w-4 h-4" /></Button>
+                      </a>
+                      <a href={SOCIAL_LINKS[1].href} target="_blank" rel="noreferrer">
+                        <Button variant="ghost" className="p-2"><Instagram className="w-4 h-4" /></Button>
+                      </a>
+                      <a href={SOCIAL_LINKS[2].href} target="_blank" rel="noreferrer">
+                        <Button variant="ghost" className="p-2"><Facebook className="w-4 h-4" /></Button>
+                      </a>
+                    </div>
+                  </div>
+
+                  <Button className="w-full justify-start mt-4" variant="destructive" onClick={handleLogout}>
+                    <LogOut className="w-4 h-4 mr-2" /> Logout
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
 
+          {/* Row 2: welcome + actions */}
           <div className="mt-2 flex items-center justify-between">
             <div>
-              <h1 className="text-base font-semibold">Industry Dashboard</h1>
+              <h1 className="text-base font-semibold">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Seller'}!</h1>
             </div>
 
             <div className="flex items-center gap-2">
@@ -145,55 +197,6 @@ const IndustryDashboard = () => {
                   <WalletIcon className="w-5 h-5" />
                 </Button>
               </Link>
-
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" aria-label="Open menu">
-                    <Menu className="w-5 h-5" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-72 sm:w-80">
-                  <SheetHeader>
-                    <SheetTitle>Menu</SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-4 space-y-2">
-                    <Link to="/profile">
-                      <Button variant="ghost" className="w-full justify-start">Profile</Button>
-                    </Link>
-                    <Link to="/industry/settings">
-                      <Button variant="ghost" className="w-full justify-start">Settings</Button>
-                    </Link>
-                    <Link to="/wallet">
-                      <Button variant="ghost" className="w-full justify-start">Wallet</Button>
-                    </Link>
-                    <Link to="/invest">
-                      <Button variant="ghost" className="w-full justify-start">Invest</Button>
-                    </Link>
-                    <Link to="/notifications">
-                      <Button variant="ghost" className="w-full justify-start">Notifications</Button>
-                    </Link>
-
-                    <div className="pt-2 border-t border-border/40 mt-2">
-                      <p className="text-xs text-muted-foreground px-2 mb-2">Follow us</p>
-                      <div className="flex gap-2 px-2">
-                        <a href={SOCIAL_LINKS[0].href} target="_blank" rel="noreferrer">
-                          <Button variant="ghost" className="p-2"><Twitter className="w-4 h-4" /></Button>
-                        </a>
-                        <a href={SOCIAL_LINKS[1].href} target="_blank" rel="noreferrer">
-                          <Button variant="ghost" className="p-2"><Instagram className="w-4 h-4" /></Button>
-                        </a>
-                        <a href={SOCIAL_LINKS[2].href} target="_blank" rel="noreferrer">
-                          <Button variant="ghost" className="p-2"><Facebook className="w-4 h-4" /></Button>
-                        </a>
-                      </div>
-                    </div>
-
-                    <Button className="w-full justify-start mt-4" variant="destructive" onClick={handleLogout}>
-                      <LogOut className="w-4 h-4 mr-2" /> Logout
-                    </Button>
-                  </div>
-                </SheetContent>
-              </Sheet>
             </div>
           </div>
         </div>
