@@ -16,9 +16,15 @@ type Project = {
   category?: string;
   returnPercent?: number;
   durationMonths?: number;
-  status?: "pending" | "approved" | "funded";
+  status?: "pending" | "approved" | "funded" | "completed";
   pitchUrl?: string;
   documents?: string[];
+  riskLevel?: "low" | "medium" | "high";
+  startDate?: string;
+  endDate?: string;
+  completedPercent?: number;
+  milestones?: { id: string; title: string; date: string; completed: boolean }[];
+  investors?: { userId: string; amount: number; date: string }[];
 };
 
 type Tx = { id: string; type: "deposit" | "withdraw" | "invest"; amount: number; date: string; note?: string };
