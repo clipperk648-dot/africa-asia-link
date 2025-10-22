@@ -263,12 +263,18 @@ const Invest = () => {
                   <Input placeholder="Category" value={category} onChange={(e) => setCategory(e.target.value)} />
                   <Input placeholder="Target amount (₦)" value={target as any} onChange={(e) => setTarget(e.target.value ? Number(e.target.value) : "")} />
                   <Input placeholder="Return % (e.g., 12)" value={returnPercent as any} onChange={(e) => setReturnPercent(e.target.value ? Number(e.target.value) : "")} />
+                  <Input placeholder="Duration (months)" type="number" value={durationMonths as any} onChange={(e) => setDurationMonths(e.target.value ? Number(e.target.value) : "")} />
+                  <select className="px-2 py-2 border rounded bg-background" value={riskLevel} onChange={(e) => setRiskLevel(e.target.value as "low" | "medium" | "high")}>
+                    <option value="low">Risk: Low</option>
+                    <option value="medium">Risk: Medium</option>
+                    <option value="high">Risk: High</option>
+                  </select>
                 </div>
                 <Textarea placeholder="Short description" value={description} onChange={(e) => setDescription(e.target.value)} />
                 <Input placeholder="Pitch video URL (optional)" value={pitchUrl} onChange={(e) => setPitchUrl(e.target.value)} />
                 <div className="flex gap-2">
                   <Button variant="gradient" onClick={createProject}>Submit for approval</Button>
-                  <Button variant="outline" onClick={() => { setTitle(""); setDescription(""); setTarget(""); setCategory(""); setReturnPercent(10); setDurationMonths(12); setPitchUrl(""); }}>Reset</Button>
+                  <Button variant="outline" onClick={() => { setTitle(""); setDescription(""); setTarget(""); setCategory(""); setReturnPercent(10); setDurationMonths(12); setPitchUrl(""); setRiskLevel("medium"); }}>Reset</Button>
                 </div>
               </GlassCard>
             </section>
