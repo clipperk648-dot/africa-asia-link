@@ -181,6 +181,17 @@ const BuyerProducts = () => {
                   </div>
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">{product.location}</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {product.moq && (
+                    <span className="text-xs px-2 py-1 rounded-full bg-muted/60">MOQ: {product.moq} {product.unit || "pc"}</span>
+                  )}
+                  {typeof product.quantityAvailable === 'number' && (
+                    <span className="text-xs px-2 py-1 rounded-full bg-muted/60">Available: {product.quantityAvailable}</span>
+                  )}
+                  {product.incoterm && (
+                    <span className="text-xs px-2 py-1 rounded-full bg-muted/60">Incoterm: {product.incoterm}</span>
+                  )}
+                </div>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-4 gap-3">
                   <p className="text-2xl font-bold text-primary">
                     {product.currency || "USD"} {product.price.toLocaleString()}
