@@ -198,6 +198,43 @@ const Invest = () => {
   const totalFunded = projects.reduce((a, b) => a + b.funded, 0);
   const totalTarget = projects.reduce((a, b) => a + b.target, 0);
 
+  const userPortfolio = useMemo(() => {
+    const investments: { projectId: string; projectTitle: string; amount: number; returns: number; expectedReturn: number; status: string; riskLevel: string }[] = [];
+    projects.forEach((p) => {
+      const userInvestments = p.investors?.filter((inv) => inv.userId === user?.id) || [];
+      userInvestments.forEach((inv) => {
+        const expectedReturn = inv.amount * (p.returnPercent || 10) / 100;
+        investments.push({
+          projectId: p.id,
+          projectTitle: p.title,
+          amount: inv.amount,
+          returns: 0,
+          expectedReturn,
+          status: p.status || "pending",
+          riskLevel: p.riskLevel || "medium",
+        });
+      });
+    });
+    return investments;
+  }, [projects, user?.id]);
+
+  const totalInvested = userPortfolio.reduce((a, b) => a + b.amount, 0);
+  const totalExpectedReturn = userPortfolio.reduce((a, b) => a + b.expectedReturn, 0);
+  const portfolioValue = totalInvested + totalExpectedReturn;
+
+  const getRiskColor = (risk: string) => {
+    switch (risk) {
+      case "low":
+        return "text-green-600";
+      case "medium":
+        return "text-yellow-600";
+      case "high":
+        return "text-red-600";
+      default:
+        return "text-muted-foreground";
+    }
+  };
+
   return (
     <div className="min-h-screen pb-24 relative">
       <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
