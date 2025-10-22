@@ -305,29 +305,44 @@ const Invest = () => {
                 ) : (
                   filtered.map((p) => {
                     const percent = Math.min(100, Math.round((p.funded / p.target) * 100));
+                    const investorCount = p.investors?.length || 0;
+                    const completedMilestones = p.milestones?.filter((m) => m.completed).length || 0;
+                    const totalMilestones = p.milestones?.length || 0;
                     return (
-                      <div key={p.id} className="mb-3">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-semibold">{p.title} {p.status === "pending" && <span className="text-xs text-muted-foreground">(Pending)</span>}</h3>
-                            <p className="text-xs text-muted-foreground">{p.category} • {p.returnPercent}% • {p.durationMonths} months</p>
-                            <p className="text-sm mt-1">{p.description}</p>
-                            <p className="text-xs mt-2">{format(p.funded)} raised of {format(p.target)}</p>
-                            <div className="w-full bg-muted h-2 rounded mt-2 overflow-hidden">
-                              <div style={{ width: `${percent}%` }} className="h-2 bg-primary" />
+                      <div key={p.id} className="mb-4 pb-4 border-b last:border-b-0">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-semibold">{p.title}</h3>
+                              <span className={`text-xs px-2 py-1 rounded capitalize font-medium ${getRiskColor(p.riskLevel || "medium")} opacity-70`}>
+                                {p.riskLevel || "medium"} risk
+                              </span>
+                              {p.status === "pending" && <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">Pending</span>}
+                              {p.status === "approved" && <span className="text-xs text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded">Approved</span>}
+                              {p.status === "completed" && <span className="text-xs text-blue-600 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded">Completed</span>}
+                            </div>
+                            <p className="text-xs text-muted-foreground mb-2">{p.category} • {p.returnPercent}% return • {p.durationMonths} months • {investorCount} investor{investorCount !== 1 ? "s" : ""}</p>
+                            <p className="text-sm mb-2">{p.description}</p>
+                            {totalMilestones > 0 && (
+                              <div className="text-xs text-muted-foreground mb-2">
+                                Milestones: {completedMilestones}/{totalMilestones} completed
+                              </div>
+                            )}
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1 mr-4">
+                                <p className="text-xs text-muted-foreground mb-1">{format(p.funded)} of {format(p.target)}</p>
+                                <div className="w-full bg-muted h-2 rounded overflow-hidden">
+                                  <div style={{ width: `${percent}%` }} className="h-2 bg-primary" />
+                                </div>
+                              </div>
+                              <p className="text-sm font-bold whitespace-nowrap">{percent}%</p>
                             </div>
                           </div>
-                          <div className="flex flex-col items-end gap-2">
-                            <div className="text-right">
-                              <p className="text-lg font-bold">{format(p.target)}</p>
-                              <p className="text-xs text-muted-foreground">Target</p>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button size="sm" variant="outline" onClick={() => investInProject(p.id)}>Invest</Button>
-                              {p.ownerId === user?.id && p.status === "pending" && (
-                                <Button size="sm" variant="gradient" onClick={() => approveProject(p.id)}>Approve</Button>
-                              )}
-                            </div>
+                          <div className="flex flex-col gap-2">
+                            <Button size="sm" variant="outline" onClick={() => investInProject(p.id)}>Invest</Button>
+                            {p.ownerId === user?.id && p.status === "pending" && (
+                              <Button size="sm" variant="gradient" onClick={() => approveProject(p.id)}>Approve</Button>
+                            )}
                           </div>
                         </div>
                       </div>
