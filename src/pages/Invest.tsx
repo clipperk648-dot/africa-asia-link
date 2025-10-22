@@ -101,6 +101,8 @@ const Invest = () => {
       toast.error("Please provide valid project details");
       return;
     }
+    const now = new Date();
+    const endDate = new Date(now.getTime() + (Number(durationMonths) || 12) * 30 * 24 * 60 * 60 * 1000);
     const p: Project = {
       id: Date.now().toString(36),
       ownerId: user?.id ?? null,
@@ -114,6 +116,16 @@ const Invest = () => {
       status: "pending",
       pitchUrl: pitchUrl || undefined,
       documents: [],
+      riskLevel: riskLevel,
+      startDate: now.toISOString(),
+      endDate: endDate.toISOString(),
+      completedPercent: 0,
+      milestones: [
+        { id: "m1", title: "Kickoff", date: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(), completed: false },
+        { id: "m2", title: "Mid-project", date: new Date(now.getTime() + (Number(durationMonths) || 12) * 15 * 24 * 60 * 60 * 1000).toISOString(), completed: false },
+        { id: "m3", title: "Final delivery", date: endDate.toISOString(), completed: false },
+      ],
+      investors: [],
     };
     setProjects((s) => [p, ...s]);
     setTitle("");
@@ -123,6 +135,7 @@ const Invest = () => {
     setReturnPercent(10);
     setDurationMonths(12);
     setPitchUrl("");
+    setRiskLevel("medium");
     toast.success("Project submitted for approval");
   };
 
