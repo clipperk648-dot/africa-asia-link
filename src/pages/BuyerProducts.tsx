@@ -225,6 +225,56 @@ const BuyerProducts = () => {
       </main>
 
       <FooterNav dashboardType="buyer" />
+
+      {/* Filters Sheet */}
+      <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-sm">
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold">Filters</h3>
+              <p className="text-sm text-muted-foreground">Refine your results</p>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Price</p>
+              <RadioGroup value={priceTier} onValueChange={(v) => setPriceTier(v as any)}>
+                <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="none" /> <span>Any</span></label>
+                <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="cheap" /> <span>Cheap (≤ median)</span></label>
+                <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="expensive" /> <span>Expensive (≥ median)</span></label>
+              </RadioGroup>
+              <p className="text-xs text-muted-foreground">Median price: {priceMedian.toLocaleString()}</p>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Quantity</p>
+              <RadioGroup value={qtyTier} onValueChange={(v) => setQtyTier(v as any)}>
+                <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="none" /> <span>Any</span></label>
+                <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="large" /> <span>Large (≥ median)</span></label>
+                <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="small" /> <span>Small (&lt; median)</span></label>
+              </RadioGroup>
+              <p className="text-xs text-muted-foreground">Median available: {qtyMedian.toLocaleString()}</p>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="rating">Minimum Rating</Label>
+                <span className="text-sm font-medium">{minRating.toFixed(1)}</span>
+              </div>
+              <Slider id="rating" min={0} max={5} step={0.5} value={[minRating]} onValueChange={(v) => setMinRating(v[0] ?? 0)} />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <input id="stock" type="checkbox" className="h-4 w-4 accent-primary" checked={inStockOnly} onChange={(e) => setInStockOnly(e.target.checked)} />
+              <Label htmlFor="stock" className="text-sm">In stock only</Label>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <Button className="flex-1" onClick={() => setFilterOpen(false)}>Apply</Button>
+              <Button variant="outline" className="flex-1" onClick={() => { setPriceTier("none"); setQtyTier("none"); setMinRating(0); setInStockOnly(false); }}>Clear</Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
