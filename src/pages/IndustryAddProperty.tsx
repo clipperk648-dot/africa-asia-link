@@ -345,6 +345,11 @@ const IndustryAddProperty = () => {
                 <div className="space-y-2">
                   <Label htmlFor="imageUrls">Image URLs (comma separated)</Label>
                   <Input id="imageUrls" value={formData.imageUrls} onChange={handleChange("imageUrls")} className="h-11 bg-background/60" type="url" />
+                  <div className="grid grid-cols-3 gap-2 pt-2">
+                    {formData.imageUrls.split(',').map((u) => u.trim()).filter(Boolean).slice(0,6).map((u, i) => (
+                      <img key={i} src={u} alt="Preview" className="aspect-square w-full object-cover rounded" />
+                    ))}
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="videoUrl">Video URL</Label>
