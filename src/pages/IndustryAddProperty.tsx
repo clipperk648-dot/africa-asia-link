@@ -252,6 +252,10 @@ const IndustryAddProperty = () => {
                   <Input id="supplyAbilityPerMonth" value={formData.supplyAbilityPerMonth} onChange={handleChange("supplyAbilityPerMonth")} className="h-11 bg-background/60" type="number" min="0" />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="quantityAvailable">Quantity available</Label>
+                  <Input id="quantityAvailable" value={(formData as any).quantityAvailable || ''} onChange={(e: any) => setFormData((p: any) => ({ ...p, quantityAvailable: e.target.value }))} className="h-11 bg-background/60" type="number" min="0" />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="leadTimeDays">Lead time (days)</Label>
                   <Input id="leadTimeDays" value={formData.leadTimeDays} onChange={handleChange("leadTimeDays")} className="h-11 bg-background/60" type="number" min="0" />
                 </div>
