@@ -356,7 +356,7 @@ const Invest = () => {
 
           <aside className="space-y-4">
             <GlassCard className="p-4">
-              <p className="text-sm text-muted-foreground">Overview</p>
+              <p className="text-sm text-muted-foreground">Platform Overview</p>
               <p className="text-xl font-bold mt-1">Total funded: {format(totalFunded)}</p>
               <p className="text-sm text-muted-foreground">Across {projects.length} projects</p>
               <div className="mt-3">
@@ -366,6 +366,24 @@ const Invest = () => {
                 </div>
               </div>
             </GlassCard>
+
+            {userPortfolio.length > 0 && (
+              <GlassCard className="p-4">
+                <p className="text-sm text-muted-foreground">Your Portfolio</p>
+                <p className="text-xl font-bold mt-1">{format(portfolioValue)}</p>
+                <p className="text-xs text-muted-foreground">Invested: {format(totalInvested)}</p>
+                <p className="text-xs text-green-600">Expected returns: {format(totalExpectedReturn)}</p>
+                <div className="mt-3 space-y-2 max-h-48 overflow-auto">
+                  {userPortfolio.map((inv) => (
+                    <div key={inv.projectId} className="text-xs p-2 bg-muted rounded">
+                      <p className="font-medium truncate">{inv.projectTitle}</p>
+                      <p className="text-muted-foreground">Investment: {format(inv.amount)}</p>
+                      <p className={`${getRiskColor(inv.riskLevel)}`}>Risk: {inv.riskLevel}</p>
+                    </div>
+                  ))}
+                </div>
+              </GlassCard>
+            )}
 
             <GlassCard className="p-4">
               <p className="text-sm text-muted-foreground">Transactions</p>
