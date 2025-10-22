@@ -38,6 +38,12 @@ const WalletActions = lazy(() => import("./pages/WalletActions"));
 const WalletPay = lazy(() => import("./pages/WalletPay"));
 const WalletApps = lazy(() => import("./pages/WalletApps"));
 const Invest = lazy(() => import("./pages/Invest"));
+const InvestAnalytics = lazy(() => import("./pages/InvestAnalytics"));
+const InvestSupport = lazy(() => import("./pages/InvestSupport"));
+const InvestResources = lazy(() => import("./pages/InvestResources"));
+const InvestSettings = lazy(() => import("./pages/InvestSettings"));
+const InvestHistory = lazy(() => import("./pages/InvestHistory"));
+const InvestSecurity = lazy(() => import("./pages/InvestSecurity"));
 
 const queryClient = new QueryClient();
 
@@ -81,6 +87,12 @@ const App = () => (
               <Route path="/wallet/pay" element={<WalletPay />} />
               <Route path="/wallet/apps" element={<WalletApps />} />
               <Route path="/invest" element={<Invest />} />
+              <Route path="/invest/analytics" element={<InvestAnalytics />} />
+              <Route path="/invest/support" element={<InvestSupport />} />
+              <Route path="/invest/resources" element={<InvestResources />} />
+              <Route path="/invest/settings" element={<InvestSettings />} />
+              <Route path="/invest/history" element={<InvestHistory />} />
+              <Route path="/invest/security" element={<InvestSecurity />} />
               <Route path="/support-chat" element={<SupportChat />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
