@@ -11,6 +11,10 @@ import ThreeBackground from "@/components/ThreeBackground";
 import RateButton from "@/components/RateButton";
 import { addToCart } from "@/utils/cart";
 import { toast } from "@/components/ui/sonner";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 
 const CATEGORIES = [
   "All",
