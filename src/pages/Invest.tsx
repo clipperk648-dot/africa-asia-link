@@ -170,12 +170,14 @@ const Invest = () => {
     const amount = Number(amountStr);
     if (isNaN(amount) || amount <= 0) return toast.error("Invalid amount");
     if (amount > wallet) return toast.error("Insufficient wallet balance. Please deposit funds.");
-    // deduct
     setWallet((w) => w - amount);
     const tx: Tx = { id: Date.now().toString(36), type: "invest", amount, date: new Date().toISOString(), note: `Invested in ${project.title}` };
     setTxs((s) => [tx, ...s]);
-    // update project
-    setProjects((s) => s.map((p) => (p.id === projectId ? { ...p, funded: p.funded + amount } : p)));
+    setProjects((s) => s.map((p) => (p.id === projectId ? {
+      ...p,
+      funded: p.funded + amount,
+      investors: [...(p.investors || []), { userId: user?.id ?? "unknown", amount, date: new Date().toISOString() }]
+    } : p)));
     toast.success(`Invested ${format(amount)} in ${project.title}`);
   };
 
