@@ -1,5 +1,6 @@
 import { useEffect, useState, Fragment } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { Fragment } from "react";
 import { getCurrentUser, logout } from "@/utils/mockAuth";
 import { mockProducts, mockOrders, type Product } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
