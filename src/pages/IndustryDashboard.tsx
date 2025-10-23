@@ -245,12 +245,12 @@ const IndustryDashboard = () => {
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg sm:text-xl font-bold">Recent Orders</h2>
-            <Link to="/industry/products" aria-label="View all orders">
+            <Link to="/industry/recent-activity" aria-label="View all orders">
               <Button variant="ghost" size="xs">View All</Button>
             </Link>
           </div>
           <div className="space-y-3">
-            {mockOrders.map((order) => (
+            {mockOrders.slice(0, 2).map((order) => (
               <GlassCard key={order.id} className="p-4 sm:p-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                   <div className="min-w-0 flex-1">
