@@ -5,7 +5,7 @@ import { mockProducts, mockOrders, type Product } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, TrendingUp, Package, DollarSign, Users, Music2, Bell, BarChart3, LineChart, Pencil, Wallet as WalletIcon, Bot, Menu, Twitter, Instagram, Facebook } from "lucide-react";
+import { LogOut, TrendingUp, Package, DollarSign, Users, Settings, Bell, BarChart3, LineChart, Pencil, Wallet as WalletIcon, Bot, Menu, Twitter, Instagram, Facebook } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -226,10 +226,10 @@ const IndustryDashboard = () => {
                   <span className="hidden sm:inline">Analytics</span>
                 </Button>
               </Link>
-              <Link to="/social" aria-label="Open TradeSocial">
+              <Link to="/industry/settings" aria-label="Open Settings">
                 <Button variant="gradient" size="xs" className="gap-2 px-2">
-                  <Music2 className="w-4 h-4" />
-                  <span className="hidden sm:inline">Social</span>
+                  <Settings className="w-4 h-4" />
+                  <span className="hidden sm:inline">Settings</span>
                 </Button>
               </Link>
               <Link to="/industry/products" aria-label="View all products">
