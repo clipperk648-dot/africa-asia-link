@@ -242,32 +242,13 @@ const IndustryDashboard = () => {
           </div>
         </section>
 
-        <section className="space-y-3">
+        <section className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-base sm:text-lg font-bold">Collections Showcase</h2>
-            <Link to="/industry/collections" aria-label="View Collections">
-              <Button variant="gradient" size="xs" className="gap-2 px-2">
-                <Box className="w-4 h-4" />
-                <span className="hidden sm:inline">Browse Collections</span>
-              </Button>
+            <h2 className="text-lg sm:text-xl font-bold">Recent Orders</h2>
+            <Link to="/industry/products" aria-label="View all orders">
+              <Button variant="ghost" size="xs">View All</Button>
             </Link>
           </div>
-          <GlassCard className="p-6 sm:p-8 min-h-48 flex flex-col items-center justify-center text-center bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5">
-            <Box className="w-16 h-16 text-primary/40 mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Explore Product Collections</h3>
-            <p className="text-muted-foreground mb-4 max-w-sm">
-              View all your products in a beautiful 3D showcase gallery with advanced filtering and sorting options.
-            </p>
-            <Link to="/industry/collections">
-              <Button className="gap-2">
-                <Box className="w-4 h-4" /> Open Collections
-              </Button>
-            </Link>
-          </GlassCard>
-        </section>
-
-        <section className="space-y-4">
-          <h2 className="text-lg sm:text-xl font-bold">Recent Orders</h2>
           <div className="space-y-3">
             {mockOrders.map((order) => (
               <GlassCard key={order.id} className="p-4 sm:p-6">
@@ -296,6 +277,30 @@ const IndustryDashboard = () => {
               </GlassCard>
             ))}
           </div>
+        </section>
+
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base sm:text-lg font-bold">Collections Showcase</h2>
+            <Link to="/industry/collections" aria-label="View Collections">
+              <Button variant="gradient" size="xs" className="gap-2 px-2">
+                <Box className="w-4 h-4" />
+                <span className="hidden sm:inline">Browse Collections</span>
+              </Button>
+            </Link>
+          </div>
+          <GlassCard className="p-6 sm:p-8 min-h-48 flex flex-col items-center justify-center text-center bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5">
+            <Box className="w-16 h-16 text-primary/40 mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Explore Product Collections</h3>
+            <p className="text-muted-foreground mb-4 max-w-sm">
+              View all your products in a beautiful 3D showcase gallery with advanced filtering and sorting options.
+            </p>
+            <Link to="/industry/collections">
+              <Button className="gap-2">
+                <Box className="w-4 h-4" /> Open Collections
+              </Button>
+            </Link>
+          </GlassCard>
         </section>
 
         <section className="pt-2 pb-4 text-xs text-muted-foreground text-center">
