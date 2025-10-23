@@ -5,7 +5,7 @@ import { mockProducts, mockOrders, type Product } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, TrendingUp, Package, DollarSign, Users, Music2, Bell, BarChart3, LineChart, Pencil, Wallet as WalletIcon, Bot, Menu, Twitter, Instagram, Facebook } from "lucide-react";
+import { LogOut, TrendingUp, Package, DollarSign, Users, Settings, Bell, BarChart3, LineChart, Pencil, Wallet as WalletIcon, Bot, Menu, Box } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -94,14 +94,56 @@ const IndustryDashboard = () => {
 
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-3 py-1">
-          <div className="flex items-center justify-start">
-            <div className="h-8 w-8 bg-primary text-white rounded-md flex items-center justify-center font-bold text-sm">E</div>
-            <span className="text-lg font-bold -ml-1">china</span>
+          {/* Row 1: brand + menu */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 bg-primary text-white rounded-md flex items-center justify-center font-bold text-sm">E</div>
+              <span className="text-lg font-bold -ml-1">china</span>
+            </div>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="Open menu">
+                  <Menu className="w-5 h-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-72 sm:w-80">
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                </SheetHeader>
+                <div className="mt-4 space-y-2">
+                  <Link to="/profile">
+                    <Button variant="ghost" className="w-full justify-start">Profile</Button>
+                  </Link>
+                  <Link to="/industry/settings">
+                    <Button variant="ghost" className="w-full justify-start">Settings</Button>
+                  </Link>
+                  <Link to="/industry/collections">
+                    <Button variant="ghost" className="w-full justify-start">
+                      <Box className="w-4 h-4 mr-2" /> Collections
+                    </Button>
+                  </Link>
+                  <Link to="/wallet">
+                    <Button variant="ghost" className="w-full justify-start">Wallet</Button>
+                  </Link>
+                  <Link to="/invest">
+                    <Button variant="ghost" className="w-full justify-start">Invest</Button>
+                  </Link>
+                  <Link to="/notifications">
+                    <Button variant="ghost" className="w-full justify-start">Notifications</Button>
+                  </Link>
+
+                  <Button className="w-full justify-start mt-4" variant="destructive" onClick={handleLogout}>
+                    <LogOut className="w-4 h-4 mr-2" /> Logout
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
 
+          {/* Row 2: welcome + actions */}
           <div className="mt-2 flex items-center justify-between">
             <div>
-              <h1 className="text-base font-semibold">Industry Dashboard</h1>
+              <h1 className="text-base font-semibold">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Seller'}!</h1>
             </div>
 
             <div className="flex items-center gap-2">
@@ -145,55 +187,6 @@ const IndustryDashboard = () => {
                   <WalletIcon className="w-5 h-5" />
                 </Button>
               </Link>
-
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" aria-label="Open menu">
-                    <Menu className="w-5 h-5" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-72 sm:w-80">
-                  <SheetHeader>
-                    <SheetTitle>Menu</SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-4 space-y-2">
-                    <Link to="/profile">
-                      <Button variant="ghost" className="w-full justify-start">Profile</Button>
-                    </Link>
-                    <Link to="/industry/settings">
-                      <Button variant="ghost" className="w-full justify-start">Settings</Button>
-                    </Link>
-                    <Link to="/wallet">
-                      <Button variant="ghost" className="w-full justify-start">Wallet</Button>
-                    </Link>
-                    <Link to="/invest">
-                      <Button variant="ghost" className="w-full justify-start">Invest</Button>
-                    </Link>
-                    <Link to="/notifications">
-                      <Button variant="ghost" className="w-full justify-start">Notifications</Button>
-                    </Link>
-
-                    <div className="pt-2 border-t border-border/40 mt-2">
-                      <p className="text-xs text-muted-foreground px-2 mb-2">Follow us</p>
-                      <div className="flex gap-2 px-2">
-                        <a href={SOCIAL_LINKS[0].href} target="_blank" rel="noreferrer">
-                          <Button variant="ghost" className="p-2"><Twitter className="w-4 h-4" /></Button>
-                        </a>
-                        <a href={SOCIAL_LINKS[1].href} target="_blank" rel="noreferrer">
-                          <Button variant="ghost" className="p-2"><Instagram className="w-4 h-4" /></Button>
-                        </a>
-                        <a href={SOCIAL_LINKS[2].href} target="_blank" rel="noreferrer">
-                          <Button variant="ghost" className="p-2"><Facebook className="w-4 h-4" /></Button>
-                        </a>
-                      </div>
-                    </div>
-
-                    <Button className="w-full justify-start mt-4" variant="destructive" onClick={handleLogout}>
-                      <LogOut className="w-4 h-4 mr-2" /> Logout
-                    </Button>
-                  </div>
-                </SheetContent>
-              </Sheet>
             </div>
           </div>
         </div>
@@ -220,10 +213,10 @@ const IndustryDashboard = () => {
                   <span className="hidden sm:inline">Analytics</span>
                 </Button>
               </Link>
-              <Link to="/social" aria-label="Open TradeSocial">
+              <Link to="/industry/settings" aria-label="Open Settings">
                 <Button variant="gradient" size="xs" className="gap-2 px-2">
-                  <Music2 className="w-4 h-4" />
-                  <span className="hidden sm:inline">Social</span>
+                  <Settings className="w-4 h-4" />
+                  <span className="hidden sm:inline">Settings</span>
                 </Button>
               </Link>
               <Link to="/industry/products" aria-label="View all products">
@@ -250,9 +243,14 @@ const IndustryDashboard = () => {
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-lg sm:text-xl font-bold">Recent Orders</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg sm:text-xl font-bold">Recent Orders</h2>
+            <Link to="/industry/recent-activity" aria-label="View all orders">
+              <Button variant="ghost" size="xs">View All</Button>
+            </Link>
+          </div>
           <div className="space-y-3">
-            {mockOrders.map((order) => (
+            {mockOrders.slice(0, 2).map((order) => (
               <GlassCard key={order.id} className="p-4 sm:p-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                   <div className="min-w-0 flex-1">
@@ -279,6 +277,30 @@ const IndustryDashboard = () => {
               </GlassCard>
             ))}
           </div>
+        </section>
+
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base sm:text-lg font-bold">Collections Showcase</h2>
+            <Link to="/industry/collections" aria-label="View Collections">
+              <Button variant="gradient" size="xs" className="gap-2 px-2">
+                <Box className="w-4 h-4" />
+                <span className="hidden sm:inline">Browse Collections</span>
+              </Button>
+            </Link>
+          </div>
+          <GlassCard className="p-6 sm:p-8 min-h-48 flex flex-col items-center justify-center text-center bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5">
+            <Box className="w-16 h-16 text-primary/40 mb-4" />
+            <h3 className="text-xl font-semibold mb-2">Explore Product Collections</h3>
+            <p className="text-muted-foreground mb-4 max-w-sm">
+              View all your products in a beautiful 3D showcase gallery with advanced filtering and sorting options.
+            </p>
+            <Link to="/industry/collections">
+              <Button className="gap-2">
+                <Box className="w-4 h-4" /> Open Collections
+              </Button>
+            </Link>
+          </GlassCard>
         </section>
 
         <section className="pt-2 pb-4 text-xs text-muted-foreground text-center">

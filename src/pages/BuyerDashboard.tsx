@@ -5,7 +5,7 @@ import { mockProducts, mockOrders, type Product } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Music2, Bell, BarChart3, PlusCircle, Wallet as WalletIcon, Bot, Menu, Twitter, Instagram, Facebook } from "lucide-react";
+import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Settings, Bell, BarChart3, PlusCircle, Wallet as WalletIcon, Bot, Menu, Twitter, Instagram, Facebook } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -229,10 +229,10 @@ const BuyerDashboard = () => {
                   <span className="hidden sm:inline">Insights</span>
                 </Button>
               </Link>
-              <Link to="/social" aria-label="Open TradeSocial">
+              <Link to="/buyer/settings" aria-label="Open Settings">
                 <Button variant="gradient" size="xs" className="gap-2 px-2">
-                  <Music2 className="w-4 h-4" />
-                  <span className="hidden sm:inline">Social</span>
+                  <Settings className="w-4 h-4" />
+                  <span className="hidden sm:inline">Settings</span>
                 </Button>
               </Link>
               <Link to="/buyer/products" aria-label="View all products">
