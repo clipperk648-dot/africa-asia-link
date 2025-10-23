@@ -5,7 +5,7 @@ import { mockProducts, mockOrders, type Product } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, TrendingUp, Package, DollarSign, Users, Settings, Bell, BarChart3, LineChart, Pencil, Wallet as WalletIcon, Bot, Menu, Twitter, Instagram, Facebook } from "lucide-react";
+import { LogOut, TrendingUp, Package, DollarSign, Users, Settings, Bell, BarChart3, LineChart, Pencil, Wallet as WalletIcon, Bot, Menu } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -150,24 +150,6 @@ const IndustryDashboard = () => {
                 </Link>
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-semibold rounded-full px-1.5 leading-none">2</span>
               </div>
-
-              <a href={SOCIAL_LINKS[0].href} target="_blank" rel="noreferrer" aria-label="Follow us on Twitter">
-                <Button variant="ghost" size="icon">
-                  <Twitter className="w-5 h-5" />
-                </Button>
-              </a>
-
-              <a href={SOCIAL_LINKS[1].href} target="_blank" rel="noreferrer" aria-label="Follow us on Instagram">
-                <Button variant="ghost" size="icon">
-                  <Instagram className="w-5 h-5" />
-                </Button>
-              </a>
-
-              <a href={SOCIAL_LINKS[2].href} target="_blank" rel="noreferrer" aria-label="Follow us on Facebook">
-                <Button variant="ghost" size="icon">
-                  <Facebook className="w-5 h-5" />
-                </Button>
-              </a>
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
