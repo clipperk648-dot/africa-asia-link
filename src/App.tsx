@@ -15,6 +15,7 @@ const IndustryAddProperty = lazy(() => import("./pages/IndustryAddProperty"));
 const IndustryProductEdit = lazy(() => import("./pages/IndustryProductEdit"));
 const IndustryProductStats = lazy(() => import("./pages/IndustryProductStats"));
 const IndustryCollections = lazy(() => import("./pages/IndustryCollections"));
+const IndustryRecentActivity = lazy(() => import("./pages/IndustryRecentActivity"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const BuyerAnalytics = lazy(() => import("./pages/BuyerAnalytics"));
 const BuyerDashboard = lazy(() => import("./pages/BuyerDashboard"));
@@ -67,6 +68,7 @@ const App = () => (
               <Route path="/industry/settings" element={<IndustrySettings />} />
               <Route path="/industry/add-property" element={<IndustryAddProperty />} />
               <Route path="/industry/collections" element={<IndustryCollections />} />
+              <Route path="/industry/recent-activity" element={<IndustryRecentActivity />} />
               <Route path="/buyer" element={<BuyerDashboard />} />
               <Route path="/buyer/products" element={<BuyerProducts />} />
               <Route path="/buyer/network" element={<BuyerNetwork />} />
