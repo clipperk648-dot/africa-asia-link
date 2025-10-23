@@ -166,6 +166,24 @@ const IndustryDashboard = () => {
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-semibold rounded-full px-1.5 leading-none">2</span>
               </div>
 
+              <a href={SOCIAL_LINKS[0].href} target="_blank" rel="noreferrer" aria-label="Follow us on Twitter">
+                <Button variant="ghost" size="icon">
+                  <Twitter className="w-5 h-5" />
+                </Button>
+              </a>
+
+              <a href={SOCIAL_LINKS[1].href} target="_blank" rel="noreferrer" aria-label="Follow us on Instagram">
+                <Button variant="ghost" size="icon">
+                  <Instagram className="w-5 h-5" />
+                </Button>
+              </a>
+
+              <a href={SOCIAL_LINKS[2].href} target="_blank" rel="noreferrer" aria-label="Follow us on Facebook">
+                <Button variant="ghost" size="icon">
+                  <Facebook className="w-5 h-5" />
+                </Button>
+              </a>
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-2 px-2 py-1 rounded-md">
