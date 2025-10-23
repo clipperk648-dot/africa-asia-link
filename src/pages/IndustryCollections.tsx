@@ -13,7 +13,7 @@ import {
   Grid3x3,
   Grid2x2,
   SortAsc,
-  Cube,
+  Box,
 } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import GlassCard from "@/components/GlassCard";
@@ -85,7 +85,7 @@ const IndustryCollections = () => {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="flex items-center gap-2">
-              <Cube className="w-6 h-6 text-primary" />
+              <Box className="w-6 h-6 text-primary" />
               <h1 className="text-2xl font-bold">Collections</h1>
             </div>
           </div>
@@ -244,7 +244,7 @@ const IndustryCollections = () => {
             ))
           ) : (
             <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
-              <Cube className="w-16 h-16 text-muted-foreground/30 mb-4" />
+              <Box className="w-16 h-16 text-muted-foreground/30 mb-4" />
               <p className="text-lg font-semibold text-muted-foreground">
                 No products found
               </p>
