@@ -5,7 +5,7 @@ import { mockProducts, mockOrders, type Product } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, TrendingUp, Package, DollarSign, Users, Settings, Bell, BarChart3, LineChart, Pencil, Wallet as WalletIcon, Bot, Menu } from "lucide-react";
+import { LogOut, TrendingUp, Package, DollarSign, Users, Settings, Bell, BarChart3, LineChart, Pencil, Wallet as WalletIcon, Bot, Menu, Cube } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -116,6 +116,11 @@ const IndustryDashboard = () => {
                   </Link>
                   <Link to="/industry/settings">
                     <Button variant="ghost" className="w-full justify-start">Settings</Button>
+                  </Link>
+                  <Link to="/industry/collections">
+                    <Button variant="ghost" className="w-full justify-start">
+                      <Cube className="w-4 h-4 mr-2" /> Collections
+                    </Button>
                   </Link>
                   <Link to="/wallet">
                     <Button variant="ghost" className="w-full justify-start">Wallet</Button>
