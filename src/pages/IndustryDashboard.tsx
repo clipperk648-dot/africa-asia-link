@@ -5,7 +5,7 @@ import { mockProducts, mockOrders, type Product } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, TrendingUp, Package, DollarSign, Users, Settings, Bell, BarChart3, LineChart, Pencil, Wallet as WalletIcon, Bot, Menu, Cube } from "lucide-react";
+import { LogOut, TrendingUp, Package, DollarSign, Users, Settings, Bell, BarChart3, LineChart, Pencil, Wallet as WalletIcon, Bot, Menu, Box } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -119,7 +119,7 @@ const IndustryDashboard = () => {
                   </Link>
                   <Link to="/industry/collections">
                     <Button variant="ghost" className="w-full justify-start">
-                      <Cube className="w-4 h-4 mr-2" /> Collections
+                      <Box className="w-4 h-4 mr-2" /> Collections
                     </Button>
                   </Link>
                   <Link to="/wallet">
@@ -247,20 +247,20 @@ const IndustryDashboard = () => {
             <h2 className="text-base sm:text-lg font-bold">Collections Showcase</h2>
             <Link to="/industry/collections" aria-label="View Collections">
               <Button variant="gradient" size="xs" className="gap-2 px-2">
-                <Cube className="w-4 h-4" />
+                <Box className="w-4 h-4" />
                 <span className="hidden sm:inline">Browse Collections</span>
               </Button>
             </Link>
           </div>
           <GlassCard className="p-6 sm:p-8 min-h-48 flex flex-col items-center justify-center text-center bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5">
-            <Cube className="w-16 h-16 text-primary/40 mb-4" />
+            <Box className="w-16 h-16 text-primary/40 mb-4" />
             <h3 className="text-xl font-semibold mb-2">Explore Product Collections</h3>
             <p className="text-muted-foreground mb-4 max-w-sm">
               View all your products in a beautiful 3D showcase gallery with advanced filtering and sorting options.
             </p>
             <Link to="/industry/collections">
               <Button className="gap-2">
-                <Cube className="w-4 h-4" /> Open Collections
+                <Box className="w-4 h-4" /> Open Collections
               </Button>
             </Link>
           </GlassCard>
