@@ -138,11 +138,11 @@ const Login = () => {
           </div>
         </div>
         
-        <GlassCard className="p-4 sm:p-6">
+        <GlassCard className="p-4 sm:p-6 slide-up">
           <form onSubmit={handleLogin} className="space-y-4 sm:space-y-6">
             <div className="space-y-1 sm:space-y-2 text-center">
-              <h2 className="text-2xl sm:text-3xl font-bold">Welcome</h2>
-              <p className="text-sm sm:text-base text-muted-foreground">Enter your details to continue</p>
+              <h2 className="text-2xl sm:text-3xl font-bold">Welcome Back</h2>
+              <p className="text-sm sm:text-base text-muted-foreground">Sign in to your account</p>
             </div>
             
             <div className="space-y-4">
