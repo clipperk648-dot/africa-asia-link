@@ -194,7 +194,13 @@ const SignUp = () => {
               <h2 className="text-2xl sm:text-3xl font-bold">Create Account</h2>
               <p className="text-sm sm:text-base text-muted-foreground">Fill in your details to get started</p>
             </div>
-            
+
+            {errors.form && (
+              <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                <p className="text-sm text-destructive">{errors.form}</p>
+              </div>
+            )}
+
             <div className="space-y-3 sm:space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name / Company Name</Label>
