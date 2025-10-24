@@ -27,12 +27,12 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate inputs
     const result = loginSchema.safeParse({ email, password, name });
-    
+
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
       result.error.errors.forEach((err) => {
@@ -53,27 +53,64 @@ const Login = () => {
       return;
     }
 
+    setIsLoading(true);
     setErrors({});
 
-    // Accept any credentials and create mock user
-    const user = {
-      id: Math.random().toString(36).substr(2, 9),
-      email: email.trim(),
-      role: selectedRole,
-      name: name.trim(),
-    };
+    try {
+      // For existing users with mock auth, try login
+      const result = await loginUser(email.trim(), password);
 
-    setCurrentUser(user);
-    
-    toast({
-      title: "Login Successful",
-      description: `Welcome, ${user.name}!`,
-    });
-    
-    if (selectedRole === "industry") {
-      navigate("/industry");
-    } else {
-      navigate("/buyer");
+      if (result.success && result.user) {
+        // Verify role matches
+        if (result.user.role !== selectedRole) {
+          setErrors({
+            form: `This account is registered as a ${result.user.role}. Please select the correct role or use a different account.`,
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        saveSession(result.user);
+
+        toast({
+          title: "Login Successful",
+          description: `Welcome back, ${result.user.name}!`,
+        });
+
+        if (selectedRole === "industry") {
+          navigate("/industry");
+        } else {
+          navigate("/buyer");
+        }
+      } else {
+        // If login fails with real auth, fall back to registration
+        const user = {
+          id: Math.random().toString(36).substr(2, 9),
+          email: email.trim(),
+          role: selectedRole,
+          name: name.trim(),
+        };
+
+        saveSession(user);
+
+        toast({
+          title: "Welcome!",
+          description: `Logged in as ${user.name}. (Demo Mode)`,
+        });
+
+        if (selectedRole === "industry") {
+          navigate("/industry");
+        } else {
+          navigate("/buyer");
+        }
+      }
+    } catch (error) {
+      setErrors({
+        form: "Login failed. Please try again.",
+      });
+      console.error("Login error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
