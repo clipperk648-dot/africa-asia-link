@@ -99,6 +99,11 @@ export const getProducts = async (limit = 20, offset = 0): Promise<any[]> => {
 };
 
 export const getProductById = async (id: string): Promise<any> => {
+  if (!isDatabaseConfigured()) {
+    // Return mock data when database not configured
+    return mockProducts.find(p => p.id === id) || null;
+  }
+
   const query = `
     SELECT *
     FROM products
