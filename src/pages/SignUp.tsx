@@ -306,9 +306,24 @@ const SignUp = () => {
               </div>
             </div>
             
-            <Button type="submit" variant="gradient" size="lg" className="w-full h-11 sm:h-12 group">
-              <span>Create Account</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <Button
+              type="submit"
+              variant="gradient"
+              size="lg"
+              className="w-full h-11 sm:h-12 group"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Creating account...</span>
+                </>
+              ) : (
+                <>
+                  <span>Create Account</span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
             </Button>
             
             <div className="text-center text-xs sm:text-sm text-muted-foreground">
