@@ -94,9 +94,9 @@ const Login = () => {
           <div className="space-y-3 sm:space-y-4 pt-2 sm:pt-4">
             <h2 className="text-xl sm:text-2xl font-semibold text-foreground">Select Your Role</h2>
             
-            <GlassCard 
-              className={`cursor-pointer transition-all p-4 sm:p-6 ${
-                selectedRole === "industry" ? "ring-2 ring-primary" : ""
+            <GlassCard
+              className={`cursor-pointer transition-all p-4 sm:p-6 hover:scale-105 transform duration-300 ${
+                selectedRole === "industry" ? "ring-2 ring-primary scale-105" : ""
               }`}
               onClick={() => setSelectedRole("industry")}
             >
