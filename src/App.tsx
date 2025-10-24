@@ -63,15 +63,15 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<SignUp />} />
-              <Route path="/industry" element={<IndustryDashboard />} />
-              <Route path="/industry/products" element={<IndustryProducts />} />
-              <Route path="/industry/products/:id/edit" element={<IndustryProductEdit />} />
-              <Route path="/industry/products/:id/stats" element={<IndustryProductStats />} />
-              <Route path="/industry/network" element={<IndustryNetwork />} />
-              <Route path="/industry/settings" element={<IndustrySettings />} />
-              <Route path="/industry/add-property" element={<IndustryAddProperty />} />
-              <Route path="/industry/collections" element={<IndustryCollections />} />
-              <Route path="/industry/recent-activity" element={<IndustryRecentActivity />} />
+              <Route path="/industry" element={<ProtectedRoute element={<IndustryDashboard />} requiredRole="industry" />} />
+              <Route path="/industry/products" element={<ProtectedRoute element={<IndustryProducts />} requiredRole="industry" />} />
+              <Route path="/industry/products/:id/edit" element={<ProtectedRoute element={<IndustryProductEdit />} requiredRole="industry" />} />
+              <Route path="/industry/products/:id/stats" element={<ProtectedRoute element={<IndustryProductStats />} requiredRole="industry" />} />
+              <Route path="/industry/network" element={<ProtectedRoute element={<IndustryNetwork />} requiredRole="industry" />} />
+              <Route path="/industry/settings" element={<ProtectedRoute element={<IndustrySettings />} requiredRole="industry" />} />
+              <Route path="/industry/add-property" element={<ProtectedRoute element={<IndustryAddProperty />} requiredRole="industry" />} />
+              <Route path="/industry/collections" element={<ProtectedRoute element={<IndustryCollections />} requiredRole="industry" />} />
+              <Route path="/industry/recent-activity" element={<ProtectedRoute element={<IndustryRecentActivity />} requiredRole="industry" />} />
               <Route path="/buyer" element={<BuyerDashboard />} />
               <Route path="/buyer/products" element={<BuyerProducts />} />
               <Route path="/buyer/network" element={<BuyerNetwork />} />
