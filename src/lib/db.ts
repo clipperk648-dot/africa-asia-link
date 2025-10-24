@@ -1,5 +1,8 @@
 // Neon Database Client
 // This utility handles all database connections and queries using Neon PostgreSQL
+// Falls back to mock data if database is not configured
+
+import { mockProducts, mockOrders, mockSocialPosts } from "@/utils/mockData";
 
 const NEON_API_URL = import.meta.env.VITE_NEON_API_URL || "https://console.neon.tech/api/v1";
 const NEON_DB_URL = import.meta.env.VITE_DATABASE_URL;
