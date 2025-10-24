@@ -49,11 +49,11 @@ const SignUp = () => {
     }
   };
 
-  const handleSignUp = (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const result = signupSchema.safeParse(formData);
-    
+
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
       result.error.errors.forEach((err) => {
@@ -74,27 +74,43 @@ const SignUp = () => {
       return;
     }
 
+    setIsLoading(true);
     setErrors({});
 
-    const user = {
-      id: Math.random().toString(36).substr(2, 9),
-      email: formData.email.trim(),
-      role: selectedRole,
-      name: formData.name.trim(),
-      phone: formData.phone.trim(),
-    };
+    try {
+      const registerResult = await registerUser(
+        formData.email.trim(),
+        formData.password,
+        formData.name.trim(),
+        formData.phone.trim(),
+        selectedRole
+      );
 
-    setCurrentUser(user);
-    
-    toast({
-      title: "Account Created Successfully",
-      description: `Welcome to Echina, ${user.name}!`,
-    });
-    
-    if (selectedRole === "industry") {
-      navigate("/industry");
-    } else {
-      navigate("/buyer");
+      if (registerResult.success && registerResult.user) {
+        saveSession(registerResult.user);
+
+        toast({
+          title: "Account Created Successfully",
+          description: `Welcome to Echina, ${registerResult.user.name}!`,
+        });
+
+        if (selectedRole === "industry") {
+          navigate("/industry");
+        } else {
+          navigate("/buyer");
+        }
+      } else {
+        setErrors({
+          form: registerResult.error || "Registration failed. Please try again.",
+        });
+      }
+    } catch (error) {
+      setErrors({
+        form: "An error occurred during registration. Please try again.",
+      });
+      console.error("Sign up error:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
