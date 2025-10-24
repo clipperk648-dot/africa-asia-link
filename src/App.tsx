@@ -7,6 +7,7 @@ import { Suspense, lazy } from "react";
 import { ThemeProvider } from "next-themes";
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
+const SignUp = lazy(() => import("./pages/SignUp"));
 const IndustryDashboard = lazy(() => import("./pages/IndustryDashboard"));
 const IndustryProducts = lazy(() => import("./pages/IndustryProducts"));
 const IndustryNetwork = lazy(() => import("./pages/IndustryNetwork"));
