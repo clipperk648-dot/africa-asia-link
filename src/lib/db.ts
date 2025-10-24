@@ -150,6 +150,11 @@ export const createProduct = async (productData: any): Promise<any> => {
 
 // Order table operations
 export const getOrders = async (userId: string): Promise<any[]> => {
+  if (!isDatabaseConfigured()) {
+    // Return mock data when database not configured
+    return mockOrders;
+  }
+
   const query = `
     SELECT *
     FROM orders
