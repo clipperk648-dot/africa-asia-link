@@ -84,6 +84,11 @@ export const getUserById = async (id: string): Promise<any> => {
 
 // Product table operations
 export const getProducts = async (limit = 20, offset = 0): Promise<any[]> => {
+  if (!isDatabaseConfigured()) {
+    // Return mock data when database not configured
+    return mockProducts.slice(offset, offset + limit);
+  }
+
   const query = `
     SELECT *
     FROM products
