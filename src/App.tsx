@@ -79,28 +79,28 @@ const App = () => (
               <Route path="/buyer/settings/password" element={<ProtectedRoute element={<BuyerChangePassword />} requiredRole="buyer" />} />
               <Route path="/buyer/settings/2fa" element={<ProtectedRoute element={<BuyerTwoFactor />} requiredRole="buyer" />} />
               <Route path="/buyer/products/:id" element={<ProtectedRoute element={<ProductDetails />} requiredRole="buyer" />} />
-              <Route path="/notifications" element={<Notifications />} />
-              <Route path="/social" element={<SocialFeed />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/messages" element={<Messages />} />
-              <Route path="/video" element={<VideoFeed />} />
-              <Route path="/search" element={<SearchPage />} />
-              <Route path="/menu" element={<MenuPage />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/buyer/analytics" element={<BuyerAnalytics />} />
-              <Route path="/wallet" element={<Wallet />} />
-              <Route path="/wallet/actions" element={<WalletActions />} />
-              <Route path="/wallet/pay" element={<WalletPay />} />
-              <Route path="/wallet/apps" element={<WalletApps />} />
-              <Route path="/invest" element={<Invest />} />
-              <Route path="/invest/analytics" element={<InvestAnalytics />} />
-              <Route path="/invest/support" element={<InvestSupport />} />
-              <Route path="/invest/resources" element={<InvestResources />} />
-              <Route path="/invest/settings" element={<InvestSettings />} />
-              <Route path="/invest/history" element={<InvestHistory />} />
-              <Route path="/invest/security" element={<InvestSecurity />} />
-              <Route path="/support-chat" element={<SupportChat />} />
+              <Route path="/notifications" element={<ProtectedRoute element={<Notifications />} />} />
+              <Route path="/social" element={<ProtectedRoute element={<SocialFeed />} />} />
+              <Route path="/cart" element={<ProtectedRoute element={<Cart />} />} />
+              <Route path="/messages" element={<ProtectedRoute element={<Messages />} />} />
+              <Route path="/video" element={<ProtectedRoute element={<VideoFeed />} />} />
+              <Route path="/search" element={<ProtectedRoute element={<SearchPage />} />} />
+              <Route path="/menu" element={<ProtectedRoute element={<MenuPage />} />} />
+              <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
+              <Route path="/analytics" element={<ProtectedRoute element={<Analytics />} />} />
+              <Route path="/buyer/analytics" element={<ProtectedRoute element={<BuyerAnalytics />} />} />
+              <Route path="/wallet" element={<ProtectedRoute element={<Wallet />} />} />
+              <Route path="/wallet/actions" element={<ProtectedRoute element={<WalletActions />} />} />
+              <Route path="/wallet/pay" element={<ProtectedRoute element={<WalletPay />} />} />
+              <Route path="/wallet/apps" element={<ProtectedRoute element={<WalletApps />} />} />
+              <Route path="/invest" element={<ProtectedRoute element={<Invest />} />} />
+              <Route path="/invest/analytics" element={<ProtectedRoute element={<InvestAnalytics />} />} />
+              <Route path="/invest/support" element={<ProtectedRoute element={<InvestSupport />} />} />
+              <Route path="/invest/resources" element={<ProtectedRoute element={<InvestResources />} />} />
+              <Route path="/invest/settings" element={<ProtectedRoute element={<InvestSettings />} />} />
+              <Route path="/invest/history" element={<ProtectedRoute element={<InvestHistory />} />} />
+              <Route path="/invest/security" element={<ProtectedRoute element={<InvestSecurity />} />} />
+              <Route path="/support-chat" element={<ProtectedRoute element={<SupportChat />} />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
