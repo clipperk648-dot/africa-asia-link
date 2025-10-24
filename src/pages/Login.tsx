@@ -182,7 +182,13 @@ const Login = () => {
               <h2 className="text-2xl sm:text-3xl font-bold">Welcome Back</h2>
               <p className="text-sm sm:text-base text-muted-foreground">Sign in to your account</p>
             </div>
-            
+
+            {errors.form && (
+              <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                <p className="text-sm text-destructive">{errors.form}</p>
+              </div>
+            )}
+
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name / Company Name</Label>
