@@ -72,13 +72,13 @@ const App = () => (
               <Route path="/industry/add-property" element={<ProtectedRoute element={<IndustryAddProperty />} requiredRole="industry" />} />
               <Route path="/industry/collections" element={<ProtectedRoute element={<IndustryCollections />} requiredRole="industry" />} />
               <Route path="/industry/recent-activity" element={<ProtectedRoute element={<IndustryRecentActivity />} requiredRole="industry" />} />
-              <Route path="/buyer" element={<BuyerDashboard />} />
-              <Route path="/buyer/products" element={<BuyerProducts />} />
-              <Route path="/buyer/network" element={<BuyerNetwork />} />
-              <Route path="/buyer/settings" element={<BuyerSettings />} />
-              <Route path="/buyer/settings/password" element={<BuyerChangePassword />} />
-              <Route path="/buyer/settings/2fa" element={<BuyerTwoFactor />} />
-              <Route path="/buyer/products/:id" element={<ProductDetails />} />
+              <Route path="/buyer" element={<ProtectedRoute element={<BuyerDashboard />} requiredRole="buyer" />} />
+              <Route path="/buyer/products" element={<ProtectedRoute element={<BuyerProducts />} requiredRole="buyer" />} />
+              <Route path="/buyer/network" element={<ProtectedRoute element={<BuyerNetwork />} requiredRole="buyer" />} />
+              <Route path="/buyer/settings" element={<ProtectedRoute element={<BuyerSettings />} requiredRole="buyer" />} />
+              <Route path="/buyer/settings/password" element={<ProtectedRoute element={<BuyerChangePassword />} requiredRole="buyer" />} />
+              <Route path="/buyer/settings/2fa" element={<ProtectedRoute element={<BuyerTwoFactor />} requiredRole="buyer" />} />
+              <Route path="/buyer/products/:id" element={<ProtectedRoute element={<ProductDetails />} requiredRole="buyer" />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/social" element={<SocialFeed />} />
               <Route path="/cart" element={<Cart />} />
