@@ -7,8 +7,9 @@ import GlassCard from "@/components/GlassCard";
 import ThreeBackground from "@/components/ThreeBackground";
 import { setCurrentUser } from "@/utils/mockAuth";
 import { toast } from "@/hooks/use-toast";
-import { ArrowRight, Building2, ShoppingBag } from "lucide-react";
+import { ArrowRight, Building2, ShoppingBag, Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
+import "../styles/auth.css";
 
 const loginSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }),
