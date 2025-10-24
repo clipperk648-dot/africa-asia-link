@@ -5,9 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import GlassCard from "@/components/GlassCard";
 import ThreeBackground from "@/components/ThreeBackground";
-import { setCurrentUser } from "@/utils/mockAuth";
+import { registerUser, saveSession } from "@/lib/auth";
 import { toast } from "@/hooks/use-toast";
-import { ArrowRight, Building2, ShoppingBag, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Building2, ShoppingBag, Eye, EyeOff, Loader2 } from "lucide-react";
 import { z } from "zod";
 import "../styles/auth.css";
 
