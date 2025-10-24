@@ -25,6 +25,7 @@ const Login = () => {
   const [selectedRole, setSelectedRole] = useState<"industry" | "buyer" | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
