@@ -246,7 +246,7 @@ const BuyerDashboard = () => {
           </div>
 
           <div className="md:hidden -mx-4 px-4 pb-2 overflow-x-auto snap-x snap-mandatory flex gap-3">
-            {mockProducts.map((p) => (
+            {products.map((p) => (
               <div key={p.id} className="snap-start shrink-0">
                 <ProductCard product={p} navigate={navigate} />
               </div>
@@ -254,7 +254,7 @@ const BuyerDashboard = () => {
           </div>
 
           <div className="hidden md:grid md:grid-cols-2 gap-4">
-            {mockProducts.map((p) => (
+            {products.map((p) => (
               <Fragment key={p.id}>
                 <ProductCard product={p} navigate={navigate} />
               </Fragment>
