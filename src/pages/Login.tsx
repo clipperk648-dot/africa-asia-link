@@ -248,9 +248,24 @@ const Login = () => {
               </div>
             </div>
             
-            <Button type="submit" variant="gradient" size="lg" className="w-full h-11 sm:h-12 group">
-              <span>Sign In</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <Button
+              type="submit"
+              variant="gradient"
+              size="lg"
+              className="w-full h-11 sm:h-12 group"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Signing in...</span>
+                </>
+              ) : (
+                <>
+                  <span>Sign In</span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
             </Button>
 
             <div className="text-center space-y-2">
