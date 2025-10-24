@@ -190,6 +190,11 @@ export const createOrder = async (
 
 // Social posts operations
 export const getSocialPosts = async (limit = 20): Promise<any[]> => {
+  if (!isDatabaseConfigured()) {
+    // Return mock data when database not configured
+    return mockSocialPosts.slice(0, limit);
+  }
+
   const query = `
     SELECT *
     FROM social_posts
