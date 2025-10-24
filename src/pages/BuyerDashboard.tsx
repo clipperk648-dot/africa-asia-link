@@ -265,35 +265,41 @@ const BuyerDashboard = () => {
         <section className="space-y-4">
           <h2 className="text-lg sm:text-xl font-bold">My Orders</h2>
           <div className="space-y-3">
-            {mockOrders.map((order) => (
-              <GlassCard key={order.id} className="p-4 sm:p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                  <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-base sm:text-lg truncate">{order.productName}</p>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      Order #{order.id} • Qty: {order.quantity}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">{order.date}</p>
-                  </div>
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <div className="text-left sm:text-right">
-                      <p className="font-bold text-lg sm:text-xl">₦{order.total.toLocaleString()}</p>
-                    </div>
-                    <span
-                      className={`text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium whitespace-nowrap ${
-                        order.status === "delivered"
-                          ? "bg-secondary/20 text-secondary"
-                          : order.status === "shipped"
-                          ? "bg-primary/20 text-primary"
-                          : "bg-accent/20 text-accent"
-                      }`}
-                    >
-                      {order.status}
-                    </span>
-                  </div>
-                </div>
+            {orders.length === 0 ? (
+              <GlassCard className="p-8 text-center">
+                <p className="text-muted-foreground">No orders yet. Start shopping!</p>
               </GlassCard>
-            ))}
+            ) : (
+              orders.map((order) => (
+                <GlassCard key={order.id} className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-base sm:text-lg truncate">{order.productName}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground">
+                        Order #{order.id} • Qty: {order.quantity}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">{order.date}</p>
+                    </div>
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <div className="text-left sm:text-right">
+                        <p className="font-bold text-lg sm:text-xl">₦{order.total.toLocaleString()}</p>
+                      </div>
+                      <span
+                        className={`text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium whitespace-nowrap ${
+                          order.status === "delivered"
+                            ? "bg-secondary/20 text-secondary"
+                            : order.status === "shipped"
+                            ? "bg-primary/20 text-primary"
+                            : "bg-accent/20 text-accent"
+                        }`}
+                      >
+                        {order.status}
+                      </span>
+                    </div>
+                  </div>
+                </GlassCard>
+              ))
+            )}
           </div>
         </section>
 
