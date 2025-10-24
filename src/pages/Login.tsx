@@ -204,13 +204,25 @@ const Login = () => {
               </div>
             </div>
             
-            <Button type="submit" variant="gradient" size="lg" className="w-full h-11 sm:h-12">
-              Sign In
-              <ArrowRight className="w-5 h-5" />
+            <Button type="submit" variant="gradient" size="lg" className="w-full h-11 sm:h-12 group">
+              <span>Sign In</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
-            
-            <div className="text-center text-xs sm:text-sm text-muted-foreground">
-              All credentials accepted for demo
+
+            <div className="text-center space-y-2">
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Don't have an account?{" "}
+                <button
+                  type="button"
+                  onClick={() => navigate("/signup")}
+                  className="text-primary hover:underline font-semibold"
+                >
+                  Sign Up
+                </button>
+              </p>
+              <p className="text-xs text-muted-foreground opacity-75">
+                All credentials accepted for demo
+              </p>
             </div>
           </form>
         </GlassCard>
