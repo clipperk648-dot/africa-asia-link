@@ -26,6 +26,7 @@ const BuyerProducts = lazy(() => import("./pages/BuyerProducts"));
 const BuyerNetwork = lazy(() => import("./pages/BuyerNetwork"));
 const BuyerSettings = lazy(() => import("./pages/BuyerSettings"));
 const SocialFeed = lazy(() => import("./pages/SocialFeed"));
+const SocialAddPost = lazy(() => import("./pages/SocialAddPost"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Messages = lazy(() => import("./pages/Messages"));
 const Chat = lazy(() => import("./pages/Chat"));
