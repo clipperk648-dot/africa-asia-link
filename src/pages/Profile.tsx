@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "@/utils/mockAuth";
-import { mockSocialPosts } from "@/utils/mockData";
+import { useSocialPosts } from "@/hooks/useData";
 import { Button } from "@/components/ui/button";
 import ThreeBackground from "@/components/ThreeBackground";
 import { ArrowLeft, MoreVertical, Grid, Film, Bookmark, Repeat2 } from "lucide-react";
