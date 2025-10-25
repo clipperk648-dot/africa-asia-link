@@ -1,5 +1,7 @@
 import { useMemo } from "react";
 import { useOrders } from "@/hooks/useData";
+import { getCurrentUser } from "@/utils/mockAuth";
+import type { Order } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import ThreeBackground from "@/components/ThreeBackground";
@@ -8,7 +10,7 @@ import { ArrowLeft, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, Legend } from "recharts";
 
-const groupByMonth = (orders: typeof mockOrders) => {
+const groupByMonth = (orders: Order[]) => {
   const map = new Map<string, number>();
   orders.forEach((o) => {
     const d = new Date(o.date);
