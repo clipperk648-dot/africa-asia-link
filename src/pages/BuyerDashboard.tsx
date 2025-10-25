@@ -223,11 +223,6 @@ const BuyerDashboard = () => {
           ))}
         </div>
 
-        <section className="space-y-4">
-          <h2 className="text-base sm:text-lg font-bold">Share an update</h2>
-          <SocialComposer />
-        </section>
-
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-base sm:text-lg font-bold">Discover Products</h2>
