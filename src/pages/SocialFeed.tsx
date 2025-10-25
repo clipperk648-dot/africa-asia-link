@@ -257,7 +257,7 @@ const SocialFeed = () => {
               <Search className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.5} />
               <span className="text-[10px] sm:text-xs font-medium">Search</span>
             </Button>
-            <Button variant="ghost" className="flex-1 min-w-0 flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
+            <Button variant="ghost" onClick={() => navigate("/social/add")} className="flex-1 min-w-0 flex flex-col items-center gap-0.5 h-auto py-2 hover:bg-transparent text-muted-foreground">
               <Plus className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2} />
               <span className="text-[10px] sm:text-xs font-medium">Add</span>
             </Button>
