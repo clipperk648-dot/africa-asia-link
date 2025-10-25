@@ -46,8 +46,7 @@ const BuyerProducts = () => {
   const [minRating, setMinRating] = useState<number>(0);
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
-
-  const products = mockProducts;
+  const { data: products = [] } = useProducts();
 
   const median = (arr: number[]) => {
     const a = [...arr].sort((x, y) => x - y);
