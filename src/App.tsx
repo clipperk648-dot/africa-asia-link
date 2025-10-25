@@ -26,6 +26,7 @@ const BuyerProducts = lazy(() => import("./pages/BuyerProducts"));
 const BuyerNetwork = lazy(() => import("./pages/BuyerNetwork"));
 const BuyerSettings = lazy(() => import("./pages/BuyerSettings"));
 const SocialFeed = lazy(() => import("./pages/SocialFeed"));
+const SocialAddPost = lazy(() => import("./pages/SocialAddPost"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Messages = lazy(() => import("./pages/Messages"));
 const Chat = lazy(() => import("./pages/Chat"));
@@ -86,6 +87,7 @@ const App = () => (
               <Route path="/buyer/products/:id" element={<ProtectedRoute element={<ProductDetails />} requiredRole="buyer" />} />
               <Route path="/notifications" element={<ProtectedRoute element={<Notifications />} />} />
               <Route path="/social" element={<ProtectedRoute element={<SocialFeed />} />} />
+              <Route path="/social/add" element={<ProtectedRoute element={<SocialAddPost />} />} />
               <Route path="/cart" element={<ProtectedRoute element={<Cart />} />} />
               <Route path="/messages" element={<ProtectedRoute element={<Messages />} />} />
               <Route path="/messages/:id" element={<ProtectedRoute element={<Chat />} />} />

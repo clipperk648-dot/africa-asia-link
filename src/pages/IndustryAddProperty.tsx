@@ -17,9 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ClipboardCheck, UploadCloud } from "lucide-react";
-
-// Product form tailored for Chinese companies
+import { ArrowLeft, ClipboardCheck, UploadCloud, X, Image as ImageIcon, Video as VideoIcon } from "lucide-react";
 
 type ProductFormState = {
   nameEN: string;
@@ -41,9 +39,6 @@ type ProductFormState = {
   portOfShipment: string;
   description: string;
   specifications: string;
-  imageUrls: string;
-  videoUrl: string;
-  brochureUrl: string;
   companyName: string;
   contactName: string;
   contactEmail: string;
@@ -73,9 +68,6 @@ const initialFormState = (userName = "", userEmail = "", company = ""): ProductF
   portOfShipment: "Shenzhen",
   description: "",
   specifications: "",
-  imageUrls: "",
-  videoUrl: "",
-  brochureUrl: "",
   companyName: company || "",
   contactName: userName || "",
   contactEmail: userEmail || "",
@@ -93,6 +85,11 @@ const IndustryAddProperty = () => {
   const [formData, setFormData] = useState<ProductFormState>(
     initialFormState(user?.name, user?.email, user?.company)
   );
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
+  const [brochureFile, setBrochureFile] = useState<File | null>(null);
   const [options, setOptions] = useState({ oem: true, odm: true, customPackaging: true, sampleAvailable: true, certifications: { ce: true, rohs: true, iso9001: true, fcc: false, ccc: false } });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -105,12 +102,66 @@ const IndustryAddProperty = () => {
   const handleChange = <T extends HTMLInputElement | HTMLTextAreaElement>(field: keyof ProductFormState) =>
     (event: ChangeEvent<T>) => setFormData((prev) => ({ ...prev, [field]: event.target.value }));
 
+  const handleImageFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length + imageFiles.length > 6) {
+      toast.error("Maximum 6 images allowed");
+      return;
+    }
+
+    const newFiles = [...imageFiles, ...files];
+    setImageFiles(newFiles);
+
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreviews((prev) => [...prev, e.target?.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (index: number) => {
+    setImageFiles((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setVideoFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setVideoPreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeVideo = () => {
+    setVideoFile(null);
+    setVideoPreview(null);
+  };
+
+  const handleBrochureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type !== "application/pdf") {
+      toast.error("Only PDF files are allowed for brochures");
+      return;
+    }
+    setBrochureFile(file || null);
+  };
+
+  const removeBrochure = () => {
+    setBrochureFile(null);
+  };
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmitting(true);
     try {
       await new Promise((r) => setTimeout(r, 650));
-      toast({ title: "Product submitted", description: "Your product has been saved successfully." });
+      toast({ title: "Product submitted", description: "Your product has been saved successfully with all media files." });
       navigate("/industry");
     } finally {
       setIsSubmitting(false);
@@ -129,7 +180,7 @@ const IndustryAddProperty = () => {
             </Button>
             <div>
               <h1 className="text-2xl font-bold">Add New Product</h1>
-              <p className="text-sm text-muted-foreground">Provide detailed information for buyers worldwide.</p>
+              <p className="text-sm text-muted-foreground">Provide detailed information and upload media for buyers worldwide.</p>
             </div>
           </div>
           <Button
@@ -137,6 +188,11 @@ const IndustryAddProperty = () => {
             size="sm"
             onClick={() => {
               setFormData(initialFormState(user?.name, user?.email, user?.company));
+              setImageFiles([]);
+              setImagePreviews([]);
+              setVideoFile(null);
+              setVideoPreview(null);
+              setBrochureFile(null);
               setOptions({ oem: true, odm: true, customPackaging: true, sampleAvailable: true, certifications: { ce: true, rohs: true, iso9001: true, fcc: false, ccc: false } });
             }}
             disabled={isSubmitting}
@@ -334,30 +390,153 @@ const IndustryAddProperty = () => {
 
           {/* Media */}
           <GlassCard className="p-4 sm:p-6 space-y-6">
-            <section className="space-y-4">
+            <section className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg sm:text-xl font-semibold">Media</h2>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <UploadCloud className="w-4 h-4" /> Links to images/videos/brochures
+                  <UploadCloud className="w-4 h-4" /> Upload images, videos, and brochures
                 </div>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="imageUrls">Image URLs (comma separated)</Label>
-                  <Input id="imageUrls" value={formData.imageUrls} onChange={handleChange("imageUrls")} className="h-11 bg-background/60" type="url" />
-                  <div className="grid grid-cols-3 gap-2 pt-2">
-                    {formData.imageUrls.split(',').map((u) => u.trim()).filter(Boolean).slice(0,6).map((u, i) => (
-                      <img key={i} src={u} alt="Preview" className="aspect-square w-full object-cover rounded" />
+
+              {/* Images */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <ImageIcon className="w-5 h-5 text-primary" />
+                  <Label className="text-base font-semibold">Product Images</Label>
+                  <span className="text-xs text-muted-foreground">({imagePreviews.length}/6)</span>
+                </div>
+
+                {imagePreviews.length > 0 && (
+                  <div className="grid grid-cols-3 gap-3">
+                    {imagePreviews.map((preview, idx) => (
+                      <div key={idx} className="relative group">
+                        <img src={preview} alt={`Preview ${idx}`} className="w-full aspect-square object-cover rounded-lg" />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(idx)}
+                          className="absolute top-1 right-1 p-1 bg-black/50 hover:bg-black/70 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
                     ))}
                   </div>
+                )}
+
+                <div className="relative">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageFilesChange}
+                    multiple
+                    disabled={imagePreviews.length >= 6}
+                    className="hidden"
+                    id="image-input"
+                  />
+                  <label
+                    htmlFor="image-input"
+                    className={`flex items-center justify-center w-full p-6 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                      imagePreviews.length >= 6
+                        ? "border-muted bg-muted/20 cursor-not-allowed opacity-50"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Upload className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+                      <p className="font-medium text-sm">Click to upload images</p>
+                      <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 5MB each</p>
+                    </div>
+                  </label>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="videoUrl">Video URL</Label>
-                  <Input id="videoUrl" value={formData.videoUrl} onChange={handleChange("videoUrl")} className="h-11 bg-background/60" type="url" />
+              </div>
+
+              {/* Video */}
+              <div className="space-y-4 border-t border-border/50 pt-6">
+                <div className="flex items-center gap-2">
+                  <VideoIcon className="w-5 h-5 text-primary" />
+                  <Label className="text-base font-semibold">Product Video</Label>
                 </div>
-                <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="brochureUrl">PDF Brochure URL</Label>
-                  <Input id="brochureUrl" value={formData.brochureUrl} onChange={handleChange("brochureUrl")} className="h-11 bg-background/60" type="url" />
+
+                {videoPreview && (
+                  <div className="relative w-full rounded-lg overflow-hidden bg-muted/50 aspect-video">
+                    <video src={videoPreview} controls className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={removeVideo}
+                      className="absolute top-2 right-2 p-1 bg-black/50 hover:bg-black/70 rounded-full text-white"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                )}
+
+                <div className="relative">
+                  <Input
+                    type="file"
+                    accept="video/*"
+                    onChange={handleVideoChange}
+                    disabled={!!videoFile}
+                    className="hidden"
+                    id="video-input"
+                  />
+                  <label
+                    htmlFor="video-input"
+                    className={`flex items-center justify-center w-full p-6 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                      videoFile
+                        ? "border-muted bg-muted/20 cursor-not-allowed opacity-50"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Upload className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+                      <p className="font-medium text-sm">Click to upload video</p>
+                      <p className="text-xs text-muted-foreground">MP4, WebM up to 50MB</p>
+                      {videoFile && <p className="text-xs font-semibold text-primary mt-2">{videoFile.name}</p>}
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Brochure */}
+              <div className="space-y-4 border-t border-border/50 pt-6">
+                <Label className="text-base font-semibold">PDF Brochure (Optional)</Label>
+
+                {brochureFile && (
+                  <div className="p-3 rounded-lg bg-secondary/20 border border-secondary/50 flex items-center justify-between">
+                    <p className="text-sm font-medium text-secondary">{brochureFile.name}</p>
+                    <button
+                      type="button"
+                      onClick={removeBrochure}
+                      className="p-1 hover:bg-secondary/20 rounded text-secondary"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+
+                <div className="relative">
+                  <Input
+                    type="file"
+                    accept=".pdf"
+                    onChange={handleBrochureChange}
+                    disabled={!!brochureFile}
+                    className="hidden"
+                    id="brochure-input"
+                  />
+                  <label
+                    htmlFor="brochure-input"
+                    className={`flex items-center justify-center w-full p-6 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                      brochureFile
+                        ? "border-muted bg-muted/20 cursor-not-allowed opacity-50"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Upload className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+                      <p className="font-medium text-sm">Click to upload PDF</p>
+                      <p className="text-xs text-muted-foreground">PDF up to 10MB</p>
+                    </div>
+                  </label>
                 </div>
               </div>
             </section>

@@ -12,7 +12,6 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { APP_NAME, SOCIAL_LINKS } from "@/config/app";
-import SocialComposer from "@/components/SocialComposer";
 
 const ProductCard = ({ product }: { product: Product }) => (
   <GlassCard className="p-4 sm:p-6 min-w-[280px] sm:min-w-0">
@@ -198,10 +197,6 @@ const IndustryDashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        <section className="space-y-4">
-          <h2 className="text-base sm:text-lg font-bold">Share an update</h2>
-          <SocialComposer />
-        </section>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 animate-fade-in">
           {stats.map((stat, i) => (
             <GlassCard key={i} className="text-center p-4">
