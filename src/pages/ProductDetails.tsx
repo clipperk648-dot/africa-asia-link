@@ -35,8 +35,7 @@ const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
   const user = getCurrentUser();
   const { toast } = useToast();
-
-  const product = mockProducts.find((p) => String(p.id) === id);
+  const { data: product } = useProduct(id);
 
   const images = product?.images || [product?.image].filter(Boolean) as string[];
   const media = useMemo(() => {
