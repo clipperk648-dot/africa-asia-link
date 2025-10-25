@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser, logout } from "@/utils/mockAuth";
-import { mockOrders } from "@/utils/mockData";
+import { useOrders } from "@/hooks/useData";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,10 +20,11 @@ type SortOption = "newest" | "oldest" | "price-high" | "price-low" | "status";
 const IndustryRecentActivity = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
+  const { data: orders = [] } = useOrders(user?.id);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
-  const [filteredOrders, setFilteredOrders] = useState(mockOrders);
+  const [filteredOrders, setFilteredOrders] = useState(orders);
 
   useEffect(() => {
     if (!user || user.role !== "industry") {
@@ -32,7 +33,7 @@ const IndustryRecentActivity = () => {
   }, [user, navigate]);
 
   useEffect(() => {
-    let filtered = mockOrders.filter((order) => {
+    let filtered = orders.filter((order) => {
       const matchesSearch =
         order.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.id.toString().includes(searchTerm);
@@ -57,14 +58,14 @@ const IndustryRecentActivity = () => {
     });
 
     setFilteredOrders(filtered);
-  }, [searchTerm, sortBy, statusFilter]);
+  }, [searchTerm, sortBy, statusFilter, orders]);
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
-  const statuses = Array.from(new Set(mockOrders.map((o) => o.status)));
+  const statuses = Array.from(new Set(orders.map((o) => o.status)));
 
   return (
     <div className="min-h-screen pb-24 relative">

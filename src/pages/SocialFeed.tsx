@@ -1,6 +1,6 @@
 import { useState, useMemo, memo } from "react";
 import { useNavigate } from "react-router-dom";
-import { mockSocialPosts } from "@/utils/mockData";
+import { useSocialPosts } from "@/hooks/useData";
 import { getCurrentUser } from "@/utils/mockAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,13 +27,14 @@ import ThreeBackground from "@/components/ThreeBackground";
 const SocialFeed = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
-  const [posts, setPosts] = useState(mockSocialPosts);
+  const { data: initialPosts = [] } = useSocialPosts();
+  const [posts, setPosts] = useState(initialPosts);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [activePostId, setActivePostId] = useState<string | null>(null);
   const [commentDraft, setCommentDraft] = useState("");
   const [commentsByPost, setCommentsByPost] = useState<Record<string, { id: string; author: string; text: string; time: string }[]>>(() => {
     const seed = {} as Record<string, { id: string; author: string; text: string; time: string }[]>;
-    for (const p of mockSocialPosts) {
+    for (const p of initialPosts) {
       seed[p.id] = [
         { id: "c1", author: "sarah_j", text: "Love this!", time: "2h" },
         { id: "c2", author: "michael_c", text: "Great update 👏", time: "1h" },
@@ -131,7 +132,7 @@ const SocialFeed = () => {
             </div>
             <span className="text-xs font-medium">Your Story</span>
           </div>
-          {mockSocialPosts.slice(0, 5).map((post) => (
+          {posts.slice(0, 5).map((post) => (
             <div key={post.id} className="flex flex-col items-center gap-1.5 min-w-fit">
               <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-pink-500 via-purple-500 to-orange-500 p-0.5 cursor-pointer flex-shrink-0">
                 <div className="w-full h-full rounded-full bg-background p-0.5">

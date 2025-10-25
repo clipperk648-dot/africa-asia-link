@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCurrentUser } from "@/utils/mockAuth";
-import { mockProducts } from "@/utils/mockData";
+import { useProduct } from "@/hooks/useData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
@@ -35,8 +35,7 @@ const ProductDetails = () => {
   const { id } = useParams<{ id: string }>();
   const user = getCurrentUser();
   const { toast } = useToast();
-
-  const product = mockProducts.find((p) => String(p.id) === id);
+  const { data: product } = useProduct(id);
 
   const images = product?.images || [product?.image].filter(Boolean) as string[];
   const media = useMemo(() => {

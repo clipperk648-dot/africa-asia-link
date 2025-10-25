@@ -5,33 +5,54 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import GlassCard from "@/components/GlassCard";
 import ThreeBackground from "@/components/ThreeBackground";
-import { loginUser, saveSession } from "@/lib/auth";
+import { registerUser, saveSession } from "@/lib/auth";
 import { toast } from "@/hooks/use-toast";
 import { ArrowRight, Building2, ShoppingBag, Eye, EyeOff, Loader2 } from "lucide-react";
 import { z } from "zod";
 import "../styles/auth.css";
 
-const loginSchema = z.object({
-  email: z.string().trim().email({ message: "Invalid email address" }),
-  password: z.string().min(1, { message: "Password is required" }),
+const signupSchema = z.object({
   name: z.string().trim().min(2, { message: "Name must be at least 2 characters" }),
+  email: z.string().trim().email({ message: "Invalid email address" }),
+  phone: z.string()
+    .trim()
+    .min(10, { message: "Phone number must be at least 10 digits" })
+    .regex(/^[+]?[\d\s\-()]+$/, { message: "Invalid phone number format" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
+  confirmPassword: z.string().min(8, { message: "Password confirmation required" }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
 
-const Login = () => {
+const SignUp = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [selectedRole, setSelectedRole] = useState<"industry" | "buyer" | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate inputs
-    const result = loginSchema.safeParse({ email, password, name });
+    const result = signupSchema.safeParse(formData);
 
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
@@ -57,24 +78,20 @@ const Login = () => {
     setErrors({});
 
     try {
-      // For existing users with mock auth, try login
-      const result = await loginUser(email.trim(), password);
+      const registerResult = await registerUser(
+        formData.email.trim(),
+        formData.password,
+        formData.name.trim(),
+        formData.phone.trim(),
+        selectedRole
+      );
 
-      if (result.success && result.user) {
-        // Verify role matches
-        if (result.user.role !== selectedRole) {
-          setErrors({
-            form: `This account is registered as a ${result.user.role}. Please select the correct role or use a different account.`,
-          });
-          setIsLoading(false);
-          return;
-        }
-
-        saveSession(result.user);
+      if (registerResult.success && registerResult.user) {
+        saveSession(registerResult.user);
 
         toast({
-          title: "Login Successful",
-          description: `Welcome back, ${result.user.name}!`,
+          title: "Account Created Successfully",
+          description: `Welcome to Echina, ${registerResult.user.name}!`,
         });
 
         if (selectedRole === "industry") {
@@ -83,32 +100,15 @@ const Login = () => {
           navigate("/buyer");
         }
       } else {
-        // If login fails with real auth, fall back to registration
-        const user = {
-          id: Math.random().toString(36).substr(2, 9),
-          email: email.trim(),
-          role: selectedRole,
-          name: name.trim(),
-        };
-
-        saveSession(user);
-
-        toast({
-          title: "Welcome!",
-          description: `Logged in as ${user.name}. (Demo Mode)`,
+        setErrors({
+          form: registerResult.error || "Registration failed. Please try again.",
         });
-
-        if (selectedRole === "industry") {
-          navigate("/industry");
-        } else {
-          navigate("/buyer");
-        }
       }
     } catch (error) {
       setErrors({
-        form: "Login failed. Please try again.",
+        form: "An error occurred during registration. Please try again.",
       });
-      console.error("Login error:", error);
+      console.error("Sign up error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -125,14 +125,14 @@ const Login = () => {
               Echina
             </h1>
             <p className="text-lg sm:text-xl text-muted-foreground">
-              Connecting China Industries with Nigerian Buyers
+              Join the thriving trade network
             </p>
           </div>
           
           <div className="space-y-3 sm:space-y-4 pt-2 sm:pt-4">
-            <h2 className="text-xl sm:text-2xl font-semibold text-foreground">Select Your Role</h2>
+            <h2 className="text-xl sm:text-2xl font-semibold text-foreground">Create Your Account As</h2>
             
-            <GlassCard
+            <GlassCard 
               className={`cursor-pointer transition-all p-4 sm:p-6 hover:scale-105 transform duration-300 ${
                 selectedRole === "industry" ? "ring-2 ring-primary scale-105" : ""
               }`}
@@ -147,13 +147,13 @@ const Login = () => {
                   }`} />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-semibold text-sm sm:text-base">I'm a Seller</p>
+                  <p className="font-semibold text-sm sm:text-base">Seller</p>
                   <p className="text-xs sm:text-sm text-muted-foreground truncate">Chinese Industry / Manufacturer</p>
                 </div>
               </div>
             </GlassCard>
             
-            <GlassCard
+            <GlassCard 
               className={`cursor-pointer transition-all p-4 sm:p-6 hover:scale-105 transform duration-300 ${
                 selectedRole === "buyer" ? "ring-2 ring-secondary scale-105" : ""
               }`}
@@ -168,19 +168,31 @@ const Login = () => {
                   }`} />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-semibold text-sm sm:text-base">I'm a Buyer</p>
+                  <p className="font-semibold text-sm sm:text-base">Buyer</p>
                   <p className="text-xs sm:text-sm text-muted-foreground truncate">Nigerian Business / Trader</p>
                 </div>
               </div>
             </GlassCard>
           </div>
+
+          <div className="pt-4">
+            <p className="text-sm text-muted-foreground">
+              Already have an account?{" "}
+              <button
+                onClick={() => navigate("/login")}
+                className="text-primary hover:underline font-semibold"
+              >
+                Sign In
+              </button>
+            </p>
+          </div>
         </div>
         
         <GlassCard className="p-4 sm:p-6 slide-up">
-          <form onSubmit={handleLogin} className="space-y-4 sm:space-y-6">
+          <form onSubmit={handleSignUp} className="space-y-4 sm:space-y-5">
             <div className="space-y-1 sm:space-y-2 text-center">
-              <h2 className="text-2xl sm:text-3xl font-bold">Welcome Back</h2>
-              <p className="text-sm sm:text-base text-muted-foreground">Sign in to your account</p>
+              <h2 className="text-2xl sm:text-3xl font-bold">Create Account</h2>
+              <p className="text-sm sm:text-base text-muted-foreground">Fill in your details to get started</p>
             </div>
 
             {errors.form && (
@@ -189,36 +201,55 @@ const Login = () => {
               </div>
             )}
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name / Company Name</Label>
                 <Input
                   id="name"
+                  name="name"
                   type="text"
                   placeholder="Enter your name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={formData.name}
+                  onChange={handleChange}
                   required
-                  className="h-12 bg-background/50"
+                  className={`h-12 bg-background/50 transition-all ${errors.name ? 'border-destructive' : ''}`}
                 />
                 {errors.name && (
-                  <p className="text-sm text-destructive">{errors.name}</p>
+                  <p className="text-sm text-destructive animate-pulse">{errors.name}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">Email Address</Label>
                 <Input
                   id="email"
+                  name="email"
                   type="email"
                   placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formData.email}
+                  onChange={handleChange}
                   required
-                  className="h-12 bg-background/50"
+                  className={`h-12 bg-background/50 transition-all ${errors.email ? 'border-destructive' : ''}`}
                 />
                 {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email}</p>
+                  <p className="text-sm text-destructive animate-pulse">{errors.email}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  placeholder="+234 (0) 000 000 0000"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  required
+                  className={`h-12 bg-background/50 transition-all ${errors.phone ? 'border-destructive' : ''}`}
+                />
+                {errors.phone && (
+                  <p className="text-sm text-destructive animate-pulse">{errors.phone}</p>
                 )}
               </div>
               
@@ -227,23 +258,50 @@ const Login = () => {
                 <div className="relative">
                   <Input
                     id="password"
+                    name="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Minimum 8 characters"
+                    value={formData.password}
+                    onChange={handleChange}
                     required
-                    className="h-12 bg-background/50 pr-10"
+                    className={`h-12 bg-background/50 pr-10 transition-all ${errors.password ? 'border-destructive' : ''}`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-sm text-destructive">{errors.password}</p>
+                  <p className="text-sm text-destructive animate-pulse">{errors.password}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm your password"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    required
+                    className={`h-12 bg-background/50 pr-10 transition-all ${errors.confirmPassword ? 'border-destructive' : ''}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+                {errors.confirmPassword && (
+                  <p className="text-sm text-destructive animate-pulse">{errors.confirmPassword}</p>
                 )}
               </div>
             </div>
@@ -258,30 +316,18 @@ const Login = () => {
               {isLoading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Signing in...</span>
+                  <span>Creating account...</span>
                 </>
               ) : (
                 <>
-                  <span>Sign In</span>
+                  <span>Create Account</span>
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </Button>
-
-            <div className="text-center space-y-2">
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                Don't have an account?{" "}
-                <button
-                  type="button"
-                  onClick={() => navigate("/signup")}
-                  className="text-primary hover:underline font-semibold"
-                >
-                  Sign Up
-                </button>
-              </p>
-              <p className="text-xs text-muted-foreground opacity-75">
-                All credentials accepted for demo
-              </p>
+            
+            <div className="text-center text-xs sm:text-sm text-muted-foreground">
+              By signing up, you agree to our terms of service
             </div>
           </form>
         </GlassCard>
@@ -290,4 +336,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default SignUp;

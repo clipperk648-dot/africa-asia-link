@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser, logout } from "@/utils/mockAuth";
-import { mockProducts } from "@/utils/mockData";
+import { useProducts } from "@/hooks/useData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import ThreeBackground from "@/components/ThreeBackground";
 const IndustryProducts = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
+  const { data: products = [] } = useProducts();
 
   useEffect(() => {
     if (!user || user.role !== "industry") {
@@ -48,7 +49,7 @@ const IndustryProducts = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-4">
-        {mockProducts.map((product) => (
+        {products.map((product) => (
           <GlassCard key={product.id} className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row gap-4">
               <img

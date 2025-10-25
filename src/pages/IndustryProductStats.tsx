@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCurrentUser } from "@/utils/mockAuth";
-import { mockProducts, mockOrders } from "@/utils/mockData";
+import { useProduct, useOrders } from "@/hooks/useData";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, Legend } from "recharts";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";

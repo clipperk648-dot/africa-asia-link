@@ -1,5 +1,7 @@
 import { useMemo } from "react";
-import { mockOrders } from "@/utils/mockData";
+import { useOrders } from "@/hooks/useData";
+import { getCurrentUser } from "@/utils/mockAuth";
+import type { Order } from "@/utils/mockData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import ThreeBackground from "@/components/ThreeBackground";
@@ -8,7 +10,7 @@ import { ArrowLeft, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, Legend } from "recharts";
 
-const groupByMonth = (orders: typeof mockOrders) => {
+const groupByMonth = (orders: Order[]) => {
   const map = new Map<string, number>();
   orders.forEach((o) => {
     const d = new Date(o.date);
@@ -19,7 +21,7 @@ const groupByMonth = (orders: typeof mockOrders) => {
   return arr;
 };
 
-const statusCounts = (orders: typeof mockOrders) => {
+const statusCounts = (orders: Order[]) => {
   const counts: Record<string, number> = {};
   orders.forEach((o) => { counts[o.status] = (counts[o.status] || 0) + 1; });
   return Object.entries(counts).map(([status, count]) => ({ status, count }));
@@ -27,8 +29,10 @@ const statusCounts = (orders: typeof mockOrders) => {
 
 const BuyerAnalytics = () => {
   const navigate = useNavigate();
-  const revenueByMonth = useMemo(() => groupByMonth(mockOrders), []);
-  const counts = useMemo(() => statusCounts(mockOrders), []);
+  const user = getCurrentUser();
+  const { data: orders = [] } = useOrders(user?.id);
+  const revenueByMonth = useMemo(() => groupByMonth(orders), [orders]);
+  const counts = useMemo(() => statusCounts(orders), [orders]);
 
   return (
     <div className="min-h-screen pb-24 relative">
