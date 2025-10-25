@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { mockOrders } from "@/utils/mockData";
+import { useOrders } from "@/hooks/useData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import ThreeBackground from "@/components/ThreeBackground";
