@@ -1,6 +1,6 @@
 import { useState, useMemo, memo } from "react";
 import { useNavigate } from "react-router-dom";
-import { mockSocialPosts } from "@/utils/mockData";
+import { useSocialPosts } from "@/hooks/useData";
 import { getCurrentUser } from "@/utils/mockAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
