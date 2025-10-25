@@ -1,6 +1,7 @@
 import { useState, useMemo, memo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSocialPosts } from "@/hooks/useData";
+import SocialComposer from "@/components/SocialComposer";
+import { getAllPosts } from "@/utils/social";
 import { getCurrentUser } from "@/utils/mockAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,8 +28,7 @@ import ThreeBackground from "@/components/ThreeBackground";
 const SocialFeed = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
-  const { data: initialPosts = [] } = useSocialPosts();
-  const [posts, setPosts] = useState(initialPosts);
+  const [posts, setPosts] = useState(getAllPosts());
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [activePostId, setActivePostId] = useState<string | null>(null);
   const [commentDraft, setCommentDraft] = useState("");
@@ -151,6 +151,11 @@ const SocialFeed = () => {
         </div>
       </section>
 
+      {/* Composer */}
+      <section className="max-w-3xl mx-auto px-4 py-3">
+        <SocialComposer onPosted={() => setPosts(getAllPosts())} />
+      </section>
+
       {/* Feed */}
       <main className="max-w-3xl mx-auto space-y-0 pb-20">
         {posts.map((post) => (
@@ -173,14 +178,16 @@ const SocialFeed = () => {
               </Button>
             </div>
 
-            {/* Post Image */}
-            <div className="relative w-full">
-              <img
-                src={post.image}
-                alt="Post"
-                className="w-full aspect-square object-cover"
-              />
-            </div>
+            {/* Media / Text */}
+            { (post as any).mediaUrl ? (
+              <div className="relative w-full">
+                {String((post as any).mediaUrl).startsWith("data:video") ? (
+                  <video src={(post as any).mediaUrl} controls className="w-full aspect-square object-cover" />
+                ) : (
+                  <img src={(post as any).mediaUrl} alt="Post" className="w-full aspect-square object-cover" />
+                )}
+              </div>
+            ) : null }
 
             {/* Post Actions */}
             <div className="px-4 py-2">
@@ -216,10 +223,10 @@ const SocialFeed = () => {
               {/* Likes Count */}
               <p className="font-semibold text-sm mb-2">{post.likes.toLocaleString()} likes</p>
 
-              {/* Caption */}
+              {/* Caption / Text */}
               <div className="break-words mb-1">
                 <span className="font-semibold mr-2 text-sm">{post.username}</span>
-                <span className="text-sm">{post.caption}</span>
+                <span className="text-sm">{(post as any).content || (post as any).caption || ""}</span>
               </div>
 
               {/* Comments */}
