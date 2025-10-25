@@ -14,7 +14,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { APP_NAME, SOCIAL_LINKS } from "@/config/app";
 import RateButton from "@/components/RateButton";
-import SocialComposer from "@/components/SocialComposer";
 import { addToCart } from "@/utils/cart";
 import { toast } from "@/components/ui/sonner";
 
