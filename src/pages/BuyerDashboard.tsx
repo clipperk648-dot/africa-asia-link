@@ -14,6 +14,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { APP_NAME, SOCIAL_LINKS } from "@/config/app";
 import RateButton from "@/components/RateButton";
+import SocialComposer from "@/components/SocialComposer";
 import { addToCart } from "@/utils/cart";
 import { toast } from "@/components/ui/sonner";
 
@@ -222,6 +223,11 @@ const BuyerDashboard = () => {
             </GlassCard>
           ))}
         </div>
+
+        <section className="space-y-4">
+          <h2 className="text-base sm:text-lg font-bold">Share an update</h2>
+          <SocialComposer />
+        </section>
 
         <section className="space-y-3">
           <div className="flex items-center justify-between">
