@@ -197,10 +197,6 @@ const IndustryDashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        <section className="space-y-4">
-          <h2 className="text-base sm:text-lg font-bold">Share an update</h2>
-          <SocialComposer />
-        </section>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 animate-fade-in">
           {stats.map((stat, i) => (
             <GlassCard key={i} className="text-center p-4">
