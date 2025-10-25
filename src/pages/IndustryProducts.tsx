@@ -12,6 +12,7 @@ import ThreeBackground from "@/components/ThreeBackground";
 const IndustryProducts = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
+  const { data: products = [] } = useProducts();
 
   useEffect(() => {
     if (!user || user.role !== "industry") {
