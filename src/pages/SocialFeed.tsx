@@ -34,7 +34,7 @@ const SocialFeed = () => {
   const [commentDraft, setCommentDraft] = useState("");
   const [commentsByPost, setCommentsByPost] = useState<Record<string, { id: string; author: string; text: string; time: string }[]>>(() => {
     const seed = {} as Record<string, { id: string; author: string; text: string; time: string }[]>;
-    for (const p of initialPosts) {
+    for (const p of getAllPosts()) {
       seed[p.id] = [
         { id: "c1", author: "sarah_j", text: "Love this!", time: "2h" },
         { id: "c2", author: "michael_c", text: "Great update 👏", time: "1h" },
