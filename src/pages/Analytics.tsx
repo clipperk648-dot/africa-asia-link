@@ -10,29 +10,31 @@ import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianG
 
 const Analytics = () => {
   const navigate = useNavigate();
+  const { data: products = [] } = useProducts();
+  const { data: orders = [] } = useOrders();
   const totals = useMemo(() => {
-    const totalProducts = mockProducts.length;
-    const totalOrders = mockOrders.length;
-    const totalRevenue = mockOrders.reduce((acc, o) => acc + (o.total || 0), 0);
-    const avgRating = mockProducts.reduce((a, p) => a + (p.rating || 0), 0) / (totalProducts || 1);
+    const totalProducts = products.length;
+    const totalOrders = orders.length;
+    const totalRevenue = orders.reduce((acc, o) => acc + (o.total || 0), 0);
+    const avgRating = products.reduce((a, p) => a + (p.rating || 0), 0) / (totalProducts || 1);
     return { totalProducts, totalOrders, totalRevenue, avgRating: Number(avgRating.toFixed(2)) };
-  }, []);
+  }, [products, orders]);
 
   const revenueByMonth = useMemo(() => {
     const map = new Map<string, number>();
-    mockOrders.forEach((o) => {
+    orders.forEach((o) => {
       const d = new Date(o.date);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
       map.set(key, (map.get(key) || 0) + (o.total || 0));
     });
     return Array.from(map.entries()).sort((a,b)=>a[0].localeCompare(b[0])).map(([month, revenue]) => ({ month, revenue }));
-  }, []);
+  }, [orders]);
 
   const ordersByProduct = useMemo(() => {
     const counts: Record<string, number> = {};
-    mockOrders.forEach((o) => { counts[o.productName] = (counts[o.productName] || 0) + 1; });
+    orders.forEach((o) => { counts[o.productName] = (counts[o.productName] || 0) + 1; });
     return Object.entries(counts).map(([product, count]) => ({ product, count }));
-  }, []);
+  }, [orders]);
 
   return (
     <div className="min-h-screen pb-24 relative">
