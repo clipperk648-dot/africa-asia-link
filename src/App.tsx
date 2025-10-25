@@ -28,6 +28,7 @@ const BuyerSettings = lazy(() => import("./pages/BuyerSettings"));
 const SocialFeed = lazy(() => import("./pages/SocialFeed"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Messages = lazy(() => import("./pages/Messages"));
+const Chat = lazy(() => import("./pages/Chat"));
 const VideoFeed = lazy(() => import("./pages/VideoFeed"));
 const SearchPage = lazy(() => import("./pages/SearchPage"));
 const MenuPage = lazy(() => import("./pages/MenuPage"));
@@ -87,6 +88,7 @@ const App = () => (
               <Route path="/social" element={<ProtectedRoute element={<SocialFeed />} />} />
               <Route path="/cart" element={<ProtectedRoute element={<Cart />} />} />
               <Route path="/messages" element={<ProtectedRoute element={<Messages />} />} />
+              <Route path="/messages/:id" element={<ProtectedRoute element={<Chat />} />} />
               <Route path="/video" element={<ProtectedRoute element={<VideoFeed />} />} />
               <Route path="/search" element={<ProtectedRoute element={<SearchPage />} />} />
               <Route path="/menu" element={<ProtectedRoute element={<MenuPage />} />} />
