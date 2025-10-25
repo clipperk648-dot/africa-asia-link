@@ -49,7 +49,7 @@ const IndustryProducts = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-4">
-        {mockProducts.map((product) => (
+        {products.map((product) => (
           <GlassCard key={product.id} className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row gap-4">
               <img
