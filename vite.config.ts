@@ -15,4 +15,20 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    target: "ES2020",
+    minify: "terser",
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "recharts-bundle": ["recharts"],
+          "radix-ui": ["@radix-ui/react-dropdown-menu", "@radix-ui/react-select"],
+          "react-vendor": ["react", "react-dom"],
+          "router": ["react-router-dom"],
+          "query": ["@tanstack/react-query"],
+        },
+      },
+    },
+  },
 }));
