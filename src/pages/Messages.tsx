@@ -79,6 +79,7 @@ const Messages = () => {
           <div
             key={conversation.id}
             className="flex items-center gap-3 px-4 py-3 hover:bg-muted/50 cursor-pointer border-b border-border/50 transition-colors"
+            onClick={() => navigate(`/messages/${conversation.id}`)}
           >
             <div className="relative flex-shrink-0">
               <img
