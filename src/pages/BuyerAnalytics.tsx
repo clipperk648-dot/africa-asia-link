@@ -21,7 +21,7 @@ const groupByMonth = (orders: Order[]) => {
   return arr;
 };
 
-const statusCounts = (orders: typeof mockOrders) => {
+const statusCounts = (orders: Order[]) => {
   const counts: Record<string, number> = {};
   orders.forEach((o) => { counts[o.status] = (counts[o.status] || 0) + 1; });
   return Object.entries(counts).map(([status, count]) => ({ status, count }));
@@ -29,8 +29,10 @@ const statusCounts = (orders: typeof mockOrders) => {
 
 const BuyerAnalytics = () => {
   const navigate = useNavigate();
-  const revenueByMonth = useMemo(() => groupByMonth(mockOrders), []);
-  const counts = useMemo(() => statusCounts(mockOrders), []);
+  const user = getCurrentUser();
+  const { data: orders = [] } = useOrders(user?.id);
+  const revenueByMonth = useMemo(() => groupByMonth(orders), [orders]);
+  const counts = useMemo(() => statusCounts(orders), [orders]);
 
   return (
     <div className="min-h-screen pb-24 relative">
