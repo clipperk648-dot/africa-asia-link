@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import WalletGuard from "@/components/WalletGuard";
 import { ThemeProvider } from "next-themes";
 const Index = lazy(() => import("./pages/Index"));
 const Login = lazy(() => import("./pages/Login"));
@@ -40,6 +41,9 @@ const Wallet = lazy(() => import("./pages/Wallet"));
 const SupportChat = lazy(() => import("./pages/SupportChat"));
 const WalletActions = lazy(() => import("./pages/WalletActions"));
 const WalletPay = lazy(() => import("./pages/WalletPay"));
+const WalletDeposit = lazy(() => import("./pages/WalletDeposit"));
+const WalletWithdraw = lazy(() => import("./pages/WalletWithdraw"));
+const WalletPin = lazy(() => import("./pages/WalletPin"));
 const WalletApps = lazy(() => import("./pages/WalletApps"));
 const Invest = lazy(() => import("./pages/Invest"));
 const InvestAnalytics = lazy(() => import("./pages/InvestAnalytics"));
@@ -89,10 +93,13 @@ const App = () => (
               <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
               <Route path="/analytics" element={<ProtectedRoute element={<Analytics />} />} />
               <Route path="/buyer/analytics" element={<ProtectedRoute element={<BuyerAnalytics />} />} />
-              <Route path="/wallet" element={<ProtectedRoute element={<Wallet />} />} />
-              <Route path="/wallet/actions" element={<ProtectedRoute element={<WalletActions />} />} />
-              <Route path="/wallet/pay" element={<ProtectedRoute element={<WalletPay />} />} />
-              <Route path="/wallet/apps" element={<ProtectedRoute element={<WalletApps />} />} />
+              <Route path="/wallet" element={<ProtectedRoute element={<WalletGuard element={<Wallet />} />} />} />
+              <Route path="/wallet/actions" element={<ProtectedRoute element={<WalletGuard element={<WalletActions />} />} />} />
+              <Route path="/wallet/pay" element={<ProtectedRoute element={<WalletGuard element={<WalletPay />} />} />} />
+              <Route path="/wallet/apps" element={<ProtectedRoute element={<WalletGuard element={<WalletApps />} />} />} />
+              <Route path="/wallet/deposit" element={<ProtectedRoute element={<WalletGuard element={<WalletDeposit />} />} />} />
+              <Route path="/wallet/withdraw" element={<ProtectedRoute element={<WalletGuard element={<WalletWithdraw />} />} />} />
+              <Route path="/wallet/pin" element={<ProtectedRoute element={<WalletPin />} />} />
               <Route path="/invest" element={<ProtectedRoute element={<Invest />} />} />
               <Route path="/invest/analytics" element={<ProtectedRoute element={<InvestAnalytics />} />} />
               <Route path="/invest/support" element={<ProtectedRoute element={<InvestSupport />} />} />
