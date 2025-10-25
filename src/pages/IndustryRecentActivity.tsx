@@ -58,14 +58,14 @@ const IndustryRecentActivity = () => {
     });
 
     setFilteredOrders(filtered);
-  }, [searchTerm, sortBy, statusFilter]);
+  }, [searchTerm, sortBy, statusFilter, orders]);
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
-  const statuses = Array.from(new Set(mockOrders.map((o) => o.status)));
+  const statuses = Array.from(new Set(orders.map((o) => o.status)));
 
   return (
     <div className="min-h-screen pb-24 relative">
