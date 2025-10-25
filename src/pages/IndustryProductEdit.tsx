@@ -11,8 +11,58 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, PencilLine, BarChart3, UploadCloud } from "lucide-react";
+import { ArrowLeft, PencilLine, BarChart3, UploadCloud, X, Image as ImageIcon, Video as VideoIcon, Upload } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
+
+const mockProducts = [
+  {
+    id: "1",
+    name: "Industrial CNC Machinery",
+    nameZH: "工业数控机床",
+    category: "Manufacturing",
+    price: 45000,
+    unitPrice: 45000,
+    currency: "USD",
+    company: "Shanghai Heavy Industries",
+    location: "Shanghai, China",
+    image: "https://images.unsplash.com/photo-1581092160562-40aa08e78837",
+    images: [
+      "https://images.unsplash.com/photo-1581092160562-40aa08e78837",
+      "https://images.unsplash.com/photo-1552664730-d307ca884978",
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64",
+    ],
+    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    rating: 4.8,
+    reviews: 156,
+    hsCode: "842210",
+    brand: "ShangHai CNC",
+    model: "SH-CNC-3000",
+    originCountry: "China",
+    province: "Shanghai",
+    city: "Shanghai",
+    unit: "piece",
+    moq: 2,
+    supplyAbilityPerMonth: 50,
+    quantityAvailable: 15,
+    leadTimeDays: 30,
+    incoterm: "FOB",
+    portOfShipment: "Shanghai",
+    description: "High-precision industrial CNC machinery for metalworking and manufacturing.",
+    specifications: ["Max Spindle Speed: 6000 RPM", "Table Size: 3000 x 1500 mm"],
+    brochureUrl: "https://example.com/brochure-cnc.pdf",
+    contactName: "Mr. Wang Chen",
+    contactEmail: "wang.chen@shanghaiheavy.com",
+    contactPhone: "+86-21-5555-0000",
+    wechat: "wangchen2023",
+    whatsapp: "+86-13800000000",
+    oemAvailable: true,
+    odmAvailable: true,
+    customPackaging: true,
+    sampleAvailable: false,
+    certifications: ["CE", "ISO9001", "RoHS"],
+    warrantyMonths: 24,
+  },
+];
 
 const IndustryProductEdit = () => {
   const navigate = useNavigate();
@@ -47,9 +97,6 @@ const IndustryProductEdit = () => {
     portOfShipment: product?.portOfShipment || "",
     description: product?.description || "",
     specifications: (product?.specifications || []).join("\n"),
-    imageUrls: (product?.images || (product?.image ? [product.image] : [])).join(", "),
-    videoUrl: product?.videoUrl || "",
-    brochureUrl: product?.brochureUrl || "",
     companyName: product?.company || "",
     contactName: product?.contactName || "",
     contactEmail: product?.contactEmail || "",
@@ -70,7 +117,67 @@ const IndustryProductEdit = () => {
     },
   }));
 
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>(product?.images || []);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(product?.videoUrl || null);
+  const [brochureFile, setBrochureFile] = useState<File | null>(null);
+
   const handle = (key: keyof typeof form) => (e: any) => setForm((p) => ({ ...p, [key]: e.target ? e.target.value : e }));
+
+  const handleImageFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length + imagePreviews.length > 6) {
+      toast.error("Maximum 6 images allowed");
+      return;
+    }
+
+    const newFiles = [...imageFiles, ...files];
+    setImageFiles(newFiles);
+
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreviews((prev) => [...prev, e.target?.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (index: number) => {
+    setImageFiles((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setVideoFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setVideoPreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeVideo = () => {
+    setVideoFile(null);
+    setVideoPreview(null);
+  };
+
+  const handleBrochureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type !== "application/pdf") {
+      toast.error("Only PDF files are allowed for brochures");
+      return;
+    }
+    setBrochureFile(file || null);
+  };
+
+  const removeBrochure = () => {
+    setBrochureFile(null);
+  };
 
   if (!product) {
     return (
@@ -276,30 +383,153 @@ const IndustryProductEdit = () => {
 
         {/* Media */}
         <GlassCard className="p-4 sm:p-6 space-y-6">
-          <section className="space-y-4">
+          <section className="space-y-6">
             <div className="flex items-center justify-between">
               <h2 className="text-lg sm:text-xl font-semibold">Media</h2>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <UploadCloud className="w-4 h-4" /> Links to images/videos/brochures
+                <UploadCloud className="w-4 h-4" /> Upload or update media
               </div>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="imageUrls">Image URLs (comma separated)</Label>
-                <Input id="imageUrls" value={form.imageUrls} onChange={handle("imageUrls")} className="h-11 bg-background/50" />
-                <div className="grid grid-cols-3 gap-2 pt-2">
-                  {form.imageUrls.split(",").map((u) => u.trim()).filter(Boolean).slice(0,6).map((u, i) => (
-                    <img key={i} src={u} alt="Preview" className="aspect-square w-full object-cover rounded" />
+
+            {/* Images */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <ImageIcon className="w-5 h-5 text-primary" />
+                <Label className="text-base font-semibold">Product Images</Label>
+                <span className="text-xs text-muted-foreground">({imagePreviews.length}/6)</span>
+              </div>
+
+              {imagePreviews.length > 0 && (
+                <div className="grid grid-cols-3 gap-3">
+                  {imagePreviews.map((preview, idx) => (
+                    <div key={idx} className="relative group">
+                      <img src={preview} alt={`Preview ${idx}`} className="w-full aspect-square object-cover rounded-lg" />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(idx)}
+                        className="absolute top-1 right-1 p-1 bg-black/50 hover:bg-black/70 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
                   ))}
                 </div>
+              )}
+
+              <div className="relative">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageFilesChange}
+                  multiple
+                  disabled={imagePreviews.length >= 6}
+                  className="hidden"
+                  id="image-input"
+                />
+                <label
+                  htmlFor="image-input"
+                  className={`flex items-center justify-center w-full p-6 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                    imagePreviews.length >= 6
+                      ? "border-muted bg-muted/20 cursor-not-allowed opacity-50"
+                      : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <div className="text-center">
+                    <Upload className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+                    <p className="font-medium text-sm">Click to upload images</p>
+                    <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 5MB each</p>
+                  </div>
+                </label>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="videoUrl">Video URL</Label>
-                <Input id="videoUrl" value={form.videoUrl} onChange={handle("videoUrl")} className="h-11 bg-background/50" />
+            </div>
+
+            {/* Video */}
+            <div className="space-y-4 border-t border-border/50 pt-6">
+              <div className="flex items-center gap-2">
+                <VideoIcon className="w-5 h-5 text-primary" />
+                <Label className="text-base font-semibold">Product Video</Label>
               </div>
-              <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="brochureUrl">PDF Brochure URL</Label>
-                <Input id="brochureUrl" value={form.brochureUrl} onChange={handle("brochureUrl")} className="h-11 bg-background/50" />
+
+              {videoPreview && (
+                <div className="relative w-full rounded-lg overflow-hidden bg-muted/50 aspect-video">
+                  <video src={videoPreview} controls className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={removeVideo}
+                    className="absolute top-2 right-2 p-1 bg-black/50 hover:bg-black/70 rounded-full text-white"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
+
+              <div className="relative">
+                <Input
+                  type="file"
+                  accept="video/*"
+                  onChange={handleVideoChange}
+                  disabled={!!videoFile}
+                  className="hidden"
+                  id="video-input"
+                />
+                <label
+                  htmlFor="video-input"
+                  className={`flex items-center justify-center w-full p-6 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                    videoFile
+                      ? "border-muted bg-muted/20 cursor-not-allowed opacity-50"
+                      : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <div className="text-center">
+                    <Upload className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+                    <p className="font-medium text-sm">Click to upload video</p>
+                    <p className="text-xs text-muted-foreground">MP4, WebM up to 50MB</p>
+                    {videoFile && <p className="text-xs font-semibold text-primary mt-2">{videoFile.name}</p>}
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            {/* Brochure */}
+            <div className="space-y-4 border-t border-border/50 pt-6">
+              <Label className="text-base font-semibold">PDF Brochure (Optional)</Label>
+
+              {brochureFile && (
+                <div className="p-3 rounded-lg bg-secondary/20 border border-secondary/50 flex items-center justify-between">
+                  <p className="text-sm font-medium text-secondary">{brochureFile.name}</p>
+                  <button
+                    type="button"
+                    onClick={removeBrochure}
+                    className="p-1 hover:bg-secondary/20 rounded text-secondary"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
+              <div className="relative">
+                <Input
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleBrochureChange}
+                  disabled={!!brochureFile}
+                  className="hidden"
+                  id="brochure-input"
+                />
+                <label
+                  htmlFor="brochure-input"
+                  className={`flex items-center justify-center w-full p-6 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                    brochureFile
+                      ? "border-muted bg-muted/20 cursor-not-allowed opacity-50"
+                      : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <div className="text-center">
+                    <Upload className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+                    <p className="font-medium text-sm">Click to upload PDF</p>
+                    <p className="text-xs text-muted-foreground">PDF up to 10MB</p>
+                  </div>
+                </label>
               </div>
             </div>
           </section>
