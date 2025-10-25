@@ -6,6 +6,7 @@ import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
 import { DollarSign, ArrowDownCircle, ArrowUpRight, History, Wallet as WalletIcon, X, ChevronDown, Grid2X2, Send, ArrowLeft, TrendingUp } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
+import WalletBottomNav from "@/components/WalletBottomNav";
 import SlideshowBanner from "@/components/SlideshowBanner";
 import { APP_NAME } from "@/config/app";
 
@@ -54,28 +55,28 @@ const Wallet = () => {
       title: "You're almost there!",
       subtitle: "Get up to $0.25 back on your first deposit transaction. Earn 2% weekly on your savings.",
       ctaLabel: "Deposit",
-      ctaHref: "/wallet/actions#deposit",
+      ctaHref: "/wallet/deposit",
     },
     {
       image: "https://images.pexels.com/photos/7621136/pexels-photo-7621136.jpeg",
       title: "Deposit and earn",
       subtitle: "Add funds securely and start earning weekly boosts on your balance.",
       ctaLabel: "Deposit",
-      ctaHref: "/wallet/actions#deposit",
+      ctaHref: "/wallet/deposit",
     },
     {
       image: "https://images.pexels.com/photos/1602726/pexels-photo-1602726.jpeg",
       title: "Save more, earn more",
       subtitle: "Grow your savings with steady weekly returns when you deposit.",
       ctaLabel: "Deposit",
-      ctaHref: "/wallet/actions#deposit",
+      ctaHref: "/wallet/deposit",
     },
     {
       image: "https://images.pexels.com/photos/2451622/pexels-photo-2451622.jpeg",
       title: "Fast and secure",
       subtitle: "Top up your wallet in seconds and enjoy instant rewards.",
       ctaLabel: "Deposit",
-      ctaHref: "/wallet/actions#deposit",
+      ctaHref: "/wallet/deposit",
     },
   ];
 
@@ -120,13 +121,13 @@ const Wallet = () => {
             </div>
 
             <div className="mt-5 grid grid-cols-2 gap-3">
-              <Button onClick={() => navigate("/wallet/actions#deposit")} variant="glass" className="justify-start gap-3 bg-white/15 text-white border-white/20 hover:bg-white/25">
+              <Button onClick={() => navigate("/wallet/deposit")} variant="glass" className="justify-start gap-3 bg-white/15 text-white border-white/20 hover:bg-white/25">
                 <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/20">
                   <ArrowDownCircle className="w-4 h-4" />
                 </span>
                 Deposit
               </Button>
-              <Button onClick={() => navigate("/wallet/actions#transfer")} variant="glass" className="justify-start gap-3 bg-white/15 text-white border-white/20 hover:bg-white/25">
+              <Button onClick={() => navigate("/wallet/withdraw")} variant="glass" className="justify-start gap-3 bg-white/15 text-white border-white/20 hover:bg-white/25">
                 <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/20">
                   <ArrowUpRight className="w-4 h-4" />
                 </span>
@@ -222,7 +223,7 @@ const Wallet = () => {
         </section>
       </main>
 
-      <BottomNav active="wallet" />
+      <WalletBottomNav active="wallet" />
     </div>
   );
 };

@@ -5,6 +5,7 @@ import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Phone, DollarSign } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
+import WalletBottomNav from "@/components/WalletBottomNav";
 
 const BottomNav = ({ active }: { active: "wallet" | "pay" | "apps" }) => {
   const items = [
@@ -87,7 +88,7 @@ const WalletPay = () => {
         </div>
       </main>
 
-      <BottomNav active="pay" />
+      <WalletBottomNav active="pay" />
     </div>
   );
 };
