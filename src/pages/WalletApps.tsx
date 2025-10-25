@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
 import ThreeBackground from "@/components/ThreeBackground";
+import WalletBottomNav from "@/components/WalletBottomNav";
 import SlideshowBanner from "@/components/SlideshowBanner";
 
 const BottomNav = ({ active }: { active: "wallet" | "pay" | "apps" }) => {
@@ -161,7 +162,7 @@ const WalletApps = () => {
         </section>
       </main>
 
-      <BottomNav active="apps" />
+      <WalletBottomNav active="apps" />
     </div>
   );
 };
