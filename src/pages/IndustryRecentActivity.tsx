@@ -20,10 +20,11 @@ type SortOption = "newest" | "oldest" | "price-high" | "price-low" | "status";
 const IndustryRecentActivity = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
+  const { data: orders = [] } = useOrders(user?.id);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
-  const [filteredOrders, setFilteredOrders] = useState(mockOrders);
+  const [filteredOrders, setFilteredOrders] = useState(orders);
 
   useEffect(() => {
     if (!user || user.role !== "industry") {
@@ -32,7 +33,7 @@ const IndustryRecentActivity = () => {
   }, [user, navigate]);
 
   useEffect(() => {
-    let filtered = mockOrders.filter((order) => {
+    let filtered = orders.filter((order) => {
       const matchesSearch =
         order.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.id.toString().includes(searchTerm);
