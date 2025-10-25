@@ -132,7 +132,7 @@ const SocialFeed = () => {
             </div>
             <span className="text-xs font-medium">Your Story</span>
           </div>
-          {mockSocialPosts.slice(0, 5).map((post) => (
+          {posts.slice(0, 5).map((post) => (
             <div key={post.id} className="flex flex-col items-center gap-1.5 min-w-fit">
               <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-pink-500 via-purple-500 to-orange-500 p-0.5 cursor-pointer flex-shrink-0">
                 <div className="w-full h-full rounded-full bg-background p-0.5">
