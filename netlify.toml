@@ -1,0 +1,25 @@
+[build]
+  command = "npm run build"
+  functions = "netlify/functions"
+  publish = "dist"
+
+[functions]
+  node_bundler = "esbuild"
+  directory = "netlify/functions"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[env]
+  [env.production]
+    DATABASE_URL = "postgresql://neondb_owner:npg_7molOKHjIg1a@ep-bold-sea-adkxpuli-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+[env.preview]
+    DATABASE_URL = "postgresql://neondb_owner:npg_7molOKHjIg1a@ep-bold-sea-adkxpuli-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
