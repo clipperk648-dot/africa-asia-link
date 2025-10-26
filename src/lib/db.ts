@@ -1,7 +1,5 @@
 // Database client that uses Netlify Functions APIs
-// Falls back to mock data if API is not available
-
-import { mockProducts, mockOrders, mockSocialPosts } from "@/utils/mockData";
+// No mock data - database required for all operations
 
 const API_BASE = "/api";
 
@@ -11,10 +9,20 @@ export const isDatabaseConfigured = (): boolean => {
 };
 
 // Helper to make API calls
-async function apiCall<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
+async function apiCall<T>(endpoint: string, params?: Record<string, any>, method: string = "GET"): Promise<T> {
   try {
     const url = new URL(`${API_BASE}${endpoint}`, window.location.origin);
-    if (params) {
+    
+    const options: RequestInit = {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    if (method === "POST" && params) {
+      options.body = JSON.stringify(params);
+    } else if (method === "GET" && params) {
       Object.entries(params).forEach(([key, value]) => {
         if (value !== null && value !== undefined) {
           url.searchParams.append(key, String(value));
@@ -22,9 +30,15 @@ async function apiCall<T>(endpoint: string, params?: Record<string, any>): Promi
       });
     }
 
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), options);
+    
     if (!response.ok) {
-      throw new Error(`API error: ${response.statusText}`);
+      throw new Error(`API error: ${response.status} ${response.statusText}`);
+    }
+
+    const contentType = response.headers.get('content-type');
+    if (!contentType?.includes('application/json')) {
+      throw new Error(`Invalid content type: expected JSON but got ${contentType}`);
     }
 
     return response.json();
@@ -42,74 +56,39 @@ export const createUser = async (
   phone: string,
   role: "industry" | "buyer"
 ): Promise<{ id: string; email: string; name: string }> => {
-  try {
-    return await apiCall("/create-user", {
-      email,
-      passwordHash,
-      name,
-      phone,
-      role,
-    });
-  } catch (error) {
-    console.error("Failed to create user:", error);
-    throw error;
-  }
+  return await apiCall("/create-user", {
+    email,
+    passwordHash,
+    name,
+    phone,
+    role,
+  }, "POST");
 };
 
 export const getUserByEmail = async (email: string): Promise<any> => {
-  try {
-    return await apiCall("/get-user", { email });
-  } catch (error) {
-    console.error("Failed to get user by email:", error);
-    return null;
-  }
+  return await apiCall("/get-user", { email });
 };
 
 export const getUserById = async (id: string): Promise<any> => {
-  try {
-    return await apiCall("/get-user", { id });
-  } catch (error) {
-    console.error("Failed to get user by ID:", error);
-    return null;
-  }
+  return await apiCall("/get-user", { id });
 };
 
 // Product table operations
 export const getProducts = async (limit = 20, offset = 0): Promise<any[]> => {
-  try {
-    return await apiCall("/get-products", { limit, offset });
-  } catch (error) {
-    console.warn("Failed to fetch products from API, using mock data:", error);
-    return mockProducts.slice(offset, offset + limit);
-  }
+  return await apiCall("/get-products", { limit, offset });
 };
 
 export const getProductById = async (id: string): Promise<any> => {
-  try {
-    return await apiCall("/get-product", { id });
-  } catch (error) {
-    console.warn("Failed to fetch product from API, using mock data:", error);
-    return mockProducts.find(p => p.id === id) || null;
-  }
+  return await apiCall("/get-product", { id });
 };
 
 export const createProduct = async (productData: any): Promise<any> => {
-  try {
-    return await apiCall("/create-product", productData);
-  } catch (error) {
-    console.error("Failed to create product:", error);
-    throw error;
-  }
+  return await apiCall("/create-product", productData, "POST");
 };
 
 // Order table operations
 export const getOrders = async (userId: string): Promise<any[]> => {
-  try {
-    return await apiCall("/get-orders", { userId });
-  } catch (error) {
-    console.warn("Failed to fetch orders from API, using mock data:", error);
-    return mockOrders;
-  }
+  return await apiCall("/get-orders", { userId });
 };
 
 export const createOrder = async (
@@ -119,28 +98,18 @@ export const createOrder = async (
   quantity: number,
   total: number
 ): Promise<any> => {
-  try {
-    return await apiCall("/create-order", {
-      buyerId,
-      sellerId,
-      productId,
-      quantity,
-      total,
-    });
-  } catch (error) {
-    console.error("Failed to create order:", error);
-    throw error;
-  }
+  return await apiCall("/create-order", {
+    buyerId,
+    sellerId,
+    productId,
+    quantity,
+    total,
+  }, "POST");
 };
 
 // Social posts operations
 export const getSocialPosts = async (limit = 20): Promise<any[]> => {
-  try {
-    return await apiCall("/get-social-posts", { limit });
-  } catch (error) {
-    console.warn("Failed to fetch social posts from API, using mock data:", error);
-    return mockSocialPosts.slice(0, limit);
-  }
+  return await apiCall("/get-social-posts", { limit });
 };
 
 export const createSocialPost = async (
@@ -148,14 +117,9 @@ export const createSocialPost = async (
   content: string,
   imageUrl?: string
 ): Promise<any> => {
-  try {
-    return await apiCall("/create-social-post", {
-      userId,
-      content,
-      imageUrl,
-    });
-  } catch (error) {
-    console.error("Failed to create social post:", error);
-    throw error;
-  }
+  return await apiCall("/create-social-post", {
+    userId,
+    content,
+    imageUrl,
+  }, "POST");
 };

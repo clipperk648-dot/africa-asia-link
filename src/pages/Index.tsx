@@ -33,10 +33,10 @@ const Index = () => {
   return (
     <div className="min-h-screen relative overflow-hidden">
       <ThreeBackground />
-      
+
       {/* Hero Section */}
       <section className="min-h-screen flex items-center justify-center px-4">
-        <div className="max-w-5xl mx-auto text-center space-y-8 animate-fade-in">
+        <div className="max-w-5xl mx-auto text-center space-y-8 animate-fade-in" style={{ animationDuration: '0.8s' }}>
           <div className="space-y-4">
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold leading-tight">
               <span className="bg-gradient-primary bg-clip-text text-transparent">
@@ -72,19 +72,19 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 pt-12 px-4">
-            <GlassCard className="text-center p-4">
+            <GlassCard className="text-center p-4 animate-slide-up" style={{ animationDelay: '0.1s' }}>
               <p className="text-2xl sm:text-3xl font-bold text-primary">500+</p>
               <p className="text-xs sm:text-sm text-muted-foreground">Active Suppliers</p>
             </GlassCard>
-            <GlassCard className="text-center p-4">
+            <GlassCard className="text-center p-4 animate-slide-up" style={{ animationDelay: '0.15s' }}>
               <p className="text-2xl sm:text-3xl font-bold text-secondary">1200+</p>
               <p className="text-xs sm:text-sm text-muted-foreground">Verified Buyers</p>
             </GlassCard>
-            <GlassCard className="text-center p-4">
+            <GlassCard className="text-center p-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
               <p className="text-2xl sm:text-3xl font-bold text-accent">$45M+</p>
               <p className="text-xs sm:text-sm text-muted-foreground">Trade Volume</p>
             </GlassCard>
-            <GlassCard className="text-center p-4">
+            <GlassCard className="text-center p-4 animate-slide-up" style={{ animationDelay: '0.25s' }}>
               <p className="text-2xl sm:text-3xl font-bold text-primary">98%</p>
               <p className="text-xs sm:text-sm text-muted-foreground">Success Rate</p>
             </GlassCard>
@@ -106,9 +106,13 @@ const Index = () => {
 
           <div className="grid md:grid-cols-2 gap-6">
             {features.map((feature, i) => (
-              <GlassCard key={i} className="group">
+              <GlassCard
+                key={i}
+                className="group animate-slide-up"
+                style={{ animationDelay: `${i * 0.1}s` }}
+              >
                 <div className="flex items-start gap-4">
-                  <div className="p-3 bg-gradient-primary rounded-xl group-hover:scale-110 transition-transform">
+                  <div className="p-3 bg-gradient-primary rounded-xl group-hover:scale-110 transition-transform duration-300">
                     <feature.icon className="w-6 h-6 text-white" />
                   </div>
                   <div>
@@ -125,7 +129,7 @@ const Index = () => {
       {/* CTA Section */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto">
-          <GlassCard className="text-center p-6 sm:p-8 md:p-12">
+          <GlassCard className="text-center p-6 sm:p-8 md:p-12 animate-slide-up" style={{ animationDelay: '0.3s' }}>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
               Ready to Start Trading?
             </h2>
