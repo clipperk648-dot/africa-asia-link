@@ -129,7 +129,7 @@ const Index = () => {
       {/* CTA Section */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto">
-          <GlassCard className="text-center p-6 sm:p-8 md:p-12">
+          <GlassCard className="text-center p-6 sm:p-8 md:p-12 animate-slide-up" style={{ animationDelay: '0.3s' }}>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
               Ready to Start Trading?
             </h2>
