@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useOrders } from "@/hooks/useData";
 import { getCurrentUser } from "@/utils/mockAuth";
-import type { Order } from "@/utils/mockData";
+// Using runtime shape; see src/types/models for reference
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import ThreeBackground from "@/components/ThreeBackground";
@@ -10,10 +10,10 @@ import { ArrowLeft, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, Legend } from "recharts";
 
-const groupByMonth = (orders: Order[]) => {
+const groupByMonth = (orders: any[]) => {
   const map = new Map<string, number>();
   orders.forEach((o) => {
-    const d = new Date(o.date);
+    const d = new Date((o as any).created_at || (o as any).date);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     map.set(key, (map.get(key) || 0) + (o.total || 0));
   });
@@ -21,7 +21,7 @@ const groupByMonth = (orders: Order[]) => {
   return arr;
 };
 
-const statusCounts = (orders: Order[]) => {
+const statusCounts = (orders: any[]) => {
   const counts: Record<string, number> = {};
   orders.forEach((o) => { counts[o.status] = (counts[o.status] || 0) + 1; });
   return Object.entries(counts).map(([status, count]) => ({ status, count }));

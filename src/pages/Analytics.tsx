@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useProducts, useOrders } from "@/hooks/useData";
+import { getCurrentUser } from "@/utils/mockAuth";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
@@ -10,8 +11,9 @@ import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianG
 
 const Analytics = () => {
   const navigate = useNavigate();
+  const user = getCurrentUser();
   const { data: products = [] } = useProducts();
-  const { data: orders = [] } = useOrders();
+  const { data: orders = [] } = useOrders(user?.id);
   const totals = useMemo(() => {
     const totalProducts = products.length;
     const totalOrders = orders.length;
@@ -22,8 +24,8 @@ const Analytics = () => {
 
   const revenueByMonth = useMemo(() => {
     const map = new Map<string, number>();
-    orders.forEach((o) => {
-      const d = new Date(o.date);
+    orders.forEach((o: any) => {
+      const d = new Date((o as any).created_at || (o as any).date);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
       map.set(key, (map.get(key) || 0) + (o.total || 0));
     });
@@ -32,7 +34,12 @@ const Analytics = () => {
 
   const ordersByProduct = useMemo(() => {
     const counts: Record<string, number> = {};
-    orders.forEach((o) => { counts[o.productName] = (counts[o.productName] || 0) + 1; });
+    const nameById = new Map(products.map((p: any) => [String(p.id), p.name]));
+    orders.forEach((o: any) => {
+      const pid = String((o as any).product_id || (o as any).productId || "");
+      const name = nameById.get(pid) || pid || "Unknown";
+      counts[name] = (counts[name] || 0) + 1;
+    });
     return Object.entries(counts).map(([product, count]) => ({ product, count }));
   }, [orders]);
 
@@ -98,7 +105,7 @@ const Analytics = () => {
 
         <GlassCard className="p-4">
           <div className="flex flex-wrap gap-2">
-            {mockProducts.slice(0, 8).map((p) => (
+            {products.slice(0, 8).map((p: any) => (
               <Button key={p.id} variant="outline" size="sm" onClick={() => navigate(`/industry/products/${p.id}/stats`)}>
                 {p.name}
               </Button>
