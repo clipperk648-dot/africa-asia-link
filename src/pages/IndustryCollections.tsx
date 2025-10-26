@@ -11,6 +11,7 @@ import GlassCard from "@/components/GlassCard";
 const IndustryCollections = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
+  const { data: products = [], isLoading, error } = useProducts(20, 0);
 
   useEffect(() => {
     if (!user || user.role !== "industry") {
@@ -23,7 +24,19 @@ const IndustryCollections = () => {
     navigate("/login");
   };
 
-  const selectedProducts = mockProducts.slice(0, 3);
+  if (error) {
+    return (
+      <div className="min-h-screen pb-24 relative flex items-center justify-center">
+        <ThreeBackground />
+        <div className="text-center space-y-4">
+          <h1 className="text-2xl font-bold">Error Loading Collections</h1>
+          <p className="text-muted-foreground">Unable to load products. Please ensure database is connected.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const selectedProducts = products.slice(0, 3);
 
   return (
     <div className="min-h-screen pb-24 relative">
