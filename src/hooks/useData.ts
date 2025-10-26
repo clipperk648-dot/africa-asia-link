@@ -6,6 +6,7 @@ export const useProducts = (limit = 20, offset = 0) => {
   return useQuery({
     queryKey: ["products", limit, offset],
     queryFn: () => getProducts(limit, offset),
+    refetchInterval: 10000,
   });
 };
 
@@ -24,6 +25,7 @@ export const useOrders = (userId: string | undefined) => {
     queryKey: ["orders", userId],
     queryFn: () => (userId ? getOrders(userId) : []),
     enabled: !!userId,
+    refetchInterval: 5000,
   });
 };
 
@@ -32,5 +34,6 @@ export const useSocialPosts = (limit = 20) => {
   return useQuery({
     queryKey: ["socialPosts", limit],
     queryFn: () => getSocialPosts(limit),
+    refetchInterval: 5000,
   });
 };
