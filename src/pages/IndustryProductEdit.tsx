@@ -14,55 +14,6 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, PencilLine, BarChart3, UploadCloud, X, Image as ImageIcon, Video as VideoIcon, Upload } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 
-const mockProducts = [
-  {
-    id: "1",
-    name: "Industrial CNC Machinery",
-    nameZH: "工业数控机床",
-    category: "Manufacturing",
-    price: 45000,
-    unitPrice: 45000,
-    currency: "USD",
-    company: "Shanghai Heavy Industries",
-    location: "Shanghai, China",
-    image: "https://images.unsplash.com/photo-1581092160562-40aa08e78837",
-    images: [
-      "https://images.unsplash.com/photo-1581092160562-40aa08e78837",
-      "https://images.unsplash.com/photo-1552664730-d307ca884978",
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64",
-    ],
-    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    rating: 4.8,
-    reviews: 156,
-    hsCode: "842210",
-    brand: "ShangHai CNC",
-    model: "SH-CNC-3000",
-    originCountry: "China",
-    province: "Shanghai",
-    city: "Shanghai",
-    unit: "piece",
-    moq: 2,
-    supplyAbilityPerMonth: 50,
-    quantityAvailable: 15,
-    leadTimeDays: 30,
-    incoterm: "FOB",
-    portOfShipment: "Shanghai",
-    description: "High-precision industrial CNC machinery for metalworking and manufacturing.",
-    specifications: ["Max Spindle Speed: 6000 RPM", "Table Size: 3000 x 1500 mm"],
-    brochureUrl: "https://example.com/brochure-cnc.pdf",
-    contactName: "Mr. Wang Chen",
-    contactEmail: "wang.chen@shanghaiheavy.com",
-    contactPhone: "+86-21-5555-0000",
-    wechat: "wangchen2023",
-    whatsapp: "+86-13800000000",
-    oemAvailable: true,
-    odmAvailable: true,
-    customPackaging: true,
-    sampleAvailable: false,
-    certifications: ["CE", "ISO9001", "RoHS"],
-    warrantyMonths: 24,
-  },
-];
 
 const IndustryProductEdit = () => {
   const navigate = useNavigate();
