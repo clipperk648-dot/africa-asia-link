@@ -8,6 +8,17 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      "/.netlify/functions": {
+        target: "http://localhost:8888",
+        changeOrigin: true,
+      },
+      "/api": {
+        target: "http://localhost:8888/.netlify/functions",
+        rewrite: (path) => path.replace(/^\/api/, ""),
+        changeOrigin: true,
+      },
+    },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
