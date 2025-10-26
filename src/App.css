@@ -199,6 +199,10 @@
   animation: bounce-subtle 1.5s ease-in-out infinite;
 }
 
+.animate-ripple {
+  animation: ripple 0.6s ease-out;
+}
+
 /* Stagger animations for list items */
 .animate-stagger {
   animation: slide-up 0.6s ease-out;
