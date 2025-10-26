@@ -1,26 +1,29 @@
+import { addWalletTransaction, getWalletBalance, getWalletTransactions, setWalletBalance } from "@/lib/db";
+
 export type WalletTx = { id: string; type: "deposit" | "payment"; amount: number; currency: string; note?: string; date: string };
 
-const balKey = (userId: string) => `wallet:balance:${userId}`;
-const txKey = (userId: string) => `wallet:tx:${userId}`;
-
 export const getBalance = (userId: string | null | undefined, currency = "USD"): number => {
-  if (!userId) return 0;
-  const raw = localStorage.getItem(`${balKey(userId)}:${currency}`);
-  return raw ? Number(raw) : 0;
+  // Synchronous signature preserved for backward compatibility
+  // Use a cached value if needed; for now, return 0 and rely on pages fetching live values via getWalletBalance
+  console.warn("getBalance() is deprecated. Use getWalletBalance() from lib/db for async value.");
+  return 0;
 };
 
-export const setBalance = (userId: string, amount: number, currency = "USD") => {
-  localStorage.setItem(`${balKey(userId)}:${currency}`, String(amount));
+export const getLiveBalance = async (userId: string, currency = "USD") => {
+  const res = await getWalletBalance(userId, currency);
+  return res.balance;
 };
 
-export const getTransactions = (userId: string | null | undefined): WalletTx[] => {
+export const setBalance = async (userId: string, amount: number, currency = "USD") => {
+  await setWalletBalance(userId, amount, currency);
+};
+
+export const getTransactions = async (userId: string | null | undefined): Promise<WalletTx[]> => {
   if (!userId) return [];
-  const raw = localStorage.getItem(txKey(userId));
-  return raw ? (JSON.parse(raw) as WalletTx[]) : [];
+  const rows = await getWalletTransactions(userId);
+  return rows.map((r: any) => ({ id: String(r.id), type: r.type, amount: Number(r.amount), currency: r.currency, note: r.note || undefined, date: r.created_at }));
 };
 
-export const addTransaction = (userId: string, tx: WalletTx) => {
-  const list = getTransactions(userId);
-  list.unshift(tx);
-  localStorage.setItem(txKey(userId), JSON.stringify(list));
+export const addTransaction = async (userId: string, tx: WalletTx) => {
+  await addWalletTransaction(userId, { type: tx.type, amount: tx.amount, currency: tx.currency, note: tx.note });
 };

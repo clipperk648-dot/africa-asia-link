@@ -123,3 +123,33 @@ export const createSocialPost = async (
     imageUrl,
   }, "POST");
 };
+
+// Wallet operations
+export const getWalletBalance = async (userId: string, currency = 'USD'): Promise<{ balance: number; currency: string }> => {
+  return await apiCall("/get-wallet-balance", { userId, currency });
+};
+
+export const setWalletBalance = async (userId: string, amount: number, currency = 'USD'): Promise<any> => {
+  return await apiCall("/set-wallet-balance", { userId, amount, currency }, "POST");
+};
+
+export const getWalletTransactions = async (userId: string): Promise<any[]> => {
+  return await apiCall("/get-transactions", { userId });
+};
+
+export const addWalletTransaction = async (userId: string, tx: { type: 'deposit' | 'payment'; amount: number; currency?: string; note?: string }): Promise<any> => {
+  return await apiCall("/add-transaction", { userId, ...tx }, "POST");
+};
+
+// Messaging operations
+export const getConversations = async (userId: string): Promise<any[]> => {
+  return await apiCall("/get-conversations", { userId });
+};
+
+export const getMessages = async (userId: string, peerId: string): Promise<any[]> => {
+  return await apiCall("/get-messages", { userId, peerId });
+};
+
+export const sendMessage = async (senderId: string, recipientId: string, content?: string, mediaUrl?: string): Promise<any> => {
+  return await apiCall("/send-message", { senderId, recipientId, content, mediaUrl }, "POST");
+};
