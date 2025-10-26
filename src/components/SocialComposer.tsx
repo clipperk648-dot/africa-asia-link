@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Image as ImageIcon, Video as VideoIcon, Type as TypeIcon, Loader2 } from "lucide-react";
 import GlassCard from "@/components/GlassCard";
-import { createPost } from "@/utils/social";
+import { createSocialPost } from "@/lib/db";
+import { getSession } from "@/lib/auth";
 
 interface Props {
   onPosted?: (id: string) => void;
@@ -34,9 +35,11 @@ const SocialComposer = ({ onPosted }: Props) => {
       if ((mode === "image" || mode === "video") && file) {
         mediaUrl = await toDataUrl(file);
       }
-      const p = await createPost({ type: mode, content: text, mediaUrl });
+      const user = getSession();
+      if (!user) throw new Error("Not authenticated");
+      const p = await createSocialPost(user.id, text.trim(), mediaUrl);
       setText(""); setFile(null); setMode("text");
-      onPosted?.(p.id);
+      onPosted?.(String((p as any).id));
     } finally {
       setSubmitting(false);
     }
