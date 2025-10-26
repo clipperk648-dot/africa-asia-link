@@ -1,7 +1,7 @@
 import { useState, useMemo, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import SocialComposer from "@/components/SocialComposer";
-import { getAllPosts } from "@/utils/social";
+import { useSocialPosts } from "@/hooks/useData";
 import { getCurrentUser } from "@/utils/mockAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +28,24 @@ import ThreeBackground from "@/components/ThreeBackground";
 const SocialFeed = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
-  const [posts, setPosts] = useState(getAllPosts());
+  const { data: fetchedPosts = [], refetch } = useSocialPosts(50);
+  const [posts, setPosts] = useState<any[]>([]);
+
+  useEffect(() => {
+    const mapped = (fetchedPosts as any[]).map((p: any) => ({
+      id: String(p.id),
+      userId: String(p.user_id || p.userId || ""),
+      username: `user-${String(p.user_id || p.userId || "").slice(-4)}`,
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(String(p.user_id || p.userId || ""))}`,
+      type: (p.image_url || p.imageUrl) ? "image" : "text",
+      content: p.content,
+      mediaUrl: p.image_url || p.imageUrl,
+      likes: (p.likes as number) || 0,
+      comments: (p.comments as number) || 0,
+      timestamp: p.created_at || new Date().toISOString(),
+    }));
+    setPosts(mapped);
+  }, [fetchedPosts]);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [activePostId, setActivePostId] = useState<string | null>(null);
   const [commentDraft, setCommentDraft] = useState("");
@@ -153,7 +170,7 @@ const SocialFeed = () => {
 
       {/* Composer */}
       <section className="max-w-3xl mx-auto px-4 py-3">
-        <SocialComposer onPosted={() => setPosts(getAllPosts())} />
+        <SocialComposer onPosted={() => refetch()} />
       </section>
 
       {/* Feed */}
