@@ -10,8 +10,8 @@ const Profile = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
   const username = user?.email?.split("@")[0] || "user";
+  const { data: posts = [], isLoading, error } = useSocialPosts(20);
 
-  const posts = mockSocialPosts;
   const videos = useMemo(() => posts.filter((_, i) => i % 3 === 0), [posts]);
   const saved = useMemo(() => posts.filter((_, i) => i % 2 === 0), [posts]);
   const reposts = useMemo(() => posts.filter((_, i) => i % 3 === 1), [posts]);
