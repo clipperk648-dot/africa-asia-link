@@ -1,19 +1,14 @@
 // Database client that uses Netlify Functions APIs
-// Falls back to mock data if API is not available
-
-import { mockProducts, mockOrders, mockSocialPosts } from "@/utils/mockData";
+// No mock data - database required for all operations
 
 const API_BASE = "/api";
-
-// In-memory storage for users during development
-const devUsers: Map<string, any> = new Map();
 
 // Check if API is available
 export const isDatabaseConfigured = (): boolean => {
   return true; // APIs are always available
 };
 
-// Helper to make API calls with fallback
+// Helper to make API calls
 async function apiCall<T>(endpoint: string, params?: Record<string, any>, method: string = "GET"): Promise<T> {
   try {
     const url = new URL(`${API_BASE}${endpoint}`, window.location.origin);
@@ -61,95 +56,39 @@ export const createUser = async (
   phone: string,
   role: "industry" | "buyer"
 ): Promise<{ id: string; email: string; name: string }> => {
-  try {
-    return await apiCall("/create-user", {
-      email,
-      passwordHash,
-      name,
-      phone,
-      role,
-    }, "POST");
-  } catch (error) {
-    console.warn("Failed to create user via API, using dev storage:", error);
-    // Fallback: store user in memory for development
-    const id = Math.random().toString(36).substr(2, 9);
-    const user = { id, email, passwordHash, name, phone, role, created_at: new Date() };
-    devUsers.set(email, user);
-    devUsers.set(id, user);
-    return { id, email, name };
-  }
+  return await apiCall("/create-user", {
+    email,
+    passwordHash,
+    name,
+    phone,
+    role,
+  }, "POST");
 };
 
 export const getUserByEmail = async (email: string): Promise<any> => {
-  try {
-    return await apiCall("/get-user", { email });
-  } catch (error) {
-    console.warn("Failed to get user by email via API, checking dev storage:", error);
-    // Fallback: check dev storage
-    const user = devUsers.get(email);
-    if (user) {
-      return user;
-    }
-    return null;
-  }
+  return await apiCall("/get-user", { email });
 };
 
 export const getUserById = async (id: string): Promise<any> => {
-  try {
-    return await apiCall("/get-user", { id });
-  } catch (error) {
-    console.warn("Failed to get user by ID via API, checking dev storage:", error);
-    // Fallback: check dev storage
-    const user = devUsers.get(id);
-    if (user) {
-      return user;
-    }
-    return null;
-  }
+  return await apiCall("/get-user", { id });
 };
 
 // Product table operations
 export const getProducts = async (limit = 20, offset = 0): Promise<any[]> => {
-  try {
-    return await apiCall("/get-products", { limit, offset });
-  } catch (error) {
-    console.warn("Failed to fetch products from API, using mock data:", error);
-    return mockProducts.slice(offset, offset + limit);
-  }
+  return await apiCall("/get-products", { limit, offset });
 };
 
 export const getProductById = async (id: string): Promise<any> => {
-  try {
-    return await apiCall("/get-product", { id });
-  } catch (error) {
-    console.warn("Failed to fetch product from API, using mock data:", error);
-    return mockProducts.find(p => p.id === id) || null;
-  }
+  return await apiCall("/get-product", { id });
 };
 
 export const createProduct = async (productData: any): Promise<any> => {
-  try {
-    return await apiCall("/create-product", productData, "POST");
-  } catch (error) {
-    console.warn("Failed to create product via API, using mock data:", error);
-    // Fallback: return a mock product
-    const id = Math.random().toString(36).substr(2, 9);
-    return {
-      id,
-      ...productData,
-      created_at: new Date(),
-    };
-  }
+  return await apiCall("/create-product", productData, "POST");
 };
 
 // Order table operations
 export const getOrders = async (userId: string): Promise<any[]> => {
-  try {
-    return await apiCall("/get-orders", { userId });
-  } catch (error) {
-    console.warn("Failed to fetch orders from API, using mock data:", error);
-    return mockOrders;
-  }
+  return await apiCall("/get-orders", { userId });
 };
 
 export const createOrder = async (
@@ -159,39 +98,18 @@ export const createOrder = async (
   quantity: number,
   total: number
 ): Promise<any> => {
-  try {
-    return await apiCall("/create-order", {
-      buyerId,
-      sellerId,
-      productId,
-      quantity,
-      total,
-    }, "POST");
-  } catch (error) {
-    console.warn("Failed to create order via API, using mock data:", error);
-    // Fallback: return a mock order
-    const id = Math.random().toString(36).substr(2, 9);
-    return {
-      id,
-      buyerId,
-      sellerId,
-      productId,
-      quantity,
-      total,
-      status: "pending",
-      created_at: new Date(),
-    };
-  }
+  return await apiCall("/create-order", {
+    buyerId,
+    sellerId,
+    productId,
+    quantity,
+    total,
+  }, "POST");
 };
 
 // Social posts operations
 export const getSocialPosts = async (limit = 20): Promise<any[]> => {
-  try {
-    return await apiCall("/get-social-posts", { limit });
-  } catch (error) {
-    console.warn("Failed to fetch social posts from API, using mock data:", error);
-    return mockSocialPosts.slice(0, limit);
-  }
+  return await apiCall("/get-social-posts", { limit });
 };
 
 export const createSocialPost = async (
@@ -199,22 +117,9 @@ export const createSocialPost = async (
   content: string,
   imageUrl?: string
 ): Promise<any> => {
-  try {
-    return await apiCall("/create-social-post", {
-      userId,
-      content,
-      imageUrl,
-    }, "POST");
-  } catch (error) {
-    console.warn("Failed to create social post via API, using mock data:", error);
-    // Fallback: return a mock post
-    const id = Math.random().toString(36).substr(2, 9);
-    return {
-      id,
-      userId,
-      content,
-      imageUrl,
-      created_at: new Date(),
-    };
-  }
+  return await apiCall("/create-social-post", {
+    userId,
+    content,
+    imageUrl,
+  }, "POST");
 };
