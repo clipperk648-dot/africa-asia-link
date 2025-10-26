@@ -31,8 +31,12 @@ exports.handler = async (event, context) => {
 
       if (users.length === 0) {
         return {
-          statusCode: 404,
-          body: JSON.stringify({ error: 'User not found' }),
+          statusCode: 200,
+          body: JSON.stringify(null),
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'private, max-age=60',
+          },
         };
       }
 
