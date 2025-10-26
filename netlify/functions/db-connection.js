@@ -109,7 +109,21 @@ const getConnection = () => {
       throw new Error('DATABASE_URL environment variable is not set');
     }
 
-    sql = postgres(dbUrl, {
+    // Remove channel_binding (not supported by postgres.js) and rely on SSL option
+    let cleanedUrl = dbUrl;
+    try {
+      const u = new URL(dbUrl);
+      if (u.searchParams.has('channel_binding')) {
+        u.searchParams.delete('channel_binding');
+      }
+      // Optional: drop sslmode as we pass ssl option explicitly
+      if (u.searchParams.has('sslmode')) {
+        u.searchParams.delete('sslmode');
+      }
+      cleanedUrl = u.toString();
+    } catch {}
+
+    sql = postgres(cleanedUrl, {
       connect_timeout: 10,
       idle_timeout: 30,
       max_lifetime: 60 * 60, // 1 hour
