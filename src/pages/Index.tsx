@@ -72,19 +72,19 @@ const Index = () => {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 pt-12 px-4">
-            <GlassCard className="text-center p-4">
+            <GlassCard className="text-center p-4 animate-slide-up" style={{ animationDelay: '0.1s' }}>
               <p className="text-2xl sm:text-3xl font-bold text-primary">500+</p>
               <p className="text-xs sm:text-sm text-muted-foreground">Active Suppliers</p>
             </GlassCard>
-            <GlassCard className="text-center p-4">
+            <GlassCard className="text-center p-4 animate-slide-up" style={{ animationDelay: '0.15s' }}>
               <p className="text-2xl sm:text-3xl font-bold text-secondary">1200+</p>
               <p className="text-xs sm:text-sm text-muted-foreground">Verified Buyers</p>
             </GlassCard>
-            <GlassCard className="text-center p-4">
+            <GlassCard className="text-center p-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
               <p className="text-2xl sm:text-3xl font-bold text-accent">$45M+</p>
               <p className="text-xs sm:text-sm text-muted-foreground">Trade Volume</p>
             </GlassCard>
-            <GlassCard className="text-center p-4">
+            <GlassCard className="text-center p-4 animate-slide-up" style={{ animationDelay: '0.25s' }}>
               <p className="text-2xl sm:text-3xl font-bold text-primary">98%</p>
               <p className="text-xs sm:text-sm text-muted-foreground">Success Rate</p>
             </GlassCard>
