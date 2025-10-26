@@ -25,7 +25,7 @@ const IndustryProductEdit = () => {
     if (!user || user.role !== "industry") navigate("/login");
   }, [user, navigate]);
 
-  const product = useMemo(() => mockProducts.find((p) => String(p.id) === id), [id]);
+  const { data: product } = useProduct(id!);
 
   const [form, setForm] = useState(() => ({
     nameEN: product?.name || "",
