@@ -106,9 +106,13 @@ const Index = () => {
 
           <div className="grid md:grid-cols-2 gap-6">
             {features.map((feature, i) => (
-              <GlassCard key={i} className="group">
+              <GlassCard
+                key={i}
+                className="group animate-slide-up"
+                style={{ animationDelay: `${i * 0.1}s` }}
+              >
                 <div className="flex items-start gap-4">
-                  <div className="p-3 bg-gradient-primary rounded-xl group-hover:scale-110 transition-transform">
+                  <div className="p-3 bg-gradient-primary rounded-xl group-hover:scale-110 transition-transform duration-300">
                     <feature.icon className="w-6 h-6 text-white" />
                   </div>
                   <div>
