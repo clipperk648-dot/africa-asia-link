@@ -69,9 +69,9 @@ const IndustryProductEdit = () => {
   }));
 
   const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>(product?.images || []);
+  const [imagePreviews, setImagePreviews] = useState<string[]>(() => (product?.images || (product?.image ? [product.image] : [])) as string[]);
   const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [videoPreview, setVideoPreview] = useState<string | null>(product?.videoUrl || null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [brochureFile, setBrochureFile] = useState<File | null>(null);
 
   const handle = (key: keyof typeof form) => (e: any) => setForm((p) => ({ ...p, [key]: e.target ? e.target.value : e }));
