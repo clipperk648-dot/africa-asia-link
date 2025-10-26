@@ -18,8 +18,9 @@ const IndustryProductStats = () => {
     if (!user || user.role !== "industry") navigate("/login");
   }, [user, navigate]);
 
-  const product = useMemo(() => mockProducts.find((p) => String(p.id) === id), [id]);
-  const orders = useMemo(() => mockOrders.filter((o) => (product ? o.productName === product.name : false)), [product]);
+  const { data: product } = useProduct(id!);
+  const { data: userOrders = [] } = useOrders(user?.id);
+  const orders = useMemo(() => userOrders.filter((o: any) => String(o.product_id || o.productId) === String(id)), [userOrders, id]);
 
   const totalRevenue = orders.reduce((acc, o) => acc + (o.total || 0), 0);
   const totalOrders = orders.length;
@@ -27,7 +28,7 @@ const IndustryProductStats = () => {
   const revenueByMonth = useMemo(() => {
     const map = new Map<string, number>();
     orders.forEach((o) => {
-      const d = new Date(o.date);
+      const d = new Date((o as any).created_at || (o as any).date);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
       map.set(key, (map.get(key) || 0) + (o.total || 0));
     });
