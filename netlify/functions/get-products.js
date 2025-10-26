@@ -1,5 +1,4 @@
 const { getConnection } = require('./db-connection');
-const { mockProducts } = require('../../src/utils/mockData');
 
 exports.handler = async (event, context) => {
   try {
@@ -23,15 +22,10 @@ exports.handler = async (event, context) => {
         },
       };
     } catch (dbError) {
-      console.warn('Database query failed, using mock data:', dbError.message);
-      const products = mockProducts.slice(offset, offset + limit);
+      console.error('Database error:', dbError);
       return {
-        statusCode: 200,
-        body: JSON.stringify(products),
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache',
-        },
+        statusCode: 500,
+        body: JSON.stringify({ error: 'Database error' }),
       };
     }
   } catch (error) {
