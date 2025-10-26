@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "@/utils/mockAuth";
-import { createPost } from "@/utils/social";
+import { createSocialPost } from "@/lib/db";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -72,11 +72,7 @@ const SocialAddPost = () => {
         });
       }
 
-      await createPost({
-        type: mode,
-        content: content.trim() || undefined,
-        mediaUrl,
-      });
+      await createSocialPost(user.id, content.trim(), mediaUrl);
 
       toast.success("Post published successfully!");
       setContent("");
