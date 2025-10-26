@@ -8,6 +8,11 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    hmr: {
+      protocol: 'wss',
+      clientPort: 443,
+      overlay: false,
+    },
     proxy: {
       "/.netlify/functions": {
         target: "http://localhost:8888",
