@@ -30,7 +30,13 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, mtlUrl, cla
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 5000);
     camera.position.set(2.8, 1.8, 3.2);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    } catch (e) {
+      errorRef.current = "3D not supported on this device";
+      return;
+    }
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.1;
@@ -76,6 +82,7 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, mtlUrl, cla
     controls.maxPolarAngle = Math.PI - 0.2;
 
     let model: THREE.Object3D | null = null;
+    let placeholder: THREE.Object3D | null = null;
 
     const centerAndScale = (obj: THREE.Object3D) => {
       const box = new THREE.Box3().setFromObject(obj);
@@ -99,13 +106,32 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, mtlUrl, cla
       scene.add(obj);
     };
 
+    const createFallback = () => {
+      if (placeholder) return placeholder;
+      const geo = new THREE.IcosahedronGeometry(1, 2);
+      const mat = new THREE.MeshStandardMaterial({
+        color: 0x8a6cfd,
+        metalness: 0.35,
+        roughness: 0.3,
+        emissive: 0x221155,
+        emissiveIntensity: 0.15,
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      placeholder = mesh;
+      scene.add(mesh);
+      return mesh;
+    };
+
     const onError = (err: any) => {
       // eslint-disable-next-line no-console
       console.error("Model load error:", err);
-      errorRef.current = "Unable to load 3D model";
+      errorRef.current = null; // suppress overlay
+      createFallback();
     };
 
-    if (ext === "fbx") {
+    if (!modelUrl) {
+      createFallback();
+    } else if (ext === "fbx") {
       new FBXLoader().load(modelUrl, onLoad, undefined, onError);
     } else if (ext === "glb" || ext === "gltf") {
       new GLTFLoader().load(
@@ -132,7 +158,8 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, mtlUrl, cla
         new OBJLoader().load(modelUrl, onLoad, undefined, onError);
       }
     } else {
-      errorRef.current = "Unsupported model format";
+      errorRef.current = null; // suppress overlay
+      createFallback();
     }
 
     const onResize = () => {
@@ -148,9 +175,6 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, mtlUrl, cla
     const animate = () => {
       frameIdRef.current = requestAnimationFrame(animate);
       controls.update();
-      if (model) {
-        model.rotation.y += 0.0012; // gentle auto-rotate
-      }
       renderer.render(scene, camera);
     };
     animate();
@@ -177,7 +201,7 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, mtlUrl, cla
     >
       {/* Animated conic gradient frame */}
       <div
-        className="pointer-events-none absolute -inset-[2px] rounded-[inherit] blur-sm opacity-70 animate-[spin_10s_linear_infinite]"
+        className="pointer-events-none absolute -inset-[2px] rounded-[inherit] blur-sm opacity-70"
         style={{
           background:
             "conic-gradient(from 0deg, rgba(138,108,253,0.35), rgba(59,130,246,0.25), rgba(16,185,129,0.25), rgba(255,255,255,0.25), rgba(138,108,253,0.35))",
@@ -193,14 +217,7 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, mtlUrl, cla
       {/* Canvas mounts here */}
       <div className="absolute inset-0" />
 
-      {/* Error overlay */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        {errorRef.current && (
-          <div className="pointer-events-auto bg-black/50 text-white px-4 py-2 rounded-full text-sm">
-            {errorRef.current}
-          </div>
-        )}
-      </div>
+      {/* Error overlay intentionally suppressed; fallback geometry is shown instead */}
 
       {/* Corner accents */}
       <div className="pointer-events-none absolute inset-0 rounded-[inherit]">
