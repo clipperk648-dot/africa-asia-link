@@ -14,11 +14,7 @@ const IndustryCollections = () => {
   const user = getCurrentUser();
   const { data: products = [], isLoading, error } = useProducts(20, 0);
 
-  useEffect(() => {
-    if (!user || user.role !== "industry") {
-      navigate("/login");
-    }
-  }, [user, navigate]);
+  // Auth disabled: collections page is publicly accessible
 
   const handleLogout = () => {
     logout();
