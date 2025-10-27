@@ -3,17 +3,22 @@ import { cn } from "@/lib/utils";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
+import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js";
 
 interface ThreeModelFrameProps {
-  modelUrl: string;
+  modelUrl: string; // .fbx | .glb/.gltf | .obj
+  mtlUrl?: string; // optional material for .obj
   className?: string;
-  heightClassName?: string; // e.g., h-96
+  heightClassName?: string; // e.g., h-96 or h-full
 }
 
-const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, heightClassName = "h-[26rem]" }) => {
+const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, mtlUrl, className, heightClassName = "h-[26rem]" }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer>();
   const frameIdRef = useRef<number>();
+  const errorRef = useRef<string | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -22,7 +27,7 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
     const scene = new THREE.Scene();
     scene.background = null;
 
-    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 2000);
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 5000);
     camera.position.set(2.8, 1.8, 3.2);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -66,32 +71,69 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
     controls.dampingFactor = 0.08;
     controls.enablePan = false;
     controls.minDistance = 1.2;
-    controls.maxDistance = 8;
+    controls.maxDistance = 6;
+    controls.minPolarAngle = 0.2;
+    controls.maxPolarAngle = Math.PI - 0.2;
 
     let model: THREE.Object3D | null = null;
-    const loader = new FBXLoader();
-    loader.load(
-      modelUrl,
-      (obj) => {
-        model = obj;
-        // Center and scale to fit
-        const box = new THREE.Box3().setFromObject(obj);
-        const size = new THREE.Vector3();
-        box.getSize(size);
-        const center = new THREE.Vector3();
-        box.getCenter(center);
-        obj.position.sub(center);
-        const maxDim = Math.max(size.x, size.y, size.z) || 1;
-        const scale = 1.6 / maxDim;
-        obj.scale.setScalar(scale);
-        scene.add(obj);
-      },
-      undefined,
-      (err) => {
-        // eslint-disable-next-line no-console
-        console.error("Failed to load FBX:", err);
+
+    const centerAndScale = (obj: THREE.Object3D) => {
+      const box = new THREE.Box3().setFromObject(obj);
+      const size = new THREE.Vector3();
+      box.getSize(size);
+      const center = new THREE.Vector3();
+      box.getCenter(center);
+      obj.position.sub(center);
+      const maxDim = Math.max(size.x, size.y, size.z) || 1;
+      const scale = 1.8 / maxDim; // large in frame
+      obj.scale.setScalar(scale);
+      controls.target.set(0, 0, 0);
+      controls.update();
+    };
+
+    const ext = modelUrl.split("?")[0].split(".").pop()?.toLowerCase();
+
+    const onLoad = (obj: THREE.Object3D) => {
+      model = obj;
+      centerAndScale(obj);
+      scene.add(obj);
+    };
+
+    const onError = (err: any) => {
+      // eslint-disable-next-line no-console
+      console.error("Model load error:", err);
+      errorRef.current = "Unable to load 3D model";
+    };
+
+    if (ext === "fbx") {
+      new FBXLoader().load(modelUrl, onLoad, undefined, onError);
+    } else if (ext === "glb" || ext === "gltf") {
+      new GLTFLoader().load(
+        modelUrl,
+        (gltf) => onLoad(gltf.scene),
+        undefined,
+        onError,
+      );
+    } else if (ext === "obj") {
+      if (mtlUrl) {
+        const mtlLoader = new MTLLoader();
+        mtlLoader.load(
+          mtlUrl,
+          (materials) => {
+            materials.preload();
+            const objLoader = new OBJLoader();
+            objLoader.setMaterials(materials);
+            objLoader.load(modelUrl, onLoad, undefined, onError);
+          },
+          undefined,
+          onError,
+        );
+      } else {
+        new OBJLoader().load(modelUrl, onLoad, undefined, onError);
       }
-    );
+    } else {
+      errorRef.current = "Unsupported model format";
+    }
 
     const onResize = () => {
       const { clientWidth, clientHeight } = container;
@@ -120,7 +162,7 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
       renderer.dispose();
       mount.remove();
     };
-  }, [modelUrl]);
+  }, [modelUrl, mtlUrl]);
 
   return (
     <div
@@ -150,6 +192,15 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
 
       {/* Canvas mounts here */}
       <div className="absolute inset-0" />
+
+      {/* Error overlay */}
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        {errorRef.current && (
+          <div className="pointer-events-auto bg-black/50 text-white px-4 py-2 rounded-full text-sm">
+            {errorRef.current}
+          </div>
+        )}
+      </div>
 
       {/* Corner accents */}
       <div className="pointer-events-none absolute inset-0 rounded-[inherit]">
