@@ -56,15 +56,15 @@ const IndustryCollections = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden">
       <ThreeBackground />
 
-      <header className="absolute top-0 left-0 right-0 z-40 bg-black/60 backdrop-blur-md">
+      <header className="absolute top-0 left-0 right-0 z-40 bg-card/80 backdrop-blur-md">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-white">
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="text-xl font-bold text-white">3D Collections</h1>
+          <h1 className="text-xl font-bold">3D Collections</h1>
         </div>
       </header>
 
@@ -72,21 +72,18 @@ const IndustryCollections = () => {
         {frames.map((f, idx) => (
           <div key={f.id} className="snap-start h-screen relative">
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative h-[92vh] max-h-[92vh] aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl z-20 border border-white/20">
+              <div className="relative h-[92vh] max-h-[92vh] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl z-20 border border-black/10 bg-white">
                 <ThreeModelFrame
                   modelUrl={f.modelUrl}
                   mtlUrl={(f as any).mtlUrl}
                   className="w-full h-full"
                   heightClassName="h-full"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/60" />
-                <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-full text-white text-xs">
+                <div className="absolute top-3 right-3 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-white text-xs">
                   Frame {idx + 1} / {frames.length}
                 </div>
               </div>
             </div>
-            <div className="absolute top-0 left-0 right-0 h-24 bg-black pointer-events-none z-10" />
-            <div className="absolute bottom-0 left-0 right-0 h-32 bg-black pointer-events-none z-10" />
           </div>
         ))}
       </div>
