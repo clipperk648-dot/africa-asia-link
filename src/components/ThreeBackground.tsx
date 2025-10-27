@@ -31,13 +31,16 @@ const ThreeBackground = () => {
       "rgba(52, 211, 153, 0.6)",
     ];
 
-    let connectionDistance = 160;
+    let connectionDistance = 180;
     let connectionDistanceSq = connectionDistance * connectionDistance;
     const frameInterval = 1000 / 30; // 30 FPS for better perf
-    const baseSpeed = 1.2;
-    let minParticleSize = 6;
-    let maxParticleSize = 12;
+    const baseSpeed = 0.6;
+    let minParticleSize = 2.5;
+    let maxParticleSize = 4.5;
     let enableConnections = true;
+    const cohesionRadius = 200;
+    const cohesionStrength = 0.003;
+    const velocityDamping = 0.998;
 
     let particles: Particle[] = [];
     let animationFrameId: number | null = null;
@@ -46,9 +49,9 @@ const ThreeBackground = () => {
     const getTargetParticleCount = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      if (w < 640) return 12;
+      if (w < 640) return 28;
       const area = w * h;
-      return Math.max(16, Math.min(32, Math.round(area / 70000) + 12));
+      return Math.max(36, Math.min(90, Math.round(area / 45000) + 30));
     };
 
     const createParticle = (): Particle => {
@@ -67,13 +70,13 @@ const ThreeBackground = () => {
       const w = window.innerWidth;
       enableConnections = w >= 640; // disable on small screens
       if (w < 640) {
-        minParticleSize = 7;
-        maxParticleSize = 12;
-        connectionDistance = 140;
-      } else {
-        minParticleSize = 6;
-        maxParticleSize = 12;
+        minParticleSize = 2.5;
+        maxParticleSize = 4.5;
         connectionDistance = 160;
+      } else {
+        minParticleSize = 2.5;
+        maxParticleSize = 4.5;
+        connectionDistance = 180;
       }
       connectionDistanceSq = connectionDistance * connectionDistance;
     };
@@ -111,11 +114,44 @@ const ThreeBackground = () => {
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
+
+        // Cohesion towards nearby particles (atomic clustering)
+        let sumX = 0, sumY = 0, count = 0;
+        for (let j = 0; j < particles.length && count < 8; j++) {
+          if (i === j) continue;
+          const n = particles[j];
+          const dx = n.x - p.x;
+          const dy = n.y - p.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < cohesionRadius * cohesionRadius) {
+            sumX += n.x;
+            sumY += n.y;
+            count++;
+          }
+        }
+        if (count > 0) {
+          const cx = sumX / count;
+          const cy = sumY / count;
+          p.velocityX += (cx - p.x) * cohesionStrength;
+          p.velocityY += (cy - p.y) * cohesionStrength;
+        }
+        p.velocityX *= velocityDamping;
+        p.velocityY *= velocityDamping;
+
         p.x += p.velocityX;
         p.y += p.velocityY;
 
         if (p.x > width) p.x = 0; else if (p.x < 0) p.x = width;
         if (p.y > height) p.y = 0; else if (p.y < 0) p.y = height;
+
+        // Particle glow
+        const gradient = context.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
+        gradient.addColorStop(0, p.color);
+        gradient.addColorStop(1, "rgba(138,108,253,0)");
+        context.fillStyle = gradient;
+        context.beginPath();
+        context.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
+        context.fill();
 
         context.fillStyle = p.color;
         context.beginPath();
@@ -126,15 +162,15 @@ const ThreeBackground = () => {
       if (enableConnections) {
         for (let i = 0; i < particles.length; i++) {
           const a = particles[i];
-          for (let j = i + 1; j < particles.length; j += 2) { // skip some pairs for perf
+          for (let j = i + 1; j < particles.length; j++) {
             const b = particles[j];
             const dx = a.x - b.x;
             const dy = a.y - b.y;
             const distanceSq = dx * dx + dy * dy;
             if (distanceSq < connectionDistanceSq) {
-              const opacity = 0.18 * (1 - Math.sqrt(distanceSq) / connectionDistance);
+              const opacity = 0.25 * (1 - Math.sqrt(distanceSq) / connectionDistance);
               context.strokeStyle = `rgba(138, 108, 253, ${opacity})`;
-              context.lineWidth = 2;
+              context.lineWidth = 1.2;
               context.beginPath();
               context.moveTo(a.x, a.y);
               context.lineTo(b.x, b.y);

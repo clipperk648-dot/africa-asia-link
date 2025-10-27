@@ -18,7 +18,6 @@ export const setCurrentUser = (user: User | null) => {
 };
 
 export const getCurrentUser = (): User | null => {
-  // First try to get from new auth system
   const session = getSession();
   if (session) {
     return {
@@ -30,9 +29,18 @@ export const getCurrentUser = (): User | null => {
     };
   }
 
-  // Fallback to old localStorage if needed
   const stored = localStorage.getItem("currentUser");
-  return stored ? JSON.parse(stored) : null;
+  if (stored) return JSON.parse(stored);
+
+  const path = typeof window !== "undefined" ? window.location.pathname : "/";
+  const role: User["role"] = path.startsWith("/industry") ? "industry" : "buyer";
+  return {
+    id: "guest",
+    email: "guest@example.com",
+    name: role === "industry" ? "Guest Seller" : "Guest Buyer",
+    role,
+    phone: "",
+  };
 };
 
 export const logout = () => {

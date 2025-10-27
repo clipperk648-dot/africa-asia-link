@@ -1,94 +1,117 @@
-// Database client that uses Netlify Functions APIs
-// No mock data - database required for all operations
+// In-memory mock database to remove external DB dependency
 
-const API_BASE = "/api";
+import type { Product, Order, SocialPost } from "@/types/models";
 
-// Check if API is available
-export const isDatabaseConfigured = (): boolean => {
-  return true; // APIs are always available
-};
+const mockProducts: Product[] = [
+  {
+    id: "p1",
+    name: "Smart Industrial Pump",
+    category: "Machinery",
+    price: 12000,
+    company: "SinoTech",
+    location: "Shenzhen, CN",
+    image: "https://images.unsplash.com/photo-1581090122493-8fd7d76b12b2?q=80&w=1200&auto=format&fit=crop",
+    images: [
+      "https://images.unsplash.com/photo-1581091870622-7c67cf02f37c?q=80&w=1200&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1581093588401-16ec8a1c4b3c?q=80&w=1200&auto=format&fit=crop",
+    ],
+    rating: 4.6,
+  },
+  {
+    id: "p2",
+    name: "Solar PV Panel 550W",
+    category: "Energy",
+    price: 210,
+    company: "GreenRay",
+    location: "Guangdong, CN",
+    image: "https://images.unsplash.com/photo-1509395176047-4a66953fd231?q=80&w=1200&auto=format&fit=crop",
+    rating: 4.8,
+  },
+  {
+    id: "p3",
+    name: "EV Battery Pack",
+    category: "Automotive",
+    price: 5400,
+    company: "VoltWorks",
+    location: "Shanghai, CN",
+    image: "https://images.unsplash.com/photo-1604668915840-580c30026e5b?q=80&w=1200&auto=format&fit=crop",
+    rating: 4.4,
+  },
+];
 
-// Helper to make API calls
-async function apiCall<T>(endpoint: string, params?: Record<string, any>, method: string = "GET"): Promise<T> {
-  try {
-    const url = new URL(`${API_BASE}${endpoint}`, window.location.origin);
-    
-    const options: RequestInit = {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
+let mockOrders: Order[] = [
+  { id: "o1", productName: "Solar PV Panel 550W", total: 6500, status: "shipped", date: "2024-10-02" },
+  { id: "o2", productName: "Smart Industrial Pump", total: 12000, status: "pending", date: "2024-10-06" },
+  { id: "o3", productName: "EV Battery Pack", total: 10800, status: "delivered", date: "2024-10-12" },
+];
 
-    if (method === "POST" && params) {
-      options.body = JSON.stringify(params);
-    } else if (method === "GET" && params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
-          url.searchParams.append(key, String(value));
-        }
-      });
-    }
+let mockPosts: SocialPost[] = [
+  {
+    id: "sp1",
+    userId: "u1",
+    username: "echina_official",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=echina",
+    type: "image",
+    mediaUrl: mockProducts[0].image!,
+    likes: 120,
+    comments: 18,
+    timestamp: new Date().toISOString(),
+  },
+];
 
-    const response = await fetch(url.toString(), options);
-    
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`);
-    }
+const delay = (ms = 200) => new Promise((r) => setTimeout(r, ms));
 
-    const contentType = response.headers.get('content-type');
-    if (!contentType?.includes('application/json')) {
-      throw new Error(`Invalid content type: expected JSON but got ${contentType}`);
-    }
+export const isDatabaseConfigured = (): boolean => false;
 
-    return response.json();
-  } catch (error) {
-    console.error(`API call failed for ${endpoint}:`, error);
-    throw error;
-  }
-}
-
-// User table operations
+// Users (minimal for app)
 export const createUser = async (
   email: string,
   passwordHash: string,
   name: string,
   phone: string,
-  role: "industry" | "buyer"
-): Promise<{ id: string; email: string; name: string }> => {
-  return await apiCall("/create-user", {
-    email,
-    passwordHash,
-    name,
-    phone,
-    role,
-  }, "POST");
+  role: "industry" | "buyer",
+): Promise<{ id: string; email: string; name: string; role: "industry" | "buyer" }> => {
+  await delay();
+  return { id: crypto.randomUUID(), email, name, role };
 };
 
 export const getUserByEmail = async (email: string): Promise<any> => {
-  return await apiCall("/get-user", { email });
+  await delay();
+  return null;
 };
 
 export const getUserById = async (id: string): Promise<any> => {
-  return await apiCall("/get-user", { id });
+  await delay();
+  return null;
 };
 
-// Product table operations
-export const getProducts = async (limit = 20, offset = 0): Promise<any[]> => {
-  return await apiCall("/get-products", { limit, offset });
+// Products
+export const getProducts = async (limit = 20, offset = 0): Promise<Product[]> => {
+  await delay();
+  return mockProducts.slice(offset, offset + limit);
 };
 
-export const getProductById = async (id: string): Promise<any> => {
-  return await apiCall("/get-product", { id });
+export const getProductById = async (id: string): Promise<Product | null> => {
+  await delay();
+  return mockProducts.find((p) => p.id === id) || null;
 };
 
-export const createProduct = async (productData: any): Promise<any> => {
-  return await apiCall("/create-product", productData, "POST");
+export const createProduct = async (productData: Partial<Product>): Promise<Product> => {
+  await delay();
+  const p: Product = {
+    id: crypto.randomUUID(),
+    name: productData.name || "New Product",
+    price: productData.price || 0,
+    ...productData,
+  } as Product;
+  mockProducts.unshift(p);
+  return p;
 };
 
-// Order table operations
-export const getOrders = async (userId: string): Promise<any[]> => {
-  return await apiCall("/get-orders", { userId });
+// Orders
+export const getOrders = async (userId: string): Promise<Order[]> => {
+  await delay();
+  return mockOrders;
 };
 
 export const createOrder = async (
@@ -96,60 +119,80 @@ export const createOrder = async (
   sellerId: string,
   productId: string,
   quantity: number,
-  total: number
-): Promise<any> => {
-  return await apiCall("/create-order", {
-    buyerId,
-    sellerId,
-    productId,
-    quantity,
-    total,
-  }, "POST");
+  total: number,
+): Promise<Order> => {
+  await delay();
+  const order: Order = { id: crypto.randomUUID(), total, status: "pending", date: new Date().toISOString(), productName: productId };
+  mockOrders.unshift(order);
+  return order;
 };
 
-// Social posts operations
-export const getSocialPosts = async (limit = 20): Promise<any[]> => {
-  return await apiCall("/get-social-posts", { limit });
+// Social posts
+export const getSocialPosts = async (limit = 20): Promise<SocialPost[]> => {
+  await delay();
+  return mockPosts.slice(0, limit);
 };
 
 export const createSocialPost = async (
   userId: string,
   content: string,
-  imageUrl?: string
-): Promise<any> => {
-  return await apiCall("/create-social-post", {
+  imageUrl?: string,
+): Promise<SocialPost> => {
+  await delay();
+  const post: SocialPost = {
+    id: crypto.randomUUID(),
     userId,
+    username: "guest",
+    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=guest",
+    type: imageUrl ? "image" : "text",
     content,
-    imageUrl,
-  }, "POST");
+    mediaUrl: imageUrl,
+    likes: 0,
+    comments: 0,
+    timestamp: new Date().toISOString(),
+  };
+  mockPosts.unshift(post);
+  return post;
 };
 
-// Wallet operations
-export const getWalletBalance = async (userId: string, currency = 'USD'): Promise<{ balance: number; currency: string }> => {
-  return await apiCall("/get-wallet-balance", { userId, currency });
+// Wallet (placeholders consistent with existing API)
+export const getWalletBalance = async (userId: string, currency = "USD"): Promise<{ balance: number; currency: string }> => {
+  await delay();
+  return { balance: 1250, currency };
 };
 
-export const setWalletBalance = async (userId: string, amount: number, currency = 'USD'): Promise<any> => {
-  return await apiCall("/set-wallet-balance", { userId, amount, currency }, "POST");
+export const setWalletBalance = async (userId: string, amount: number, currency = "USD"): Promise<any> => {
+  await delay();
+  return { success: true };
 };
 
 export const getWalletTransactions = async (userId: string): Promise<any[]> => {
-  return await apiCall("/get-transactions", { userId });
+  await delay();
+  return [
+    { id: "t1", type: "deposit", amount: 500, currency: "USD", note: "Initial deposit", date: new Date().toISOString() },
+  ];
 };
 
-export const addWalletTransaction = async (userId: string, tx: { type: 'deposit' | 'payment'; amount: number; currency?: string; note?: string }): Promise<any> => {
-  return await apiCall("/add-transaction", { userId, ...tx }, "POST");
+export const addWalletTransaction = async (
+  userId: string,
+  tx: { type: "deposit" | "payment"; amount: number; currency?: string; note?: string },
+): Promise<any> => {
+  await delay();
+  return { success: true };
 };
 
-// Messaging operations
+// Messaging
 export const getConversations = async (userId: string): Promise<any[]> => {
-  return await apiCall("/get-conversations", { userId });
+  await delay();
+  return [];
 };
 
 export const getMessages = async (userId: string, peerId: string): Promise<any[]> => {
-  return await apiCall("/get-messages", { userId, peerId });
+  await delay();
+  return [];
 };
 
 export const sendMessage = async (senderId: string, recipientId: string, content?: string, mediaUrl?: string): Promise<any> => {
-  return await apiCall("/send-message", { senderId, recipientId, content, mediaUrl }, "POST");
+  await delay();
+  return { success: true };
 };

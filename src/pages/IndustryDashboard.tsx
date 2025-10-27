@@ -12,6 +12,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { APP_NAME, SOCIAL_LINKS } from "@/config/app";
+import GlassSlideshowFrame from "@/components/GlassSlideshowFrame";
 
 const ProductCard = ({ product }: { product: Product }) => (
   <GlassCard className="p-4 sm:p-6 min-w-[280px] sm:min-w-0">
@@ -197,6 +198,16 @@ const IndustryDashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+        {/* Glass Slideshow Frame */}
+        {(() => {
+          const slides = (products || []).slice(0, 5).map((p) => ({
+            image: p.images?.[0] || p.image || "/placeholder.svg",
+            title: p.name,
+            subtitle: p.category || p.brand || "",
+          }));
+          return <GlassSlideshowFrame slides={slides} />;
+        })()}
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 animate-fade-in">
           {stats.map((stat, i) => (
             <GlassCard key={i} className="text-center p-4">
