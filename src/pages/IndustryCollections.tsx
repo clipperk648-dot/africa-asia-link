@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Box, RotateCw } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import GlassCard from "@/components/GlassCard";
+import ThreeModelFrame from "@/components/ThreeModelFrame";
 
 const IndustryCollections = () => {
   const navigate = useNavigate();
@@ -76,16 +77,23 @@ const IndustryCollections = () => {
               <GlassCard className="overflow-hidden">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 sm:p-8">
                   <div className="flex items-center justify-center bg-gradient-to-br from-primary/10 via-purple-500/5 to-transparent rounded-2xl overflow-hidden min-h-96 group">
-                    <div className="relative w-full h-full flex items-center justify-center perspective">
-                      <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-                      <div className="relative w-80 h-80 rounded-2xl border-2 border-primary/20 flex items-center justify-center overflow-hidden shadow-2xl shadow-primary/10 group-hover:shadow-primary/20 transition-all duration-300">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
+                    <div className="relative w-full h-full flex items-center justify-center">
+                      {index === 0 ? (
+                        <ThreeModelFrame
+                          modelUrl="https://cdn.builder.io/o/assets%2F938a9cb6c5f8418ebb61c467931bd555%2F98d65a10979c45dca46f425797185d74?alt=media&token=203528a0-4539-46e5-acd0-d8ad8100f270&apiKey=938a9cb6c5f8418ebb61c467931bd555"
+                          className="w-full"
+                          heightClassName="h-[28rem]"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      </div>
+                      ) : (
+                        <div className="relative w-80 h-80 rounded-2xl border-2 border-primary/20 flex items-center justify-center overflow-hidden shadow-2xl shadow-primary/10 group-hover:shadow-primary/20 transition-all duration-300">
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        </div>
+                      )}
 
                       <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full">
                         <div className="flex items-center gap-2 text-white">
