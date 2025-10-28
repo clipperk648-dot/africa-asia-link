@@ -74,6 +74,8 @@ const IndustryCollections = () => {
               <div className="relative h-[92vh] max-h-[92vh] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl z-20 border border-black/10 bg-white">
                 <ThreeModelFrame
                   modelUrl={f.modelUrl}
+                  materialMaps={(f as any).materialMaps}
+                  repeat={(f as any).repeat}
                   className="w-full h-full"
                   heightClassName="h-full"
                 />
