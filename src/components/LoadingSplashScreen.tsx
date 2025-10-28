@@ -35,8 +35,7 @@ const LoadingSplashScreen: React.FC<LoadingSplashScreenProps> = ({
 
   return (
     <div className={cn(
-      "fixed inset-0 z-[999] flex items-center justify-center overflow-hidden",
-      "transition-opacity duration-500",
+      "fixed inset-0 z-[999] flex items-center justify-center overflow-hidden will-change-opacity",
       isVisible ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
       className
     )}>
@@ -45,7 +44,8 @@ const LoadingSplashScreen: React.FC<LoadingSplashScreenProps> = ({
         autoPlay
         muted
         playsInline
-        className="absolute inset-0 w-full h-full object-cover"
+        preload="auto"
+        className="absolute inset-0 w-full h-full object-cover will-change-transform"
       >
         <source src={videoUrl} type="video/mp4" />
       </video>
@@ -54,12 +54,12 @@ const LoadingSplashScreen: React.FC<LoadingSplashScreenProps> = ({
 
       <div className="relative z-10 text-center space-y-8">
         <div className="space-y-4">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white drop-shadow-lg animate-fade-in">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white drop-shadow-lg">
             {text}
           </h1>
-          
+
           <div className="flex items-center justify-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-white animate-pulse" style={{ animationDelay: "0s" }} />
+            <div className="w-3 h-3 rounded-full bg-white animate-pulse" />
             <div className="w-3 h-3 rounded-full bg-white animate-pulse" style={{ animationDelay: "0.2s" }} />
             <div className="w-3 h-3 rounded-full bg-white animate-pulse" style={{ animationDelay: "0.4s" }} />
           </div>
@@ -71,10 +71,6 @@ const LoadingSplashScreen: React.FC<LoadingSplashScreenProps> = ({
             <div
               className="absolute inset-0 rounded-full border-4 border-transparent border-t-white border-r-white animate-spin"
               style={{ animationDuration: "2s" }}
-            />
-            <div
-              className="absolute inset-2 rounded-full border-4 border-transparent border-b-white border-l-white animate-spin"
-              style={{ animationDuration: "3s", animationDirection: "reverse" }}
             />
           </div>
         </div>
