@@ -38,13 +38,9 @@ const IndustryCollections = () => {
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, []);
+  const handleSplashScreenEnd = () => {
+    setIsLoading(false);
+  };
 
   const goNext = () => {
     const el = scrollRef.current;
