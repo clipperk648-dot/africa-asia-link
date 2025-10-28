@@ -42,18 +42,26 @@ const IndustryCollections = () => {
         "https://cdn.builder.io/o/assets%2F938a9cb6c5f8418ebb61c467931bd555%2F1fb49eb151e24a13a84591a0fccc7fa1?alt=media&token=4a8cf418-fe40-411c-afd1-243dd69e4d60&apiKey=938a9cb6c5f8418ebb61c467931bd555",
     },
     {
-      id: "watch",
-      modelUrl: "", // need .obj/.glb/.fbx
-      mtlUrl:
-        "https://cdn.builder.io/o/assets%2F938a9cb6c5f8418ebb61c467931bd555%2Fda4e8a9dfde74f2a90414bf01ed210a6?alt=media&token=342aad27-c9b4-47f1-b446-5a022ada8a47&apiKey=938a9cb6c5f8418ebb61c467931bd555",
+      id: "shoe",
+      modelUrl:
+        "https://cdn.builder.io/o/assets%2F938a9cb6c5f8418ebb61c467931bd555%2F12bb3c28b42c43608bb7d6ca23fc6f3c?alt=media&token=0f9347c7-2859-4bb9-a8ac-1d503bb77b74&apiKey=938a9cb6c5f8418ebb61c467931bd555",
     },
     {
-      id: "shoes",
-      modelUrl: "", // need .obj/.glb/.fbx
-      mtlUrl:
-        "https://cdn.builder.io/o/assets%2F938a9cb6c5f8418ebb61c467931bd555%2F444d744573484ea49a0fd186b56e0ece?alt=media&token=277a4fc1-0163-4bfa-8c55-b7b5bcae9c34&apiKey=938a9cb6c5f8418ebb61c467931bd555",
+      id: "empty",
+      modelUrl: "",
     },
   ];
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const goNext = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const h = el.clientHeight;
+    const curr = Math.round(el.scrollTop / h);
+    const next = Math.min(frames.length - 1, curr + 1);
+    el.scrollTo({ top: next * h, behavior: "smooth" });
+  };
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -68,14 +76,13 @@ const IndustryCollections = () => {
         </div>
       </header>
 
-      <div className="snap-y snap-mandatory h-screen overflow-y-scroll scrollbar-hide">
+      <div ref={scrollRef} className="snap-y snap-mandatory h-screen overflow-y-scroll scrollbar-hide">
         {frames.map((f, idx) => (
           <div key={f.id} className="snap-start h-screen relative">
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="relative h-[92vh] max-h-[92vh] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl z-20 border border-black/10 bg-white">
                 <ThreeModelFrame
                   modelUrl={f.modelUrl}
-                  mtlUrl={(f as any).mtlUrl}
                   className="w-full h-full"
                   heightClassName="h-full"
                 />
@@ -86,6 +93,12 @@ const IndustryCollections = () => {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Floating navigation */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex gap-3">
+        <Button variant="outline" onClick={() => navigate(-1)}>Back</Button>
+        <Button variant="gradient" onClick={goNext}>Next</Button>
       </div>
 
       <FooterNav dashboardType="industry" />
