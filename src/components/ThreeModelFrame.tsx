@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, memo } from "react";
 import { cn } from "@/lib/utils";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -26,6 +26,26 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
   const containerRef = useRef<HTMLDivElement>(null);
   const frameIdRef = useRef<number>();
   const cleanupRef = useRef<() => void>();
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+
+  if (!modelUrl || !modelUrl.trim()) {
+    return (
+      <div
+        className={cn(
+          "relative overflow-hidden rounded-2xl",
+          "bg-gradient-to-br from-white/50 to-white/30 border border-black/10 shadow-xl",
+          "flex items-center justify-center",
+          heightClassName,
+          className,
+        )}
+      >
+        <div className="text-center text-muted-foreground">
+          <p className="text-sm">No model available</p>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     const container = containerRef.current;
@@ -36,6 +56,7 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
     let camera: THREE.PerspectiveCamera | null = null;
     let controls: OrbitControls | null = null;
     let cancelled = false;
+    let isAnimating = true;
 
     try {
       // Scene and renderer
@@ -44,9 +65,10 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
 
       camera = new THREE.PerspectiveCamera(40, 1, 0.01, 10000);
 
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
       renderer.outputColorSpace = THREE.SRGBColorSpace;
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      const dpr = Math.min(window.devicePixelRatio, 1.5);
+      renderer.setPixelRatio(dpr);
 
       const mount = document.createElement("div");
       mount.style.position = "absolute";
@@ -173,14 +195,39 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
         const ro = new ResizeObserver(onResize);
         ro.observe(container);
 
+        let lastUpdate = 0;
         const animate = () => {
           frameIdRef.current = requestAnimationFrame(animate);
-          controls!.update();
-          renderer!.render(scene!, camera!);
+          const now = performance.now();
+
+          if (!isAnimating && now - lastUpdate < 100) {
+            return;
+          }
+
+          if (isAnimating || now - lastUpdate >= 100) {
+            lastUpdate = now;
+            controls!.update();
+            renderer!.render(scene!, camera!);
+          }
         };
+
+        const onMouseMove = () => {
+          isAnimating = true;
+          lastUpdate = performance.now();
+        };
+
+        const onMouseLeave = () => {
+          isAnimating = false;
+        };
+
+        renderer!.domElement.addEventListener('mousemove', onMouseMove);
+        renderer!.domElement.addEventListener('mouseleave', onMouseLeave);
+
         animate();
 
         cleanupRef.current = () => {
+          renderer!.domElement.removeEventListener('mousemove', onMouseMove);
+          renderer!.domElement.removeEventListener('mouseleave', onMouseLeave);
           if (frameIdRef.current) cancelAnimationFrame(frameIdRef.current);
           ro.disconnect();
           controls!.dispose();
@@ -307,8 +354,6 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
         let i = 0;
         const next = () => {
           if (i >= tryOrder.length) {
-            // eslint-disable-next-line no-console
-            console.error("Failed to load model with any supported loader", { modelUrl, ext, lastError });
             addFallback();
             return;
           }
@@ -343,4 +388,4 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
   );
 };
 
-export default ThreeModelFrame;
+export default memo(ThreeModelFrame);

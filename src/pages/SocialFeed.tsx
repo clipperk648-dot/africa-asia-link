@@ -1,4 +1,4 @@
-import { useState, useMemo, memo } from "react";
+import { useState, useMemo, memo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SocialComposer from "@/components/SocialComposer";
 import { useSocialPosts } from "@/hooks/useData";

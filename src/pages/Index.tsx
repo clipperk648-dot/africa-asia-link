@@ -32,26 +32,39 @@ const Index = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      <ThreeBackground />
+      {/* Video Banner Hero Section */}
+      <section className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source
+            src="https://cdn.builder.io/o/assets%2Fb6198669f4754d65b52a472eb983bf6a%2Fa1f93e869b6f419eac1c318985a39a15?alt=media&token=d5e5b0b8-9d79-47e0-bc70-caa9377302de&apiKey=b6198669f4754d65b52a472eb983bf6a"
+            type="video/mp4"
+          />
+        </video>
 
-      {/* Hero Section */}
-      <section className="min-h-screen flex items-center justify-center px-4">
-        <div className="max-w-5xl mx-auto text-center space-y-8 animate-fade-in" style={{ animationDuration: '0.8s' }}>
+        <div className="absolute inset-0 bg-black/40" />
+
+        <div className="relative z-10 max-w-5xl mx-auto text-center space-y-8 animate-fade-in" style={{ animationDuration: '0.8s' }}>
           <div className="space-y-4">
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold leading-tight">
               <span className="bg-gradient-primary bg-clip-text text-transparent">
                 Echina
               </span>
             </h1>
-            <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-foreground">
+            <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-white drop-shadow-lg">
               Bridging China Industries & Nigerian Markets
             </p>
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
+            <p className="text-base sm:text-lg md:text-xl text-gray-100 max-w-2xl mx-auto px-4 drop-shadow-lg">
               The premier platform connecting Chinese manufacturers with Nigerian buyers.
               Streamline your international trade with powerful tools and verified partners.
             </p>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4 w-full px-4">
             <Button
               variant="gradient"
