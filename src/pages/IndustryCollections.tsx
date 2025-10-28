@@ -38,6 +38,15 @@ const IndustryCollections = () => {
     el.scrollTo({ top: next * h, behavior: "smooth" });
   };
 
+  const goPrev = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const h = el.clientHeight;
+    const curr = Math.round(el.scrollTop / h);
+    const prev = Math.max(0, curr - 1);
+    el.scrollTo({ top: prev * h, behavior: "smooth" });
+  };
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <ThreeBackground />
