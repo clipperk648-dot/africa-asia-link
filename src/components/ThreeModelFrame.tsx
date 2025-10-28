@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 
 interface ThreeModelFrameProps {
   modelUrl?: string; // .fbx URL
@@ -55,11 +56,9 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
       controls.autoRotate = false; // stay still
 
       // Load model
-      const loader = new FBXLoader();
-      loader.load(
-        modelUrl,
-        (obj) => {
-          scene!.add(obj);
+      const ext = modelUrl.split("?")[0].split(".").pop()?.toLowerCase();
+      const onLoad = (obj: THREE.Object3D) => {
+        scene!.add(obj);
 
           // Compute bounds
           const box = new THREE.Box3().setFromObject(obj);
@@ -109,13 +108,19 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
             renderer!.dispose();
             mount.remove();
           };
-        },
-        undefined,
-        (err) => {
+        };
+
+      if (ext === "fbx") {
+        new FBXLoader().load(modelUrl, onLoad, undefined, (err) => {
           // eslint-disable-next-line no-console
           console.error("Failed to load FBX", err);
-        }
-      );
+        });
+      } else if (ext === "obj") {
+        new OBJLoader().load(modelUrl, onLoad, undefined, (err) => {
+          // eslint-disable-next-line no-console
+          console.error("Failed to load OBJ", err);
+        });
+      }
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error("Three init error", e);
