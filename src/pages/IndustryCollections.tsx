@@ -66,6 +66,12 @@ const IndustryCollections = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
+      <LoadingSplashScreen
+        videoUrl="https://cdn.builder.io/o/assets%2Fb6198669f4754d65b52a472eb983bf6a%2F6ab81d8bc2104d80a11be4eec42e7669?alt=media&token=25351e25-3755-4cc3-938c-769f0c5526f3&apiKey=b6198669f4754d65b52a472eb983bf6a"
+        text="Loading collection"
+        isVisible={isLoading}
+      />
+
       <ThreeBackground />
 
       <header className="absolute top-0 left-0 right-0 z-40 bg-card/80 backdrop-blur-md">
