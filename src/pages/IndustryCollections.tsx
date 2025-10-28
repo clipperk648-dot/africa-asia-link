@@ -19,7 +19,7 @@ const IndustryCollections = () => {
     {
       id: "shoe",
       modelUrl:
-        "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/MaterialsVariantsShoe/glTF-Binary/MaterialsVariantsShoe.glb",
+        "https://modelviewer.dev/shared-assets/models/MaterialsVariantsShoe.glb",
       materialMaps: {
         color:
           "https://cdn.builder.io/api/v1/image/assets%2Fac04b410f62447a685d022b740662952%2F89948f7db5cb406dac59e669bf280fd0?format=webp&width=800",
