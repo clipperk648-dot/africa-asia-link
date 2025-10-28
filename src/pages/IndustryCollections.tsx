@@ -19,7 +19,14 @@ const IndustryCollections = () => {
     {
       id: "shoe",
       modelUrl:
-        "https://cdn.builder.io/o/assets%2F938a9cb6c5f8418ebb61c467931bd555%2F12bb3c28b42c43608bb7d6ca23fc6f3c?alt=media&token=0f9347c7-2859-4bb9-a8ac-1d503bb77b74&apiKey=938a9cb6c5f8418ebb61c467931bd555",
+        "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/MaterialsVariantsShoe/glTF-Binary/MaterialsVariantsShoe.glb",
+      materialMaps: {
+        color:
+          "https://cdn.builder.io/api/v1/image/assets%2Fac04b410f62447a685d022b740662952%2F89948f7db5cb406dac59e669bf280fd0?format=webp&width=800",
+        normal:
+          "https://cdn.builder.io/api/v1/image/assets%2Fac04b410f62447a685d022b740662952%2F44f72fd7bdf249ba8db0ae5e41446ca8?format=webp&width=800",
+      },
+      repeat: [4, 4] as [number, number],
     },
     {
       id: "empty",
