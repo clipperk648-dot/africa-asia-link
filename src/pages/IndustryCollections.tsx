@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import FooterNav from "@/components/FooterNav";
@@ -11,8 +11,9 @@ import LoadingSplashScreen from "@/components/LoadingSplashScreen";
 const IndustryCollections = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const [currentFrame, setCurrentFrame] = useState(0);
 
-  const frames = [
+  const frames = useMemo(() => [
     {
       id: "bike",
       modelUrl:
@@ -20,45 +21,39 @@ const IndustryCollections = () => {
     },
     {
       id: "shoe",
-      modelUrl:
-        "https://modelviewer.dev/shared-assets/models/MaterialsVariantsShoe.glb",
-      materialMaps: {
-        color:
-          "https://cdn.builder.io/api/v1/image/assets%2Fac04b410f62447a685d022b740662952%2F89948f7db5cb406dac59e669bf280fd0?format=webp&width=800",
-        normal:
-          "https://cdn.builder.io/api/v1/image/assets%2Fac04b410f62447a685d022b740662952%2F44f72fd7bdf249ba8db0ae5e41446ca8?format=webp&width=800",
-      },
-      repeat: [4, 4] as [number, number],
+      modelUrl: "",
     },
     {
       id: "empty",
       modelUrl: "",
     },
-  ];
+  ], []);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const handleSplashScreenEnd = () => {
+  const handleSplashScreenEnd = useCallback(() => {
     setIsLoading(false);
-  };
+  }, []);
 
-  const goNext = () => {
+  const goNext = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
     const h = el.clientHeight;
     const curr = Math.round(el.scrollTop / h);
     const next = Math.min(frames.length - 1, curr + 1);
+    setCurrentFrame(next);
     el.scrollTo({ top: next * h, behavior: "smooth" });
-  };
+  }, [frames.length]);
 
-  const goPrev = () => {
+  const goPrev = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
     const h = el.clientHeight;
     const curr = Math.round(el.scrollTop / h);
     const prev = Math.max(0, curr - 1);
+    setCurrentFrame(prev);
     el.scrollTo({ top: prev * h, behavior: "smooth" });
-  };
+  }, []);
 
   return (
     <div className="min-h-screen relative overflow-hidden">
