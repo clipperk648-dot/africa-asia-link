@@ -325,8 +325,6 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
         let i = 0;
         const next = () => {
           if (i >= tryOrder.length) {
-            // eslint-disable-next-line no-console
-            console.error("Failed to load model with any supported loader", { modelUrl, ext, lastError });
             addFallback();
             return;
           }
