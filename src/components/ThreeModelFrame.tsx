@@ -223,20 +223,9 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
 
         animate();
 
-        cleanupRef.current = (() => {
-          const origCleanup = cleanupRef.current;
-          return () => {
-            renderer!.domElement.removeEventListener('mousemove', onMouseMove);
-            renderer!.domElement.removeEventListener('mouseleave', onMouseLeave);
-            if (frameIdRef.current) cancelAnimationFrame(frameIdRef.current);
-            ro.disconnect();
-            controls!.dispose();
-            renderer!.dispose();
-            mount.remove();
-          };
-        })();
-
         cleanupRef.current = () => {
+          renderer!.domElement.removeEventListener('mousemove', onMouseMove);
+          renderer!.domElement.removeEventListener('mouseleave', onMouseLeave);
           if (frameIdRef.current) cancelAnimationFrame(frameIdRef.current);
           ro.disconnect();
           controls!.dispose();
