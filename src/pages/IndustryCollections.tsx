@@ -1,39 +1,14 @@
 import { useEffect } from "react";
+import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUser, logout } from "@/utils/mockAuth";
-import { useProducts } from "@/hooks/useData";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Box, RotateCw } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
-import GlassCard from "@/components/GlassCard";
 import ThreeModelFrame from "@/components/ThreeModelFrame";
 
 const IndustryCollections = () => {
   const navigate = useNavigate();
-  const user = getCurrentUser();
-  const { data: products = [], isLoading, error } = useProducts(20, 0);
-
-  // Auth disabled: collections page is publicly accessible
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
-
-  if (error) {
-    return (
-      <div className="min-h-screen pb-24 relative flex items-center justify-center">
-        <ThreeBackground />
-        <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold">Error Loading Collections</h1>
-          <p className="text-muted-foreground">Unable to load products. Please ensure database is connected.</p>
-        </div>
-      </div>
-    );
-  }
-
-  const selectedProducts = products.slice(0, 3);
 
   const frames = [
     {
