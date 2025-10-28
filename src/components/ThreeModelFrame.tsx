@@ -27,6 +27,24 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
   const frameIdRef = useRef<number>();
   const cleanupRef = useRef<() => void>();
 
+  if (!modelUrl || !modelUrl.trim()) {
+    return (
+      <div
+        className={cn(
+          "relative overflow-hidden rounded-2xl",
+          "bg-gradient-to-br from-white/50 to-white/30 border border-black/10 shadow-xl",
+          "flex items-center justify-center",
+          heightClassName,
+          className,
+        )}
+      >
+        <div className="text-center text-muted-foreground">
+          <p className="text-sm">No model available</p>
+        </div>
+      </div>
+    );
+  }
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container || !modelUrl) return;
