@@ -78,24 +78,31 @@ const IndustryCollections = () => {
       )}
 
       <div ref={scrollRef} className="snap-y snap-mandatory h-screen overflow-y-scroll scrollbar-hide">
-        {frames.map((f, idx) => (
-          <div key={f.id} className="snap-start h-screen relative">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative h-[92vh] max-h-[92vh] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl z-20 border border-black/10 bg-white">
-                <ThreeModelFrame
-                  modelUrl={f.modelUrl}
-                  materialMaps={(f as any).materialMaps}
-                  repeat={(f as any).repeat}
-                  className="w-full h-full"
-                  heightClassName="h-full"
-                />
-                <div className="absolute top-3 right-3 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-white text-xs">
-                  Frame {idx + 1} / {frames.length}
+        {frames.map((f, idx) => {
+          const isVisible = Math.abs(idx - currentFrame) <= 1;
+          return (
+            <div key={f.id} className="snap-start h-screen relative">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="relative h-[92vh] max-h-[92vh] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl z-20 border border-black/10 bg-white">
+                  {isVisible ? (
+                    <ThreeModelFrame
+                      modelUrl={f.modelUrl}
+                      materialMaps={(f as any).materialMaps}
+                      repeat={(f as any).repeat}
+                      className="w-full h-full"
+                      heightClassName="h-full"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-50" />
+                  )}
+                  <div className="absolute top-3 right-3 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-white text-xs">
+                    Frame {idx + 1} / {frames.length}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Floating navigation */}
