@@ -195,12 +195,46 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
         const ro = new ResizeObserver(onResize);
         ro.observe(container);
 
+        let lastUpdate = 0;
         const animate = () => {
           frameIdRef.current = requestAnimationFrame(animate);
+          const now = performance.now();
+
+          if (!isAnimating && now - lastUpdate < 100) {
+            return;
+          }
+
+          lastUpdate = now;
           controls!.update();
           renderer!.render(scene!, camera!);
         };
+
+        const onMouseMove = () => {
+          isAnimating = true;
+          lastUpdate = performance.now();
+        };
+
+        const onMouseLeave = () => {
+          isAnimating = false;
+        };
+
+        renderer!.domElement.addEventListener('mousemove', onMouseMove);
+        renderer!.domElement.addEventListener('mouseleave', onMouseLeave);
+
         animate();
+
+        cleanupRef.current = (() => {
+          const origCleanup = cleanupRef.current;
+          return () => {
+            renderer!.domElement.removeEventListener('mousemove', onMouseMove);
+            renderer!.domElement.removeEventListener('mouseleave', onMouseLeave);
+            if (frameIdRef.current) cancelAnimationFrame(frameIdRef.current);
+            ro.disconnect();
+            controls!.dispose();
+            renderer!.dispose();
+            mount.remove();
+          };
+        })();
 
         cleanupRef.current = () => {
           if (frameIdRef.current) cancelAnimationFrame(frameIdRef.current);
