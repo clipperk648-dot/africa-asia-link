@@ -386,4 +386,4 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
   );
 };
 
-export default ThreeModelFrame;
+export default memo(ThreeModelFrame);
