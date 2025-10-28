@@ -204,9 +204,11 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
             return;
           }
 
-          lastUpdate = now;
-          controls!.update();
-          renderer!.render(scene!, camera!);
+          if (isAnimating || now - lastUpdate >= 100) {
+            lastUpdate = now;
+            controls!.update();
+            renderer!.render(scene!, camera!);
+          }
         };
 
         const onMouseMove = () => {
