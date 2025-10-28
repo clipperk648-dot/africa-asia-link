@@ -110,64 +110,105 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
         };
       };
 
-      // Try to infer extension, but also support URLs without extensions by falling back
       const ext = modelUrl.split("?")[0].split(".").pop()?.toLowerCase();
 
-      const tryLoaders = () => {
-        const tryOBJ = () => {
-          new OBJLoader().load(
-            modelUrl,
-            onLoad,
-            undefined,
-            (err) => {
-              // eslint-disable-next-line no-console
-              console.error("Failed to load OBJ", err);
-            }
-          );
-        };
+      const resourcePath = (() => {
+        try {
+          const u = new URL(modelUrl, window.location.href);
+          return u.href.slice(0, u.href.lastIndexOf("/") + 1);
+        } catch {
+          const lastSlash = modelUrl.lastIndexOf("/");
+          return lastSlash > -1 ? modelUrl.slice(0, lastSlash + 1) : "";
+        }
+      })();
 
-        const tryFBX = (fallback?: () => void) => {
-          new FBXLoader().load(
-            modelUrl,
-            onLoad,
-            undefined,
-            (err) => {
-              // eslint-disable-next-line no-console
-              console.error("Failed to load FBX", err);
-              fallback?.();
-            }
-          );
-        };
-
-        const tryGLTF = (fallback?: () => void) => {
-          new GLTFLoader().load(
+      const loadWith = (format: "gltf" | "glb" | "fbx" | "obj", onFail?: () => void) => {
+        if (format === "gltf" || format === "glb") {
+          const loader = new GLTFLoader();
+          if ((loader as any).setCrossOrigin) (loader as any).setCrossOrigin("anonymous");
+          if ((loader as any).setResourcePath) (loader as any).setResourcePath(resourcePath);
+          loader.load(
             modelUrl,
             (gltf) => onLoad(gltf.scene),
             undefined,
-            (err) => {
-              // eslint-disable-next-line no-console
-              console.error("Failed to load GLTF/GLB", err);
-              fallback?.();
-            }
+            () => onFail?.()
           );
-        };
-
-        if (ext === "fbx") {
-          // Prefer FBX, then GLTF, then OBJ
-          tryFBX(() => tryGLTF(() => tryOBJ()));
-        } else if (ext === "obj") {
-          // Prefer OBJ, then GLTF, then FBX
-          tryOBJ();
-        } else if (ext === "gltf" || ext === "glb") {
-          // Prefer GLTF, then FBX, then OBJ
-          tryGLTF(() => tryFBX(() => tryOBJ()));
-        } else {
-          // Unknown: try GLTF, then FBX, then OBJ
-          tryGLTF(() => tryFBX(() => tryOBJ()));
+        } else if (format === "fbx") {
+          const loader = new FBXLoader();
+          if ((loader as any).setCrossOrigin) (loader as any).setCrossOrigin("anonymous");
+          loader.load(modelUrl, onLoad, undefined, () => onFail?.());
+        } else if (format === "obj") {
+          const loader = new OBJLoader();
+          loader.load(modelUrl, onLoad, undefined, () => onFail?.());
         }
       };
 
-      tryLoaders();
+      const sniffAndLoad = async () => {
+        const chooseByExt = () => {
+          if (ext === "gltf" || ext === "glb") return ext as "gltf" | "glb";
+          if (ext === "fbx") return "fbx" as const;
+          if (ext === "obj") return "obj" as const;
+          return null;
+        };
+
+        let format: "gltf" | "glb" | "fbx" | "obj" | null = chooseByExt();
+
+        if (!format) {
+          try {
+            const controller = new AbortController();
+            const id = setTimeout(() => controller.abort(), 5000);
+            let res = await fetch(modelUrl, {
+              method: "GET",
+              headers: { Range: "bytes=0-2047" },
+              signal: controller.signal,
+            });
+            clearTimeout(id);
+            if (!res.ok) {
+              res = await fetch(modelUrl);
+            }
+            const buf = await res.arrayBuffer();
+            const bytes = new Uint8Array(buf);
+            const head4 = String.fromCharCode(...bytes.slice(0, 4));
+            const text = new TextDecoder("utf-8").decode(bytes.slice(0, 256)).trim();
+
+            if (head4 === "glTF") {
+              format = "glb";
+            } else if (text.startsWith("{") && /\"asset\"/i.test(text)) {
+              format = "gltf";
+            } else if (text.includes("Kaydara FBX") || text.includes("FBXHeaderExtension")) {
+              format = "fbx";
+            } else {
+              const firstChar = text[0];
+              if (firstChar === "#" || firstChar === "o" || firstChar === "v" || text.startsWith("mtllib")) {
+                format = "obj";
+              }
+            }
+          } catch {
+            // ignore sniff errors
+          }
+        }
+
+        const tryOrder: ("gltf" | "glb" | "fbx" | "obj")[] = (() => {
+          if (format === "gltf" || format === "glb") return [format, "fbx", "obj"];
+          if (format === "fbx") return ["fbx", "gltf", "glb", "obj"];
+          if (format === "obj") return ["obj", "gltf", "glb", "fbx"];
+          return ["obj", "gltf", "glb", "fbx"];
+        })();
+
+        let i = 0;
+        const next = () => {
+          if (i >= tryOrder.length) {
+            // eslint-disable-next-line no-console
+            console.error("Failed to load model with any supported loader", { modelUrl, ext });
+            return;
+          }
+          const f = tryOrder[i++];
+          loadWith(f, next);
+        };
+        next();
+      };
+
+      sniffAndLoad();
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error("Three init error", e);
