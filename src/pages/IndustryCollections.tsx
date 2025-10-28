@@ -102,20 +102,24 @@ const IndustryCollections = () => {
       </div>
 
       {/* Floating navigation */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex gap-3">
-        <Button variant="outline" onClick={() => navigate(-1)}>Back</Button>
-        <Button variant="gradient" onClick={goNext}>Next</Button>
-      </div>
+      {!isLoading && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex gap-3">
+          <Button variant="outline" onClick={() => navigate(-1)}>Back</Button>
+          <Button variant="gradient" onClick={goNext}>Next</Button>
+        </div>
+      )}
 
       {/* Up/Down arrows for frame navigation */}
-      <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2">
-        <Button size="icon" variant="secondary" onClick={goPrev} aria-label="Previous frame">
-          <ChevronUp className="w-5 h-5" />
-        </Button>
-        <Button size="icon" variant="secondary" onClick={goNext} aria-label="Next frame">
-          <ChevronDown className="w-5 h-5" />
-        </Button>
-      </div>
+      {!isLoading && (
+        <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2">
+          <Button size="icon" variant="secondary" onClick={goPrev} aria-label="Previous frame">
+            <ChevronUp className="w-5 h-5" />
+          </Button>
+          <Button size="icon" variant="secondary" onClick={goNext} aria-label="Next frame">
+            <ChevronDown className="w-5 h-5" />
+          </Button>
+        </div>
+      )}
 
       <FooterNav dashboardType="industry" />
     </div>
