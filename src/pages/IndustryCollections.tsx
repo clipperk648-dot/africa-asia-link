@@ -71,14 +71,16 @@ const IndustryCollections = () => {
 
       <ThreeBackground />
 
-      <header className="absolute top-0 left-0 right-0 z-40 bg-card/80 backdrop-blur-md">
-        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="text-xl font-bold">3D Collections</h1>
-        </div>
-      </header>
+      {!isLoading && (
+        <header className="absolute top-0 left-0 right-0 z-40 bg-card/80 backdrop-blur-md">
+          <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="text-xl font-bold">3D Collections</h1>
+          </div>
+        </header>
+      )}
 
       <div ref={scrollRef} className="snap-y snap-mandatory h-screen overflow-y-scroll scrollbar-hide">
         {frames.map((f, idx) => (
