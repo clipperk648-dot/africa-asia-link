@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 interface LoadingSplashScreenProps {
   videoUrl: string;
   text?: string;
   isVisible: boolean;
+  onVideoEnd?: () => void;
   className?: string;
 }
 
@@ -12,21 +13,37 @@ const LoadingSplashScreen: React.FC<LoadingSplashScreenProps> = ({
   videoUrl,
   text = "Loading collection",
   isVisible,
+  onVideoEnd,
   className,
 }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (!isVisible || !videoRef.current) return;
+
+    const video = videoRef.current;
+
+    const handleEnded = () => {
+      onVideoEnd?.();
+    };
+
+    video.addEventListener("ended", handleEnded);
+    return () => video.removeEventListener("ended", handleEnded);
+  }, [isVisible, onVideoEnd]);
+
   if (!isVisible) return null;
 
   return (
     <div className={cn(
-      "fixed inset-0 z-50 flex items-center justify-center overflow-hidden",
+      "fixed inset-0 z-[999] flex items-center justify-center overflow-hidden",
       "transition-opacity duration-500",
-      isVisible ? "opacity-100" : "opacity-0 pointer-events-none",
+      isVisible ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
       className
     )}>
       <video
+        ref={videoRef}
         autoPlay
         muted
-        loop
         playsInline
         className="absolute inset-0 w-full h-full object-cover"
       >
