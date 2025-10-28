@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 interface ThreeModelFrameProps {
   modelUrl?: string;
@@ -113,7 +114,6 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
       const ext = modelUrl.split("?")[0].split(".").pop()?.toLowerCase();
 
       const tryLoaders = () => {
-        // Helper to try OBJ after FBX failure (or vice versa)
         const tryOBJ = () => {
           new OBJLoader().load(
             modelUrl,
@@ -126,7 +126,7 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
           );
         };
 
-        const tryFBX = () => {
+        const tryFBX = (fallback?: () => void) => {
           new FBXLoader().load(
             modelUrl,
             onLoad,
@@ -134,19 +134,36 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
             (err) => {
               // eslint-disable-next-line no-console
               console.error("Failed to load FBX", err);
-              // fallback to OBJ
-              tryOBJ();
+              fallback?.();
+            }
+          );
+        };
+
+        const tryGLTF = (fallback?: () => void) => {
+          new GLTFLoader().load(
+            modelUrl,
+            (gltf) => onLoad(gltf.scene),
+            undefined,
+            (err) => {
+              // eslint-disable-next-line no-console
+              console.error("Failed to load GLTF/GLB", err);
+              fallback?.();
             }
           );
         };
 
         if (ext === "fbx") {
-          tryFBX();
+          // Prefer FBX, then GLTF, then OBJ
+          tryFBX(() => tryGLTF(() => tryOBJ()));
         } else if (ext === "obj") {
+          // Prefer OBJ, then GLTF, then FBX
           tryOBJ();
+        } else if (ext === "gltf" || ext === "glb") {
+          // Prefer GLTF, then FBX, then OBJ
+          tryGLTF(() => tryFBX(() => tryOBJ()));
         } else {
-          // Unknown: attempt FBX then OBJ
-          tryFBX();
+          // Unknown: try GLTF, then FBX, then OBJ
+          tryGLTF(() => tryFBX(() => tryOBJ()));
         }
       };
 
