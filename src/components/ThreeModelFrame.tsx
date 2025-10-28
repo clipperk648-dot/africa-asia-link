@@ -22,7 +22,7 @@ interface ThreeModelFrameProps {
   repeat?: [number, number];
 }
 
-const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, heightClassName = "h-[26rem]" }) => {
+const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, heightClassName = "h-[26rem]", materialMaps, repeat }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const frameIdRef = useRef<number>();
   const cleanupRef = useRef<() => void>();
