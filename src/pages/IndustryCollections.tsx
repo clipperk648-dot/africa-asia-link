@@ -1,197 +1,80 @@
 import { useEffect } from "react";
+import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUser, logout } from "@/utils/mockAuth";
-import { useProducts } from "@/hooks/useData";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Box, RotateCw } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
-import GlassCard from "@/components/GlassCard";
+import ThreeModelFrame from "@/components/ThreeModelFrame";
 
 const IndustryCollections = () => {
   const navigate = useNavigate();
-  const user = getCurrentUser();
-  const { data: products = [], isLoading, error } = useProducts(20, 0);
 
-  useEffect(() => {
-    if (!user || user.role !== "industry") {
-      navigate("/login");
-    }
-  }, [user, navigate]);
+  const frames = [
+    {
+      id: "bike",
+      modelUrl:
+        "https://cdn.builder.io/o/assets%2F938a9cb6c5f8418ebb61c467931bd555%2F1fb49eb151e24a13a84591a0fccc7fa1?alt=media&token=4a8cf418-fe40-411c-afd1-243dd69e4d60&apiKey=938a9cb6c5f8418ebb61c467931bd555",
+    },
+    {
+      id: "shoe",
+      modelUrl:
+        "https://cdn.builder.io/o/assets%2F938a9cb6c5f8418ebb61c467931bd555%2F12bb3c28b42c43608bb7d6ca23fc6f3c?alt=media&token=0f9347c7-2859-4bb9-a8ac-1d503bb77b74&apiKey=938a9cb6c5f8418ebb61c467931bd555",
+    },
+    {
+      id: "empty",
+      modelUrl: "",
+    },
+  ];
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const goNext = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const h = el.clientHeight;
+    const curr = Math.round(el.scrollTop / h);
+    const next = Math.min(frames.length - 1, curr + 1);
+    el.scrollTo({ top: next * h, behavior: "smooth" });
   };
 
-  if (error) {
-    return (
-      <div className="min-h-screen pb-24 relative flex items-center justify-center">
-        <ThreeBackground />
-        <div className="text-center space-y-4">
-          <h1 className="text-2xl font-bold">Error Loading Collections</h1>
-          <p className="text-muted-foreground">Unable to load products. Please ensure database is connected.</p>
-        </div>
-      </div>
-    );
-  }
-
-  const selectedProducts = products.slice(0, 3);
-
   return (
-    <div className="min-h-screen pb-24 relative">
+    <div className="min-h-screen relative overflow-hidden">
       <ThreeBackground />
 
-      <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/industry")}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div className="flex items-center gap-2">
-              <Box className="w-6 h-6 text-primary" />
-              <h1 className="text-2xl font-bold">3D Collections</h1>
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground mt-2">
-            Explore our premium 3D model showcase gallery
-          </p>
+      <header className="absolute top-0 left-0 right-0 z-40 bg-card/80 backdrop-blur-md">
+        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <h1 className="text-xl font-bold">3D Collections</h1>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-12">
-        <div className="space-y-12">
-          {selectedProducts.map((product, index) => (
-            <div key={product.id} className="space-y-4">
-              <div className="flex items-end justify-between">
-                <div>
-                  <h2 className="text-3xl font-bold mb-2">{product.name}</h2>
-                  <p className="text-muted-foreground">{product.category}</p>
+      <div ref={scrollRef} className="snap-y snap-mandatory h-screen overflow-y-scroll scrollbar-hide">
+        {frames.map((f, idx) => (
+          <div key={f.id} className="snap-start h-screen relative">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="relative h-[92vh] max-h-[92vh] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl z-20 border border-black/10 bg-white">
+                <ThreeModelFrame
+                  modelUrl={f.modelUrl}
+                  className="w-full h-full"
+                  heightClassName="h-full"
+                />
+                <div className="absolute top-3 right-3 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-white text-xs">
+                  Frame {idx + 1} / {frames.length}
                 </div>
-                <span className="text-sm font-semibold text-primary/60">
-                  Model {index + 1} of {selectedProducts.length}
-                </span>
               </div>
-
-              <GlassCard className="overflow-hidden">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 sm:p-8">
-                  <div className="flex items-center justify-center bg-gradient-to-br from-primary/10 via-purple-500/5 to-transparent rounded-2xl overflow-hidden min-h-96 group">
-                    <div className="relative w-full h-full flex items-center justify-center perspective">
-                      <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-                      <div className="relative w-80 h-80 rounded-2xl border-2 border-primary/20 flex items-center justify-center overflow-hidden shadow-2xl shadow-primary/10 group-hover:shadow-primary/20 transition-all duration-300">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      </div>
-
-                      <div className="absolute top-4 right-4 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full">
-                        <div className="flex items-center gap-2 text-white">
-                          <RotateCw className="w-4 h-4 animate-spin-slow" />
-                          <span className="text-sm font-medium">Interactive 3D</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col justify-between">
-                    <div className="space-y-6">
-                      <div>
-                        <h3 className="text-sm font-semibold text-muted-foreground mb-2">
-                          PRODUCT DETAILS
-                        </h3>
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-start">
-                            <span className="text-sm text-muted-foreground">Price</span>
-                            <span className="text-2xl font-bold text-primary">
-                              ${product.price.toLocaleString()}
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-start">
-                            <span className="text-sm text-muted-foreground">Location</span>
-                            <span className="text-sm font-medium text-right">
-                              {product.location}
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-start">
-                            <span className="text-sm text-muted-foreground">Rating</span>
-                            <div className="flex items-center gap-2">
-                              <div className="flex gap-0.5">
-                                {[...Array(5)].map((_, i) => (
-                                  <div
-                                    key={i}
-                                    className={`w-4 h-4 rounded-sm ${
-                                      i < Math.floor(product.rating)
-                                        ? "bg-accent"
-                                        : "bg-muted"
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                              <span className="text-sm font-semibold">
-                                {product.rating}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="h-px bg-gradient-to-r from-primary/20 via-purple-500/20 to-transparent" />
-
-                      <div>
-                        <h3 className="text-sm font-semibold text-muted-foreground mb-3">
-                          SPECIFICATIONS
-                        </h3>
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Dimension</span>
-                            <span className="font-medium">High Resolution</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Format</span>
-                            <span className="font-medium">3D Model</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Quality</span>
-                            <span className="font-medium">Premium</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Category</span>
-                            <span className="font-medium">{product.category}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="pt-6 flex gap-2">
-                      <Button
-                        variant="outline"
-                        className="flex-1"
-                        onClick={() => navigate(`/buyer/products/${product.id}`)}
-                      >
-                        View Full Details
-                      </Button>
-                      <Button variant="gradient" className="flex-1">
-                        Add to Cart
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </GlassCard>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
+      </div>
 
-        <div className="mt-16 pt-8 border-t border-border/50 text-center space-y-4">
-          <h3 className="text-lg font-semibold">Premium 3D Showcase</h3>
-          <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            Experience our curated collection of premium 3D models with interactive
-            viewing and detailed specifications for each item.
-          </p>
-        </div>
-      </main>
+      {/* Floating navigation */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex gap-3">
+        <Button variant="outline" onClick={() => navigate(-1)}>Back</Button>
+        <Button variant="gradient" onClick={goNext}>Next</Button>
+      </div>
 
       <FooterNav dashboardType="industry" />
     </div>

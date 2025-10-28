@@ -16,6 +16,7 @@ import { APP_NAME, SOCIAL_LINKS } from "@/config/app";
 import RateButton from "@/components/RateButton";
 import { addToCart } from "@/utils/cart";
 import { toast } from "@/components/ui/sonner";
+import GlassSlideshowFrame from "@/components/GlassSlideshowFrame";
 
 const ProductCard = ({ product, navigate }: { product: Product; navigate: any }) => (
   <GlassCard className="p-4 sm:p-6 min-w-[280px] sm:min-w-0">
@@ -213,6 +214,16 @@ const BuyerDashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+        {/* Glass Slideshow Frame */}
+        {(() => {
+          const slides = (products || []).slice(0, 5).map((p) => ({
+            image: p.images?.[0] || p.image || "/placeholder.svg",
+            title: p.name,
+            subtitle: p.company || p.location || "",
+          }));
+          return <GlassSlideshowFrame slides={slides} />;
+        })()}
+
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 animate-fade-in">
           {stats.map((stat, i) => (
             <GlassCard key={i} className="text-center p-4">
