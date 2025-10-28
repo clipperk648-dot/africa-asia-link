@@ -26,6 +26,8 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
   const containerRef = useRef<HTMLDivElement>(null);
   const frameIdRef = useRef<number>();
   const cleanupRef = useRef<() => void>();
+  const sceneRef = useRef<THREE.Scene | null>(null);
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
 
   if (!modelUrl || !modelUrl.trim()) {
     return (
@@ -54,6 +56,7 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
     let camera: THREE.PerspectiveCamera | null = null;
     let controls: OrbitControls | null = null;
     let cancelled = false;
+    let isAnimating = true;
 
     try {
       // Scene and renderer
@@ -62,9 +65,10 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
 
       camera = new THREE.PerspectiveCamera(40, 1, 0.01, 10000);
 
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
       renderer.outputColorSpace = THREE.SRGBColorSpace;
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      const dpr = Math.min(window.devicePixelRatio, 1.5);
+      renderer.setPixelRatio(dpr);
 
       const mount = document.createElement("div");
       mount.style.position = "absolute";
