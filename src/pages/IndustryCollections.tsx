@@ -39,7 +39,7 @@ const IndustryCollections = () => {
     {
       id: "bike",
       modelUrl:
-        "https://cdn.builder.io/o/assets%2F938a9cb6c5f8418ebb61c467931bd555%2F98d65a10979c45dca46f425797185d74?alt=media&token=203528a0-4539-46e5-acd0-d8ad8100f270&apiKey=938a9cb6c5f8418ebb61c467931bd555",
+        "https://cdn.builder.io/o/assets%2F938a9cb6c5f8418ebb61c467931bd555%2F1fb49eb151e24a13a84591a0fccc7fa1?alt=media&token=4a8cf418-fe40-411c-afd1-243dd69e4d60&apiKey=938a9cb6c5f8418ebb61c467931bd555",
     },
     {
       id: "watch",
