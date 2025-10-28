@@ -262,7 +262,7 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
 
         let format: "gltf" | "glb" | "fbx" | "obj" | null = chooseByExt();
 
-        if (!format) {
+        if (!format && modelUrl && modelUrl.trim() !== "") {
           try {
             const controller = new AbortController();
             const id = setTimeout(() => controller.abort(), 5000);
@@ -308,7 +308,8 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
         const next = () => {
           if (i >= tryOrder.length) {
             // eslint-disable-next-line no-console
-            console.error("Failed to load model with any supported loader", { modelUrl, ext });
+            console.error("Failed to load model with any supported loader", { modelUrl, ext, lastError });
+            addFallback();
             return;
           }
           const f = tryOrder[i++];
