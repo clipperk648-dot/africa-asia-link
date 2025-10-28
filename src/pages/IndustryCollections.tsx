@@ -123,7 +123,7 @@ const IndustryCollections = () => {
         </div>
       )}
 
-      <FooterNav dashboardType="industry" />
+      {!isLoading && <FooterNav dashboardType="industry" />}
     </div>
   );
 };
