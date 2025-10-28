@@ -64,7 +64,7 @@ const IndustryCollections = () => {
         onVideoEnd={handleSplashScreenEnd}
       />
 
-      <ThreeBackground />
+      {!isLoading && <ThreeBackground />}
 
       {!isLoading && (
         <header className="absolute top-0 left-0 right-0 z-40 bg-card/80 backdrop-blur-md">
