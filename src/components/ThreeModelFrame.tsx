@@ -201,6 +201,17 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
         }
       })();
 
+      const addFallback = () => {
+        if (!scene) return;
+        const group = new THREE.Group();
+        const geo = new THREE.TorusKnotGeometry(1, 0.35, 200, 32);
+        const mat = new THREE.MeshStandardMaterial({ color: 0x6666ff, metalness: 0.2, roughness: 0.6 });
+        const mesh = new THREE.Mesh(geo, mat);
+        group.add(mesh);
+        onLoad(group);
+      };
+
+      let lastError: any = null;
       const loadWith = (format: "gltf" | "glb" | "fbx" | "obj", onFail?: () => void) => {
         if (format === "gltf" || format === "glb") {
           const loader = new GLTFLoader();
@@ -210,15 +221,34 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
             modelUrl,
             (gltf) => onLoad(gltf.scene),
             undefined,
-            () => onFail?.()
+            (e) => {
+              lastError = e;
+              onFail?.();
+            }
           );
         } else if (format === "fbx") {
           const loader = new FBXLoader();
           if ((loader as any).setCrossOrigin) (loader as any).setCrossOrigin("anonymous");
-          loader.load(modelUrl, onLoad, undefined, () => onFail?.());
+          loader.load(
+            modelUrl,
+            onLoad,
+            undefined,
+            (e) => {
+              lastError = e;
+              onFail?.();
+            }
+          );
         } else if (format === "obj") {
           const loader = new OBJLoader();
-          loader.load(modelUrl, onLoad, undefined, () => onFail?.());
+          loader.load(
+            modelUrl,
+            onLoad,
+            undefined,
+            (e) => {
+              lastError = e;
+              onFail?.();
+            }
+          );
         }
       };
 
