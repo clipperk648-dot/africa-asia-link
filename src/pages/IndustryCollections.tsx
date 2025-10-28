@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import FooterNav from "@/components/FooterNav";
@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ChevronUp, ChevronDown } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import ThreeModelFrame from "@/components/ThreeModelFrame";
+import LoadingSplashScreen from "@/components/LoadingSplashScreen";
 
 const IndustryCollections = () => {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
 
   const frames = [
     {
