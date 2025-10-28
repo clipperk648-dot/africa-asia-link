@@ -10,6 +10,16 @@ interface ThreeModelFrameProps {
   modelUrl?: string;
   className?: string;
   heightClassName?: string;
+  materialMaps?: {
+    color?: string;
+    normal?: string;
+    roughness?: string;
+    metalness?: string;
+    ao?: string;
+    bump?: string;
+    emissive?: string;
+  };
+  repeat?: [number, number];
 }
 
 const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, heightClassName = "h-[26rem]" }) => {
@@ -56,9 +66,78 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
       controls.enablePan = false;
       controls.autoRotate = false;
 
+      const texLoader = new THREE.TextureLoader();
+      (texLoader as any).setCrossOrigin?.("anonymous");
+
+      const loadTexture = (url?: string, isColor = false) =>
+        new Promise<THREE.Texture | null>((resolve) => {
+          if (!url) return resolve(null);
+          texLoader.load(
+            url,
+            (tex) => {
+              tex.wrapS = THREE.RepeatWrapping;
+              tex.wrapT = THREE.RepeatWrapping;
+              if (isColor && (tex as any).colorSpace !== undefined) {
+                (tex as any).colorSpace = THREE.SRGBColorSpace;
+              } else if ((tex as any).colorSpace !== undefined) {
+                (tex as any).colorSpace = THREE.NoColorSpace;
+              }
+              resolve(tex);
+            },
+            undefined,
+            () => resolve(null)
+          );
+        });
+
+      const texPromise = (async () => {
+        const maps = {
+          color: await loadTexture(modelUrl && (materialMaps?.color ?? undefined), true),
+          normal: await loadTexture(modelUrl && (materialMaps?.normal ?? undefined), false),
+          roughness: await loadTexture(modelUrl && (materialMaps?.roughness ?? undefined), false),
+          metalness: await loadTexture(modelUrl && (materialMaps?.metalness ?? undefined), false),
+          ao: await loadTexture(modelUrl && (materialMaps?.ao ?? undefined), false),
+          bump: await loadTexture(modelUrl && (materialMaps?.bump ?? undefined), false),
+          emissive: await loadTexture(modelUrl && (materialMaps?.emissive ?? undefined), true),
+        } as const;
+        return maps;
+      })();
+
+      const applyMaps = async (root: THREE.Object3D) => {
+        const maps = await texPromise;
+        const rep = repeat ?? [1, 1];
+        const setRepeat = (tex: THREE.Texture | null) => {
+          if (!tex) return;
+          tex.repeat.set(rep[0], rep[1]);
+          tex.needsUpdate = true;
+        };
+        Object.values(maps).forEach(setRepeat);
+
+        root.traverse((child) => {
+          const mesh = child as THREE.Mesh;
+          if (!mesh.material) return;
+          const applyTo = (mat: any) => {
+            if (!mat) return;
+            if (maps.color) mat.map = maps.color;
+            if (maps.normal) mat.normalMap = maps.normal;
+            if (maps.roughness) mat.roughnessMap = maps.roughness;
+            if (maps.metalness) mat.metalnessMap = maps.metalness;
+            if (maps.ao) mat.aoMap = maps.ao;
+            if (maps.bump) mat.bumpMap = maps.bump;
+            if (maps.emissive) {
+              mat.emissiveMap = maps.emissive;
+              mat.emissiveIntensity = mat.emissiveIntensity ?? 0.5;
+            }
+            mat.needsUpdate = true;
+          };
+          if (Array.isArray(mesh.material)) mesh.material.forEach(applyTo);
+          else applyTo(mesh.material);
+        });
+      };
+
       const onLoad = (obj: THREE.Object3D) => {
         if (cancelled) return;
         scene!.add(obj);
+        applyMaps(obj).catch(() => {});
 
         // Compute bounds
         const box = new THREE.Box3().setFromObject(obj);
