@@ -1,4 +1,4 @@
-import { Home, Package, Users, ShoppingCart, Music2 } from "lucide-react";
+import { Home, Package, Users, ShoppingCart, Music2, Wallet, TrendingUp, CheckSquare2 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -17,11 +17,17 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
     : { path: "/cart", Icon: ShoppingCart, label: "View cart" };
   const PrimaryActionIcon = primaryAction.Icon;
 
-  const navItems = [
+  const navItems = isIndustry ? [
     { icon: Home, label: "Home", path: basePath },
     { icon: Package, label: "Products", path: `${basePath}/products` },
     { icon: Users, label: "Network", path: `${basePath}/network` },
     { icon: Music2, label: "Social", path: "/social" },
+  ] : [
+    { icon: Home, label: "Home", path: basePath },
+    { icon: Music2, label: "Social", path: "/social" },
+    { icon: Wallet, label: "Wallet", path: "/wallet" },
+    { icon: TrendingUp, label: "Invest", path: "/invest" },
+    { icon: CheckSquare2, label: "Clan", path: "/clan" },
   ];
 
   return (
