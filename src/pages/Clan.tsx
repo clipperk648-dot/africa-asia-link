@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ThreeBackground } from "@/components/ThreeBackground";
+import ThreeBackground from "@/components/ThreeBackground";
 import { Crown, MessageCircle, Users, Clock, Target, TrendingUp } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { getSafeImageUrl, getSafeAvatarUrl } from "@/utils/imageOptimization";
