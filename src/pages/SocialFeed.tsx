@@ -200,7 +200,7 @@ const SocialFeed = memo(() => {
             { (post as any).mediaUrl ? (
               <div className="relative w-full">
                 {String((post as any).mediaUrl).startsWith("data:video") ? (
-                  <video src={(post as any).mediaUrl} controls className="w-full aspect-square object-cover" loading="lazy" />
+                  <video src={(post as any).mediaUrl} controls className="w-full aspect-square object-cover" />
                 ) : (
                   <img src={(post as any).mediaUrl} alt="Post" className="w-full aspect-square object-cover" loading="lazy" />
                 )}
