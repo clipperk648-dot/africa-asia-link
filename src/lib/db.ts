@@ -1,6 +1,6 @@
 // In-memory mock database to remove external DB dependency
 
-import type { Product, Order, SocialPost } from "@/types/models";
+import type { Product, Order, SocialPost, Clan, ClanMember } from "@/types/models";
 
 const mockProducts: Product[] = [
   {
@@ -56,6 +56,48 @@ let mockPosts: SocialPost[] = [
     likes: 120,
     comments: 18,
     timestamp: new Date().toISOString(),
+  },
+];
+
+let mockClans: Clan[] = [
+  {
+    id: "c1",
+    name: "Sneaker Collectors",
+    description: "A group of sneaker enthusiasts pooling resources together",
+    creatorId: "u1",
+    creatorName: "John Collector",
+    targetProductId: "p1",
+    targetProductName: "Limited Edition Air Max",
+    targetPrice: 5000,
+    currentFunded: 3200,
+    deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days from now
+    status: "active",
+    members: [
+      { id: "m1", userId: "u1", username: "John Collector", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=john", contributedAmount: 1200, joinedDate: new Date().toISOString() },
+      { id: "m2", userId: "u2", username: "Sneaker Fan", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=fan", contributedAmount: 800, joinedDate: new Date().toISOString() },
+      { id: "m3", userId: "u3", username: "Collector Pro", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=pro", contributedAmount: 500, joinedDate: new Date().toISOString() },
+      { id: "m4", userId: "u4", username: "Hype Beast", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=hype", contributedAmount: 700, joinedDate: new Date().toISOString() },
+    ],
+    createdDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
+  },
+  {
+    id: "c2",
+    name: "Tech Enthusiasts",
+    description: "Bulk purchasing of the latest tech equipment",
+    creatorId: "u5",
+    creatorName: "Tech Lead",
+    targetProductId: "p2",
+    targetProductName: "Gaming Laptop Bundle",
+    targetPrice: 8000,
+    currentFunded: 6500,
+    deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days from now
+    status: "active",
+    members: [
+      { id: "m5", userId: "u5", username: "Tech Lead", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=tech", contributedAmount: 2000, joinedDate: new Date().toISOString() },
+      { id: "m6", userId: "u6", username: "Gamer", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=gamer", contributedAmount: 1500, joinedDate: new Date().toISOString() },
+      { id: "m7", userId: "u7", username: "Dev", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=dev", contributedAmount: 3000, joinedDate: new Date().toISOString() },
+    ],
+    createdDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
   },
 ];
 
