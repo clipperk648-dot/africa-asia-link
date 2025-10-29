@@ -24,6 +24,7 @@ const ProductCard = memo(({ product, navigate }: { product: Product; navigate: a
       src={product.image}
       alt={product.name}
       className="w-full h-40 sm:h-48 object-cover rounded-lg mb-4"
+      loading="lazy"
     />
     <div className="space-y-2">
       <div className="flex items-start justify-between gap-2">
