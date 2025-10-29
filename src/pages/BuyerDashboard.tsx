@@ -22,10 +22,11 @@ import { getSafeImageUrl, getSafeAvatarUrl, createImageErrorHandler } from "@/ut
 const ProductCard = ({ product, navigate }: { product: Product; navigate: any }) => (
   <GlassCard className="p-4 sm:p-6 min-w-[280px] sm:min-w-0">
     <img
-      src={product.image}
+      src={getSafeImageUrl(product.image)}
       alt={product.name}
       className="w-full h-40 sm:h-48 object-cover rounded-lg mb-4"
       loading="lazy"
+      onError={createImageErrorHandler()}
     />
     <div className="space-y-2">
       <div className="flex items-start justify-between gap-2">
