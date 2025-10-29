@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 
-const SocialFeed = memo(() => {
+const SocialFeed = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
   const { data: fetchedPosts = [], refetch } = useSocialPosts(50);
@@ -322,8 +322,6 @@ const SocialFeed = memo(() => {
       </Sheet>
     </div>
   );
-});
-
-SocialFeed.displayName = "SocialFeed";
+};
 
 export default SocialFeed;
