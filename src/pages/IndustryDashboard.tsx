@@ -1,4 +1,4 @@
-import { useEffect, useState, Fragment, memo } from "react";
+import { useEffect, useState, Fragment } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { getCurrentUser, logout } from "@/utils/mockAuth";
 import { useProducts, useOrders } from "@/hooks/useData";
@@ -14,7 +14,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { APP_NAME, SOCIAL_LINKS } from "@/config/app";
 import GlassSlideshowFrame from "@/components/GlassSlideshowFrame";
 
-const ProductCard = memo(({ product }: { product: Product }) => (
+const ProductCard = ({ product }: { product: Product }) => (
   <GlassCard className="p-4 sm:p-6 min-w-[280px] sm:min-w-0">
     <div className="flex gap-3 sm:gap-4">
       <img
@@ -50,9 +50,7 @@ const ProductCard = memo(({ product }: { product: Product }) => (
       </div>
     </div>
   </GlassCard>
-));
-
-ProductCard.displayName = "ProductCard";
+);
 
 const IndustryDashboard = () => {
   const navigate = useNavigate();
