@@ -19,6 +19,7 @@ const IndustryProductEdit = lazy(() => import("./pages/IndustryProductEdit"));
 const IndustryProductStats = lazy(() => import("./pages/IndustryProductStats"));
 const IndustryCollections = lazy(() => import("./pages/IndustryCollections"));
 const IndustryRecentActivity = lazy(() => import("./pages/IndustryRecentActivity"));
+const BuyerCollections = lazy(() => import("./pages/BuyerCollections"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const BuyerAnalytics = lazy(() => import("./pages/BuyerAnalytics"));
 const BuyerDashboard = lazy(() => import("./pages/BuyerDashboard"));
@@ -85,6 +86,7 @@ const App = () => (
               <Route path="/buyer/settings/password" element={<ProtectedRoute element={<BuyerChangePassword />} requiredRole="buyer" />} />
               <Route path="/buyer/settings/2fa" element={<ProtectedRoute element={<BuyerTwoFactor />} requiredRole="buyer" />} />
               <Route path="/buyer/products/:id" element={<ProtectedRoute element={<ProductDetails />} requiredRole="buyer" />} />
+              <Route path="/buyer/collections" element={<ProtectedRoute element={<BuyerCollections />} requiredRole="buyer" />} />
               <Route path="/notifications" element={<ProtectedRoute element={<Notifications />} />} />
               <Route path="/social" element={<ProtectedRoute element={<SocialFeed />} />} />
               <Route path="/social/add" element={<ProtectedRoute element={<SocialAddPost />} />} />

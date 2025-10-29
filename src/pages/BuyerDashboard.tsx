@@ -6,7 +6,7 @@ import type { Product } from "@/types/models";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Settings, Bell, BarChart3, PlusCircle, Wallet as WalletIcon, Bot, Menu, Twitter, Instagram, Facebook } from "lucide-react";
+import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Settings, Bell, BarChart3, PlusCircle, Wallet as WalletIcon, Bot, Menu, Twitter, Instagram, Facebook, Box } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -24,6 +24,7 @@ const ProductCard = ({ product, navigate }: { product: Product; navigate: any })
       src={product.image}
       alt={product.name}
       className="w-full h-40 sm:h-48 object-cover rounded-lg mb-4"
+      loading="lazy"
     />
     <div className="space-y-2">
       <div className="flex items-start justify-between gap-2">
@@ -126,20 +127,25 @@ const BuyerDashboard = () => {
                   </SheetHeader>
                   <div className="mt-4 space-y-2">
                     <Link to="/profile">
-                      <Button variant="ghost" className="w-full justify-start">Profile</Button>
-                    </Link>
-                    <Link to="/buyer/settings">
-                      <Button variant="ghost" className="w-full justify-start">Settings</Button>
-                    </Link>
-                    <Link to="/wallet">
-                      <Button variant="ghost" className="w-full justify-start">Wallet</Button>
-                    </Link>
-                    <Link to="/invest">
-                      <Button variant="ghost" className="w-full justify-start">Invest</Button>
-                    </Link>
-                    <Link to="/notifications">
-                      <Button variant="ghost" className="w-full justify-start">Notifications</Button>
-                    </Link>
+                    <Button variant="ghost" className="w-full justify-start">Profile</Button>
+                  </Link>
+                  <Link to="/buyer/settings">
+                    <Button variant="ghost" className="w-full justify-start">Settings</Button>
+                  </Link>
+                  <Link to="/buyer/collections">
+                    <Button variant="ghost" className="w-full justify-start">
+                      <Box className="w-4 h-4 mr-2" /> Collections
+                    </Button>
+                  </Link>
+                  <Link to="/wallet">
+                    <Button variant="ghost" className="w-full justify-start">Wallet</Button>
+                  </Link>
+                  <Link to="/invest">
+                    <Button variant="ghost" className="w-full justify-start">Invest</Button>
+                  </Link>
+                  <Link to="/notifications">
+                    <Button variant="ghost" className="w-full justify-start">Notifications</Button>
+                  </Link>
 
                     <div className="pt-2 border-t border-border/40 mt-2">
                       <p className="text-xs text-muted-foreground px-2 mb-2">Follow us</p>
@@ -214,15 +220,10 @@ const BuyerDashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        {/* Glass Slideshow Frame */}
-        {(() => {
-          const slides = (products || []).slice(0, 5).map((p) => ({
-            image: p.images?.[0] || p.image || "/placeholder.svg",
-            title: p.name,
-            subtitle: p.company || p.location || "",
-          }));
-          return <GlassSlideshowFrame slides={slides} />;
-        })()}
+        {/* Glass Slideshow Frame - Video Banner */}
+        <GlassSlideshowFrame
+          videoUrl="https://cdn.builder.io/o/assets%2Fb6198669f4754d65b52a472eb983bf6a%2Fa1f93e869b6f419eac1c318985a39a15?alt=media&token=d5e5b0b8-9d79-47e0-bc70-caa9377302de&apiKey=b6198669f4754d65b52a472eb983bf6a"
+        />
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 animate-fade-in">
           {stats.map((stat, i) => (

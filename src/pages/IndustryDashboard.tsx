@@ -21,6 +21,7 @@ const ProductCard = ({ product }: { product: Product }) => (
         src={product.image}
         alt={product.name}
         className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0"
+        loading="lazy"
       />
       <div className="flex-1 min-w-0">
         <h3 className="font-semibold text-sm sm:text-base truncate">{product.name}</h3>
