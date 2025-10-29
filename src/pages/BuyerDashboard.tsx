@@ -1,4 +1,4 @@
-import { useEffect, useState, Fragment } from "react";
+import { useEffect, useState, Fragment, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser, logout } from "@/utils/mockAuth";
 import { useProducts, useOrders } from "@/hooks/useData";
@@ -18,7 +18,7 @@ import { addToCart } from "@/utils/cart";
 import { toast } from "@/components/ui/sonner";
 import GlassSlideshowFrame from "@/components/GlassSlideshowFrame";
 
-const ProductCard = ({ product, navigate }: { product: Product; navigate: any }) => (
+const ProductCard = memo(({ product, navigate }: { product: Product; navigate: any }) => (
   <GlassCard className="p-4 sm:p-6 min-w-[280px] sm:min-w-0">
     <img
       src={product.image}
@@ -57,7 +57,9 @@ const ProductCard = ({ product, navigate }: { product: Product; navigate: any })
       </div>
     </div>
   </GlassCard>
-);
+));
+
+ProductCard.displayName = "ProductCard";
 
 const BuyerDashboard = () => {
   const navigate = useNavigate();
