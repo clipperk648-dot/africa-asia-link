@@ -108,6 +108,29 @@ export const createProduct = async (productData: Partial<Product>): Promise<Prod
   return p;
 };
 
+export const updateProduct = async (id: string, productData: Partial<Product>): Promise<Product | null> => {
+  await delay();
+  const index = mockProducts.findIndex((p) => p.id === id);
+  if (index === -1) return null;
+
+  const updated: Product = {
+    ...mockProducts[index],
+    ...productData,
+    id, // Ensure ID doesn't change
+  } as Product;
+
+  mockProducts[index] = updated;
+  return updated;
+};
+
+export const deleteProduct = async (id: string): Promise<boolean> => {
+  await delay();
+  const index = mockProducts.findIndex((p) => p.id === id);
+  if (index === -1) return false;
+  mockProducts.splice(index, 1);
+  return true;
+};
+
 // Orders
 export const getOrders = async (userId: string): Promise<Order[]> => {
   await delay();
