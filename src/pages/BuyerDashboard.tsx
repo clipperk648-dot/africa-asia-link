@@ -17,6 +17,7 @@ import RateButton from "@/components/RateButton";
 import { addToCart } from "@/utils/cart";
 import { toast } from "@/components/ui/sonner";
 import GlassSlideshowFrame from "@/components/GlassSlideshowFrame";
+import { getSafeImageUrl, getSafeAvatarUrl, createImageErrorHandler } from "@/utils/imageOptimization";
 
 const ProductCard = ({ product, navigate }: { product: Product; navigate: any }) => (
   <GlassCard className="p-4 sm:p-6 min-w-[280px] sm:min-w-0">
