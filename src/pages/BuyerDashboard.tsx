@@ -126,20 +126,25 @@ const BuyerDashboard = () => {
                   </SheetHeader>
                   <div className="mt-4 space-y-2">
                     <Link to="/profile">
-                      <Button variant="ghost" className="w-full justify-start">Profile</Button>
-                    </Link>
-                    <Link to="/buyer/settings">
-                      <Button variant="ghost" className="w-full justify-start">Settings</Button>
-                    </Link>
-                    <Link to="/wallet">
-                      <Button variant="ghost" className="w-full justify-start">Wallet</Button>
-                    </Link>
-                    <Link to="/invest">
-                      <Button variant="ghost" className="w-full justify-start">Invest</Button>
-                    </Link>
-                    <Link to="/notifications">
-                      <Button variant="ghost" className="w-full justify-start">Notifications</Button>
-                    </Link>
+                    <Button variant="ghost" className="w-full justify-start">Profile</Button>
+                  </Link>
+                  <Link to="/buyer/settings">
+                    <Button variant="ghost" className="w-full justify-start">Settings</Button>
+                  </Link>
+                  <Link to="/buyer/collections">
+                    <Button variant="ghost" className="w-full justify-start">
+                      <Box className="w-4 h-4 mr-2" /> Collections
+                    </Button>
+                  </Link>
+                  <Link to="/wallet">
+                    <Button variant="ghost" className="w-full justify-start">Wallet</Button>
+                  </Link>
+                  <Link to="/invest">
+                    <Button variant="ghost" className="w-full justify-start">Invest</Button>
+                  </Link>
+                  <Link to="/notifications">
+                    <Button variant="ghost" className="w-full justify-start">Notifications</Button>
+                  </Link>
 
                     <div className="pt-2 border-t border-border/40 mt-2">
                       <p className="text-xs text-muted-foreground px-2 mb-2">Follow us</p>
