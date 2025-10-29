@@ -1,12 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
-import { getProducts, getProductById, getOrders, getSocialPosts } from "@/lib/db";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getProducts, getProductById, getOrders, getSocialPosts, updateProduct, createProduct, deleteProduct } from "@/lib/db";
+import type { Product } from "@/types/models";
 
 // Fetch all products
 export const useProducts = (limit = 20, offset = 0) => {
   return useQuery({
     queryKey: ["products", limit, offset],
     queryFn: () => getProducts(limit, offset),
-    refetchInterval: 10000,
+    refetchInterval: 5000, // Refetch every 5 seconds for better real-time sync
   });
 };
 
