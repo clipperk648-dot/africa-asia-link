@@ -15,6 +15,7 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { getSafeImageUrl, createImageErrorHandler } from "@/utils/imageOptimization";
 
 const CATEGORIES = [
   "All",
@@ -162,9 +163,10 @@ const BuyerProducts = () => {
           <GlassCard key={product.id}>
             <div className="flex flex-col md:flex-row gap-4">
               <img
-                src={product.image}
+                src={getSafeImageUrl(product.image)}
                 alt={product.name}
                 loading="lazy"
+                onError={createImageErrorHandler()}
                 className="w-full md:w-40 h-40 object-cover rounded-lg"
               />
               <div className="flex-1">

@@ -28,6 +28,7 @@ const BuyerNetwork = lazy(() => import("./pages/BuyerNetwork"));
 const BuyerSettings = lazy(() => import("./pages/BuyerSettings"));
 const SocialFeed = lazy(() => import("./pages/SocialFeed"));
 const SocialAddPost = lazy(() => import("./pages/SocialAddPost"));
+const Clan = lazy(() => import("./pages/Clan"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Messages = lazy(() => import("./pages/Messages"));
 const Chat = lazy(() => import("./pages/Chat"));
@@ -87,6 +88,7 @@ const App = () => (
               <Route path="/buyer/settings/2fa" element={<ProtectedRoute element={<BuyerTwoFactor />} requiredRole="buyer" />} />
               <Route path="/buyer/products/:id" element={<ProtectedRoute element={<ProductDetails />} requiredRole="buyer" />} />
               <Route path="/buyer/collections" element={<ProtectedRoute element={<BuyerCollections />} requiredRole="buyer" />} />
+              <Route path="/clan" element={<ProtectedRoute element={<Clan />} requiredRole="buyer" />} />
               <Route path="/notifications" element={<ProtectedRoute element={<Notifications />} />} />
               <Route path="/social" element={<ProtectedRoute element={<SocialFeed />} />} />
               <Route path="/social/add" element={<ProtectedRoute element={<SocialAddPost />} />} />

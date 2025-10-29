@@ -71,3 +71,29 @@ export interface SocialPost {
   comments: number;
   timestamp: string;
 }
+
+export interface ClanMember {
+  id: string;
+  userId: string;
+  username: string;
+  avatar?: string;
+  contributedAmount: number;
+  joinedDate: string;
+}
+
+export interface Clan {
+  id: string;
+  name: string;
+  description?: string;
+  creatorId: string;
+  creatorName: string;
+  targetProductId: string;
+  targetProductName: string;
+  targetPrice: number;
+  currentFunded: number;
+  deadline: string; // ISO date string
+  status: "active" | "completed" | "closed";
+  members: ClanMember[];
+  createdDate: string;
+  icon?: string;
+}

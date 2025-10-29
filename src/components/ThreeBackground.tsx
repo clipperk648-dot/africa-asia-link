@@ -26,21 +26,22 @@ const ThreeBackground = () => {
     if (!context) return;
 
     const colors = [
-      "rgba(138, 108, 253, 0.6)",
-      "rgba(255, 193, 7, 0.6)",
-      "rgba(52, 211, 153, 0.6)",
+      "rgba(138, 108, 253, 0.7)",
+      "rgba(255, 193, 7, 0.7)",
+      "rgba(52, 211, 153, 0.7)",
     ];
 
-    let connectionDistance = 180;
+    let connectionDistance = 220;
     let connectionDistanceSq = connectionDistance * connectionDistance;
     const frameInterval = 1000 / 30; // 30 FPS for better perf
-    const baseSpeed = 0.6;
-    let minParticleSize = 2.5;
-    let maxParticleSize = 4.5;
+    const baseSpeed = 0.5;
+    let minParticleSize = 4;
+    let maxParticleSize = 8;
     let enableConnections = true;
     const cohesionRadius = 200;
     const cohesionStrength = 0.003;
     const velocityDamping = 0.998;
+    const bounceCoefficient = 0.8; // Energy loss on bounce
 
     let particles: Particle[] = [];
     let animationFrameId: number | null = null;
@@ -49,9 +50,9 @@ const ThreeBackground = () => {
     const getTargetParticleCount = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      if (w < 640) return 28;
+      if (w < 640) return 50;
       const area = w * h;
-      return Math.max(36, Math.min(90, Math.round(area / 45000) + 30));
+      return Math.max(80, Math.min(200, Math.round(area / 30000) + 60));
     };
 
     const createParticle = (): Particle => {
@@ -70,13 +71,13 @@ const ThreeBackground = () => {
       const w = window.innerWidth;
       enableConnections = w >= 640; // disable on small screens
       if (w < 640) {
-        minParticleSize = 2.5;
-        maxParticleSize = 4.5;
-        connectionDistance = 160;
-      } else {
-        minParticleSize = 2.5;
-        maxParticleSize = 4.5;
+        minParticleSize = 3;
+        maxParticleSize = 6;
         connectionDistance = 180;
+      } else {
+        minParticleSize = 4;
+        maxParticleSize = 8;
+        connectionDistance = 220;
       }
       connectionDistanceSq = connectionDistance * connectionDistance;
     };
@@ -141,8 +142,24 @@ const ThreeBackground = () => {
         p.x += p.velocityX;
         p.y += p.velocityY;
 
-        if (p.x > width) p.x = 0; else if (p.x < 0) p.x = width;
-        if (p.y > height) p.y = 0; else if (p.y < 0) p.y = height;
+        // Bounce off edges instead of wrapping
+        const radius = p.size;
+
+        if (p.x + radius > width) {
+          p.x = width - radius;
+          p.velocityX *= -bounceCoefficient;
+        } else if (p.x - radius < 0) {
+          p.x = radius;
+          p.velocityX *= -bounceCoefficient;
+        }
+
+        if (p.y + radius > height) {
+          p.y = height - radius;
+          p.velocityY *= -bounceCoefficient;
+        } else if (p.y - radius < 0) {
+          p.y = radius;
+          p.velocityY *= -bounceCoefficient;
+        }
 
         // Particle glow
         const gradient = context.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
@@ -168,9 +185,10 @@ const ThreeBackground = () => {
             const dy = a.y - b.y;
             const distanceSq = dx * dx + dy * dy;
             if (distanceSq < connectionDistanceSq) {
-              const opacity = 0.25 * (1 - Math.sqrt(distanceSq) / connectionDistance);
+              const distance = Math.sqrt(distanceSq);
+              const opacity = 0.4 * (1 - distance / connectionDistance);
               context.strokeStyle = `rgba(138, 108, 253, ${opacity})`;
-              context.lineWidth = 1.2;
+              context.lineWidth = 2.5;
               context.beginPath();
               context.moveTo(a.x, a.y);
               context.lineTo(b.x, b.y);

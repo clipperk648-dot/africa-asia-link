@@ -1,73 +1,173 @@
-# Welcome to your Lovable project
+# TradeLink - International Trade Platform
 
-## Project info
+A premier platform connecting Chinese manufacturers with Nigerian buyers, streamlining international trade with verified partners.
 
-**URL**: https://lovable.dev/projects/fb3b7cd6-9385-4529-8c72-3d9c7a3961c9
+## Project Overview
 
-## How can I edit this code?
+TradeLink is a comprehensive e-commerce and social trading platform that bridges the gap between industrial suppliers and buyers. It features:
 
-There are several ways of editing your application.
+- **Seller (Industry) Dashboard**: Manage products, inventory, and analytics
+- **Buyer Dashboard**: Browse products, manage orders, and track shipments
+- **Social Feed**: Connect with trading partners and share updates
+- **Wallet System**: Secure payment and transaction management
+- **Investment Module**: Explore investment opportunities
+- **Clan Buying**: Pool resources with other buyers for bulk purchases
+- **Real-time Notifications**: Stay updated on orders and messages
 
-**Use Lovable**
+## Technologies Used
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/fb3b7cd6-9385-4529-8c72-3d9c7a3961c9) and start prompting.
+- **Frontend Framework**: React 18+ with TypeScript
+- **Build Tool**: Vite
+- **UI Components**: shadcn/ui (built on Radix UI primitives)
+- **Styling**: Tailwind CSS
+- **State Management**: React Query (@tanstack/react-query)
+- **Routing**: React Router v6
+- **Form Handling**: React Hook Form with Zod validation
+- **Charts**: Recharts for data visualization
+- **Animation**: Framer Motion and custom Canvas animations
+- **Icons**: Lucide React
 
-Changes made via Lovable will be committed automatically to this repo.
+## Getting Started
 
-**Use your preferred IDE**
+### Prerequisites
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Node.js (v18 or higher)
+- npm or yarn package manager
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+### Installation
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
+# Navigate to project directory
 cd <YOUR_PROJECT_NAME>
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The application will be available at `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Project Structure
 
-**Use GitHub Codespaces**
+```
+src/
+├── components/       # Reusable React components
+├── pages/           # Page components for routes
+├── lib/             # Utility functions and mock database
+├── hooks/           # Custom React hooks
+├── utils/           # Helper functions
+├── types/           # TypeScript type definitions
+├── styles/          # Global styles
+└── config/          # App configuration
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Features
 
-## What technologies are used for this project?
+### For Sellers (Industry)
+- Product management and inventory tracking
+- Sales analytics and performance metrics
+- Customer network management
+- Order fulfillment tracking
+- Product ratings and reviews
 
-This project is built with:
+### For Buyers
+- Browse extensive product catalog
+- Advanced search and filtering
+- Secure shopping cart and checkout
+- Order tracking and history
+- Product comparisons and reviews
+- Clan buying groups for bulk purchases
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Social & Community
+- Trading partner social feed
+- Direct messaging and chat
+- Activity notifications
+- User profiles and connections
+- Video feed content
 
-## How can I deploy this project?
+### Wallet & Payments
+- Secure wallet management
+- Multiple payment methods
+- Transaction history
+- Deposit and withdrawal options
+- Wallet-to-wallet transfers
 
-Simply open [Lovable](https://lovable.dev/projects/fb3b7cd6-9385-4529-8c72-3d9c7a3961c9) and click on Share -> Publish.
+## Development
 
-## Can I connect a custom domain to my Lovable project?
+### Available Scripts
 
-Yes, you can!
+```sh
+npm run dev       # Start development server with HMR
+npm run build     # Build for production
+npm run preview   # Preview production build locally
+npm run lint      # Run ESLint
+npm run type-check # Run TypeScript type checking
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Environment Configuration
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+The application is configured to work with Netlify Functions for the backend. Update environment variables as needed for your deployment environment.
+
+## Building & Deployment
+
+### Production Build
+
+```sh
+npm run build
+```
+
+This creates an optimized build in the `dist/` directory.
+
+### Deployment
+
+The application is optimized for deployment on Netlify with integrated serverless functions:
+
+1. Push your changes to the repository
+2. Connect your repository to Netlify
+3. Netlify will automatically build and deploy your changes
+
+## Performance Optimizations
+
+The application includes several optimizations:
+
+- **Code Splitting**: Vendor code split into separate chunks for better caching
+- **Image Optimization**: Lazy loading and format selection (WebP/AVIF)
+- **Canvas Rendering**: GPU-accelerated particle animations with reduced motion support
+- **Tree Shaking**: Unused code elimination during build
+- **Minification**: Terser configuration for optimal bundle size
+
+## Contributing
+
+When contributing to this project:
+
+1. Create a new branch for your feature
+2. Follow the existing code style and patterns
+3. Ensure all tests pass and types are correct
+4. Submit a pull request with a clear description
+
+## Architecture Notes
+
+### Product Sync Mechanism
+
+Products created by sellers (industry users) are automatically visible to all buyers (buyer users) through a shared mock database layer. This ensures data consistency across both user types.
+
+### Authentication
+
+The application uses a mock authentication system for development. Replace with proper authentication (e.g., Supabase, Firebase) for production.
+
+### Data Storage
+
+Currently uses in-memory mock database for development. For production, integrate with a backend database system and API.
+
+## Support
+
+For issues, questions, or suggestions, please create an issue in the repository.
+
+## License
+
+This project is proprietary and confidential.
