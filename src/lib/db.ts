@@ -220,6 +220,86 @@ export const createSocialPost = async (
   return post;
 };
 
+// Clans
+export const getClans = async (limit = 20, offset = 0): Promise<Clan[]> => {
+  await delay();
+  return mockClans.slice(offset, offset + limit);
+};
+
+export const getClanById = async (id: string): Promise<Clan | null> => {
+  await delay();
+  return mockClans.find((c) => c.id === id) || null;
+};
+
+export const createClan = async (clanData: Partial<Clan>): Promise<Clan> => {
+  await delay();
+  const clan: Clan = {
+    id: crypto.randomUUID(),
+    name: clanData.name || "New Clan",
+    description: clanData.description || "",
+    creatorId: clanData.creatorId || "",
+    creatorName: clanData.creatorName || "Creator",
+    targetProductId: clanData.targetProductId || "",
+    targetProductName: clanData.targetProductName || "",
+    targetPrice: clanData.targetPrice || 0,
+    currentFunded: 0,
+    deadline: clanData.deadline || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    status: "active",
+    members: [
+      {
+        id: crypto.randomUUID(),
+        userId: clanData.creatorId || "",
+        username: clanData.creatorName || "Creator",
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(clanData.creatorName || "creator")}`,
+        contributedAmount: 0,
+        joinedDate: new Date().toISOString(),
+      },
+    ],
+    createdDate: new Date().toISOString(),
+  };
+  mockClans.unshift(clan);
+  return clan;
+};
+
+export const joinClan = async (clanId: string, userId: string, username: string, contributionAmount: number): Promise<Clan | null> => {
+  await delay();
+  const clan = mockClans.find((c) => c.id === clanId);
+  if (!clan) return null;
+
+  const memberExists = clan.members.some((m) => m.userId === userId);
+  if (!memberExists) {
+    clan.members.push({
+      id: crypto.randomUUID(),
+      userId,
+      username,
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(username)}`,
+      contributedAmount,
+      joinedDate: new Date().toISOString(),
+    });
+  } else {
+    const member = clan.members.find((m) => m.userId === userId);
+    if (member) member.contributedAmount += contributionAmount;
+  }
+
+  clan.currentFunded += contributionAmount;
+  return clan;
+};
+
+export const leaveClan = async (clanId: string, userId: string): Promise<Clan | null> => {
+  await delay();
+  const clan = mockClans.find((c) => c.id === clanId);
+  if (!clan) return null;
+
+  const memberIndex = clan.members.findIndex((m) => m.userId === userId);
+  if (memberIndex !== -1) {
+    const member = clan.members[memberIndex];
+    clan.currentFunded -= member.contributedAmount;
+    clan.members.splice(memberIndex, 1);
+  }
+
+  return clan;
+};
+
 // Wallet (placeholders consistent with existing API)
 export const getWalletBalance = async (userId: string, currency = "USD"): Promise<{ balance: number; currency: string }> => {
   await delay();
