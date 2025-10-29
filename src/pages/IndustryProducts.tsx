@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Search, Filter, Star } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
+import { getSafeImageUrl, createImageErrorHandler } from "@/utils/imageOptimization";
 
 const IndustryProducts = () => {
   const navigate = useNavigate();
@@ -53,9 +54,10 @@ const IndustryProducts = () => {
           <GlassCard key={product.id} className="p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row gap-4">
               <img
-                src={product.image}
+                src={getSafeImageUrl(product.image)}
                 alt={product.name}
                 loading="lazy"
+                onError={createImageErrorHandler()}
                 className="w-full sm:w-32 h-40 sm:h-32 object-cover rounded-lg flex-shrink-0"
               />
               <div className="flex-1 min-w-0">
