@@ -38,3 +38,44 @@ export const useSocialPosts = (limit = 20) => {
     refetchInterval: 5000,
   });
 };
+
+// Mutations for product management
+export const useCreateProductMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (productData: Partial<Product>) => createProduct(productData),
+    onSuccess: () => {
+      // Invalidate and refetch all product queries
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+};
+
+export const useUpdateProductMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Partial<Product> }) =>
+      updateProduct(id, data),
+    onSuccess: (data) => {
+      if (data) {
+        // Invalidate product-related queries
+        queryClient.invalidateQueries({ queryKey: ["products"] });
+        queryClient.invalidateQueries({ queryKey: ["product", data.id] });
+      }
+    },
+  });
+};
+
+export const useDeleteProductMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteProduct(id),
+    onSuccess: () => {
+      // Invalidate all product queries
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+};
