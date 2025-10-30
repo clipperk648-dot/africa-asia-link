@@ -130,13 +130,16 @@ const ThreeBackground = () => {
 
       const width = canvas.width;
       const height = canvas.height;
+      const isMobile = window.innerWidth < 768;
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
 
         // Cohesion towards nearby particles (atomic clustering)
+        // Reduced on mobile for performance
         let sumX = 0, sumY = 0, count = 0;
-        for (let j = 0; j < particles.length && count < 8; j++) {
+        const maxNearby = isMobile ? 4 : 8;
+        for (let j = 0; j < particles.length && count < maxNearby; j++) {
           if (i === j) continue;
           const n = particles[j];
           const dx = n.x - p.x;
@@ -179,14 +182,16 @@ const ThreeBackground = () => {
           p.velocityY *= -bounceCoefficient;
         }
 
-        // Particle glow
-        const gradient = context.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
-        gradient.addColorStop(0, p.color);
-        gradient.addColorStop(1, "rgba(138,108,253,0)");
-        context.fillStyle = gradient;
-        context.beginPath();
-        context.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
-        context.fill();
+        // Particle glow - skip on mobile for better performance
+        if (!isMobile) {
+          const gradient = context.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
+          gradient.addColorStop(0, p.color);
+          gradient.addColorStop(1, "rgba(138,108,253,0)");
+          context.fillStyle = gradient;
+          context.beginPath();
+          context.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
+          context.fill();
+        }
 
         context.fillStyle = p.color;
         context.beginPath();
@@ -197,7 +202,9 @@ const ThreeBackground = () => {
       if (enableConnections) {
         for (let i = 0; i < particles.length; i++) {
           const a = particles[i];
-          for (let j = i + 1; j < particles.length; j++) {
+          // Limit connection checks on mobile
+          const limit = isMobile ? i + 5 : particles.length;
+          for (let j = i + 1; j < limit; j++) {
             const b = particles[j];
             const dx = a.x - b.x;
             const dy = a.y - b.y;
@@ -206,7 +213,7 @@ const ThreeBackground = () => {
               const distance = Math.sqrt(distanceSq);
               const opacity = 0.4 * (1 - distance / connectionDistance);
               context.strokeStyle = `rgba(138, 108, 253, ${opacity})`;
-              context.lineWidth = 2.5;
+              context.lineWidth = isMobile ? 1.5 : 2.5;
               context.beginPath();
               context.moveTo(a.x, a.y);
               context.lineTo(b.x, b.y);
