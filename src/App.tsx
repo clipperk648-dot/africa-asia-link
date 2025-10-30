@@ -29,6 +29,10 @@ const BuyerSettings = lazy(() => import("./pages/BuyerSettings"));
 const SocialFeed = lazy(() => import("./pages/SocialFeed"));
 const SocialAddPost = lazy(() => import("./pages/SocialAddPost"));
 const Clan = lazy(() => import("./pages/Clan"));
+const ClanDetails = lazy(() => import("./pages/ClanDetails"));
+const ClanChat = lazy(() => import("./pages/ClanChat"));
+const ClanAnalytics = lazy(() => import("./pages/ClanAnalytics"));
+const ClanSettings = lazy(() => import("./pages/ClanSettings"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Messages = lazy(() => import("./pages/Messages"));
 const Chat = lazy(() => import("./pages/Chat"));
@@ -89,6 +93,10 @@ const App = () => (
               <Route path="/buyer/products/:id" element={<ProtectedRoute element={<ProductDetails />} requiredRole="buyer" />} />
               <Route path="/buyer/collections" element={<ProtectedRoute element={<BuyerCollections />} requiredRole="buyer" />} />
               <Route path="/clan" element={<ProtectedRoute element={<Clan />} requiredRole="buyer" />} />
+              <Route path="/clan/:clanId" element={<ProtectedRoute element={<ClanDetails />} requiredRole="buyer" />} />
+              <Route path="/clan/:clanId/chat" element={<ProtectedRoute element={<ClanChat />} requiredRole="buyer" />} />
+              <Route path="/clan/:clanId/analytics" element={<ProtectedRoute element={<ClanAnalytics />} requiredRole="buyer" />} />
+              <Route path="/clan/:clanId/settings" element={<ProtectedRoute element={<ClanSettings />} requiredRole="buyer" />} />
               <Route path="/notifications" element={<ProtectedRoute element={<Notifications />} />} />
               <Route path="/social" element={<ProtectedRoute element={<SocialFeed />} />} />
               <Route path="/social/add" element={<ProtectedRoute element={<SocialAddPost />} />} />

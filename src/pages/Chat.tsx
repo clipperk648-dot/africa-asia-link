@@ -55,7 +55,7 @@ const Chat = () => {
       <ThreeBackground />
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/messages")}> <ArrowLeft className="w-5 h-5" /> </Button>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/social")}> <ArrowLeft className="w-5 h-5" /> </Button>
           <div className="relative">
             <img src={convo.avatar} className="w-9 h-9 rounded-full" />
             {convo.online && <span className="absolute right-0 bottom-0 w-3 h-3 rounded-full bg-green-500 border-2 border-background" />}

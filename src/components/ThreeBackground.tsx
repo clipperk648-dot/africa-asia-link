@@ -49,10 +49,11 @@ const ThreeBackground = () => {
 
     const getTargetParticleCount = () => {
       const w = window.innerWidth;
-      const h = window.innerHeight;
-      if (w < 640) return 50;
+      // Use window.innerHeight but ensure it's reasonable for mobile
+      const h = Math.min(window.innerHeight, window.screen.height);
+      if (w < 640) return 40;
       const area = w * h;
-      return Math.max(80, Math.min(200, Math.round(area / 30000) + 60));
+      return Math.max(60, Math.min(180, Math.round(area / 35000) + 50));
     };
 
     const createParticle = (): Particle => {
@@ -69,11 +70,19 @@ const ThreeBackground = () => {
 
     const applyResponsiveSettings = () => {
       const w = window.innerWidth;
-      enableConnections = w >= 640; // disable on small screens
-      if (w < 640) {
+      enableConnections = w >= 768; // disable on small screens
+      if (w < 480) {
+        minParticleSize = 2.5;
+        maxParticleSize = 5;
+        connectionDistance = 140;
+      } else if (w < 640) {
         minParticleSize = 3;
         maxParticleSize = 6;
         connectionDistance = 180;
+      } else if (w < 1024) {
+        minParticleSize = 3.5;
+        maxParticleSize = 7;
+        connectionDistance = 200;
       } else {
         minParticleSize = 4;
         maxParticleSize = 8;
@@ -83,11 +92,20 @@ const ThreeBackground = () => {
     };
 
     const resizeCanvas = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5); // cap DPR for perf
-      canvas.width = Math.floor(window.innerWidth * dpr);
-      canvas.height = Math.floor(window.innerHeight * dpr);
-      canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
+      // Use actual viewport dimensions
+      const w = window.innerWidth;
+      const h = Math.min(window.innerHeight, window.screen.height);
+
+      // Optimize DPR for mobile devices
+      let dpr = Math.min(window.devicePixelRatio || 1, 2);
+      if (w < 640) {
+        dpr = Math.min(dpr, 1.5);
+      }
+
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
@@ -112,13 +130,16 @@ const ThreeBackground = () => {
 
       const width = canvas.width;
       const height = canvas.height;
+      const isMobile = window.innerWidth < 768;
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
 
         // Cohesion towards nearby particles (atomic clustering)
+        // Reduced on mobile for performance
         let sumX = 0, sumY = 0, count = 0;
-        for (let j = 0; j < particles.length && count < 8; j++) {
+        const maxNearby = isMobile ? 4 : 8;
+        for (let j = 0; j < particles.length && count < maxNearby; j++) {
           if (i === j) continue;
           const n = particles[j];
           const dx = n.x - p.x;
@@ -161,14 +182,16 @@ const ThreeBackground = () => {
           p.velocityY *= -bounceCoefficient;
         }
 
-        // Particle glow
-        const gradient = context.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
-        gradient.addColorStop(0, p.color);
-        gradient.addColorStop(1, "rgba(138,108,253,0)");
-        context.fillStyle = gradient;
-        context.beginPath();
-        context.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
-        context.fill();
+        // Particle glow - skip on mobile for better performance
+        if (!isMobile) {
+          const gradient = context.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
+          gradient.addColorStop(0, p.color);
+          gradient.addColorStop(1, "rgba(138,108,253,0)");
+          context.fillStyle = gradient;
+          context.beginPath();
+          context.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
+          context.fill();
+        }
 
         context.fillStyle = p.color;
         context.beginPath();
@@ -179,7 +202,9 @@ const ThreeBackground = () => {
       if (enableConnections) {
         for (let i = 0; i < particles.length; i++) {
           const a = particles[i];
-          for (let j = i + 1; j < particles.length; j++) {
+          // Limit connection checks on mobile
+          const limit = isMobile ? i + 5 : particles.length;
+          for (let j = i + 1; j < limit; j++) {
             const b = particles[j];
             const dx = a.x - b.x;
             const dy = a.y - b.y;
@@ -188,7 +213,7 @@ const ThreeBackground = () => {
               const distance = Math.sqrt(distanceSq);
               const opacity = 0.4 * (1 - distance / connectionDistance);
               context.strokeStyle = `rgba(138, 108, 253, ${opacity})`;
-              context.lineWidth = 2.5;
+              context.lineWidth = isMobile ? 1.5 : 2.5;
               context.beginPath();
               context.moveTo(a.x, a.y);
               context.lineTo(b.x, b.y);
@@ -205,15 +230,24 @@ const ThreeBackground = () => {
       syncParticleCount();
     };
 
+    const handleOrientationChange = () => {
+      // Add small delay for orientation change to complete
+      setTimeout(() => {
+        handleResize();
+      }, 100);
+    };
+
     resizeCanvas();
     applyResponsiveSettings();
     particles = Array.from({ length: getTargetParticleCount() }, createParticle);
     animationFrameId = requestAnimationFrame(animate);
 
     window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleOrientationChange);
 
     return () => {
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleOrientationChange);
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
   }, []);
@@ -222,6 +256,10 @@ const ThreeBackground = () => {
     <canvas
       ref={canvasRef}
       className="fixed top-0 left-0 w-full h-full -z-10 bg-gradient-to-br from-background via-background to-primary/5"
+      style={{
+        touchAction: 'none',
+        imageRendering: 'crisp-edges',
+      }}
     />
   );
 };
