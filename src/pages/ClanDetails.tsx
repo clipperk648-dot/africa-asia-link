@@ -39,20 +39,6 @@ const ClanDetails = () => {
   };
 
 
-  const handleSendMessage = () => {
-    if (!messageInput.trim()) return;
-
-    const newMessage = {
-      id: messages.length + 1,
-      userId: user?.id || "current-user",
-      username: user?.name || "You",
-      message: messageInput,
-      timestamp: "now",
-    };
-
-    setMessages([...messages, newMessage]);
-    setMessageInput("");
-  };
 
   const handleCopyInvite = () => {
     const inviteText = `Join my clan: "${clanData.name}" - Let's pool funds together! Code: ${clanData.id}`;
