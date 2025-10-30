@@ -90,6 +90,7 @@ const App = () => (
               <Route path="/buyer/products/:id" element={<ProtectedRoute element={<ProductDetails />} requiredRole="buyer" />} />
               <Route path="/buyer/collections" element={<ProtectedRoute element={<BuyerCollections />} requiredRole="buyer" />} />
               <Route path="/clan" element={<ProtectedRoute element={<Clan />} requiredRole="buyer" />} />
+              <Route path="/clan/:clanId" element={<ProtectedRoute element={<ClanDetails />} requiredRole="buyer" />} />
               <Route path="/notifications" element={<ProtectedRoute element={<Notifications />} />} />
               <Route path="/social" element={<ProtectedRoute element={<SocialFeed />} />} />
               <Route path="/social/add" element={<ProtectedRoute element={<SocialAddPost />} />} />
