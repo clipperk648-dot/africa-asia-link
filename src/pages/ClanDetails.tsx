@@ -199,47 +199,18 @@ const ClanDetails = () => {
         {/* Chat Section */}
         <div>
           <h2 className="text-2xl font-bold mb-4">Clan Chat</h2>
-          <GlassCard className="p-4 space-y-4 h-96 flex flex-col bg-card/50 border-border/50">
-            {/* Messages Container */}
-            <div className="flex-1 overflow-y-auto space-y-4 pr-2">
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex ${msg.userId === user?.id ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`max-w-xs px-4 py-2 rounded-lg ${
-                      msg.userId === user?.id
-                        ? "bg-accent text-black rounded-br-none"
-                        : "bg-muted/50 rounded-bl-none"
-                    }`}
-                  >
-                    {msg.userId !== user?.id && (
-                      <p className="text-xs font-semibold mb-1 opacity-75">{msg.username}</p>
-                    )}
-                    <p className="text-sm break-words">{msg.message}</p>
-                    <p className="text-xs opacity-60 mt-1">{msg.timestamp}</p>
-                  </div>
-                </div>
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Input */}
-            <div className="flex gap-2 pt-2 border-t border-border/50">
-              <Input
-                placeholder="Type a message..."
-                value={messageInput}
-                onChange={(e) => setMessageInput(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
-                className="bg-background/50 border-none h-10"
-              />
+          <GlassCard className="p-6 text-center bg-gradient-to-br from-primary/10 via-transparent to-accent/10 border-primary/20 h-64 flex flex-col items-center justify-center">
+            <div className="space-y-4">
+              <MessageCircle className="w-12 h-12 text-primary mx-auto opacity-50" />
+              <h3 className="text-lg font-semibold">Join the Clan Chat</h3>
+              <p className="text-muted-foreground max-w-sm">
+                Discuss strategy, share updates, and coordinate with {clanData.members.length} other members in real-time.
+              </p>
               <Button
-                onClick={handleSendMessage}
-                size="icon"
-                className="bg-accent hover:bg-accent/90 text-black h-10 w-10 flex-shrink-0"
+                onClick={() => navigate(`/clan/${clanData.id}/chat`)}
+                className="bg-accent hover:bg-accent/90 text-black font-semibold mt-4"
               >
-                <Send className="w-4 h-4" />
+                Open Chat
               </Button>
             </div>
           </GlassCard>
