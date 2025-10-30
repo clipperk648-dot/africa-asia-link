@@ -308,18 +308,19 @@ const IndustryDashboard = () => {
               </Button>
             </Link>
           </div>
-          <GlassCard className="p-6 sm:p-8 min-h-48 flex flex-col items-center justify-center text-center bg-gradient-to-br from-primary/5 via-transparent to-purple-500/5">
-            <Box className="w-16 h-16 text-primary/40 mb-4" />
-            <h3 className="text-xl font-semibold mb-2">Explore Product Collections</h3>
-            <p className="text-muted-foreground mb-4 max-w-sm">
-              View all your products in a beautiful 3D showcase gallery with advanced filtering and sorting options.
-            </p>
-            <Link to="/industry/collections">
-              <Button className="gap-2">
-                <Box className="w-4 h-4" /> Open Collections
-              </Button>
-            </Link>
-          </GlassCard>
+          <div className="relative group">
+            <GlassSlideshowFrame
+              videoUrl="https://cdn.builder.io/o/assets%2Fb9ea758a2cc9497892cc75159293dfe9%2Faeec48a736fb4540a3829ed6d6db3ba8?alt=media&token=e5e75d1e-e61c-4c3d-a86c-f63a1b7b5162&apiKey=b9ea758a2cc9497892cc75159293dfe9"
+              heightClassName="h-48 sm:h-64 lg:h-72"
+            />
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <Link to="/industry/collections">
+                <Button className="gap-2 shadow-lg">
+                  <Box className="w-4 h-4" /> Open Collections
+                </Button>
+              </Link>
+            </div>
+          </div>
         </section>
 
         <section className="py-2 text-xs text-muted-foreground text-center">
