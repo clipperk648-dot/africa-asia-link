@@ -148,7 +148,7 @@ const ClanDetails = () => {
             <h2 className="text-2xl font-bold">Members ({clanData.members.length})</h2>
           </div>
           <div className="space-y-3">
-            {clanData.members.map((member) => (
+            {(showMoreMembers ? clanData.members : clanData.members.slice(0, 3)).map((member) => (
               <GlassCard key={member.id} className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <img
@@ -175,6 +175,24 @@ const ClanDetails = () => {
                 </div>
               </GlassCard>
             ))}
+            {clanData.members.length > 3 && !showMoreMembers && (
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => setShowMoreMembers(true)}
+              >
+                View More Members ({clanData.members.length - 3} more)
+              </Button>
+            )}
+            {showMoreMembers && clanData.members.length > 3 && (
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => setShowMoreMembers(false)}
+              >
+                Show Less
+              </Button>
+            )}
           </div>
         </div>
 
