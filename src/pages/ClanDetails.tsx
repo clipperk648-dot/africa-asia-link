@@ -17,12 +17,7 @@ const ClanDetails = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const [copied, setCopied] = useState(false);
-  const [messageInput, setMessageInput] = useState("");
-  const [messages, setMessages] = useState([
-    { id: 1, userId: "user1", username: "Sarah Johnson", message: "Let's start gathering funds for this!", timestamp: "2m ago" },
-    { id: 2, userId: "user2", username: "Michael Chen", message: "I'm in! Already contributed $500", timestamp: "1m ago" },
-    { id: 3, userId: user?.id, username: user?.name || "You", message: "Great! Let's aim for $10,000 by next month", timestamp: "now" },
-  ]);
+  const [showMoreMembers, setShowMoreMembers] = useState(false);
 
   // Mock clan data - in real app, would fetch from API
   const clanData = {
