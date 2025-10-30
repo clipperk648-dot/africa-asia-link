@@ -316,7 +316,12 @@ const Clan = () => {
                             </div>
                           </DialogContent>
                         </Dialog>
-                        <Button variant="outline" size="icon" className="h-11 w-11 flex-shrink-0">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="h-11 w-11 flex-shrink-0"
+                          onClick={() => navigate(`/clan/${clan.id}`)}
+                        >
                           <MessageCircle className="w-5 h-5" />
                         </Button>
                       </div>
