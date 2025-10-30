@@ -14,7 +14,6 @@ const ClanDetails = () => {
   const navigate = useNavigate();
   const { clanId } = useParams<{ clanId: string }>();
   const user = getCurrentUser();
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const [copied, setCopied] = useState(false);
   const [showMoreMembers, setShowMoreMembers] = useState(false);
