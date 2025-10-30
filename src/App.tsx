@@ -94,6 +94,7 @@ const App = () => (
               <Route path="/buyer/collections" element={<ProtectedRoute element={<BuyerCollections />} requiredRole="buyer" />} />
               <Route path="/clan" element={<ProtectedRoute element={<Clan />} requiredRole="buyer" />} />
               <Route path="/clan/:clanId" element={<ProtectedRoute element={<ClanDetails />} requiredRole="buyer" />} />
+              <Route path="/clan/:clanId/chat" element={<ProtectedRoute element={<ClanChat />} requiredRole="buyer" />} />
               <Route path="/clan/:clanId/analytics" element={<ProtectedRoute element={<ClanAnalytics />} requiredRole="buyer" />} />
               <Route path="/clan/:clanId/settings" element={<ProtectedRoute element={<ClanSettings />} requiredRole="buyer" />} />
               <Route path="/notifications" element={<ProtectedRoute element={<Notifications />} />} />
