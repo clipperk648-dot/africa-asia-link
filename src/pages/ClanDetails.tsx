@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import ThreeBackground from "@/components/ThreeBackground";
-import { ArrowLeft, Send, Users, TrendingUp, Target, Clock, Copy, Check } from "lucide-react";
+import { ArrowLeft, Send, Users, TrendingUp, Target, Clock, Copy, Check, BarChart3, Settings } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { getSafeAvatarUrl } from "@/utils/imageOptimization";
 
