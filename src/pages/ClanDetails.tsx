@@ -273,6 +273,26 @@ const ClanDetails = () => {
             ))}
           </div>
         </div>
+
+        {/* Action Buttons */}
+        <div className="grid sm:grid-cols-2 gap-4">
+          <Button
+            variant="outline"
+            className="h-12 flex items-center justify-center gap-2"
+            onClick={() => navigate(`/clan/${clanData.id}/analytics`)}
+          >
+            <BarChart3 className="w-4 h-4" />
+            View Analytics
+          </Button>
+          <Button
+            variant="outline"
+            className="h-12 flex items-center justify-center gap-2"
+            onClick={() => navigate(`/clan/${clanData.id}/settings`)}
+          >
+            <Settings className="w-4 h-4" />
+            Clan Settings
+          </Button>
+        </div>
       </main>
 
       <FooterNav dashboardType="buyer" />
