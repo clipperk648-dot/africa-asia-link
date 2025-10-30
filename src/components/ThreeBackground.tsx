@@ -230,15 +230,24 @@ const ThreeBackground = () => {
       syncParticleCount();
     };
 
+    const handleOrientationChange = () => {
+      // Add small delay for orientation change to complete
+      setTimeout(() => {
+        handleResize();
+      }, 100);
+    };
+
     resizeCanvas();
     applyResponsiveSettings();
     particles = Array.from({ length: getTargetParticleCount() }, createParticle);
     animationFrameId = requestAnimationFrame(animate);
 
     window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleOrientationChange);
 
     return () => {
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleOrientationChange);
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
   }, []);
@@ -247,6 +256,10 @@ const ThreeBackground = () => {
     <canvas
       ref={canvasRef}
       className="fixed top-0 left-0 w-full h-full -z-10 bg-gradient-to-br from-background via-background to-primary/5"
+      style={{
+        touchAction: 'none',
+        imageRendering: 'crisp-edges',
+      }}
     />
   );
 };
