@@ -238,6 +238,11 @@ const IndustryDashboard = () => {
             </div>
           </div>
 
+          <GlassSlideshowFrame
+            videoUrl="https://cdn.builder.io/o/assets%2Fb9ea758a2cc9497892cc75159293dfe9%2Faeec48a736fb4540a3829ed6d6db3ba8?alt=media&token=e5e75d1e-e61c-4c3d-a86c-f63a1b7b5162&apiKey=b9ea758a2cc9497892cc75159293dfe9"
+            heightClassName="h-40 sm:h-56"
+          />
+
           <div className="md:hidden -mx-4 px-4 pb-2 overflow-x-auto snap-x snap-mandatory flex gap-3">
             {products.map((p) => (
               <div key={p.id} className="snap-start shrink-0">
