@@ -70,11 +70,19 @@ const ThreeBackground = () => {
 
     const applyResponsiveSettings = () => {
       const w = window.innerWidth;
-      enableConnections = w >= 640; // disable on small screens
-      if (w < 640) {
+      enableConnections = w >= 768; // disable on small screens
+      if (w < 480) {
+        minParticleSize = 2.5;
+        maxParticleSize = 5;
+        connectionDistance = 140;
+      } else if (w < 640) {
         minParticleSize = 3;
         maxParticleSize = 6;
         connectionDistance = 180;
+      } else if (w < 1024) {
+        minParticleSize = 3.5;
+        maxParticleSize = 7;
+        connectionDistance = 200;
       } else {
         minParticleSize = 4;
         maxParticleSize = 8;
@@ -84,11 +92,20 @@ const ThreeBackground = () => {
     };
 
     const resizeCanvas = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5); // cap DPR for perf
-      canvas.width = Math.floor(window.innerWidth * dpr);
-      canvas.height = Math.floor(window.innerHeight * dpr);
-      canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
+      // Use actual viewport dimensions
+      const w = window.innerWidth;
+      const h = Math.min(window.innerHeight, window.screen.height);
+
+      // Optimize DPR for mobile devices
+      let dpr = Math.min(window.devicePixelRatio || 1, 2);
+      if (w < 640) {
+        dpr = Math.min(dpr, 1.5);
+      }
+
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
