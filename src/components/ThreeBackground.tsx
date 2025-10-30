@@ -49,10 +49,11 @@ const ThreeBackground = () => {
 
     const getTargetParticleCount = () => {
       const w = window.innerWidth;
-      const h = window.innerHeight;
-      if (w < 640) return 50;
+      // Use window.innerHeight but ensure it's reasonable for mobile
+      const h = Math.min(window.innerHeight, window.screen.height);
+      if (w < 640) return 40;
       const area = w * h;
-      return Math.max(80, Math.min(200, Math.round(area / 30000) + 60));
+      return Math.max(60, Math.min(180, Math.round(area / 35000) + 50));
     };
 
     const createParticle = (): Particle => {
