@@ -216,9 +216,14 @@ const ClanDetails = () => {
 
         {/* Contribution History */}
         <div>
-          <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="w-5 h-5 text-primary" />
-            <h2 className="text-2xl font-bold">Recent Contributions</h2>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-primary" />
+              <h2 className="text-2xl font-bold">Recent Contributions</h2>
+            </div>
+            <Button variant="outline" size="sm">
+              View All
+            </Button>
           </div>
           <div className="space-y-2">
             {clanData.members.map((member, idx) => (
