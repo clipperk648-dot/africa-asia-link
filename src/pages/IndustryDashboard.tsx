@@ -327,7 +327,7 @@ const IndustryDashboard = () => {
           </GlassCard>
         </section>
 
-        <section className="pt-2 pb-4 text-xs text-muted-foreground text-center">
+        <section className="py-2 text-xs text-muted-foreground text-center">
           <span className="font-medium">Rates:</span> 1 USD ≈ ¥7.1 • 1 CNY ≈ ₦220
         </section>
       </main>
