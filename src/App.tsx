@@ -26,6 +26,7 @@ const BuyerDashboard = lazy(() => import("./pages/BuyerDashboard"));
 const BuyerProducts = lazy(() => import("./pages/BuyerProducts"));
 const BuyerNetwork = lazy(() => import("./pages/BuyerNetwork"));
 const BuyerSettings = lazy(() => import("./pages/BuyerSettings"));
+const BuyerOrders = lazy(() => import("./pages/BuyerOrders"));
 const SocialFeed = lazy(() => import("./pages/SocialFeed"));
 const SocialAddPost = lazy(() => import("./pages/SocialAddPost"));
 const Clan = lazy(() => import("./pages/Clan"));
@@ -45,6 +46,8 @@ const Notifications = lazy(() => import("./pages/Notifications"));
 const ProductDetails = lazy(() => import("./pages/ProductDetails"));
 const BuyerChangePassword = lazy(() => import("./pages/BuyerChangePassword"));
 const BuyerTwoFactor = lazy(() => import("./pages/BuyerTwoFactor"));
+const IndustryChangePassword = lazy(() => import("./pages/IndustryChangePassword"));
+const IndustryTwoFactor = lazy(() => import("./pages/IndustryTwoFactor"));
 const Wallet = lazy(() => import("./pages/Wallet"));
 const SupportChat = lazy(() => import("./pages/SupportChat"));
 const WalletActions = lazy(() => import("./pages/WalletActions"));
@@ -81,6 +84,8 @@ const App = () => (
               <Route path="/industry/products/:id/stats" element={<ProtectedRoute element={<IndustryProductStats />} requiredRole="industry" />} />
               <Route path="/industry/network" element={<ProtectedRoute element={<IndustryNetwork />} requiredRole="industry" />} />
               <Route path="/industry/settings" element={<ProtectedRoute element={<IndustrySettings />} requiredRole="industry" />} />
+              <Route path="/industry/settings/password" element={<ProtectedRoute element={<IndustryChangePassword />} requiredRole="industry" />} />
+              <Route path="/industry/settings/2fa" element={<ProtectedRoute element={<IndustryTwoFactor />} requiredRole="industry" />} />
               <Route path="/industry/add-property" element={<ProtectedRoute element={<IndustryAddProperty />} requiredRole="industry" />} />
               <Route path="/industry/collections" element={<ProtectedRoute element={<IndustryCollections />} requiredRole="industry" />} />
               <Route path="/industry/recent-activity" element={<ProtectedRoute element={<IndustryRecentActivity />} requiredRole="industry" />} />
@@ -92,6 +97,7 @@ const App = () => (
               <Route path="/buyer/settings/2fa" element={<ProtectedRoute element={<BuyerTwoFactor />} requiredRole="buyer" />} />
               <Route path="/buyer/products/:id" element={<ProtectedRoute element={<ProductDetails />} requiredRole="buyer" />} />
               <Route path="/buyer/collections" element={<ProtectedRoute element={<BuyerCollections />} requiredRole="buyer" />} />
+              <Route path="/buyer/orders" element={<ProtectedRoute element={<BuyerOrders />} requiredRole="buyer" />} />
               <Route path="/clan" element={<ProtectedRoute element={<Clan />} requiredRole="buyer" />} />
               <Route path="/clan/:clanId" element={<ProtectedRoute element={<ClanDetails />} requiredRole="buyer" />} />
               <Route path="/clan/:clanId/chat" element={<ProtectedRoute element={<ClanChat />} requiredRole="buyer" />} />

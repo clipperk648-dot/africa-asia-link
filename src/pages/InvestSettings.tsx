@@ -219,7 +219,7 @@ const InvestSettings = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold mb-2">Minimum Investment Alert (₦)</label>
+              <label className="block text-sm font-semibold mb-2">Minimum Investment Alert ($)</label>
               <Input
                 type="number"
                 value={settings.minimumInvestmentAlert}

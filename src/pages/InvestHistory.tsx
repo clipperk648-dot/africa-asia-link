@@ -5,7 +5,7 @@ import GlassCard from "@/components/GlassCard";
 import { ArrowLeft, Download, Filter } from "lucide-react";
 import { getCurrentUser } from "@/utils/mockAuth";
 
-const format = (n: number) => `₦${n.toLocaleString()}`;
+const format = (n: number) => `$${n.toLocaleString()}`;
 
 const InvestHistory = () => {
   const navigate = useNavigate();

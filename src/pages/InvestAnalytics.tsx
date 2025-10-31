@@ -9,7 +9,7 @@ const PROJECTS_KEY = "echina_projects_v1";
 const WALLET_KEY = "echina_wallet_v1";
 const TX_KEY = "echina_txs_v1";
 
-const format = (n: number) => `₦${n.toLocaleString()}`;
+const format = (n: number) => `$${n.toLocaleString()}`;
 
 const InvestAnalytics = () => {
   const navigate = useNavigate();

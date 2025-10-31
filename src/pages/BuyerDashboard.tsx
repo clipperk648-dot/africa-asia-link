@@ -6,13 +6,13 @@ import type { Product } from "@/types/models";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Settings, Bell, BarChart3, PlusCircle, Wallet as WalletIcon, Bot, Menu, Twitter, Instagram, Facebook, Box } from "lucide-react";
+import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Settings, Bell, BarChart3, PlusCircle, Wallet as WalletIcon, Bot, Menu, Box, Music2, Package, Users } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { APP_NAME, SOCIAL_LINKS } from "@/config/app";
+import { APP_NAME } from "@/config/app";
 import RateButton from "@/components/RateButton";
 import { addToCart } from "@/utils/cart";
 import { toast } from "@/components/ui/sonner";
@@ -42,7 +42,7 @@ const ProductCard = ({ product, navigate }: { product: Product; navigate: any })
       <p className="text-xs sm:text-sm text-muted-foreground truncate">{product.location}</p>
       <div className="flex items-center justify-between pt-2 gap-2">
         <p className="text-xl sm:text-2xl font-bold text-primary">
-          ₦{product.price.toLocaleString()}
+          ${product.price.toLocaleString()}
         </p>
         <div className="flex items-center gap-2">
           <RateButton productId={product.id} productName={product.name} size="xs" />
@@ -101,7 +101,7 @@ const BuyerDashboard = () => {
     { label: "Active Orders", value: "8", icon: ShoppingCart, color: "text-primary" },
     { label: "Pending", value: "3", icon: Clock, color: "text-accent" },
     { label: "Completed", value: "45", icon: CheckCircle, color: "text-secondary" },
-    { label: "Saved", value: "₦78K", icon: TrendingUp, color: "text-primary" },
+    { label: "Saved", value: "$78K", icon: TrendingUp, color: "text-primary" },
   ];
 
   return (
@@ -132,59 +132,88 @@ const BuyerDashboard = () => {
                     <div className="space-y-2">
                       <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-3 mb-3">Navigation</h3>
                       <Link to="/profile" className="block">
-                        <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
-                          <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Profile</span>
+                        <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
+                          <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Profile</span>
                         </div>
                       </Link>
                       <Link to="/buyer/settings" className="block">
-                        <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
-                          <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Settings</span>
+                        <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
+                          <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Settings</span>
                         </div>
                       </Link>
                       <Link to="/buyer/collections" className="block">
-                        <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
-                            <Box className="w-4 h-4 text-primary" />
+                        <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-2">
+                          <div className="p-1.5 rounded-md bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
+                            <Box className="w-3 h-3 text-primary" />
                           </div>
-                          <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Collections</span>
+                          <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Collections</span>
                         </div>
                       </Link>
                       <Link to="/wallet" className="block">
-                        <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
-                          <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Wallet</span>
+                        <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
+                          <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Wallet</span>
                         </div>
                       </Link>
                       <Link to="/invest" className="block">
-                        <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
-                          <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Invest</span>
+                        <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
+                          <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Invest</span>
                         </div>
                       </Link>
                       <Link to="/notifications" className="block">
-                        <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
-                          <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Notifications</span>
+                        <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
+                          <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Notifications</span>
+                        </div>
+                      </Link>
+                    </div>
+
+                    {/* Quick Actions for Buyer */}
+                    <div className="pt-4 border-t border-border/50">
+                      <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-3 mb-3">Quick Actions</h3>
+                      <Link to="/buyer/products" className="block mb-1">
+                        <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-2">
+                          <div className="p-1.5 rounded-md bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
+                            <Package className="w-3 h-3 text-primary" />
+                          </div>
+                          <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Products</span>
+                        </div>
+                      </Link>
+                      <Link to="/cart" className="block mb-1">
+                        <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-2">
+                          <div className="p-1.5 rounded-md bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
+                            <ShoppingCart className="w-3 h-3 text-primary" />
+                          </div>
+                          <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Cart</span>
+                        </div>
+                      </Link>
+                      <Link to="/buyer/network" className="block">
+                        <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-2">
+                          <div className="p-1.5 rounded-md bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
+                            <Users className="w-3 h-3 text-primary" />
+                          </div>
+                          <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Connect</span>
                         </div>
                       </Link>
                     </div>
 
                     {/* Social Platform Link */}
-                    <div className="pt-4 border-t border-border/50">
+                    <div className="pt-3 border-t border-border/50">
                       <Link to="/social" className="block">
-                        <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-3">
-                          <div className="p-2 rounded-lg bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
-                            <Music2 className="w-4 h-4 text-primary" />
+                        <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-2">
+                          <div className="p-1.5 rounded-md bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
+                            <Music2 className="w-3 h-3 text-primary" />
                           </div>
-                          <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Social</span>
+                          <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Social</span>
                         </div>
                       </Link>
                     </div>
 
                     {/* Logout Button */}
-                    <div className="pt-4 border-t border-border/50">
-                      <button onClick={handleLogout} className="w-full p-4 rounded-xl bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent border border-red-500/30 hover:border-red-500/50 hover:from-red-500/20 hover:via-red-500/15 transition-all duration-300 group cursor-pointer flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-red-500/20 border border-red-500/40 group-hover:bg-red-500/30 transition-colors">
-                          <LogOut className="w-4 h-4 text-red-500" />
+                    <div className="pt-3 border-t border-border/50">
+                      <button onClick={handleLogout} className="w-full p-3 rounded-lg bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent border border-red-500/30 hover:border-red-500/50 hover:from-red-500/20 hover:via-red-500/15 transition-all duration-300 group cursor-pointer flex items-center gap-2">
+                        <div className="p-1.5 rounded-md bg-red-500/20 border border-red-500/40 group-hover:bg-red-500/30 transition-colors">
+                          <LogOut className="w-3 h-3 text-red-500" />
                         </div>
-                        <span className="font-semibold text-sm text-red-500 group-hover:translate-x-1 transition-transform duration-300">Log Out</span>
+                        <span className="font-semibold text-xs text-red-500 group-hover:translate-x-1 transition-transform duration-300">Log Out</span>
                       </button>
                     </div>
                   </div>
@@ -297,7 +326,12 @@ const BuyerDashboard = () => {
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-lg sm:text-xl font-bold">My Orders</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg sm:text-xl font-bold">My Orders</h2>
+            <Link to="/buyer/orders" aria-label="View all orders">
+              <Button variant="ghost" size="xs">View All</Button>
+            </Link>
+          </div>
           <div className="space-y-3">
             {orders.length === 0 ? (
               <GlassCard className="p-8 text-center">
@@ -316,7 +350,7 @@ const BuyerDashboard = () => {
                     </div>
                     <div className="flex items-center gap-3 sm:gap-4">
                       <div className="text-left sm:text-right">
-                        <p className="font-bold text-lg sm:text-xl">₦{order.total.toLocaleString()}</p>
+                        <p className="font-bold text-lg sm:text-xl">${order.total.toLocaleString()}</p>
                       </div>
                       <span
                         className={`text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium whitespace-nowrap ${
@@ -364,7 +398,7 @@ const BuyerDashboard = () => {
         </section>
 
         <section className="pt-2 pb-4 text-xs text-muted-foreground text-center">
-          <span className="font-medium">Rates:</span> 1 USD ≈ ₦1,600 • 1 CNY ≈ ₦220
+          <span className="font-medium">Rates:</span> 1 USD ≈ $1,600 • 1 CNY ≈ $220
         </section>
       </main>
 

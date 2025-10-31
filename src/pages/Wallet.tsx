@@ -166,7 +166,7 @@ const Wallet = () => {
                         <TrendingUp className="w-5 h-5 text-secondary" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium">MiniPay Boost</p>
+                        <p className="text-sm font-medium">E-wallet Boost</p>
                         <p className="text-xs text-muted-foreground mt-0.5">Yesterday</p>
                       </div>
                     </div>
@@ -178,7 +178,7 @@ const Wallet = () => {
                         <TrendingUp className="w-5 h-5 text-secondary" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium">MiniPay Boost</p>
+                        <p className="text-sm font-medium">E-wallet Boost</p>
                         <p className="text-xs text-muted-foreground mt-0.5">2 days ago</p>
                       </div>
                     </div>
@@ -190,7 +190,7 @@ const Wallet = () => {
                         <TrendingUp className="w-5 h-5 text-secondary" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium">MiniPay Boost</p>
+                        <p className="text-sm font-medium">E-wallet Boost</p>
                         <p className="text-xs text-muted-foreground mt-0.5">3 days ago</p>
                       </div>
                     </div>

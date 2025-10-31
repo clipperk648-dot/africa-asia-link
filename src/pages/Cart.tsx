@@ -160,7 +160,12 @@ const Cart = () => {
                       ${total.toLocaleString()}
                     </span>
                   </div>
-                  <Button variant="gradient" className="w-full" size="lg">
+                  <Button
+                    variant="gradient"
+                    className="w-full"
+                    size="lg"
+                    onClick={() => navigate(user?.role === "buyer" ? "/wallet/deposit" : "/wallet")}
+                  >
                     Proceed to Checkout
                   </Button>
                 </div>

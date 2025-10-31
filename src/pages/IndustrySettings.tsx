@@ -142,10 +142,18 @@ const IndustrySettings = () => {
             <h2 className="text-lg sm:text-xl font-bold">Security</h2>
           </div>
           <div className="space-y-3">
-            <Button variant="outline" className="w-full justify-start">
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => navigate("/industry/settings/password")}
+            >
               Change Password
             </Button>
-            <Button variant="outline" className="w-full justify-start">
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => navigate("/industry/settings/2fa")}
+            >
               Two-Factor Authentication
             </Button>
           </div>
