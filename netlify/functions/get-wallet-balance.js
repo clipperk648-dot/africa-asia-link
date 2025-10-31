@@ -1,21 +1,16 @@
 const { getModels } = require('./mongodb-connection');
+const { createErrorResponse, createJsonResponse } = require('./response-helper');
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'GET') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' }),
-    };
+    return createErrorResponse(405, 'Method not allowed');
   }
 
   try {
     const { userId, currency = 'USD' } = event.queryStringParameters || {};
 
     if (!userId) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'userId is required' }),
-      };
+      return createErrorResponse(400, 'userId is required');
     }
 
     try {
@@ -27,26 +22,16 @@ exports.handler = async (event, context) => {
         wallet = { user_id: userId, balance: 0, currency };
       }
 
-      return {
-        statusCode: 200,
-        body: JSON.stringify({
-          balance: wallet.balance || 0,
-          currency: currency,
-        }),
-        headers: { 'Content-Type': 'application/json' },
-      };
+      return createJsonResponse(200, {
+        balance: wallet.balance || 0,
+        currency: currency,
+      });
     } catch (dbError) {
       console.error('Database error:', dbError);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Database error' }),
-      };
+      return createErrorResponse(500, 'Database error');
     }
   } catch (error) {
     console.error('Error fetching wallet balance:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to fetch wallet balance' }),
-    };
+    return createErrorResponse(500, 'Failed to fetch wallet balance');
   }
 };

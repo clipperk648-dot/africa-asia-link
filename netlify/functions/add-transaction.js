@@ -1,11 +1,9 @@
 const { getModels } = require('./mongodb-connection');
+const { createErrorResponse, createJsonResponse } = require('./response-helper');
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' }),
-    };
+    return createErrorResponse(405, 'Method not allowed');
   }
 
   try {
@@ -13,17 +11,11 @@ exports.handler = async (event, context) => {
     const { userId, type, amount, currency = 'USD', note } = data;
 
     if (!userId || !type || !amount) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'userId, type, and amount are required' }),
-      };
+      return createErrorResponse(400, 'userId, type, and amount are required');
     }
 
     if (!['deposit', 'payment'].includes(type)) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'type must be deposit or payment' }),
-      };
+      return createErrorResponse(400, 'type must be deposit or payment');
     }
 
     try {
@@ -40,30 +32,20 @@ exports.handler = async (event, context) => {
 
       const savedTransaction = await newTransaction.save();
 
-      return {
-        statusCode: 201,
-        body: JSON.stringify({
-          id: savedTransaction._id.toString(),
-          type: savedTransaction.type,
-          amount: savedTransaction.amount,
-          currency: savedTransaction.currency,
-          note: savedTransaction.note,
-          created_at: savedTransaction.created_at,
-        }),
-        headers: { 'Content-Type': 'application/json' },
-      };
+      return createJsonResponse(201, {
+        id: savedTransaction._id.toString(),
+        type: savedTransaction.type,
+        amount: savedTransaction.amount,
+        currency: savedTransaction.currency,
+        note: savedTransaction.note,
+        created_at: savedTransaction.created_at,
+      });
     } catch (dbError) {
       console.error('Database error:', dbError);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Database error' }),
-      };
+      return createErrorResponse(500, 'Database error');
     }
   } catch (error) {
     console.error('Error adding transaction:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to add transaction' }),
-    };
+    return createErrorResponse(500, 'Failed to add transaction');
   }
 };

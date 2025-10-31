@@ -1,21 +1,16 @@
 const { getModels } = require('./mongodb-connection');
+const { createErrorResponse, createJsonResponse } = require('./response-helper');
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'GET') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' }),
-    };
+    return createErrorResponse(405, 'Method not allowed');
   }
 
   try {
     const { userId, peerId } = event.queryStringParameters || {};
 
     if (!userId || !peerId) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'userId and peerId are required' }),
-      };
+      return createErrorResponse(400, 'userId and peerId are required');
     }
 
     try {
@@ -30,30 +25,20 @@ exports.handler = async (event, context) => {
         .sort({ created_at: 1 })
         .lean();
 
-      return {
-        statusCode: 200,
-        body: JSON.stringify(messages.map(m => ({
-          id: m._id.toString(),
-          sender_id: m.sender_id,
-          recipient_id: m.recipient_id,
-          content: m.content,
-          media_url: m.media_url,
-          created_at: m.created_at,
-        }))),
-        headers: { 'Content-Type': 'application/json' },
-      };
+      return createJsonResponse(200, messages.map(m => ({
+        id: m._id.toString(),
+        sender_id: m.sender_id,
+        recipient_id: m.recipient_id,
+        content: m.content,
+        media_url: m.media_url,
+        created_at: m.created_at,
+      })));
     } catch (dbError) {
       console.error('Database error:', dbError);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Database error' }),
-      };
+      return createErrorResponse(500, 'Database error');
     }
   } catch (error) {
     console.error('Error fetching messages:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to fetch messages' }),
-    };
+    return createErrorResponse(500, 'Failed to fetch messages');
   }
 };

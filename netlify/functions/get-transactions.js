@@ -1,21 +1,16 @@
 const { getModels } = require('./mongodb-connection');
+const { createErrorResponse, createJsonResponse } = require('./response-helper');
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'GET') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' }),
-    };
+    return createErrorResponse(405, 'Method not allowed');
   }
 
   try {
     const { userId } = event.queryStringParameters || {};
 
     if (!userId) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'userId is required' }),
-      };
+      return createErrorResponse(400, 'userId is required');
     }
 
     try {
@@ -25,30 +20,20 @@ exports.handler = async (event, context) => {
         .sort({ created_at: -1 })
         .lean();
 
-      return {
-        statusCode: 200,
-        body: JSON.stringify(transactions.map(t => ({
-          id: t._id.toString(),
-          type: t.type,
-          amount: t.amount,
-          currency: t.currency,
-          note: t.note,
-          created_at: t.created_at,
-        }))),
-        headers: { 'Content-Type': 'application/json' },
-      };
+      return createJsonResponse(200, transactions.map(t => ({
+        id: t._id.toString(),
+        type: t.type,
+        amount: t.amount,
+        currency: t.currency,
+        note: t.note,
+        created_at: t.created_at,
+      })));
     } catch (dbError) {
       console.error('Database error:', dbError);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Database error' }),
-      };
+      return createErrorResponse(500, 'Database error');
     }
   } catch (error) {
     console.error('Error fetching transactions:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to fetch transactions' }),
-    };
+    return createErrorResponse(500, 'Failed to fetch transactions');
   }
 };

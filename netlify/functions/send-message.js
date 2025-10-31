@@ -1,11 +1,9 @@
 const { getModels } = require('./mongodb-connection');
+const { createErrorResponse, createJsonResponse } = require('./response-helper');
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' }),
-    };
+    return createErrorResponse(405, 'Method not allowed');
   }
 
   try {
@@ -13,10 +11,7 @@ exports.handler = async (event, context) => {
     const { senderId, recipientId, content, mediaUrl } = data;
 
     if (!senderId || !recipientId) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'senderId and recipientId are required' }),
-      };
+      return createErrorResponse(400, 'senderId and recipientId are required');
     }
 
     try {
@@ -32,30 +27,20 @@ exports.handler = async (event, context) => {
 
       const savedMessage = await newMessage.save();
 
-      return {
-        statusCode: 201,
-        body: JSON.stringify({
-          id: savedMessage._id.toString(),
-          sender_id: savedMessage.sender_id,
-          recipient_id: savedMessage.recipient_id,
-          content: savedMessage.content,
-          media_url: savedMessage.media_url,
-          created_at: savedMessage.created_at,
-        }),
-        headers: { 'Content-Type': 'application/json' },
-      };
+      return createJsonResponse(201, {
+        id: savedMessage._id.toString(),
+        sender_id: savedMessage.sender_id,
+        recipient_id: savedMessage.recipient_id,
+        content: savedMessage.content,
+        media_url: savedMessage.media_url,
+        created_at: savedMessage.created_at,
+      });
     } catch (dbError) {
       console.error('Database error:', dbError);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Database error' }),
-      };
+      return createErrorResponse(500, 'Database error');
     }
   } catch (error) {
     console.error('Error sending message:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to send message' }),
-    };
+    return createErrorResponse(500, 'Failed to send message');
   }
 };
