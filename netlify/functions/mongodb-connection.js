@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 let isConnected = false;
 let connection = null;
+const models = {};
 
 // Schema definitions
 const userSchema = new mongoose.Schema({
@@ -102,9 +103,6 @@ const messageSchema = new mongoose.Schema({
   created_at: { type: Date, default: Date.now },
 });
 
-// Model cache
-let User, Product, Order, SocialPost, Clan, Wallet, Transaction, Message;
-
 const getConnection = async () => {
   if (isConnected && connection) {
     return connection;
@@ -112,6 +110,7 @@ const getConnection = async () => {
 
   const mongodbUri = process.env.MONGODB_URI;
   if (!mongodbUri) {
+    console.error('MONGODB_URI environment variable is not set');
     throw new Error('MONGODB_URI environment variable is not set');
   }
 
@@ -119,41 +118,76 @@ const getConnection = async () => {
     connection = await mongoose.connect(mongodbUri, {
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 30000,
+      maxPoolSize: 10,
     });
 
     isConnected = true;
 
-    // Initialize models
-    User = mongoose.model('User', userSchema);
-    Product = mongoose.model('Product', productSchema);
-    Order = mongoose.model('Order', orderSchema);
-    SocialPost = mongoose.model('SocialPost', socialPostSchema);
-    Clan = mongoose.model('Clan', clanSchema);
-    Wallet = mongoose.model('Wallet', walletSchema);
-    Transaction = mongoose.model('Transaction', transactionSchema);
-    Message = mongoose.model('Message', messageSchema);
+    // Register models
+    registerModels();
 
     console.log('MongoDB connected successfully');
     return connection;
   } catch (error) {
-    console.error('MongoDB connection failed:', error);
+    console.error('MongoDB connection failed:', error.message);
     isConnected = false;
     throw error;
   }
 };
 
+const registerModels = () => {
+  try {
+    models.User = mongoose.model('User', userSchema);
+  } catch {
+    models.User = mongoose.model('User');
+  }
+
+  try {
+    models.Product = mongoose.model('Product', productSchema);
+  } catch {
+    models.Product = mongoose.model('Product');
+  }
+
+  try {
+    models.Order = mongoose.model('Order', orderSchema);
+  } catch {
+    models.Order = mongoose.model('Order');
+  }
+
+  try {
+    models.SocialPost = mongoose.model('SocialPost', socialPostSchema);
+  } catch {
+    models.SocialPost = mongoose.model('SocialPost');
+  }
+
+  try {
+    models.Clan = mongoose.model('Clan', clanSchema);
+  } catch {
+    models.Clan = mongoose.model('Clan');
+  }
+
+  try {
+    models.Wallet = mongoose.model('Wallet', walletSchema);
+  } catch {
+    models.Wallet = mongoose.model('Wallet');
+  }
+
+  try {
+    models.Transaction = mongoose.model('Transaction', transactionSchema);
+  } catch {
+    models.Transaction = mongoose.model('Transaction');
+  }
+
+  try {
+    models.Message = mongoose.model('Message', messageSchema);
+  } catch {
+    models.Message = mongoose.model('Message');
+  }
+};
+
 const getModels = async () => {
   await getConnection();
-  return {
-    User: mongoose.model('User', userSchema),
-    Product: mongoose.model('Product', productSchema),
-    Order: mongoose.model('Order', orderSchema),
-    SocialPost: mongoose.model('SocialPost', socialPostSchema),
-    Clan: mongoose.model('Clan', clanSchema),
-    Wallet: mongoose.model('Wallet', walletSchema),
-    Transaction: mongoose.model('Transaction', transactionSchema),
-    Message: mongoose.model('Message', messageSchema),
-  };
+  return models;
 };
 
 module.exports = { getConnection, getModels };
