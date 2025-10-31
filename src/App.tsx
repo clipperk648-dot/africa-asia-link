@@ -115,13 +115,13 @@ const App = () => (
               <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
               <Route path="/analytics" element={<ProtectedRoute element={<Analytics />} />} />
               <Route path="/buyer/analytics" element={<ProtectedRoute element={<BuyerAnalytics />} />} />
-              <Route path="/wallet" element={<ProtectedRoute element={<WalletGuard element={<Wallet />} />} />} />
-              <Route path="/wallet/actions" element={<ProtectedRoute element={<WalletGuard element={<WalletActions />} />} />} />
-              <Route path="/wallet/pay" element={<ProtectedRoute element={<WalletGuard element={<WalletPay />} />} />} />
-              <Route path="/wallet/apps" element={<ProtectedRoute element={<WalletGuard element={<WalletApps />} />} />} />
-              <Route path="/wallet/deposit" element={<ProtectedRoute element={<WalletGuard element={<WalletDeposit />} />} />} />
-              <Route path="/wallet/withdraw" element={<ProtectedRoute element={<WalletGuard element={<WalletWithdraw />} />} />} />
               <Route path="/wallet/pin" element={<ProtectedRoute element={<WalletPin />} />} />
+              <Route path="/wallet" element={<ProtectedRoute element={<WalletGuard element={<Wallet />} requirePin={true} />} />} />
+              <Route path="/wallet/actions" element={<ProtectedRoute element={<WalletGuard element={<WalletActions />} requirePin={true} />} />} />
+              <Route path="/wallet/pay" element={<ProtectedRoute element={<WalletGuard element={<WalletPay />} requirePin={true} />} />} />
+              <Route path="/wallet/apps" element={<ProtectedRoute element={<WalletGuard element={<WalletApps />} requirePin={true} />} />} />
+              <Route path="/wallet/deposit" element={<ProtectedRoute element={<WalletGuard element={<WalletDeposit />} requirePin={true} />} />} />
+              <Route path="/wallet/withdraw" element={<ProtectedRoute element={<WalletGuard element={<WalletWithdraw />} requirePin={true} />} />} />
               <Route path="/invest" element={<ProtectedRoute element={<Invest />} />} />
               <Route path="/invest/analytics" element={<ProtectedRoute element={<InvestAnalytics />} />} />
               <Route path="/invest/support" element={<ProtectedRoute element={<InvestSupport />} />} />
