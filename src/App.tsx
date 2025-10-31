@@ -46,6 +46,8 @@ const Notifications = lazy(() => import("./pages/Notifications"));
 const ProductDetails = lazy(() => import("./pages/ProductDetails"));
 const BuyerChangePassword = lazy(() => import("./pages/BuyerChangePassword"));
 const BuyerTwoFactor = lazy(() => import("./pages/BuyerTwoFactor"));
+const IndustryChangePassword = lazy(() => import("./pages/IndustryChangePassword"));
+const IndustryTwoFactor = lazy(() => import("./pages/IndustryTwoFactor"));
 const Wallet = lazy(() => import("./pages/Wallet"));
 const SupportChat = lazy(() => import("./pages/SupportChat"));
 const WalletActions = lazy(() => import("./pages/WalletActions"));
@@ -82,6 +84,8 @@ const App = () => (
               <Route path="/industry/products/:id/stats" element={<ProtectedRoute element={<IndustryProductStats />} requiredRole="industry" />} />
               <Route path="/industry/network" element={<ProtectedRoute element={<IndustryNetwork />} requiredRole="industry" />} />
               <Route path="/industry/settings" element={<ProtectedRoute element={<IndustrySettings />} requiredRole="industry" />} />
+              <Route path="/industry/settings/password" element={<ProtectedRoute element={<IndustryChangePassword />} requiredRole="industry" />} />
+              <Route path="/industry/settings/2fa" element={<ProtectedRoute element={<IndustryTwoFactor />} requiredRole="industry" />} />
               <Route path="/industry/add-property" element={<ProtectedRoute element={<IndustryAddProperty />} requiredRole="industry" />} />
               <Route path="/industry/collections" element={<ProtectedRoute element={<IndustryCollections />} requiredRole="industry" />} />
               <Route path="/industry/recent-activity" element={<ProtectedRoute element={<IndustryRecentActivity />} requiredRole="industry" />} />
