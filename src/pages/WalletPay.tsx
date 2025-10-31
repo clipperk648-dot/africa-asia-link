@@ -3,7 +3,7 @@ import { getCurrentUser } from "@/utils/mockAuth";
 import { useEffect } from "react";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Phone, DollarSign } from "lucide-react";
+import { Phone, DollarSign, CreditCard, Banknote, QrCode } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import WalletBottomNav from "@/components/WalletBottomNav";
 
@@ -62,29 +62,45 @@ const WalletPay = () => {
             </div>
             <div>
               <h3 className="font-semibold text-base">Shareable Cash Link</h3>
-              <p className="text-sm text-muted-foreground mt-1">To anyone not on MiniPay yet</p>
+              <p className="text-sm text-muted-foreground mt-1">To anyone not on platform yet</p>
+            </div>
+          </button>
+
+          <button className="w-full p-5 rounded-3xl bg-muted/50 border border-border/50 hover:border-primary/50 transition-colors text-left flex items-start gap-4">
+            <div className="w-12 h-12 rounded-full bg-card border border-border/50 flex items-center justify-center flex-shrink-0 mt-1">
+              <CreditCard className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-base">Credit/Debit Card</h3>
+              <p className="text-sm text-muted-foreground mt-1">Visa, Mastercard, American Express</p>
+            </div>
+          </button>
+
+          <button className="w-full p-5 rounded-3xl bg-muted/50 border border-border/50 hover:border-primary/50 transition-colors text-left flex items-start gap-4">
+            <div className="w-12 h-12 rounded-full bg-card border border-border/50 flex items-center justify-center flex-shrink-0 mt-1">
+              <Banknote className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-base">Bank Transfer</h3>
+              <p className="text-sm text-muted-foreground mt-1">Direct transfer from your bank account</p>
+            </div>
+          </button>
+
+          <button className="w-full p-5 rounded-3xl bg-muted/50 border border-border/50 hover:border-primary/50 transition-colors text-left flex items-start gap-4">
+            <div className="w-12 h-12 rounded-full bg-card border border-border/50 flex items-center justify-center flex-shrink-0 mt-1">
+              <QrCode className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-base">QR Code Payment</h3>
+              <p className="text-sm text-muted-foreground mt-1">Scan to pay from any mobile wallet</p>
             </div>
           </button>
         </div>
 
-        <div className="flex flex-col items-center justify-center py-16">
-          <div className="w-56 h-56 rounded-full bg-gradient-to-br from-secondary/20 via-primary/10 to-secondary/20 flex items-center justify-center mb-6 relative overflow-hidden">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <svg viewBox="0 0 200 200" className="w-full h-full opacity-60">
-                <circle cx="100" cy="100" r="80" fill="url(#grad)" stroke="none"/>
-                <defs>
-                  <radialGradient id="grad">
-                    <stop offset="0%" stopColor="hsl(var(--primary))"/>
-                    <stop offset="100%" stopColor="hsl(var(--secondary))"/>
-                  </radialGradient>
-                </defs>
-              </svg>
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center text-4xl">🌍</div>
-          </div>
-          <p className="text-center text-muted-foreground text-sm max-w-xs">
-            Keep an eye here for local payment<br />methods coming soon!
-          </p>
+        <div className="pt-8 pb-6">
+          <Button variant="gradient" className="w-full" size="lg">
+            Choose Payment Method
+          </Button>
         </div>
       </main>
 
