@@ -26,6 +26,7 @@ const BuyerDashboard = lazy(() => import("./pages/BuyerDashboard"));
 const BuyerProducts = lazy(() => import("./pages/BuyerProducts"));
 const BuyerNetwork = lazy(() => import("./pages/BuyerNetwork"));
 const BuyerSettings = lazy(() => import("./pages/BuyerSettings"));
+const BuyerOrders = lazy(() => import("./pages/BuyerOrders"));
 const SocialFeed = lazy(() => import("./pages/SocialFeed"));
 const SocialAddPost = lazy(() => import("./pages/SocialAddPost"));
 const Clan = lazy(() => import("./pages/Clan"));
@@ -92,6 +93,7 @@ const App = () => (
               <Route path="/buyer/settings/2fa" element={<ProtectedRoute element={<BuyerTwoFactor />} requiredRole="buyer" />} />
               <Route path="/buyer/products/:id" element={<ProtectedRoute element={<ProductDetails />} requiredRole="buyer" />} />
               <Route path="/buyer/collections" element={<ProtectedRoute element={<BuyerCollections />} requiredRole="buyer" />} />
+              <Route path="/buyer/orders" element={<ProtectedRoute element={<BuyerOrders />} requiredRole="buyer" />} />
               <Route path="/clan" element={<ProtectedRoute element={<Clan />} requiredRole="buyer" />} />
               <Route path="/clan/:clanId" element={<ProtectedRoute element={<ClanDetails />} requiredRole="buyer" />} />
               <Route path="/clan/:clanId/chat" element={<ProtectedRoute element={<ClanChat />} requiredRole="buyer" />} />
