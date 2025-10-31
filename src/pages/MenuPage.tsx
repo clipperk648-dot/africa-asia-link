@@ -147,29 +147,6 @@ const MenuPage = () => {
           </div>
         </div>
 
-        {/* Social Media Section */}
-        <div className="mb-8">
-          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-2 mb-4">Connect With Us</h3>
-          <GlassCard className="p-6">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {socialLinks.map((link, index) => (
-                <a
-                  key={index}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={link.label}
-                  className="flex flex-col items-center justify-center p-5 rounded-2xl bg-gradient-to-br from-white/15 via-white/10 to-white/5 border border-white/25 hover:border-white/40 hover:from-white/25 hover:via-white/20 hover:to-white/10 transition-all duration-300 group shadow-lg shadow-white/5 active:scale-95"
-                  title={link.label}
-                >
-                  <span className="text-4xl mb-2 group-hover:scale-125 transition-transform duration-300 drop-shadow-lg">{link.icon}</span>
-                  <span className="text-xs font-semibold text-muted-foreground text-center group-hover:text-foreground transition-colors">{link.label}</span>
-                </a>
-              ))}
-            </div>
-          </GlassCard>
-        </div>
-
         {/* Logout Button - Premium Glass with destructive theme */}
         <GlassCard className="p-0 overflow-hidden group bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent border-red-500/30 hover:border-red-500/50">
           <button
