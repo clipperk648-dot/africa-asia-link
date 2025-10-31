@@ -1,6 +1,5 @@
 import { useState, useMemo, memo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import SocialComposer from "@/components/SocialComposer";
 import { useSocialPosts } from "@/hooks/useData";
 import { getCurrentUser } from "@/utils/mockAuth";
 import { Button } from "@/components/ui/button";
@@ -169,10 +168,6 @@ const SocialFeed = () => {
         </div>
       </section>
 
-      {/* Composer */}
-      <section className="max-w-3xl mx-auto px-4 py-3">
-        <SocialComposer onPosted={() => refetch()} />
-      </section>
 
       {/* Feed */}
       <main className="max-w-3xl mx-auto space-y-0 pb-20">
