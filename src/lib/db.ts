@@ -23,22 +23,30 @@ async function apiCall<T>(endpoint: string, method: string = "GET", data?: any):
     const response = await fetch(`${API_BASE}${endpoint}`, options);
 
     let responseData: any = null;
+    let responseText = "";
 
     try {
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        responseData = await response.json();
+      // Always read response as text first (only way to read body once)
+      responseText = await response.text();
+
+      // Then try to parse as JSON if content looks like JSON
+      if (responseText) {
+        try {
+          responseData = JSON.parse(responseText);
+        } catch {
+          responseData = { raw: responseText };
+        }
       } else {
-        const text = await response.text();
-        responseData = text ? JSON.parse(text) : {};
+        responseData = {};
       }
-    } catch (parseError) {
-      console.error(`Failed to parse response from ${endpoint}:`, parseError);
-      responseData = {};
+    } catch (readError) {
+      console.error(`Failed to read response from ${endpoint}:`, readError);
+      responseData = { error: "Failed to read response" };
     }
 
     if (!response.ok) {
-      throw new Error(responseData.error || `HTTP ${response.status}`);
+      const errorMsg = responseData?.error || responseData?.message || `HTTP ${response.status}`;
+      throw new Error(errorMsg);
     }
 
     return responseData;
