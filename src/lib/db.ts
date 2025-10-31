@@ -1,218 +1,41 @@
-import mongoose, { Schema, Document } from "mongoose";
+// Frontend API client for database operations
+// These functions call the Netlify backend functions which interact with MongoDB
 
-const MONGODB_URI = import.meta.env.VITE_MONGODB_URI || process.env.MONGODB_URI;
+const API_BASE = "/.netlify/functions";
 
-// Types
-interface UserDocument extends Document {
-  email: string;
-  password_hash: string;
-  name: string;
-  phone: string;
-  role: "industry" | "buyer";
-  created_at: Date;
+interface ApiResponse<T> {
+  success?: boolean;
+  error?: string;
+  [key: string]: any;
 }
 
-interface ProductDocument extends Document {
-  name: string;
-  category?: string;
-  price: number;
-  company?: string;
-  location?: string;
-  image?: string;
-  images?: string[];
-  rating?: number;
-  description?: string;
-  seller_id?: string;
-  created_at: Date;
+async function apiCall<T>(endpoint: string, method: string = "GET", data?: any): Promise<T> {
+  try {
+    const options: RequestInit = {
+      method,
+      headers: { "Content-Type": "application/json" },
+    };
+
+    if (data) {
+      options.body = JSON.stringify(data);
+    }
+
+    const response = await fetch(`${API_BASE}${endpoint}`, options);
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `HTTP ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`API call failed: ${endpoint}`, error);
+    throw error;
+  }
 }
-
-interface OrderDocument extends Document {
-  product_name: string;
-  buyer_id: string;
-  seller_id: string;
-  product_id: string;
-  quantity: number;
-  total: number;
-  status: "pending" | "shipped" | "delivered" | "cancelled";
-  created_at: Date;
-}
-
-interface SocialPostDocument extends Document {
-  user_id: string;
-  username: string;
-  avatar: string;
-  type: "text" | "image";
-  content?: string;
-  media_url?: string;
-  likes: number;
-  comments: number;
-  created_at: Date;
-}
-
-interface ClanDocument extends Document {
-  name: string;
-  description: string;
-  creator_id: string;
-  creator_name: string;
-  target_product_id: string;
-  target_product_name: string;
-  target_price: number;
-  current_funded: number;
-  deadline: Date;
-  status: "active" | "completed" | "failed";
-  members: Array<{
-    id: string;
-    user_id: string;
-    username: string;
-    avatar: string;
-    contributed_amount: number;
-    joined_date: Date;
-  }>;
-  created_at: Date;
-}
-
-// Schemas
-const userSchema = new Schema<UserDocument>({
-  email: { type: String, required: true, unique: true },
-  password_hash: { type: String, required: true },
-  name: { type: String, required: true },
-  phone: { type: String, required: true },
-  role: { type: String, enum: ["industry", "buyer"], required: true },
-  created_at: { type: Date, default: Date.now },
-});
-
-const productSchema = new Schema<ProductDocument>({
-  name: { type: String, required: true },
-  category: String,
-  price: { type: Number, required: true },
-  company: String,
-  location: String,
-  image: String,
-  images: [String],
-  rating: Number,
-  description: String,
-  seller_id: String,
-  created_at: { type: Date, default: Date.now },
-});
-
-const orderSchema = new Schema<OrderDocument>({
-  product_name: { type: String, required: true },
-  buyer_id: String,
-  seller_id: String,
-  product_id: { type: String, required: true },
-  quantity: { type: Number, default: 1 },
-  total: { type: Number, required: true },
-  status: {
-    type: String,
-    enum: ["pending", "shipped", "delivered", "cancelled"],
-    default: "pending",
-  },
-  created_at: { type: Date, default: Date.now },
-});
-
-const socialPostSchema = new Schema<SocialPostDocument>({
-  user_id: { type: String, required: true },
-  username: { type: String, required: true },
-  avatar: String,
-  type: { type: String, enum: ["text", "image"], default: "text" },
-  content: String,
-  media_url: String,
-  likes: { type: Number, default: 0 },
-  comments: { type: Number, default: 0 },
-  created_at: { type: Date, default: Date.now },
-});
-
-const clanSchema = new Schema<ClanDocument>({
-  name: { type: String, required: true },
-  description: String,
-  creator_id: { type: String, required: true },
-  creator_name: { type: String, required: true },
-  target_product_id: String,
-  target_product_name: String,
-  target_price: Number,
-  current_funded: { type: Number, default: 0 },
-  deadline: Date,
-  status: {
-    type: String,
-    enum: ["active", "completed", "failed"],
-    default: "active",
-  },
-  members: [
-    {
-      id: String,
-      user_id: String,
-      username: String,
-      avatar: String,
-      contributed_amount: Number,
-      joined_date: Date,
-    },
-  ],
-  created_at: { type: Date, default: Date.now },
-});
-
-// Models
-let User: mongoose.Model<UserDocument>;
-let Product: mongoose.Model<ProductDocument>;
-let Order: mongoose.Model<OrderDocument>;
-let SocialPost: mongoose.Model<SocialPostDocument>;
-let Clan: mongoose.Model<ClanDocument>;
-
-// Initialize models
-const initializeModels = () => {
-  try {
-    User = mongoose.model<UserDocument>("User", userSchema);
-  } catch {
-    User = mongoose.model<UserDocument>("User");
-  }
-
-  try {
-    Product = mongoose.model<ProductDocument>("Product", productSchema);
-  } catch {
-    Product = mongoose.model<ProductDocument>("Product");
-  }
-
-  try {
-    Order = mongoose.model<OrderDocument>("Order", orderSchema);
-  } catch {
-    Order = mongoose.model<OrderDocument>("Order");
-  }
-
-  try {
-    SocialPost = mongoose.model<SocialPostDocument>("SocialPost", socialPostSchema);
-  } catch {
-    SocialPost = mongoose.model<SocialPostDocument>("SocialPost");
-  }
-
-  try {
-    Clan = mongoose.model<ClanDocument>("Clan", clanSchema);
-  } catch {
-    Clan = mongoose.model<ClanDocument>("Clan");
-  }
-};
-
-let isConnected = false;
 
 export const isDatabaseConfigured = (): boolean => {
-  return isConnected && !!MONGODB_URI;
-};
-
-export const connectDatabase = async (): Promise<void> => {
-  if (isConnected) return;
-
-  if (!MONGODB_URI) {
-    console.warn("MONGODB_URI not configured");
-    return;
-  }
-
-  try {
-    await mongoose.connect(MONGODB_URI);
-    isConnected = true;
-    initializeModels();
-    console.log("MongoDB connected successfully");
-  } catch (error) {
-    console.error("MongoDB connection failed:", error);
-    isConnected = false;
-  }
+  return true; // Always consider it configured since we have API endpoints
 };
 
 // Users
@@ -223,87 +46,87 @@ export const createUser = async (
   phone: string,
   role: "industry" | "buyer"
 ): Promise<{ id: string; email: string; name: string; role: "industry" | "buyer" }> => {
-  if (!isDatabaseConfigured()) {
-    throw new Error("Database not configured");
-  }
-
-  const user = new User({ email, password_hash: passwordHash, name, phone, role });
-  const savedUser = await user.save();
-
-  return {
-    id: savedUser._id.toString(),
-    email: savedUser.email,
-    name: savedUser.name,
-    role: savedUser.role,
-  };
+  return await apiCall("/create-user", "POST", {
+    email,
+    passwordHash,
+    name,
+    phone,
+    role,
+  });
 };
 
 export const getUserByEmail = async (email: string): Promise<any> => {
-  if (!isDatabaseConfigured()) {
+  try {
+    return await apiCall(`/get-user?email=${encodeURIComponent(email)}`, "GET");
+  } catch {
     return null;
   }
-
-  return await User.findOne({ email });
 };
 
 export const getUserById = async (id: string): Promise<any> => {
-  if (!isDatabaseConfigured()) {
+  try {
+    return await apiCall(`/get-user?id=${encodeURIComponent(id)}`, "GET");
+  } catch {
     return null;
   }
-
-  return await User.findById(id);
 };
 
 // Products
 export const getProducts = async (limit = 20, offset = 0): Promise<any[]> => {
-  if (!isDatabaseConfigured()) {
+  try {
+    const result = await apiCall(
+      `/get-products?limit=${limit}&offset=${offset}`,
+      "GET"
+    );
+    return Array.isArray(result) ? result : result.data || [];
+  } catch {
     return [];
   }
-
-  return await Product.find().skip(offset).limit(limit).lean();
 };
 
 export const getProductById = async (id: string): Promise<any> => {
-  if (!isDatabaseConfigured()) {
+  try {
+    return await apiCall(`/get-product?id=${encodeURIComponent(id)}`, "GET");
+  } catch {
     return null;
   }
-
-  return await Product.findById(id).lean();
 };
 
 export const createProduct = async (productData: any): Promise<any> => {
-  if (!isDatabaseConfigured()) {
-    throw new Error("Database not configured");
-  }
-
-  const product = new Product(productData);
-  return await product.save();
+  return await apiCall("/create-product", "POST", productData);
 };
 
 export const updateProduct = async (id: string, productData: any): Promise<any> => {
-  if (!isDatabaseConfigured()) {
+  try {
+    return await apiCall("/update-product", "POST", {
+      id,
+      ...productData,
+    });
+  } catch {
     return null;
   }
-
-  return await Product.findByIdAndUpdate(id, productData, { new: true });
 };
 
 export const deleteProduct = async (id: string): Promise<boolean> => {
-  if (!isDatabaseConfigured()) {
+  try {
+    await apiCall("/delete-product", "POST", { id });
+    return true;
+  } catch {
     return false;
   }
-
-  const result = await Product.findByIdAndDelete(id);
-  return !!result;
 };
 
 // Orders
 export const getOrders = async (userId: string): Promise<any[]> => {
-  if (!isDatabaseConfigured()) {
+  try {
+    const result = await apiCall(
+      `/get-orders?userId=${encodeURIComponent(userId)}`,
+      "GET"
+    );
+    return Array.isArray(result) ? result : result.data || [];
+  } catch {
     return [];
   }
-
-  return await Order.find({ buyer_id: userId }).lean();
 };
 
 export const createOrder = async (
@@ -313,30 +136,23 @@ export const createOrder = async (
   quantity: number,
   total: number
 ): Promise<any> => {
-  if (!isDatabaseConfigured()) {
-    throw new Error("Database not configured");
-  }
-
-  const order = new Order({
-    buyer_id: buyerId,
-    seller_id: sellerId,
-    product_id: productId,
+  return await apiCall("/create-order", "POST", {
+    buyerId,
+    sellerId,
+    productId,
     quantity,
     total,
-    product_name: "Order",
-    status: "pending",
   });
-
-  return await order.save();
 };
 
 // Social posts
 export const getSocialPosts = async (limit = 20): Promise<any[]> => {
-  if (!isDatabaseConfigured()) {
+  try {
+    const result = await apiCall(`/get-social-posts?limit=${limit}`, "GET");
+    return Array.isArray(result) ? result : result.data || [];
+  } catch {
     return [];
   }
-
-  return await SocialPost.find().sort({ created_at: -1 }).limit(limit).lean();
 };
 
 export const createSocialPost = async (
@@ -344,46 +160,36 @@ export const createSocialPost = async (
   content: string,
   imageUrl?: string
 ): Promise<any> => {
-  if (!isDatabaseConfigured()) {
-    throw new Error("Database not configured");
-  }
-
-  const post = new SocialPost({
-    user_id: userId,
-    username: "user",
-    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`,
-    type: imageUrl ? "image" : "text",
+  return await apiCall("/create-social-post", "POST", {
+    userId,
     content,
-    media_url: imageUrl,
+    imageUrl,
   });
-
-  return await post.save();
 };
 
 // Clans
 export const getClans = async (limit = 20, offset = 0): Promise<any[]> => {
-  if (!isDatabaseConfigured()) {
+  try {
+    const result = await apiCall(
+      `/get-clans?limit=${limit}&offset=${offset}`,
+      "GET"
+    );
+    return Array.isArray(result) ? result : result.data || [];
+  } catch {
     return [];
   }
-
-  return await Clan.find().skip(offset).limit(limit).lean();
 };
 
 export const getClanById = async (id: string): Promise<any> => {
-  if (!isDatabaseConfigured()) {
+  try {
+    return await apiCall(`/get-clan?id=${encodeURIComponent(id)}`, "GET");
+  } catch {
     return null;
   }
-
-  return await Clan.findById(id).lean();
 };
 
 export const createClan = async (clanData: any): Promise<any> => {
-  if (!isDatabaseConfigured()) {
-    throw new Error("Database not configured");
-  }
-
-  const clan = new Clan(clanData);
-  return await clan.save();
+  return await apiCall("/create-clan", "POST", clanData);
 };
 
 export const joinClan = async (
@@ -392,48 +198,19 @@ export const joinClan = async (
   username: string,
   contributionAmount: number
 ): Promise<any> => {
-  if (!isDatabaseConfigured()) {
-    return null;
-  }
-
-  const clan = await Clan.findById(clanId);
-  if (!clan) return null;
-
-  const memberExists = clan.members.some((m: any) => m.user_id === userId);
-  if (!memberExists) {
-    clan.members.push({
-      id: new mongoose.Types.ObjectId().toString(),
-      user_id: userId,
-      username,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
-      contributed_amount: contributionAmount,
-      joined_date: new Date(),
-    });
-  } else {
-    const member = clan.members.find((m: any) => m.user_id === userId);
-    if (member) member.contributed_amount += contributionAmount;
-  }
-
-  clan.current_funded += contributionAmount;
-  return await clan.save();
+  return await apiCall("/join-clan", "POST", {
+    clanId,
+    userId,
+    username,
+    contributionAmount,
+  });
 };
 
 export const leaveClan = async (clanId: string, userId: string): Promise<any> => {
-  if (!isDatabaseConfigured()) {
-    return null;
-  }
-
-  const clan = await Clan.findById(clanId);
-  if (!clan) return null;
-
-  const memberIndex = clan.members.findIndex((m: any) => m.user_id === userId);
-  if (memberIndex !== -1) {
-    const member = clan.members[memberIndex];
-    clan.current_funded -= member.contributed_amount;
-    clan.members.splice(memberIndex, 1);
-  }
-
-  return await clan.save();
+  return await apiCall("/leave-clan", "POST", {
+    clanId,
+    userId,
+  });
 };
 
 // Wallet
@@ -441,7 +218,15 @@ export const getWalletBalance = async (
   userId: string,
   currency = "USD"
 ): Promise<{ balance: number; currency: string }> => {
-  return { balance: 0, currency };
+  try {
+    const result = await apiCall(
+      `/get-wallet-balance?userId=${encodeURIComponent(userId)}&currency=${currency}`,
+      "GET"
+    );
+    return result;
+  } catch {
+    return { balance: 0, currency };
+  }
 };
 
 export const setWalletBalance = async (
@@ -449,11 +234,23 @@ export const setWalletBalance = async (
   amount: number,
   currency = "USD"
 ): Promise<any> => {
-  return { success: true };
+  return await apiCall("/set-wallet-balance", "POST", {
+    userId,
+    amount,
+    currency,
+  });
 };
 
 export const getWalletTransactions = async (userId: string): Promise<any[]> => {
-  return [];
+  try {
+    const result = await apiCall(
+      `/get-transactions?userId=${encodeURIComponent(userId)}`,
+      "GET"
+    );
+    return Array.isArray(result) ? result : result.data || [];
+  } catch {
+    return [];
+  }
 };
 
 export const addWalletTransaction = async (
@@ -465,19 +262,38 @@ export const addWalletTransaction = async (
     note?: string;
   }
 ): Promise<any> => {
-  return { success: true };
+  return await apiCall("/add-transaction", "POST", {
+    userId,
+    ...tx,
+  });
 };
 
 // Messaging
 export const getConversations = async (userId: string): Promise<any[]> => {
-  return [];
+  try {
+    const result = await apiCall(
+      `/get-conversations?userId=${encodeURIComponent(userId)}`,
+      "GET"
+    );
+    return Array.isArray(result) ? result : result.data || [];
+  } catch {
+    return [];
+  }
 };
 
 export const getMessages = async (
   userId: string,
   peerId: string
 ): Promise<any[]> => {
-  return [];
+  try {
+    const result = await apiCall(
+      `/get-messages?userId=${encodeURIComponent(userId)}&peerId=${encodeURIComponent(peerId)}`,
+      "GET"
+    );
+    return Array.isArray(result) ? result : result.data || [];
+  } catch {
+    return [];
+  }
 };
 
 export const sendMessage = async (
@@ -486,10 +302,10 @@ export const sendMessage = async (
   content?: string,
   mediaUrl?: string
 ): Promise<any> => {
-  return { success: true };
+  return await apiCall("/send-message", "POST", {
+    senderId,
+    recipientId,
+    content,
+    mediaUrl,
+  });
 };
-
-// Initialize connection on module load if in Node environment
-if (typeof window === "undefined" || process.env.NODE_ENV !== "production") {
-  connectDatabase().catch(console.error);
-}
