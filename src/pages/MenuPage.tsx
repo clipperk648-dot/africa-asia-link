@@ -18,6 +18,7 @@ import {
 import ThreeBackground from "@/components/ThreeBackground";
 import { useTheme } from "next-themes";
 import GlassCard from "@/components/GlassCard";
+import { toast } from "@/components/ui/sonner";
 
 const MenuPage = () => {
   const navigate = useNavigate();
@@ -27,13 +28,13 @@ const MenuPage = () => {
 
   const menuItems = [
     { icon: Settings, label: "Settings", onClick: () => navigate(user?.role === "buyer" ? "/buyer/settings" : "/industry/settings") },
-    { icon: Bookmark, label: "Saved", onClick: () => {} },
-    { icon: Clock, label: "Activity", onClick: () => {} },
-    { icon: Heart, label: "Favorites", onClick: () => {} },
+    { icon: Bookmark, label: "Saved", onClick: () => navigate("/buyer/collections") },
+    { icon: Clock, label: "Activity", onClick: () => navigate(user?.role === "buyer" ? "/buyer/orders" : "/industry/recent-activity") },
+    { icon: Heart, label: "Favorites", onClick: () => toast.info("Favorites feature coming soon") },
     { icon: Users, label: "Network", onClick: () => navigate(user?.role === "buyer" ? "/buyer/network" : "/industry/network") },
     { icon: ShoppingBag, label: "Orders", onClick: () => navigate("/cart") },
-    { icon: Bell, label: "Notifications", onClick: () => {} },
-    { icon: HelpCircle, label: "Help & Support", onClick: () => {} },
+    { icon: Bell, label: "Notifications", onClick: () => navigate("/notifications") },
+    { icon: HelpCircle, label: "Help & Support", onClick: () => navigate("/support-chat") },
   ];
 
 
