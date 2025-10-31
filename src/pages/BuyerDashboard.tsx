@@ -317,6 +317,32 @@ const BuyerDashboard = () => {
           </div>
         </section>
 
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base sm:text-lg font-bold">Collections Showcase</h2>
+            <Link to="/buyer/collections" aria-label="View Collections">
+              <Button variant="gradient" size="xs" className="gap-2 px-2">
+                <Box className="w-4 h-4" />
+                <span className="hidden sm:inline">Browse Collections</span>
+              </Button>
+            </Link>
+          </div>
+          <div className="relative group">
+            <GlassSlideshowFrame
+              videoUrl="https://cdn.builder.io/o/assets%2Fb9ea758a2cc9497892cc75159293dfe9%2Faeec48a736fb4540a3829ed6d6db3ba8?alt=media&token=e5e75d1e-e61c-4c3d-a86c-f63a1b7b5162&apiKey=b9ea758a2cc9497892cc75159293dfe9"
+              heightClassName="h-48 sm:h-64 lg:h-72"
+            />
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl">
+              <Link to="/buyer/collections">
+                <Button className="gap-2 shadow-lg text-base">
+                  <Box className="w-5 h-5" />
+                  <span>Open Collections</span>
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+
         <section className="pt-2 pb-4 text-xs text-muted-foreground text-center">
           <span className="font-medium">Rates:</span> 1 USD ≈ ₦1,600 • 1 CNY ≈ ₦220
         </section>
