@@ -123,50 +123,70 @@ const BuyerDashboard = () => {
                     <Menu className="w-5 h-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-72 sm:w-80">
-                  <SheetHeader>
-                    <SheetTitle>Menu</SheetTitle>
+                <SheetContent side="right" className="w-72 sm:w-80 bg-background/80 backdrop-blur-xl border-l border-border/50">
+                  <SheetHeader className="mb-6">
+                    <SheetTitle className="text-2xl">Menu</SheetTitle>
                   </SheetHeader>
-                  <div className="mt-4 space-y-2">
-                    <Link to="/profile">
-                    <Button variant="ghost" className="w-full justify-start">Profile</Button>
-                  </Link>
-                  <Link to="/buyer/settings">
-                    <Button variant="ghost" className="w-full justify-start">Settings</Button>
-                  </Link>
-                  <Link to="/buyer/collections">
-                    <Button variant="ghost" className="w-full justify-start">
-                      <Box className="w-4 h-4 mr-2" /> Collections
-                    </Button>
-                  </Link>
-                  <Link to="/wallet">
-                    <Button variant="ghost" className="w-full justify-start">Wallet</Button>
-                  </Link>
-                  <Link to="/invest">
-                    <Button variant="ghost" className="w-full justify-start">Invest</Button>
-                  </Link>
-                  <Link to="/notifications">
-                    <Button variant="ghost" className="w-full justify-start">Notifications</Button>
-                  </Link>
-
-                    <div className="pt-2 border-t border-border/40 mt-2">
-                      <p className="text-xs text-muted-foreground px-2 mb-2">Follow us</p>
-                      <div className="flex gap-2 px-2">
-                        <a href={SOCIAL_LINKS[0].href} target="_blank" rel="noreferrer">
-                          <Button variant="ghost" className="p-2"><Twitter className="w-4 h-4" /></Button>
-                        </a>
-                        <a href={SOCIAL_LINKS[1].href} target="_blank" rel="noreferrer">
-                          <Button variant="ghost" className="p-2"><Instagram className="w-4 h-4" /></Button>
-                        </a>
-                        <a href={SOCIAL_LINKS[2].href} target="_blank" rel="noreferrer">
-                          <Button variant="ghost" className="p-2"><Facebook className="w-4 h-4" /></Button>
-                        </a>
-                      </div>
+                  <div className="space-y-4">
+                    {/* Menu Items with Glass Morphism */}
+                    <div className="space-y-2">
+                      <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-3 mb-3">Navigation</h3>
+                      <Link to="/profile" className="block">
+                        <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
+                          <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Profile</span>
+                        </div>
+                      </Link>
+                      <Link to="/buyer/settings" className="block">
+                        <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
+                          <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Settings</span>
+                        </div>
+                      </Link>
+                      <Link to="/buyer/collections" className="block">
+                        <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
+                            <Box className="w-4 h-4 text-primary" />
+                          </div>
+                          <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Collections</span>
+                        </div>
+                      </Link>
+                      <Link to="/wallet" className="block">
+                        <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
+                          <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Wallet</span>
+                        </div>
+                      </Link>
+                      <Link to="/invest" className="block">
+                        <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
+                          <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Invest</span>
+                        </div>
+                      </Link>
+                      <Link to="/notifications" className="block">
+                        <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
+                          <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Notifications</span>
+                        </div>
+                      </Link>
                     </div>
 
-                    <Button className="w-full justify-start mt-4" variant="destructive" onClick={handleLogout}>
-                      <LogOut className="w-4 h-4 mr-2" /> Logout
-                    </Button>
+                    {/* Social Platform Link */}
+                    <div className="pt-4 border-t border-border/50">
+                      <Link to="/social" className="block">
+                        <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
+                            <Music2 className="w-4 h-4 text-primary" />
+                          </div>
+                          <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Social</span>
+                        </div>
+                      </Link>
+                    </div>
+
+                    {/* Logout Button */}
+                    <div className="pt-4 border-t border-border/50">
+                      <button onClick={handleLogout} className="w-full p-4 rounded-xl bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent border border-red-500/30 hover:border-red-500/50 hover:from-red-500/20 hover:via-red-500/15 transition-all duration-300 group cursor-pointer flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-red-500/20 border border-red-500/40 group-hover:bg-red-500/30 transition-colors">
+                          <LogOut className="w-4 h-4 text-red-500" />
+                        </div>
+                        <span className="font-semibold text-sm text-red-500 group-hover:translate-x-1 transition-transform duration-300">Log Out</span>
+                      </button>
+                    </div>
                   </div>
                 </SheetContent>
               </Sheet>
@@ -314,6 +334,32 @@ const BuyerDashboard = () => {
                 </GlassCard>
               ))
             )}
+          </div>
+        </section>
+
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base sm:text-lg font-bold">Collections Showcase</h2>
+            <Link to="/buyer/collections" aria-label="View Collections">
+              <Button variant="gradient" size="xs" className="gap-2 px-2">
+                <Box className="w-4 h-4" />
+                <span className="hidden sm:inline">Browse Collections</span>
+              </Button>
+            </Link>
+          </div>
+          <div className="relative group">
+            <GlassSlideshowFrame
+              videoUrl="https://cdn.builder.io/o/assets%2Fb9ea758a2cc9497892cc75159293dfe9%2Faeec48a736fb4540a3829ed6d6db3ba8?alt=media&token=e5e75d1e-e61c-4c3d-a86c-f63a1b7b5162&apiKey=b9ea758a2cc9497892cc75159293dfe9"
+              heightClassName="h-48 sm:h-64 lg:h-72"
+            />
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl">
+              <Link to="/buyer/collections">
+                <Button className="gap-2 shadow-lg text-base">
+                  <Box className="w-5 h-5" />
+                  <span>Open Collections</span>
+                </Button>
+              </Link>
+            </div>
           </div>
         </section>
 

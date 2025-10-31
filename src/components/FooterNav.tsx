@@ -33,7 +33,7 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-t border-border/50">
       <div className="max-w-7xl mx-auto px-2 sm:px-6">
-        <div className={cn("flex items-center justify-around h-20 relative", isIndustry ? "sm:px-8" : "")}>
+        <div className={cn("flex items-center justify-around h-16 relative", isIndustry ? "sm:px-8" : "")}>
           {isIndustry ? (
             <>
               {/* Left Items */}
@@ -57,7 +57,7 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
               })}
 
               {/* Center Primary Action Button */}
-              <div className="absolute left-1/2 -translate-x-1/2 -top-5">
+              <div className="absolute left-1/2 -translate-x-1/2 -top-3">
                 <Link to={primaryAction.path} aria-label={primaryAction.label}>
                   <Button
                     size="icon"
