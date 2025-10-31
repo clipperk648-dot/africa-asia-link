@@ -144,7 +144,7 @@ const Invest = () => {
   };
 
   const deposit = () => {
-    const amountStr = prompt("Enter deposit amount (₦)");
+    const amountStr = prompt("Enter deposit amount ($)");
     if (!amountStr) return;
     const amount = Number(amountStr);
     if (isNaN(amount) || amount <= 0) return toast.error("Invalid amount");
@@ -155,7 +155,7 @@ const Invest = () => {
   };
 
   const withdraw = () => {
-    const amountStr = prompt("Enter withdraw amount (₦)");
+    const amountStr = prompt("Enter withdraw amount ($)");
     if (!amountStr) return;
     const amount = Number(amountStr);
     if (isNaN(amount) || amount <= 0) return toast.error("Invalid amount");
@@ -169,7 +169,7 @@ const Invest = () => {
   const investInProject = (projectId: string) => {
     const project = projects.find((p) => p.id === projectId);
     if (!project) return;
-    const amountStr = prompt(`Enter amount to invest in ${project.title} (₦)`);
+    const amountStr = prompt(`Enter amount to invest in ${project.title} ($)`);
     if (!amountStr) return;
     const amount = Number(amountStr);
     if (isNaN(amount) || amount <= 0) return toast.error("Invalid amount");

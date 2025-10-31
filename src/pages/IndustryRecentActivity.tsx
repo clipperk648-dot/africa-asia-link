@@ -184,7 +184,7 @@ const IndustryRecentActivity = () => {
                 <div className="flex items-center gap-3 sm:gap-4">
                   <div className="text-left sm:text-right">
                     <p className="font-bold text-lg sm:text-xl">
-                      ¥{order.total.toLocaleString()}
+                      ${order.total.toLocaleString()}
                     </p>
                   </div>
                   <span
