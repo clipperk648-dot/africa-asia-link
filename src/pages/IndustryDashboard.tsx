@@ -114,35 +114,77 @@ const IndustryDashboard = () => {
                   <Menu className="w-5 h-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-72 sm:w-80">
-                <SheetHeader>
-                  <SheetTitle>Menu</SheetTitle>
+              <SheetContent side="right" className="w-72 sm:w-80 bg-background/80 backdrop-blur-xl border-l border-border/50">
+                <SheetHeader className="mb-6">
+                  <SheetTitle className="text-2xl">Menu</SheetTitle>
                 </SheetHeader>
-                <div className="mt-4 space-y-2">
-                  <Link to="/profile">
-                    <Button variant="ghost" className="w-full justify-start">Profile</Button>
-                  </Link>
-                  <Link to="/industry/settings">
-                    <Button variant="ghost" className="w-full justify-start">Settings</Button>
-                  </Link>
-                  <Link to="/industry/collections">
-                    <Button variant="ghost" className="w-full justify-start">
-                      <Box className="w-4 h-4 mr-2" /> Collections
-                    </Button>
-                  </Link>
-                  <Link to="/wallet">
-                    <Button variant="ghost" className="w-full justify-start">Wallet</Button>
-                  </Link>
-                  <Link to="/invest">
-                    <Button variant="ghost" className="w-full justify-start">Invest</Button>
-                  </Link>
-                  <Link to="/notifications">
-                    <Button variant="ghost" className="w-full justify-start">Notifications</Button>
-                  </Link>
+                <div className="space-y-4">
+                  {/* Menu Items with Glass Morphism */}
+                  <div className="space-y-2">
+                    <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-3 mb-3">Navigation</h3>
+                    <Link to="/profile" className="block">
+                      <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
+                        <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Profile</span>
+                      </div>
+                    </Link>
+                    <Link to="/industry/settings" className="block">
+                      <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
+                        <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Settings</span>
+                      </div>
+                    </Link>
+                    <Link to="/industry/collections" className="block">
+                      <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
+                          <Box className="w-4 h-4 text-primary" />
+                        </div>
+                        <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Collections</span>
+                      </div>
+                    </Link>
+                    <Link to="/wallet" className="block">
+                      <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
+                        <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Wallet</span>
+                      </div>
+                    </Link>
+                    <Link to="/invest" className="block">
+                      <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
+                        <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Invest</span>
+                      </div>
+                    </Link>
+                    <Link to="/notifications" className="block">
+                      <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
+                        <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Notifications</span>
+                      </div>
+                    </Link>
+                  </div>
 
-                  <Button className="w-full justify-start mt-4" variant="destructive" onClick={handleLogout}>
-                    <LogOut className="w-4 h-4 mr-2" /> Logout
-                  </Button>
+                  {/* Social Media Links */}
+                  <div className="pt-4 border-t border-border/50">
+                    <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-3 mb-3">Connect</h3>
+                    <div className="grid grid-cols-4 gap-2">
+                      <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group">
+                        <span className="text-2xl group-hover:scale-110 transition-transform">𝕏</span>
+                      </a>
+                      <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group">
+                        <span className="text-2xl group-hover:scale-110 transition-transform">📷</span>
+                      </a>
+                      <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group">
+                        <span className="text-2xl group-hover:scale-110 transition-transform">📘</span>
+                      </a>
+                      <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group">
+                        <span className="text-2xl group-hover:scale-110 transition-transform">💼</span>
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* Logout Button */}
+                  <div className="pt-4 border-t border-border/50">
+                    <button onClick={handleLogout} className="w-full p-4 rounded-xl bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent border border-red-500/30 hover:border-red-500/50 hover:from-red-500/20 hover:via-red-500/15 transition-all duration-300 group cursor-pointer flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-red-500/20 border border-red-500/40 group-hover:bg-red-500/30 transition-colors">
+                        <LogOut className="w-4 h-4 text-red-500" />
+                      </div>
+                      <span className="font-semibold text-sm text-red-500 group-hover:translate-x-1 transition-transform duration-300">Log Out</span>
+                    </button>
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>
