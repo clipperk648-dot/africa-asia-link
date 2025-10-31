@@ -92,7 +92,7 @@ const IndustryDashboard = () => {
   const stats = [
     { label: "Total Products", value: "24", icon: Package, color: "text-primary" },
     { label: "Active Orders", value: "18", icon: TrendingUp, color: "text-secondary" },
-    { label: "Revenue", value: "¥450K", icon: DollarSign, color: "text-accent" },
+    { label: "Revenue", value: "$450K", icon: DollarSign, color: "text-accent" },
     { label: "Buyers", value: "156", icon: Users, color: "text-primary" },
   ];
 
@@ -360,7 +360,7 @@ const IndustryDashboard = () => {
         </section>
 
         <section className="py-2 text-xs text-muted-foreground text-center">
-          <span className="font-medium">Rates:</span> 1 USD ≈ ¥7.1 • 1 CNY ≈ ₦220
+          <span className="font-medium">Rates:</span> 1 USD ≈ $7.1 • 1 CNY ≈ $220
         </section>
       </main>
 

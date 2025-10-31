@@ -42,7 +42,7 @@ const ProductCard = ({ product, navigate }: { product: Product; navigate: any })
       <p className="text-xs sm:text-sm text-muted-foreground truncate">{product.location}</p>
       <div className="flex items-center justify-between pt-2 gap-2">
         <p className="text-xl sm:text-2xl font-bold text-primary">
-          ₦{product.price.toLocaleString()}
+          ${product.price.toLocaleString()}
         </p>
         <div className="flex items-center gap-2">
           <RateButton productId={product.id} productName={product.name} size="xs" />
@@ -101,7 +101,7 @@ const BuyerDashboard = () => {
     { label: "Active Orders", value: "8", icon: ShoppingCart, color: "text-primary" },
     { label: "Pending", value: "3", icon: Clock, color: "text-accent" },
     { label: "Completed", value: "45", icon: CheckCircle, color: "text-secondary" },
-    { label: "Saved", value: "₦78K", icon: TrendingUp, color: "text-primary" },
+    { label: "Saved", value: "$78K", icon: TrendingUp, color: "text-primary" },
   ];
 
   return (
@@ -350,7 +350,7 @@ const BuyerDashboard = () => {
                     </div>
                     <div className="flex items-center gap-3 sm:gap-4">
                       <div className="text-left sm:text-right">
-                        <p className="font-bold text-lg sm:text-xl">₦{order.total.toLocaleString()}</p>
+                        <p className="font-bold text-lg sm:text-xl">${order.total.toLocaleString()}</p>
                       </div>
                       <span
                         className={`text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium whitespace-nowrap ${
@@ -398,7 +398,7 @@ const BuyerDashboard = () => {
         </section>
 
         <section className="pt-2 pb-4 text-xs text-muted-foreground text-center">
-          <span className="font-medium">Rates:</span> 1 USD ≈ ₦1,600 • 1 CNY ≈ ₦220
+          <span className="font-medium">Rates:</span> 1 USD ≈ $1,600 • 1 CNY ≈ $220
         </section>
       </main>
 

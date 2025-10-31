@@ -63,7 +63,7 @@ const BuyerOrders = () => {
                     </div>
                     <div className="flex items-center gap-3 sm:gap-4">
                       <div className="text-left sm:text-right">
-                        <p className="font-bold text-lg sm:text-xl">₦{order.total.toLocaleString()}</p>
+                        <p className="font-bold text-lg sm:text-xl">${order.total.toLocaleString()}</p>
                       </div>
                       <span
                         className={`text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium whitespace-nowrap ${
