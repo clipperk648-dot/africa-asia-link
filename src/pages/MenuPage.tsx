@@ -68,16 +68,16 @@ const MenuPage = () => {
 
       <main className="max-w-3xl mx-auto px-4 py-6">
         {/* Profile Section - Premium Glass Morphism */}
-        <div className="mb-8">
-          <GlassCard className="p-8 relative overflow-hidden group">
+        <div className="mb-6">
+          <GlassCard className="p-4 relative overflow-hidden group">
             {/* Gradient overlay on hover */}
             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative z-10 flex items-center gap-5">
+            <div className="relative z-10 flex items-center gap-3">
               <div className="relative">
                 <img
                   src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email || 'default'}`}
                   alt="Profile"
-                  className="w-20 h-20 rounded-full border-2 border-white/40 shadow-lg"
+                  className="w-16 h-16 rounded-full border-2 border-white/40 shadow-lg"
                 />
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-transparent" />
               </div>
@@ -91,8 +91,8 @@ const MenuPage = () => {
         </div>
 
         {/* Dark Mode Toggle - Premium Glass */}
-        <div className="mb-8">
-          <GlassCard className="p-6 flex items-center justify-between group">
+        <div className="mb-6">
+          <GlassCard className="p-4 flex items-center justify-between group">
             <div className="flex items-center gap-4">
               <div className="p-3 rounded-lg bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
                 {darkMode ? (
@@ -131,12 +131,12 @@ const MenuPage = () => {
                 >
                   <button
                     onClick={item.onClick}
-                    className="w-full flex items-center gap-4 p-5 transition-all duration-300"
+                    className="w-full flex items-center gap-3 p-3 transition-all duration-300"
                   >
-                    <div className="p-3 rounded-xl bg-gradient-to-br from-white/15 via-white/10 to-white/5 border border-white/25 group-hover:border-white/40 group-hover:bg-gradient-to-br group-hover:from-white/25 group-hover:via-white/20 group-hover:to-white/10 transition-all duration-300 shadow-lg shadow-white/5">
-                      <Icon className="w-5 h-5 text-primary group-hover:scale-110 transition-transform duration-300" />
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-white/15 via-white/10 to-white/5 border border-white/25 group-hover:border-white/40 group-hover:bg-gradient-to-br group-hover:from-white/25 group-hover:via-white/20 group-hover:to-white/10 transition-all duration-300 shadow-lg shadow-white/5">
+                      <Icon className="w-4 h-4 text-primary group-hover:scale-110 transition-transform duration-300" />
                     </div>
-                    <span className="font-semibold text-base group-hover:translate-x-1 transition-transform duration-300">{item.label}</span>
+                    <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">{item.label}</span>
                     <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <ArrowLeft className="w-4 h-4 text-primary/60 transform rotate-180" />
                     </div>
