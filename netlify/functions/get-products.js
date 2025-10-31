@@ -1,11 +1,9 @@
 const { getModels } = require('./mongodb-connection');
+const { createErrorResponse, createJsonResponse } = require('./response-helper');
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'GET') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' }),
-    };
+    return createErrorResponse(405, 'Method not allowed');
   }
 
   try {
@@ -21,34 +19,24 @@ exports.handler = async (event, context) => {
         .limit(limitNum)
         .lean();
 
-      return {
-        statusCode: 200,
-        body: JSON.stringify(products.map(p => ({
-          id: p._id.toString(),
-          name: p.name,
-          category: p.category,
-          price: p.price,
-          company: p.company,
-          location: p.location,
-          image: p.image,
-          images: p.images,
-          rating: p.rating,
-          description: p.description,
-        }))),
-        headers: { 'Content-Type': 'application/json' },
-      };
+      return createJsonResponse(200, products.map(p => ({
+        id: p._id.toString(),
+        name: p.name,
+        category: p.category,
+        price: p.price,
+        company: p.company,
+        location: p.location,
+        image: p.image,
+        images: p.images,
+        rating: p.rating,
+        description: p.description,
+      })));
     } catch (dbError) {
       console.error('Database error:', dbError);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Database error' }),
-      };
+      return createErrorResponse(500, 'Database error');
     }
   } catch (error) {
     console.error('Error fetching products:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to fetch products' }),
-    };
+    return createErrorResponse(500, 'Failed to fetch products');
   }
 };

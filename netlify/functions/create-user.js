@@ -1,11 +1,9 @@
 const { getModels } = require('./mongodb-connection');
+const { createErrorResponse, createJsonResponse } = require('./response-helper');
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' }),
-    };
+    return createErrorResponse(405, 'Method not allowed');
   }
 
   try {
@@ -13,10 +11,7 @@ exports.handler = async (event, context) => {
     const { email, passwordHash, name, phone, role } = data;
 
     if (!email || !passwordHash || !role) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Email, password, and role are required' }),
-      };
+      return createErrorResponse(400, 'Email, password, and role are required');
     }
 
     try {
@@ -42,28 +37,18 @@ exports.handler = async (event, context) => {
 
       const savedUser = await newUser.save();
 
-      return {
-        statusCode: 201,
-        body: JSON.stringify({
-          id: savedUser._id.toString(),
-          email: savedUser.email,
-          name: savedUser.name,
-          role: savedUser.role,
-        }),
-        headers: { 'Content-Type': 'application/json' },
-      };
+      return createJsonResponse(201, {
+        id: savedUser._id.toString(),
+        email: savedUser.email,
+        name: savedUser.name,
+        role: savedUser.role,
+      });
     } catch (dbError) {
       console.error('Database error:', dbError);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Database error: ' + dbError.message }),
-      };
+      return createErrorResponse(500, 'Database error: ' + dbError.message);
     }
   } catch (error) {
     console.error('Error creating user:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to create user' }),
-    };
+    return createErrorResponse(500, 'Failed to create user');
   }
 };
