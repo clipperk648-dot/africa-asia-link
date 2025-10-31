@@ -166,23 +166,16 @@ const BuyerDashboard = () => {
                       </Link>
                     </div>
 
-                    {/* Social Media Links */}
+                    {/* Social Platform Link */}
                     <div className="pt-4 border-t border-border/50">
-                      <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-3 mb-3">Connect</h3>
-                      <div className="grid grid-cols-4 gap-2">
-                        <a href={SOCIAL_LINKS[0].href} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group">
-                          <Twitter className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                        </a>
-                        <a href={SOCIAL_LINKS[1].href} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group">
-                          <Instagram className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                        </a>
-                        <a href={SOCIAL_LINKS[2].href} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group">
-                          <Facebook className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                        </a>
-                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group">
-                          <span className="text-lg group-hover:scale-110 transition-transform">💼</span>
-                        </a>
-                      </div>
+                      <Link to="/social" className="block">
+                        <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
+                            <Music2 className="w-4 h-4 text-primary" />
+                          </div>
+                          <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Social</span>
+                        </div>
+                      </Link>
                     </div>
 
                     {/* Logout Button */}
