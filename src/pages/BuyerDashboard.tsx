@@ -6,7 +6,7 @@ import type { Product } from "@/types/models";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Settings, Bell, BarChart3, PlusCircle, Wallet as WalletIcon, Bot, Menu, Box, Music2 } from "lucide-react";
+import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Settings, Bell, BarChart3, PlusCircle, Wallet as WalletIcon, Bot, Menu, Box, Music2, Package, Users } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -166,6 +166,35 @@ const BuyerDashboard = () => {
                       </Link>
                     </div>
 
+                    {/* Quick Actions for Buyer */}
+                    <div className="pt-4 border-t border-border/50">
+                      <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-3 mb-3">Quick Actions</h3>
+                      <Link to="/buyer/products" className="block mb-2">
+                        <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
+                            <Package className="w-4 h-4 text-primary" />
+                          </div>
+                          <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Products</span>
+                        </div>
+                      </Link>
+                      <Link to="/cart" className="block mb-2">
+                        <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
+                            <ShoppingCart className="w-4 h-4 text-primary" />
+                          </div>
+                          <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Cart</span>
+                        </div>
+                      </Link>
+                      <Link to="/buyer/network" className="block">
+                        <div className="p-4 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
+                            <Users className="w-4 h-4 text-primary" />
+                          </div>
+                          <span className="font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">Connect</span>
+                        </div>
+                      </Link>
+                    </div>
+
                     {/* Social Platform Link */}
                     <div className="pt-4 border-t border-border/50">
                       <Link to="/social" className="block">
@@ -297,7 +326,12 @@ const BuyerDashboard = () => {
         </section>
 
         <section className="space-y-4">
-          <h2 className="text-lg sm:text-xl font-bold">My Orders</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg sm:text-xl font-bold">My Orders</h2>
+            <Link to="/buyer/orders" aria-label="View all orders">
+              <Button variant="ghost" size="xs">View All</Button>
+            </Link>
+          </div>
           <div className="space-y-3">
             {orders.length === 0 ? (
               <GlassCard className="p-8 text-center">
