@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ClipboardCheck, UploadCloud, X, Image as ImageIcon, Video as VideoIcon } from "lucide-react";
+import { ArrowLeft, ClipboardCheck, UploadCloud, X, Image as ImageIcon, Video as VideoIcon, Upload } from "lucide-react";
 
 type ProductFormState = {
   nameEN: string;
