@@ -1,11 +1,9 @@
 const { getModels } = require('./mongodb-connection');
+const { createErrorResponse, createJsonResponse } = require('./response-helper');
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'GET') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' }),
-    };
+    return createErrorResponse(405, 'Method not allowed');
   }
 
   try {
@@ -20,34 +18,24 @@ exports.handler = async (event, context) => {
         .limit(limitNum)
         .lean();
 
-      return {
-        statusCode: 200,
-        body: JSON.stringify(posts.map(p => ({
-          id: p._id.toString(),
-          user_id: p.user_id,
-          username: p.username,
-          avatar: p.avatar,
-          type: p.type,
-          content: p.content,
-          media_url: p.media_url,
-          likes: p.likes,
-          comments: p.comments,
-          created_at: p.created_at,
-        }))),
-        headers: { 'Content-Type': 'application/json' },
-      };
+      return createJsonResponse(200, posts.map(p => ({
+        id: p._id.toString(),
+        user_id: p.user_id,
+        username: p.username,
+        avatar: p.avatar,
+        type: p.type,
+        content: p.content,
+        media_url: p.media_url,
+        likes: p.likes,
+        comments: p.comments,
+        created_at: p.created_at,
+      })));
     } catch (dbError) {
       console.error('Database error:', dbError);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Database error' }),
-      };
+      return createErrorResponse(500, 'Database error');
     }
   } catch (error) {
     console.error('Error fetching posts:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to fetch posts' }),
-    };
+    return createErrorResponse(500, 'Failed to fetch posts');
   }
 };
