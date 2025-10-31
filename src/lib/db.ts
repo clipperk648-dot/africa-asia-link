@@ -1,182 +1,309 @@
-// In-memory mock database to remove external DB dependency
+import mongoose, { Schema, Document } from "mongoose";
 
-import type { Product, Order, SocialPost, Clan, ClanMember } from "@/types/models";
+const MONGODB_URI = import.meta.env.VITE_MONGODB_URI || process.env.MONGODB_URI;
 
-const mockProducts: Product[] = [
-  {
-    id: "p1",
-    name: "Smart Industrial Pump",
-    category: "Machinery",
-    price: 12000,
-    company: "SinoTech",
-    location: "Shenzhen, CN",
-    image: "https://images.unsplash.com/photo-1581090122493-8fd7d76b12b2?q=80&w=1200&auto=format&fit=crop",
-    images: [
-      "https://images.unsplash.com/photo-1581091870622-7c67cf02f37c?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1581093588401-16ec8a1c4b3c?q=80&w=1200&auto=format&fit=crop",
-    ],
-    rating: 4.6,
+// Types
+interface UserDocument extends Document {
+  email: string;
+  password_hash: string;
+  name: string;
+  phone: string;
+  role: "industry" | "buyer";
+  created_at: Date;
+}
+
+interface ProductDocument extends Document {
+  name: string;
+  category?: string;
+  price: number;
+  company?: string;
+  location?: string;
+  image?: string;
+  images?: string[];
+  rating?: number;
+  description?: string;
+  seller_id?: string;
+  created_at: Date;
+}
+
+interface OrderDocument extends Document {
+  product_name: string;
+  buyer_id: string;
+  seller_id: string;
+  product_id: string;
+  quantity: number;
+  total: number;
+  status: "pending" | "shipped" | "delivered" | "cancelled";
+  created_at: Date;
+}
+
+interface SocialPostDocument extends Document {
+  user_id: string;
+  username: string;
+  avatar: string;
+  type: "text" | "image";
+  content?: string;
+  media_url?: string;
+  likes: number;
+  comments: number;
+  created_at: Date;
+}
+
+interface ClanDocument extends Document {
+  name: string;
+  description: string;
+  creator_id: string;
+  creator_name: string;
+  target_product_id: string;
+  target_product_name: string;
+  target_price: number;
+  current_funded: number;
+  deadline: Date;
+  status: "active" | "completed" | "failed";
+  members: Array<{
+    id: string;
+    user_id: string;
+    username: string;
+    avatar: string;
+    contributed_amount: number;
+    joined_date: Date;
+  }>;
+  created_at: Date;
+}
+
+// Schemas
+const userSchema = new Schema<UserDocument>({
+  email: { type: String, required: true, unique: true },
+  password_hash: { type: String, required: true },
+  name: { type: String, required: true },
+  phone: { type: String, required: true },
+  role: { type: String, enum: ["industry", "buyer"], required: true },
+  created_at: { type: Date, default: Date.now },
+});
+
+const productSchema = new Schema<ProductDocument>({
+  name: { type: String, required: true },
+  category: String,
+  price: { type: Number, required: true },
+  company: String,
+  location: String,
+  image: String,
+  images: [String],
+  rating: Number,
+  description: String,
+  seller_id: String,
+  created_at: { type: Date, default: Date.now },
+});
+
+const orderSchema = new Schema<OrderDocument>({
+  product_name: { type: String, required: true },
+  buyer_id: String,
+  seller_id: String,
+  product_id: { type: String, required: true },
+  quantity: { type: Number, default: 1 },
+  total: { type: Number, required: true },
+  status: {
+    type: String,
+    enum: ["pending", "shipped", "delivered", "cancelled"],
+    default: "pending",
   },
-  {
-    id: "p2",
-    name: "Solar PV Panel 550W",
-    category: "Energy",
-    price: 210,
-    company: "GreenRay",
-    location: "Guangdong, CN",
-    image: "https://images.unsplash.com/photo-1509395176047-4a66953fd231?q=80&w=1200&auto=format&fit=crop",
-    rating: 4.8,
+  created_at: { type: Date, default: Date.now },
+});
+
+const socialPostSchema = new Schema<SocialPostDocument>({
+  user_id: { type: String, required: true },
+  username: { type: String, required: true },
+  avatar: String,
+  type: { type: String, enum: ["text", "image"], default: "text" },
+  content: String,
+  media_url: String,
+  likes: { type: Number, default: 0 },
+  comments: { type: Number, default: 0 },
+  created_at: { type: Date, default: Date.now },
+});
+
+const clanSchema = new Schema<ClanDocument>({
+  name: { type: String, required: true },
+  description: String,
+  creator_id: { type: String, required: true },
+  creator_name: { type: String, required: true },
+  target_product_id: String,
+  target_product_name: String,
+  target_price: Number,
+  current_funded: { type: Number, default: 0 },
+  deadline: Date,
+  status: {
+    type: String,
+    enum: ["active", "completed", "failed"],
+    default: "active",
   },
-  {
-    id: "p3",
-    name: "EV Battery Pack",
-    category: "Automotive",
-    price: 5400,
-    company: "VoltWorks",
-    location: "Shanghai, CN",
-    image: "https://images.unsplash.com/photo-1604668915840-580c30026e5b?q=80&w=1200&auto=format&fit=crop",
-    rating: 4.4,
-  },
-];
+  members: [
+    {
+      id: String,
+      user_id: String,
+      username: String,
+      avatar: String,
+      contributed_amount: Number,
+      joined_date: Date,
+    },
+  ],
+  created_at: { type: Date, default: Date.now },
+});
 
-let mockOrders: Order[] = [
-  { id: "o1", productName: "Solar PV Panel 550W", total: 6500, status: "shipped", date: "2024-10-02" },
-  { id: "o2", productName: "Smart Industrial Pump", total: 12000, status: "pending", date: "2024-10-06" },
-  { id: "o3", productName: "EV Battery Pack", total: 10800, status: "delivered", date: "2024-10-12" },
-];
+// Models
+let User: mongoose.Model<UserDocument>;
+let Product: mongoose.Model<ProductDocument>;
+let Order: mongoose.Model<OrderDocument>;
+let SocialPost: mongoose.Model<SocialPostDocument>;
+let Clan: mongoose.Model<ClanDocument>;
 
-let mockPosts: SocialPost[] = [
-  {
-    id: "sp1",
-    userId: "u1",
-    username: "echina_official",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=echina",
-    type: "image",
-    mediaUrl: mockProducts[0].image!,
-    likes: 120,
-    comments: 18,
-    timestamp: new Date().toISOString(),
-  },
-];
+// Initialize models
+const initializeModels = () => {
+  try {
+    User = mongoose.model<UserDocument>("User", userSchema);
+  } catch {
+    User = mongoose.model<UserDocument>("User");
+  }
 
-let mockClans: Clan[] = [
-  {
-    id: "c1",
-    name: "Sneaker Collectors",
-    description: "A group of sneaker enthusiasts pooling resources together",
-    creatorId: "u1",
-    creatorName: "John Collector",
-    targetProductId: "p1",
-    targetProductName: "Limited Edition Air Max",
-    targetPrice: 5000,
-    currentFunded: 3200,
-    deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days from now
-    status: "active",
-    members: [
-      { id: "m1", userId: "u1", username: "John Collector", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=john", contributedAmount: 1200, joinedDate: new Date().toISOString() },
-      { id: "m2", userId: "u2", username: "Sneaker Fan", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=fan", contributedAmount: 800, joinedDate: new Date().toISOString() },
-      { id: "m3", userId: "u3", username: "Collector Pro", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=pro", contributedAmount: 500, joinedDate: new Date().toISOString() },
-      { id: "m4", userId: "u4", username: "Hype Beast", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=hype", contributedAmount: 700, joinedDate: new Date().toISOString() },
-    ],
-    createdDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days ago
-  },
-  {
-    id: "c2",
-    name: "Tech Enthusiasts",
-    description: "Bulk purchasing of the latest tech equipment",
-    creatorId: "u5",
-    creatorName: "Tech Lead",
-    targetProductId: "p2",
-    targetProductName: "Gaming Laptop Bundle",
-    targetPrice: 8000,
-    currentFunded: 6500,
-    deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days from now
-    status: "active",
-    members: [
-      { id: "m5", userId: "u5", username: "Tech Lead", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=tech", contributedAmount: 2000, joinedDate: new Date().toISOString() },
-      { id: "m6", userId: "u6", username: "Gamer", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=gamer", contributedAmount: 1500, joinedDate: new Date().toISOString() },
-      { id: "m7", userId: "u7", username: "Dev", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=dev", contributedAmount: 3000, joinedDate: new Date().toISOString() },
-    ],
-    createdDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-];
+  try {
+    Product = mongoose.model<ProductDocument>("Product", productSchema);
+  } catch {
+    Product = mongoose.model<ProductDocument>("Product");
+  }
 
-const delay = (ms = 200) => new Promise((r) => setTimeout(r, ms));
+  try {
+    Order = mongoose.model<OrderDocument>("Order", orderSchema);
+  } catch {
+    Order = mongoose.model<OrderDocument>("Order");
+  }
 
-export const isDatabaseConfigured = (): boolean => false;
+  try {
+    SocialPost = mongoose.model<SocialPostDocument>("SocialPost", socialPostSchema);
+  } catch {
+    SocialPost = mongoose.model<SocialPostDocument>("SocialPost");
+  }
 
-// Users (minimal for app)
+  try {
+    Clan = mongoose.model<ClanDocument>("Clan", clanSchema);
+  } catch {
+    Clan = mongoose.model<ClanDocument>("Clan");
+  }
+};
+
+let isConnected = false;
+
+export const isDatabaseConfigured = (): boolean => {
+  return isConnected && !!MONGODB_URI;
+};
+
+export const connectDatabase = async (): Promise<void> => {
+  if (isConnected) return;
+
+  if (!MONGODB_URI) {
+    console.warn("MONGODB_URI not configured");
+    return;
+  }
+
+  try {
+    await mongoose.connect(MONGODB_URI);
+    isConnected = true;
+    initializeModels();
+    console.log("MongoDB connected successfully");
+  } catch (error) {
+    console.error("MongoDB connection failed:", error);
+    isConnected = false;
+  }
+};
+
+// Users
 export const createUser = async (
   email: string,
   passwordHash: string,
   name: string,
   phone: string,
-  role: "industry" | "buyer",
+  role: "industry" | "buyer"
 ): Promise<{ id: string; email: string; name: string; role: "industry" | "buyer" }> => {
-  await delay();
-  return { id: crypto.randomUUID(), email, name, role };
+  if (!isDatabaseConfigured()) {
+    throw new Error("Database not configured");
+  }
+
+  const user = new User({ email, password_hash: passwordHash, name, phone, role });
+  const savedUser = await user.save();
+
+  return {
+    id: savedUser._id.toString(),
+    email: savedUser.email,
+    name: savedUser.name,
+    role: savedUser.role,
+  };
 };
 
 export const getUserByEmail = async (email: string): Promise<any> => {
-  await delay();
-  return null;
+  if (!isDatabaseConfigured()) {
+    return null;
+  }
+
+  return await User.findOne({ email });
 };
 
 export const getUserById = async (id: string): Promise<any> => {
-  await delay();
-  return null;
+  if (!isDatabaseConfigured()) {
+    return null;
+  }
+
+  return await User.findById(id);
 };
 
 // Products
-export const getProducts = async (limit = 20, offset = 0): Promise<Product[]> => {
-  await delay();
-  return mockProducts.slice(offset, offset + limit);
+export const getProducts = async (limit = 20, offset = 0): Promise<any[]> => {
+  if (!isDatabaseConfigured()) {
+    return [];
+  }
+
+  return await Product.find().skip(offset).limit(limit).lean();
 };
 
-export const getProductById = async (id: string): Promise<Product | null> => {
-  await delay();
-  return mockProducts.find((p) => p.id === id) || null;
+export const getProductById = async (id: string): Promise<any> => {
+  if (!isDatabaseConfigured()) {
+    return null;
+  }
+
+  return await Product.findById(id).lean();
 };
 
-export const createProduct = async (productData: Partial<Product>): Promise<Product> => {
-  await delay();
-  const p: Product = {
-    id: crypto.randomUUID(),
-    name: productData.name || "New Product",
-    price: productData.price || 0,
-    ...productData,
-  } as Product;
-  mockProducts.unshift(p);
-  return p;
+export const createProduct = async (productData: any): Promise<any> => {
+  if (!isDatabaseConfigured()) {
+    throw new Error("Database not configured");
+  }
+
+  const product = new Product(productData);
+  return await product.save();
 };
 
-export const updateProduct = async (id: string, productData: Partial<Product>): Promise<Product | null> => {
-  await delay();
-  const index = mockProducts.findIndex((p) => p.id === id);
-  if (index === -1) return null;
+export const updateProduct = async (id: string, productData: any): Promise<any> => {
+  if (!isDatabaseConfigured()) {
+    return null;
+  }
 
-  const updated: Product = {
-    ...mockProducts[index],
-    ...productData,
-    id, // Ensure ID doesn't change
-  } as Product;
-
-  mockProducts[index] = updated;
-  return updated;
+  return await Product.findByIdAndUpdate(id, productData, { new: true });
 };
 
 export const deleteProduct = async (id: string): Promise<boolean> => {
-  await delay();
-  const index = mockProducts.findIndex((p) => p.id === id);
-  if (index === -1) return false;
-  mockProducts.splice(index, 1);
-  return true;
+  if (!isDatabaseConfigured()) {
+    return false;
+  }
+
+  const result = await Product.findByIdAndDelete(id);
+  return !!result;
 };
 
 // Orders
-export const getOrders = async (userId: string): Promise<Order[]> => {
-  await delay();
-  return mockOrders;
+export const getOrders = async (userId: string): Promise<any[]> => {
+  if (!isDatabaseConfigured()) {
+    return [];
+  }
+
+  return await Order.find({ buyer_id: userId }).lean();
 };
 
 export const createOrder = async (
@@ -184,160 +311,185 @@ export const createOrder = async (
   sellerId: string,
   productId: string,
   quantity: number,
-  total: number,
-): Promise<Order> => {
-  await delay();
-  const order: Order = { id: crypto.randomUUID(), total, status: "pending", date: new Date().toISOString(), productName: productId };
-  mockOrders.unshift(order);
-  return order;
+  total: number
+): Promise<any> => {
+  if (!isDatabaseConfigured()) {
+    throw new Error("Database not configured");
+  }
+
+  const order = new Order({
+    buyer_id: buyerId,
+    seller_id: sellerId,
+    product_id: productId,
+    quantity,
+    total,
+    product_name: "Order",
+    status: "pending",
+  });
+
+  return await order.save();
 };
 
 // Social posts
-export const getSocialPosts = async (limit = 20): Promise<SocialPost[]> => {
-  await delay();
-  return mockPosts.slice(0, limit);
+export const getSocialPosts = async (limit = 20): Promise<any[]> => {
+  if (!isDatabaseConfigured()) {
+    return [];
+  }
+
+  return await SocialPost.find().sort({ created_at: -1 }).limit(limit).lean();
 };
 
 export const createSocialPost = async (
   userId: string,
   content: string,
-  imageUrl?: string,
-): Promise<SocialPost> => {
-  await delay();
-  const post: SocialPost = {
-    id: crypto.randomUUID(),
-    userId,
-    username: "guest",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=guest",
+  imageUrl?: string
+): Promise<any> => {
+  if (!isDatabaseConfigured()) {
+    throw new Error("Database not configured");
+  }
+
+  const post = new SocialPost({
+    user_id: userId,
+    username: "user",
+    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`,
     type: imageUrl ? "image" : "text",
     content,
-    mediaUrl: imageUrl,
-    likes: 0,
-    comments: 0,
-    timestamp: new Date().toISOString(),
-  };
-  mockPosts.unshift(post);
-  return post;
+    media_url: imageUrl,
+  });
+
+  return await post.save();
 };
 
 // Clans
-export const getClans = async (limit = 20, offset = 0): Promise<Clan[]> => {
-  await delay();
-  return mockClans.slice(offset, offset + limit);
-};
-
-export const getClanById = async (id: string): Promise<Clan | null> => {
-  await delay();
-  return mockClans.find((c) => c.id === id) || null;
-};
-
-export const createClan = async (clanData: Partial<Clan>): Promise<Clan> => {
-  await delay();
-  const clan: Clan = {
-    id: crypto.randomUUID(),
-    name: clanData.name || "New Clan",
-    description: clanData.description || "",
-    creatorId: clanData.creatorId || "",
-    creatorName: clanData.creatorName || "Creator",
-    targetProductId: clanData.targetProductId || "",
-    targetProductName: clanData.targetProductName || "",
-    targetPrice: clanData.targetPrice || 0,
-    currentFunded: 0,
-    deadline: clanData.deadline || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-    status: "active",
-    members: [
-      {
-        id: crypto.randomUUID(),
-        userId: clanData.creatorId || "",
-        username: clanData.creatorName || "Creator",
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(clanData.creatorName || "creator")}`,
-        contributedAmount: 0,
-        joinedDate: new Date().toISOString(),
-      },
-    ],
-    createdDate: new Date().toISOString(),
-  };
-  mockClans.unshift(clan);
-  return clan;
-};
-
-export const joinClan = async (clanId: string, userId: string, username: string, contributionAmount: number): Promise<Clan | null> => {
-  await delay();
-  const clan = mockClans.find((c) => c.id === clanId);
-  if (!clan) return null;
-
-  const memberExists = clan.members.some((m) => m.userId === userId);
-  if (!memberExists) {
-    clan.members.push({
-      id: crypto.randomUUID(),
-      userId,
-      username,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(username)}`,
-      contributedAmount,
-      joinedDate: new Date().toISOString(),
-    });
-  } else {
-    const member = clan.members.find((m) => m.userId === userId);
-    if (member) member.contributedAmount += contributionAmount;
+export const getClans = async (limit = 20, offset = 0): Promise<any[]> => {
+  if (!isDatabaseConfigured()) {
+    return [];
   }
 
-  clan.currentFunded += contributionAmount;
-  return clan;
+  return await Clan.find().skip(offset).limit(limit).lean();
 };
 
-export const leaveClan = async (clanId: string, userId: string): Promise<Clan | null> => {
-  await delay();
-  const clan = mockClans.find((c) => c.id === clanId);
+export const getClanById = async (id: string): Promise<any> => {
+  if (!isDatabaseConfigured()) {
+    return null;
+  }
+
+  return await Clan.findById(id).lean();
+};
+
+export const createClan = async (clanData: any): Promise<any> => {
+  if (!isDatabaseConfigured()) {
+    throw new Error("Database not configured");
+  }
+
+  const clan = new Clan(clanData);
+  return await clan.save();
+};
+
+export const joinClan = async (
+  clanId: string,
+  userId: string,
+  username: string,
+  contributionAmount: number
+): Promise<any> => {
+  if (!isDatabaseConfigured()) {
+    return null;
+  }
+
+  const clan = await Clan.findById(clanId);
   if (!clan) return null;
 
-  const memberIndex = clan.members.findIndex((m) => m.userId === userId);
+  const memberExists = clan.members.some((m: any) => m.user_id === userId);
+  if (!memberExists) {
+    clan.members.push({
+      id: new mongoose.Types.ObjectId().toString(),
+      user_id: userId,
+      username,
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`,
+      contributed_amount: contributionAmount,
+      joined_date: new Date(),
+    });
+  } else {
+    const member = clan.members.find((m: any) => m.user_id === userId);
+    if (member) member.contributed_amount += contributionAmount;
+  }
+
+  clan.current_funded += contributionAmount;
+  return await clan.save();
+};
+
+export const leaveClan = async (clanId: string, userId: string): Promise<any> => {
+  if (!isDatabaseConfigured()) {
+    return null;
+  }
+
+  const clan = await Clan.findById(clanId);
+  if (!clan) return null;
+
+  const memberIndex = clan.members.findIndex((m: any) => m.user_id === userId);
   if (memberIndex !== -1) {
     const member = clan.members[memberIndex];
-    clan.currentFunded -= member.contributedAmount;
+    clan.current_funded -= member.contributed_amount;
     clan.members.splice(memberIndex, 1);
   }
 
-  return clan;
+  return await clan.save();
 };
 
-// Wallet (placeholders consistent with existing API)
-export const getWalletBalance = async (userId: string, currency = "USD"): Promise<{ balance: number; currency: string }> => {
-  await delay();
-  return { balance: 1250, currency };
+// Wallet
+export const getWalletBalance = async (
+  userId: string,
+  currency = "USD"
+): Promise<{ balance: number; currency: string }> => {
+  return { balance: 0, currency };
 };
 
-export const setWalletBalance = async (userId: string, amount: number, currency = "USD"): Promise<any> => {
-  await delay();
+export const setWalletBalance = async (
+  userId: string,
+  amount: number,
+  currency = "USD"
+): Promise<any> => {
   return { success: true };
 };
 
 export const getWalletTransactions = async (userId: string): Promise<any[]> => {
-  await delay();
-  return [
-    { id: "t1", type: "deposit", amount: 500, currency: "USD", note: "Initial deposit", date: new Date().toISOString() },
-  ];
+  return [];
 };
 
 export const addWalletTransaction = async (
   userId: string,
-  tx: { type: "deposit" | "payment"; amount: number; currency?: string; note?: string },
+  tx: {
+    type: "deposit" | "payment";
+    amount: number;
+    currency?: string;
+    note?: string;
+  }
 ): Promise<any> => {
-  await delay();
   return { success: true };
 };
 
 // Messaging
 export const getConversations = async (userId: string): Promise<any[]> => {
-  await delay();
   return [];
 };
 
-export const getMessages = async (userId: string, peerId: string): Promise<any[]> => {
-  await delay();
+export const getMessages = async (
+  userId: string,
+  peerId: string
+): Promise<any[]> => {
   return [];
 };
 
-export const sendMessage = async (senderId: string, recipientId: string, content?: string, mediaUrl?: string): Promise<any> => {
-  await delay();
+export const sendMessage = async (
+  senderId: string,
+  recipientId: string,
+  content?: string,
+  mediaUrl?: string
+): Promise<any> => {
   return { success: true };
 };
+
+// Initialize connection on module load if in Node environment
+if (typeof window === "undefined" || process.env.NODE_ENV !== "production") {
+  connectDatabase().catch(console.error);
+}
