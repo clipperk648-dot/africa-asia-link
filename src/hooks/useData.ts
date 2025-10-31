@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getProducts, getProductById, getOrders, getSocialPosts, updateProduct, createProduct, deleteProduct, getClans, getClanById, createClan, joinClan, leaveClan } from "@/lib/db";
+import { getProducts, getProductById, getOrders, getSocialPosts, updateProduct, createProduct, deleteProduct, getClans, getClanById, createClan, joinClan, leaveClan, getWalletBalance } from "@/lib/db";
 import type { Product, Clan } from "@/types/models";
 
 // Fetch all products
@@ -135,5 +135,15 @@ export const useLeaveClanMutation = () => {
         queryClient.invalidateQueries({ queryKey: ["clan", data.id] });
       }
     },
+  });
+};
+
+// Fetch wallet balance for a user
+export const useWalletBalance = (userId: string | undefined, currency = "USD") => {
+  return useQuery({
+    queryKey: ["walletBalance", userId, currency],
+    queryFn: () => (userId ? getWalletBalance(userId, currency) : { balance: 0, currency }),
+    enabled: !!userId,
+    refetchInterval: 5000,
   });
 };
