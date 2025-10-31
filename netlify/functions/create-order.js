@@ -1,4 +1,4 @@
-const { getConnection } = require('./db-connection');
+const { getModels } = require('./mongodb-connection');
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
@@ -12,24 +12,39 @@ exports.handler = async (event, context) => {
     const data = JSON.parse(event.body);
     const { buyerId, sellerId, productId, quantity, total } = data;
 
-    if (!buyerId || !sellerId || !productId || !quantity || !total) {
+    if (!buyerId || !productId || !total) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: 'All fields are required' }),
+        body: JSON.stringify({ error: 'buyerId, productId, and total are required' }),
       };
     }
 
     try {
-      const sql = getConnection();
-      const result = await sql`
-        INSERT INTO orders (buyer_id, seller_id, product_id, quantity, total, status, created_at)
-        VALUES (${buyerId}, ${sellerId}, ${productId}, ${quantity}, ${total}, 'pending', NOW())
-        RETURNING *
-      `;
+      const { Order } = await getModels();
+
+      const newOrder = new Order({
+        buyer_id: buyerId,
+        seller_id: sellerId || null,
+        product_id: productId,
+        quantity: quantity || 1,
+        total,
+        status: 'pending',
+        created_at: new Date(),
+      });
+
+      const savedOrder = await newOrder.save();
 
       return {
         statusCode: 201,
-        body: JSON.stringify(result[0]),
+        body: JSON.stringify({
+          id: savedOrder._id.toString(),
+          buyer_id: savedOrder.buyer_id,
+          product_id: savedOrder.product_id,
+          quantity: savedOrder.quantity,
+          total: savedOrder.total,
+          status: savedOrder.status,
+          created_at: savedOrder.created_at,
+        }),
         headers: { 'Content-Type': 'application/json' },
       };
     } catch (dbError) {

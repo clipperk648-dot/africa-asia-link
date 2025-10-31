@@ -1,25 +1,40 @@
-const { getConnection } = require('./db-connection');
+const { getModels } = require('./mongodb-connection');
 
 exports.handler = async (event, context) => {
+  if (event.httpMethod !== 'GET') {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: 'Method not allowed' }),
+    };
+  }
+
   try {
-    const limit = parseInt(event.queryStringParameters?.limit || '20', 10);
+    const { limit = '20' } = event.queryStringParameters || {};
+    const limitNum = Math.min(parseInt(limit) || 20, 100);
 
     try {
-      const sql = getConnection();
-      const posts = await sql`
-        SELECT *
-        FROM social_posts
-        ORDER BY created_at DESC
-        LIMIT ${limit}
-      `;
+      const { SocialPost } = await getModels();
+
+      const posts = await SocialPost.find()
+        .sort({ created_at: -1 })
+        .limit(limitNum)
+        .lean();
 
       return {
         statusCode: 200,
-        body: JSON.stringify(posts),
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'public, max-age=30',
-        },
+        body: JSON.stringify(posts.map(p => ({
+          id: p._id.toString(),
+          user_id: p.user_id,
+          username: p.username,
+          avatar: p.avatar,
+          type: p.type,
+          content: p.content,
+          media_url: p.media_url,
+          likes: p.likes,
+          comments: p.comments,
+          created_at: p.created_at,
+        }))),
+        headers: { 'Content-Type': 'application/json' },
       };
     } catch (dbError) {
       console.error('Database error:', dbError);
@@ -29,10 +44,10 @@ exports.handler = async (event, context) => {
       };
     }
   } catch (error) {
-    console.error('Error fetching social posts:', error);
+    console.error('Error fetching posts:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to fetch social posts' }),
+      body: JSON.stringify({ error: 'Failed to fetch posts' }),
     };
   }
 };

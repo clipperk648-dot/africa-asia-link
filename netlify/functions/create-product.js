@@ -1,4 +1,4 @@
-const { getConnection } = require('./db-connection');
+const { getModels } = require('./mongodb-connection');
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
@@ -17,8 +17,10 @@ exports.handler = async (event, context) => {
       company,
       location,
       image,
+      images,
       description,
       sellerId,
+      rating,
     } = data;
 
     if (!name || !sellerId) {
@@ -29,29 +31,38 @@ exports.handler = async (event, context) => {
     }
 
     try {
-      const sql = getConnection();
-      const result = await sql`
-        INSERT INTO products (
-          name, category, price, company, location, image, description,
-          seller_id, created_at
-        )
-        VALUES (
-          ${name},
-          ${category || null},
-          ${price || 0},
-          ${company || null},
-          ${location || null},
-          ${image || null},
-          ${description || null},
-          ${sellerId},
-          NOW()
-        )
-        RETURNING *
-      `;
+      const { Product } = await getModels();
+
+      const newProduct = new Product({
+        name,
+        category: category || null,
+        price: price || 0,
+        company: company || null,
+        location: location || null,
+        image: image || null,
+        images: images || [],
+        description: description || null,
+        seller_id: sellerId,
+        rating: rating || null,
+        created_at: new Date(),
+      });
+
+      const savedProduct = await newProduct.save();
 
       return {
         statusCode: 201,
-        body: JSON.stringify(result[0]),
+        body: JSON.stringify({
+          id: savedProduct._id.toString(),
+          name: savedProduct.name,
+          category: savedProduct.category,
+          price: savedProduct.price,
+          company: savedProduct.company,
+          location: savedProduct.location,
+          image: savedProduct.image,
+          images: savedProduct.images,
+          rating: savedProduct.rating,
+          description: savedProduct.description,
+        }),
         headers: { 'Content-Type': 'application/json' },
       };
     } catch (dbError) {

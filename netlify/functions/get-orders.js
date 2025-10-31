@@ -1,31 +1,40 @@
-const { getConnection } = require('./db-connection');
+const { getModels } = require('./mongodb-connection');
 
 exports.handler = async (event, context) => {
+  if (event.httpMethod !== 'GET') {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: 'Method not allowed' }),
+    };
+  }
+
   try {
-    const userId = event.queryStringParameters?.userId;
+    const { userId } = event.queryStringParameters || {};
 
     if (!userId) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: 'User ID is required' }),
+        body: JSON.stringify({ error: 'userId is required' }),
       };
     }
 
     try {
-      const sql = getConnection();
-      const orders = await sql`
-        SELECT * FROM orders
-        WHERE buyer_id = ${userId} OR seller_id = ${userId}
-        ORDER BY created_at DESC
-      `;
+      const { Order } = await getModels();
+
+      const orders = await Order.find({ buyer_id: userId }).lean();
 
       return {
         statusCode: 200,
-        body: JSON.stringify(orders),
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'public, max-age=30',
-        },
+        body: JSON.stringify(orders.map(o => ({
+          id: o._id.toString(),
+          buyer_id: o.buyer_id,
+          product_id: o.product_id,
+          quantity: o.quantity,
+          total: o.total,
+          status: o.status,
+          created_at: o.created_at,
+        }))),
+        headers: { 'Content-Type': 'application/json' },
       };
     } catch (dbError) {
       console.error('Database error:', dbError);
