@@ -52,7 +52,12 @@ const MenuPage = () => {
         <div className="max-w-3xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Go back">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate(user?.role === "buyer" ? "/buyer" : "/industry")}
+                aria-label="Go back"
+              >
                 <ArrowLeft className="w-5 h-5" />
               </Button>
               <h1 className="text-2xl font-bold">Menu</h1>
