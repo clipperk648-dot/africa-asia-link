@@ -57,7 +57,7 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
               })}
 
               {/* Center Primary Action Button */}
-              <div className="absolute left-1/2 -translate-x-1/2 -top-5">
+              <div className="absolute left-1/2 -translate-x-1/2 -top-3">
                 <Link to={primaryAction.path} aria-label={primaryAction.label}>
                   <Button
                     size="icon"
