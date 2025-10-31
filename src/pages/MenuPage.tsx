@@ -151,12 +151,12 @@ const MenuPage = () => {
         <GlassCard className="p-0 overflow-hidden group bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent border-red-500/30 hover:border-red-500/50">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-4 p-5 transition-all duration-300"
+            className="w-full flex items-center gap-3 p-3 transition-all duration-300"
           >
-            <div className="p-3 rounded-xl bg-gradient-to-br from-destructive/30 to-destructive/10 border border-destructive/40 group-hover:from-destructive/40 group-hover:to-destructive/20 transition-all duration-300">
-              <LogOut className="w-5 h-5 text-destructive group-hover:scale-110 transition-transform duration-300" />
+            <div className="p-2 rounded-lg bg-gradient-to-br from-destructive/30 to-destructive/10 border border-destructive/40 group-hover:from-destructive/40 group-hover:to-destructive/20 transition-all duration-300">
+              <LogOut className="w-4 h-4 text-destructive group-hover:scale-110 transition-transform duration-300" />
             </div>
-            <span className="font-semibold text-base text-destructive group-hover:translate-x-1 transition-transform duration-300">Log Out</span>
+            <span className="font-semibold text-sm text-destructive group-hover:translate-x-1 transition-transform duration-300">Log Out</span>
             <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <ArrowLeft className="w-4 h-4 text-destructive/60 transform rotate-180" />
             </div>
