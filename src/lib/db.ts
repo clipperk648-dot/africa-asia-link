@@ -22,12 +22,26 @@ async function apiCall<T>(endpoint: string, method: string = "GET", data?: any):
 
     const response = await fetch(`${API_BASE}${endpoint}`, options);
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `HTTP ${response.status}`);
+    let responseData: any = null;
+
+    try {
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        responseData = await response.json();
+      } else {
+        const text = await response.text();
+        responseData = text ? JSON.parse(text) : {};
+      }
+    } catch (parseError) {
+      console.error(`Failed to parse response from ${endpoint}:`, parseError);
+      responseData = {};
     }
 
-    return await response.json();
+    if (!response.ok) {
+      throw new Error(responseData.error || `HTTP ${response.status}`);
+    }
+
+    return responseData;
   } catch (error) {
     console.error(`API call failed: ${endpoint}`, error);
     throw error;
