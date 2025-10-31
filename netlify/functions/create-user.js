@@ -1,4 +1,4 @@
-const { getConnection } = require('./db-connection');
+const { getModels } = require('./mongodb-connection');
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
@@ -20,29 +20,43 @@ exports.handler = async (event, context) => {
     }
 
     try {
-      const sql = getConnection();
-      const result = await sql`
-        INSERT INTO users (email, password_hash, name, phone, role, created_at)
-        VALUES (${email}, ${passwordHash}, ${name || null}, ${phone || null}, ${role}, NOW())
-        RETURNING id, email, name, role
-      `;
+      const { User } = await getModels();
 
-      return {
-        statusCode: 201,
-        body: JSON.stringify(result[0]),
-        headers: { 'Content-Type': 'application/json' },
-      };
-    } catch (dbError) {
-      if (dbError.message.includes('duplicate')) {
+      // Check if user already exists
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
         return {
           statusCode: 409,
           body: JSON.stringify({ error: 'User already exists' }),
         };
       }
+
+      const newUser = new User({
+        email,
+        password_hash: passwordHash,
+        name: name || email,
+        phone: phone || '',
+        role,
+        created_at: new Date(),
+      });
+
+      const savedUser = await newUser.save();
+
+      return {
+        statusCode: 201,
+        body: JSON.stringify({
+          id: savedUser._id.toString(),
+          email: savedUser.email,
+          name: savedUser.name,
+          role: savedUser.role,
+        }),
+        headers: { 'Content-Type': 'application/json' },
+      };
+    } catch (dbError) {
       console.error('Database error:', dbError);
       return {
         statusCode: 500,
-        body: JSON.stringify({ error: 'Database error' }),
+        body: JSON.stringify({ error: 'Database error: ' + dbError.message }),
       };
     }
   } catch (error) {
