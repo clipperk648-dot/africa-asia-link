@@ -1,22 +1,24 @@
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "@/utils/mockAuth";
 import { Button } from "@/components/ui/button";
-import { 
-  ArrowLeft, 
-  Settings, 
-  Bookmark, 
-  Clock, 
-  Heart, 
-  Users, 
+import {
+  ArrowLeft,
+  Settings,
+  Bookmark,
+  Clock,
+  Heart,
+  Users,
   ShoppingBag,
   LogOut,
   Moon,
   Sun,
   Bell,
-  HelpCircle
+  HelpCircle,
+  Share2
 } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { useTheme } from "next-themes";
+import GlassCard from "@/components/GlassCard";
 
 const MenuPage = () => {
   const navigate = useNavigate();
