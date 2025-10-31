@@ -52,7 +52,7 @@ const WalletPay = () => {
             </div>
             <div>
               <h3 className="font-semibold text-base">Phone number</h3>
-              <p className="text-sm text-muted-foreground mt-1">To any MiniPay user</p>
+              <p className="text-sm text-muted-foreground mt-1">To any E-wallet user</p>
             </div>
           </button>
 

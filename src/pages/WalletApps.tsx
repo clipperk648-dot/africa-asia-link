@@ -89,8 +89,8 @@ const WalletApps = () => {
     },
     {
       emoji: "💰",
-      title: "Deposit with Daimo",
-      description: "Bring your funds to MiniPay!",
+      title: "Deposit with E-wallet",
+      description: "Bring your funds to E-wallet!",
       category: "Finance",
       isNew: true
     },
