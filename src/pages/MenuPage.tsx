@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "@/utils/mockAuth";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
