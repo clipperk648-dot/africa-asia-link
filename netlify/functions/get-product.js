@@ -1,35 +1,52 @@
-const { getConnection } = require('./db-connection');
+const { getModels } = require('./mongodb-connection');
 
 exports.handler = async (event, context) => {
+  if (event.httpMethod !== 'GET') {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: 'Method not allowed' }),
+    };
+  }
+
   try {
-    const id = event.queryStringParameters?.id;
+    const { id } = event.queryStringParameters || {};
 
     if (!id) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: 'Product ID is required' }),
+        body: JSON.stringify({ error: 'id is required' }),
       };
     }
 
     try {
-      const sql = getConnection();
-      const products = await sql`
-        SELECT * FROM products
-        WHERE id = ${id}
-        LIMIT 1
-      `;
+      const { Product } = await getModels();
 
-      if (products.length === 0) {
-        throw new Error('Product not found');
+      const product = await Product.findById(id).lean();
+
+      if (!product) {
+        return {
+          statusCode: 404,
+          body: JSON.stringify({ error: 'Product not found' }),
+        };
       }
 
       return {
         statusCode: 200,
-        body: JSON.stringify(products[0]),
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'public, max-age=300',
-        },
+        body: JSON.stringify({
+          id: product._id.toString(),
+          name: product.name,
+          category: product.category,
+          price: product.price,
+          company: product.company,
+          location: product.location,
+          image: product.image,
+          images: product.images,
+          rating: product.rating,
+          description: product.description,
+          seller_id: product.seller_id,
+          created_at: product.created_at,
+        }),
+        headers: { 'Content-Type': 'application/json' },
       };
     } catch (dbError) {
       console.error('Database error:', dbError);
