@@ -65,7 +65,7 @@ const loadTxs = (): Tx[] => {
 };
 const saveTxs = (txs: Tx[]) => localStorage.setItem(TX_KEY, JSON.stringify(txs));
 
-const format = (n: number) => `₦${n.toLocaleString()}`;
+const format = (n: number) => `$${n.toLocaleString()}`;
 
 const Invest = () => {
   const user = getCurrentUser();
