@@ -13,8 +13,7 @@ import {
   Moon,
   Sun,
   Bell,
-  HelpCircle,
-  Share2
+  HelpCircle
 } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { useTheme } from "next-themes";
