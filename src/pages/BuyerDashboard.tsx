@@ -208,12 +208,12 @@ const BuyerDashboard = () => {
                     </div>
 
                     {/* Logout Button */}
-                    <div className="pt-4 border-t border-border/50">
-                      <button onClick={handleLogout} className="w-full p-4 rounded-xl bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent border border-red-500/30 hover:border-red-500/50 hover:from-red-500/20 hover:via-red-500/15 transition-all duration-300 group cursor-pointer flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-red-500/20 border border-red-500/40 group-hover:bg-red-500/30 transition-colors">
-                          <LogOut className="w-4 h-4 text-red-500" />
+                    <div className="pt-3 border-t border-border/50">
+                      <button onClick={handleLogout} className="w-full p-3 rounded-lg bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent border border-red-500/30 hover:border-red-500/50 hover:from-red-500/20 hover:via-red-500/15 transition-all duration-300 group cursor-pointer flex items-center gap-2">
+                        <div className="p-1.5 rounded-md bg-red-500/20 border border-red-500/40 group-hover:bg-red-500/30 transition-colors">
+                          <LogOut className="w-3 h-3 text-red-500" />
                         </div>
-                        <span className="font-semibold text-sm text-red-500 group-hover:translate-x-1 transition-transform duration-300">Log Out</span>
+                        <span className="font-semibold text-xs text-red-500 group-hover:translate-x-1 transition-transform duration-300">Log Out</span>
                       </button>
                     </div>
                   </div>
