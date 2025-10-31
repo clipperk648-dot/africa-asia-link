@@ -1,19 +1,59 @@
-const { getConnection } = require('./db-connection');
+const { getModels } = require('./mongodb-connection');
 
-exports.handler = async (event) => {
+exports.handler = async (event, context) => {
+  if (event.httpMethod !== 'GET') {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: 'Method not allowed' }),
+    };
+  }
+
   try {
     const { userId, peerId } = event.queryStringParameters || {};
-    if (!userId || !peerId) return { statusCode: 400, body: JSON.stringify({ error: 'userId and peerId are required' }) };
-    const sql = getConnection();
-    const rows = await sql`
-      SELECT id, sender_id, recipient_id, content, media_url, created_at
-      FROM messages
-      WHERE (sender_id = ${userId} AND recipient_id = ${peerId}) OR (sender_id = ${peerId} AND recipient_id = ${userId})
-      ORDER BY created_at ASC
-    `;
-    return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(rows) };
-  } catch (e) {
-    console.error('get-messages error', e);
-    return { statusCode: 500, body: JSON.stringify({ error: 'Database error' }) };
+
+    if (!userId || !peerId) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'userId and peerId are required' }),
+      };
+    }
+
+    try {
+      const { Message } = await getModels();
+
+      const messages = await Message.find({
+        $or: [
+          { sender_id: userId, recipient_id: peerId },
+          { sender_id: peerId, recipient_id: userId },
+        ],
+      })
+        .sort({ created_at: 1 })
+        .lean();
+
+      return {
+        statusCode: 200,
+        body: JSON.stringify(messages.map(m => ({
+          id: m._id.toString(),
+          sender_id: m.sender_id,
+          recipient_id: m.recipient_id,
+          content: m.content,
+          media_url: m.media_url,
+          created_at: m.created_at,
+        }))),
+        headers: { 'Content-Type': 'application/json' },
+      };
+    } catch (dbError) {
+      console.error('Database error:', dbError);
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: 'Database error' }),
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching messages:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Failed to fetch messages' }),
+    };
   }
 };

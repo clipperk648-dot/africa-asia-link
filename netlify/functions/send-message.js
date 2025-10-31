@@ -1,23 +1,61 @@
-const { getConnection } = require('./db-connection');
+const { getModels } = require('./mongodb-connection');
 
-exports.handler = async (event) => {
+exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: 'Method not allowed' }),
+    };
   }
+
   try {
-    const { senderId, recipientId, content, mediaUrl } = JSON.parse(event.body || '{}');
-    if (!senderId || !recipientId || (!content && !mediaUrl)) {
-      return { statusCode: 400, body: JSON.stringify({ error: 'senderId, recipientId and content or mediaUrl required' }) };
+    const data = JSON.parse(event.body);
+    const { senderId, recipientId, content, mediaUrl } = data;
+
+    if (!senderId || !recipientId) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'senderId and recipientId are required' }),
+      };
     }
-    const sql = getConnection();
-    const rows = await sql`
-      INSERT INTO messages (sender_id, recipient_id, content, media_url, created_at)
-      VALUES (${senderId}, ${recipientId}, ${content || null}, ${mediaUrl || null}, NOW())
-      RETURNING id, sender_id, recipient_id, content, media_url, created_at
-    `;
-    return { statusCode: 201, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(rows[0]) };
-  } catch (e) {
-    console.error('send-message error', e);
-    return { statusCode: 500, body: JSON.stringify({ error: 'Database error' }) };
+
+    try {
+      const { Message } = await getModels();
+
+      const newMessage = new Message({
+        sender_id: senderId,
+        recipient_id: recipientId,
+        content: content || null,
+        media_url: mediaUrl || null,
+        created_at: new Date(),
+      });
+
+      const savedMessage = await newMessage.save();
+
+      return {
+        statusCode: 201,
+        body: JSON.stringify({
+          id: savedMessage._id.toString(),
+          sender_id: savedMessage.sender_id,
+          recipient_id: savedMessage.recipient_id,
+          content: savedMessage.content,
+          media_url: savedMessage.media_url,
+          created_at: savedMessage.created_at,
+        }),
+        headers: { 'Content-Type': 'application/json' },
+      };
+    } catch (dbError) {
+      console.error('Database error:', dbError);
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: 'Database error' }),
+      };
+    }
+  } catch (error) {
+    console.error('Error sending message:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Failed to send message' }),
+    };
   }
 };
