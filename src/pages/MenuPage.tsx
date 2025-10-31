@@ -37,12 +37,6 @@ const MenuPage = () => {
     { icon: HelpCircle, label: "Help & Support", onClick: () => {} },
   ];
 
-  const socialLinks = [
-    { icon: "𝕏", label: "Twitter", url: "https://twitter.com" },
-    { icon: "📘", label: "Facebook", url: "https://facebook.com" },
-    { icon: "📷", label: "Instagram", url: "https://instagram.com" },
-    { icon: "💼", label: "LinkedIn", url: "https://linkedin.com" },
-  ];
 
   const handleLogout = () => {
     localStorage.removeItem("currentUser");
