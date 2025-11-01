@@ -36,7 +36,7 @@ const LoadingSplashScreen: React.FC<LoadingSplashScreenProps> = ({
     const timeoutId = setTimeout(() => {
       console.warn("Loading timeout, proceeding to content");
       onVideoEnd?.();
-    }, 8000);
+    }, 15000);
 
     video.addEventListener("ended", handleEnded);
     video.addEventListener("error", handleError);
