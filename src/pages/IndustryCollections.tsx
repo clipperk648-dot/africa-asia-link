@@ -27,6 +27,10 @@ const IndustryCollections = () => {
       id: "iphone",
       modelUrl: "https://cdn.builder.io/o/assets%2F36085b75559e427ea036d08c9cbf2ef1%2Fea03636e507d4f14a3831ad016b1ea66?alt=media&token=529f7e8f-961a-4cc3-839e-0659c80b1ea0&apiKey=36085b75559e427ea036d08c9cbf2ef1",
     },
+    {
+      id: "coke_can",
+      modelUrl: "https://cdn.builder.io/o/assets%2F36085b75559e427ea036d08c9cbf2ef1%2F299ff86899294456851ac51c54d5ceed?alt=media&token=efc3a76d-837c-4ccf-8054-460e423b02b7&apiKey=36085b75559e427ea036d08c9cbf2ef1",
+    },
   ], []);
 
   const scrollRef = useRef<HTMLDivElement>(null);
