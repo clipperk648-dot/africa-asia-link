@@ -10,6 +10,7 @@ interface ThreeModelFrameProps {
   modelUrl?: string;
   className?: string;
   heightClassName?: string;
+  backgroundUrl?: string;
   materialMaps?: {
     color?: string;
     normal?: string;
