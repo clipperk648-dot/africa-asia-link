@@ -26,8 +26,11 @@ async function apiCall<T>(endpoint: string, method: string = "GET", data?: any):
     let responseText = "";
 
     try {
-      // Always read response as text first (only way to read body once)
-      responseText = await response.text();
+      // Clone the response to safely read the body
+      const clonedResponse = response.clone();
+
+      // Read response as text
+      responseText = await clonedResponse.text();
 
       // Then try to parse as JSON if content looks like JSON
       if (responseText) {
