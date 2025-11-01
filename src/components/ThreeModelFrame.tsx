@@ -64,6 +64,23 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0xffffff);
 
+      // Load background image if provided
+      if (backgroundUrl) {
+        const textureLoader = new THREE.TextureLoader();
+        textureLoader.setCrossOrigin?.("anonymous");
+        textureLoader.load(
+          backgroundUrl,
+          (texture) => {
+            scene!.background = texture;
+            texture.needsUpdate = true;
+          },
+          undefined,
+          () => {
+            scene!.background = new THREE.Color(0xffffff);
+          }
+        );
+      }
+
       camera = new THREE.PerspectiveCamera(40, 1, 0.01, 10000);
 
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
