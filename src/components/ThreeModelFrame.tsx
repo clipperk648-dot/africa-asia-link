@@ -19,7 +19,7 @@ interface ThreeModelFrameProps {
     ao?: string;
     bump?: string;
     emissive?: string;
-  };
+  } | null;
   repeat?: [number, number];
 }
 
