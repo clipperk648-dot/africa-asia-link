@@ -107,6 +107,7 @@ const BuyerCollections = () => {
                   {isVisible && f.modelUrl ? (
                     <ThreeModelFrame
                       modelUrl={f.modelUrl}
+                      backgroundUrl={(f as any).backgroundUrl}
                       materialMaps={(f as any).materialMaps}
                       repeat={(f as any).repeat}
                       className="w-full h-full"
