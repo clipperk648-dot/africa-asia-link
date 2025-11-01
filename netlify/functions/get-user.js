@@ -1,65 +1,47 @@
-const { getConnection } = require('./db-connection');
+const { getModels } = require('./mongodb-connection');
+const { createErrorResponse, createJsonResponse } = require('./response-helper');
 
 exports.handler = async (event, context) => {
+  if (event.httpMethod !== 'GET') {
+    return createErrorResponse(405, 'Method not allowed');
+  }
+
   try {
     const { id, email } = event.queryStringParameters || {};
 
     if (!id && !email) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'User ID or email is required' }),
-      };
+      return createErrorResponse(400, 'Either id or email is required');
     }
 
     try {
-      const sql = getConnection();
-      let users;
+      const { User } = await getModels();
 
+      let user;
       if (id) {
-        users = await sql`
-          SELECT id, email, name, phone, role, created_at
-          FROM users
-          WHERE id = ${id}
-        `;
-      } else {
-        users = await sql`
-          SELECT id, email, password_hash, name, phone, role, created_at
-          FROM users
-          WHERE email = ${email}
-        `;
+        user = await User.findById(id).lean();
+      } else if (email) {
+        user = await User.findOne({ email }).lean();
       }
 
-      if (users.length === 0) {
-        return {
-          statusCode: 200,
-          body: JSON.stringify(null),
-          headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'private, max-age=60',
-          },
-        };
+      if (!user) {
+        return createErrorResponse(404, 'User not found');
       }
 
-      return {
-        statusCode: 200,
-        body: JSON.stringify(users[0]),
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'private, max-age=300',
-        },
-      };
+      return createJsonResponse(200, {
+        id: user._id.toString(),
+        email: user.email,
+        name: user.name,
+        phone: user.phone,
+        role: user.role,
+        password_hash: user.password_hash,
+        created_at: user.created_at,
+      });
     } catch (dbError) {
       console.error('Database error:', dbError);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Database error' }),
-      };
+      return createErrorResponse(500, 'Database error');
     }
   } catch (error) {
     console.error('Error fetching user:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to fetch user' }),
-    };
+    return createErrorResponse(500, 'Failed to fetch user');
   }
 };

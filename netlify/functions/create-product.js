@@ -1,11 +1,9 @@
-const { getConnection } = require('./db-connection');
+const { getModels } = require('./mongodb-connection');
+const { createErrorResponse, createJsonResponse } = require('./response-helper');
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' }),
-    };
+    return createErrorResponse(405, 'Method not allowed');
   }
 
   try {
@@ -17,55 +15,53 @@ exports.handler = async (event, context) => {
       company,
       location,
       image,
+      images,
       description,
       sellerId,
+      rating,
     } = data;
 
     if (!name || !sellerId) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Name and seller ID are required' }),
-      };
+      return createErrorResponse(400, 'Name and seller ID are required');
     }
 
     try {
-      const sql = getConnection();
-      const result = await sql`
-        INSERT INTO products (
-          name, category, price, company, location, image, description,
-          seller_id, created_at
-        )
-        VALUES (
-          ${name},
-          ${category || null},
-          ${price || 0},
-          ${company || null},
-          ${location || null},
-          ${image || null},
-          ${description || null},
-          ${sellerId},
-          NOW()
-        )
-        RETURNING *
-      `;
+      const { Product } = await getModels();
 
-      return {
-        statusCode: 201,
-        body: JSON.stringify(result[0]),
-        headers: { 'Content-Type': 'application/json' },
-      };
+      const newProduct = new Product({
+        name,
+        category: category || null,
+        price: price || 0,
+        company: company || null,
+        location: location || null,
+        image: image || null,
+        images: images || [],
+        description: description || null,
+        seller_id: sellerId,
+        rating: rating || null,
+        created_at: new Date(),
+      });
+
+      const savedProduct = await newProduct.save();
+
+      return createJsonResponse(201, {
+        id: savedProduct._id.toString(),
+        name: savedProduct.name,
+        category: savedProduct.category,
+        price: savedProduct.price,
+        company: savedProduct.company,
+        location: savedProduct.location,
+        image: savedProduct.image,
+        images: savedProduct.images,
+        rating: savedProduct.rating,
+        description: savedProduct.description,
+      });
     } catch (dbError) {
       console.error('Database error:', dbError);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Database error' }),
-      };
+      return createErrorResponse(500, 'Database error');
     }
   } catch (error) {
     console.error('Error creating product:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to create product' }),
-    };
+    return createErrorResponse(500, 'Failed to create product');
   }
 };

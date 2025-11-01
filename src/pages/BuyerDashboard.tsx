@@ -1,7 +1,7 @@
-import { useEffect, useState, Fragment } from "react";
+import { useEffect, useState, Fragment, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser, logout } from "@/utils/mockAuth";
-import { useProducts, useOrders } from "@/hooks/useData";
+import { useProducts, useOrders, useWalletBalance } from "@/hooks/useData";
 import type { Product } from "@/types/models";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
@@ -70,6 +70,7 @@ const BuyerDashboard = () => {
 
   const { data: products = [] } = useProducts(20, 0);
   const { data: orders = [] } = useOrders(user?.id);
+  const { data: walletData = { balance: 0, currency: "USD" } } = useWalletBalance(user?.id);
 
   const ctaTexts = ["Hi there!", "Need help?", "Chat with us!", "Ask anything!", "We're here!"];
   let tooltipIndex = 0;
@@ -97,12 +98,20 @@ const BuyerDashboard = () => {
     navigate("/login");
   };
 
-  const stats = [
-    { label: "Active Orders", value: "8", icon: ShoppingCart, color: "text-primary" },
-    { label: "Pending", value: "3", icon: Clock, color: "text-accent" },
-    { label: "Completed", value: "45", icon: CheckCircle, color: "text-secondary" },
-    { label: "Saved", value: "$78K", icon: TrendingUp, color: "text-primary" },
-  ];
+  // Calculate stats from real data
+  const stats = useMemo(() => {
+    const activeOrders = Array.isArray(orders) ? orders.filter((o: any) => o.status === 'pending').length : 0;
+    const pendingOrders = activeOrders;
+    const completedOrders = Array.isArray(orders) ? orders.filter((o: any) => o.status === 'completed').length : 0;
+    const walletBalance = walletData?.balance ?? 0;
+
+    return [
+      { label: "Active Orders", value: String(activeOrders), icon: ShoppingCart, color: "text-primary" },
+      { label: "Pending", value: String(pendingOrders), icon: Clock, color: "text-accent" },
+      { label: "Completed", value: String(completedOrders), icon: CheckCircle, color: "text-secondary" },
+      { label: "Wallet Balance", value: `$${walletBalance.toLocaleString()}`, icon: TrendingUp, color: "text-primary" },
+    ];
+  }, [orders, walletData]);
 
   return (
     <div className="min-h-screen pb-24 relative">

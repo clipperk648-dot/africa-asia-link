@@ -10,6 +10,7 @@ interface ThreeModelFrameProps {
   modelUrl?: string;
   className?: string;
   heightClassName?: string;
+  backgroundUrl?: string;
   materialMaps?: {
     color?: string;
     normal?: string;
@@ -18,11 +19,11 @@ interface ThreeModelFrameProps {
     ao?: string;
     bump?: string;
     emissive?: string;
-  };
+  } | null;
   repeat?: [number, number];
 }
 
-const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, heightClassName = "h-[26rem]", materialMaps, repeat }) => {
+const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, heightClassName = "h-[26rem]", backgroundUrl, materialMaps, repeat }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const frameIdRef = useRef<number>();
   const cleanupRef = useRef<() => void>();
@@ -62,6 +63,23 @@ const ThreeModelFrame: React.FC<ThreeModelFrameProps> = ({ modelUrl, className, 
       // Scene and renderer
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0xffffff);
+
+      // Load background image if provided
+      if (backgroundUrl) {
+        const textureLoader = new THREE.TextureLoader();
+        textureLoader.setCrossOrigin?.("anonymous");
+        textureLoader.load(
+          backgroundUrl,
+          (texture) => {
+            scene!.background = texture;
+            texture.needsUpdate = true;
+          },
+          undefined,
+          () => {
+            scene!.background = new THREE.Color(0xffffff);
+          }
+        );
+      }
 
       camera = new THREE.PerspectiveCamera(40, 1, 0.01, 10000);
 

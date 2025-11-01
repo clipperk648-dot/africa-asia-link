@@ -1,23 +1,51 @@
-const { getConnection } = require('./db-connection');
+const { getModels } = require('./mongodb-connection');
+const { createErrorResponse, createJsonResponse } = require('./response-helper');
 
-exports.handler = async (event) => {
+exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
+    return createErrorResponse(405, 'Method not allowed');
   }
+
   try {
-    const { userId, type, amount, currency = 'USD', note } = JSON.parse(event.body || '{}');
-    if (!userId || !type || amount === undefined) {
-      return { statusCode: 400, body: JSON.stringify({ error: 'userId, type, amount are required' }) };
+    const data = JSON.parse(event.body);
+    const { userId, type, amount, currency = 'USD', note } = data;
+
+    if (!userId || !type || !amount) {
+      return createErrorResponse(400, 'userId, type, and amount are required');
     }
-    const sql = getConnection();
-    const rows = await sql`
-      INSERT INTO transactions (user_id, type, amount, currency, note, created_at)
-      VALUES (${userId}, ${type}, ${amount}, ${currency}, ${note || null}, NOW())
-      RETURNING id, user_id, type, amount, currency, note, created_at
-    `;
-    return { statusCode: 201, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(rows[0]) };
-  } catch (e) {
-    console.error('add-transaction error', e);
-    return { statusCode: 500, body: JSON.stringify({ error: 'Database error' }) };
+
+    if (!['deposit', 'payment'].includes(type)) {
+      return createErrorResponse(400, 'type must be deposit or payment');
+    }
+
+    try {
+      const { Transaction } = await getModels();
+
+      const newTransaction = new Transaction({
+        user_id: userId,
+        type,
+        amount,
+        currency,
+        note: note || null,
+        created_at: new Date(),
+      });
+
+      const savedTransaction = await newTransaction.save();
+
+      return createJsonResponse(201, {
+        id: savedTransaction._id.toString(),
+        type: savedTransaction.type,
+        amount: savedTransaction.amount,
+        currency: savedTransaction.currency,
+        note: savedTransaction.note,
+        created_at: savedTransaction.created_at,
+      });
+    } catch (dbError) {
+      console.error('Database error:', dbError);
+      return createErrorResponse(500, 'Database error');
+    }
+  } catch (error) {
+    console.error('Error adding transaction:', error);
+    return createErrorResponse(500, 'Failed to add transaction');
   }
 };

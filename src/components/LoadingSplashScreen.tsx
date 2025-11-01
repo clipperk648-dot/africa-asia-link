@@ -27,8 +27,25 @@ const LoadingSplashScreen: React.FC<LoadingSplashScreenProps> = ({
       onVideoEnd?.();
     };
 
+    const handleError = () => {
+      console.warn("Video failed to load, proceeding anyway");
+      onVideoEnd?.();
+    };
+
+    // Add timeout to ensure splash screen doesn't get stuck
+    const timeoutId = setTimeout(() => {
+      console.warn("Loading timeout, proceeding to content");
+      onVideoEnd?.();
+    }, 3000);
+
     video.addEventListener("ended", handleEnded);
-    return () => video.removeEventListener("ended", handleEnded);
+    video.addEventListener("error", handleError);
+
+    return () => {
+      clearTimeout(timeoutId);
+      video.removeEventListener("ended", handleEnded);
+      video.removeEventListener("error", handleError);
+    };
   }, [isVisible, onVideoEnd]);
 
   if (!isVisible) return null;

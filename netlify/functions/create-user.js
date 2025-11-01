@@ -1,11 +1,9 @@
-const { getConnection } = require('./db-connection');
+const { getModels } = require('./mongodb-connection');
+const { createErrorResponse, createJsonResponse } = require('./response-helper');
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      body: JSON.stringify({ error: 'Method not allowed' }),
-    };
+    return createErrorResponse(405, 'Method not allowed');
   }
 
   try {
@@ -13,43 +11,44 @@ exports.handler = async (event, context) => {
     const { email, passwordHash, name, phone, role } = data;
 
     if (!email || !passwordHash || !role) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Email, password, and role are required' }),
-      };
+      return createErrorResponse(400, 'Email, password, and role are required');
     }
 
     try {
-      const sql = getConnection();
-      const result = await sql`
-        INSERT INTO users (email, password_hash, name, phone, role, created_at)
-        VALUES (${email}, ${passwordHash}, ${name || null}, ${phone || null}, ${role}, NOW())
-        RETURNING id, email, name, role
-      `;
+      const { User } = await getModels();
 
-      return {
-        statusCode: 201,
-        body: JSON.stringify(result[0]),
-        headers: { 'Content-Type': 'application/json' },
-      };
-    } catch (dbError) {
-      if (dbError.message.includes('duplicate')) {
+      // Check if user already exists
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
         return {
           statusCode: 409,
           body: JSON.stringify({ error: 'User already exists' }),
         };
       }
+
+      const newUser = new User({
+        email,
+        password_hash: passwordHash,
+        name: name || email,
+        phone: phone || '',
+        role,
+        created_at: new Date(),
+      });
+
+      const savedUser = await newUser.save();
+
+      return createJsonResponse(201, {
+        id: savedUser._id.toString(),
+        email: savedUser.email,
+        name: savedUser.name,
+        role: savedUser.role,
+      });
+    } catch (dbError) {
       console.error('Database error:', dbError);
-      return {
-        statusCode: 500,
-        body: JSON.stringify({ error: 'Database error' }),
-      };
+      return createErrorResponse(500, 'Database error: ' + dbError.message);
     }
   } catch (error) {
     console.error('Error creating user:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to create user' }),
-    };
+    return createErrorResponse(500, 'Failed to create user');
   }
 };

@@ -1,4 +1,4 @@
-import { useEffect, useState, Fragment } from "react";
+import { useEffect, useState, Fragment, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { getCurrentUser, logout } from "@/utils/mockAuth";
 import { useProducts, useOrders } from "@/hooks/useData";
@@ -89,12 +89,19 @@ const IndustryDashboard = () => {
     navigate("/login");
   };
 
-  const stats = [
-    { label: "Total Products", value: "24", icon: Package, color: "text-primary" },
-    { label: "Active Orders", value: "18", icon: TrendingUp, color: "text-secondary" },
-    { label: "Revenue", value: "$450K", icon: DollarSign, color: "text-accent" },
-    { label: "Buyers", value: "156", icon: Users, color: "text-primary" },
-  ];
+  // Calculate stats from real data
+  const stats = useMemo(() => {
+    const activeOrders = Array.isArray(orders) ? orders.filter((o: any) => o.status === 'pending').length : 0;
+    const totalRevenue = Array.isArray(orders) ? orders.reduce((sum: number, o: any) => sum + (o.total || 0), 0) : 0;
+    const uniqueBuyers = Array.isArray(orders) ? new Set(orders.map((o: any) => o.buyer_id)).size : 0;
+
+    return [
+      { label: "Total Products", value: String(Array.isArray(products) ? products.length : 0), icon: Package, color: "text-primary" },
+      { label: "Active Orders", value: String(activeOrders), icon: TrendingUp, color: "text-secondary" },
+      { label: "Revenue", value: `$${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-accent" },
+      { label: "Buyers", value: String(uniqueBuyers), icon: Users, color: "text-primary" },
+    ];
+  }, [products, orders]);
 
   return (
     <div className="min-h-screen pb-24 relative">

@@ -18,14 +18,19 @@ const IndustryCollections = () => {
       id: "bike",
       modelUrl:
         "https://cdn.builder.io/o/assets%2F938a9cb6c5f8418ebb61c467931bd555%2F1fb49eb151e24a13a84591a0fccc7fa1?alt=media&token=4a8cf418-fe40-411c-afd1-243dd69e4d60&apiKey=938a9cb6c5f8418ebb61c467931bd555",
+      backgroundUrl: "https://cdn.builder.io/o/assets%2F36085b75559e427ea036d08c9cbf2ef1%2Fbd044b311b1f486a93ff95f835fe3600?alt=media&token=7f46729a-1923-4f74-958e-f373883858b7&apiKey=36085b75559e427ea036d08c9cbf2ef1",
     },
     {
-      id: "shoe",
-      modelUrl: "",
+      id: "watch",
+      modelUrl: "https://cdn.builder.io/o/assets%2F36085b75559e427ea036d08c9cbf2ef1%2Fc02d54c5ea9c4b24a52a00f957502e13?alt=media&token=02f272fb-bf7c-4263-8371-1e190a291009&apiKey=36085b75559e427ea036d08c9cbf2ef1",
     },
     {
-      id: "empty",
-      modelUrl: "",
+      id: "iphone",
+      modelUrl: "https://cdn.builder.io/o/assets%2F36085b75559e427ea036d08c9cbf2ef1%2Fea03636e507d4f14a3831ad016b1ea66?alt=media&token=529f7e8f-961a-4cc3-839e-0659c80b1ea0&apiKey=36085b75559e427ea036d08c9cbf2ef1",
+    },
+    {
+      id: "coke_can",
+      modelUrl: "https://cdn.builder.io/o/assets%2F36085b75559e427ea036d08c9cbf2ef1%2F299ff86899294456851ac51c54d5ceed?alt=media&token=efc3a76d-837c-4ccf-8054-460e423b02b7&apiKey=36085b75559e427ea036d08c9cbf2ef1",
     },
   ], []);
 
@@ -84,16 +89,17 @@ const IndustryCollections = () => {
             <div key={f.id} className="snap-start h-screen relative">
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="relative h-[92vh] max-h-[92vh] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl z-20 border border-black/10 bg-white">
-                  {isVisible ? (
+                  {isVisible && f.modelUrl ? (
                     <ThreeModelFrame
                       modelUrl={f.modelUrl}
-                      materialMaps={(f as any).materialMaps}
-                      repeat={(f as any).repeat}
+                      backgroundUrl={(f as any).backgroundUrl}
                       className="w-full h-full"
                       heightClassName="h-full"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-50" />
+                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center">
+                      <p className="text-gray-400 text-sm">No model available</p>
+                    </div>
                   )}
                   <div className="absolute top-3 right-3 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-white text-xs">
                     Frame {idx + 1} / {frames.length}
@@ -109,7 +115,7 @@ const IndustryCollections = () => {
       {!isLoading && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex gap-3">
           <Button variant="outline" onClick={() => navigate(-1)}>Back</Button>
-          <Button variant="gradient" onClick={goNext}>Next</Button>
+          <Button variant="gradient" onClick={goNext} disabled={currentFrame >= frames.length - 1}>Next</Button>
         </div>
       )}
 
