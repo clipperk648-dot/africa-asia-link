@@ -24,8 +24,8 @@ const IndustryCollections = () => {
       modelUrl: "https://cdn.builder.io/o/assets%2F36085b75559e427ea036d08c9cbf2ef1%2Fc02d54c5ea9c4b24a52a00f957502e13?alt=media&token=02f272fb-bf7c-4263-8371-1e190a291009&apiKey=36085b75559e427ea036d08c9cbf2ef1",
     },
     {
-      id: "empty",
-      modelUrl: "",
+      id: "iphone",
+      modelUrl: "https://cdn.builder.io/o/assets%2F36085b75559e427ea036d08c9cbf2ef1%2Fea03636e507d4f14a3831ad016b1ea66?alt=media&token=529f7e8f-961a-4cc3-839e-0659c80b1ea0&apiKey=36085b75559e427ea036d08c9cbf2ef1",
     },
   ], []);
 
