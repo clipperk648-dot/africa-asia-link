@@ -21,40 +21,7 @@ const IndustryNetwork = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
 
-  const [connections, setConnections] = useState<Connection[]>([
-    {
-      id: "1",
-      name: "Lagos Trading Co",
-      role: "Buyer",
-      location: "Lagos, Nigeria",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lagos",
-      connected: true,
-    },
-    {
-      id: "2",
-      name: "Abuja Imports Ltd",
-      role: "Buyer",
-      location: "Abuja, Nigeria",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Abuja",
-      connected: true,
-    },
-    {
-      id: "3",
-      name: "Port Harcourt Trading",
-      role: "Buyer",
-      location: "Port Harcourt, Nigeria",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Port",
-      connected: false,
-    },
-    {
-      id: "4",
-      name: "Kano Business Hub",
-      role: "Buyer",
-      location: "Kano, Nigeria",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Kano",
-      connected: false,
-    },
-  ]);
+  const [connections, setConnections] = useState<Connection[]>([]);
 
   useEffect(() => {
     if (!user || user.role !== "industry") {
