@@ -6,12 +6,7 @@ import ThreeBackground from "@/components/ThreeBackground";
 import { ArrowLeft, Image as ImageIcon, Video as VideoIcon, Send } from "lucide-react";
 
 interface Msg { id: string; from: "me" | "them"; text?: string; mediaUrl?: string; time: string }
-
-const convList = [
-  { id: "1", name: "Sarah Johnson", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah", online: true },
-  { id: "2", name: "Michael Chen", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Michael", online: false },
-  { id: "3", name: "Emily Davis", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emily", online: true },
-];
+interface Conversation { id: string; name: string; avatar: string; online: boolean; }
 
 const storageKey = (id: string) => `chat:conv:${id}`;
 const loadMessages = (id: string): Msg[] => {
