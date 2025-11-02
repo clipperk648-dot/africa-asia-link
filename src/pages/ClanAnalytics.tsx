@@ -10,10 +10,20 @@ const ClanAnalytics = () => {
   const navigate = useNavigate();
   const { clanId } = useParams<{ clanId: string }>();
 
-  const [clanData, setClanData] = useState<any>(null);
-  const [analyticsData, setAnalyticsData] = useState<any>(null);
+  const [clanData, setClanData] = useState<any>({
+    id: clanId || "clan-1",
+    name: "Clan",
+    targetPrice: 0,
+    currentFunded: 0,
+    members: 0,
+  });
+  const [analyticsData, setAnalyticsData] = useState<any>({
+    statistics: {
+      daysRemaining: 0,
+    },
+  });
 
-  const progress = Math.min(100, Math.round((clanData.currentFunded / clanData.targetPrice) * 100));
+  const progress = clanData && clanData.targetPrice ? Math.min(100, Math.round((clanData.currentFunded / clanData.targetPrice) * 100)) : 0;
 
   return (
     <div className="min-h-screen pb-24 relative">
