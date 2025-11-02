@@ -17,24 +17,7 @@ const ClanDetails = () => {
   const [copied, setCopied] = useState(false);
   const [showMoreMembers, setShowMoreMembers] = useState(false);
 
-  // Mock clan data - in real app, would fetch from API
-  const clanData = {
-    id: clanId || "clan-1",
-    name: "Premium Electronics Collective",
-    description: "A group pooling resources to get wholesale electronics at better rates",
-    targetProductName: "Smart TV 55-inch 4K UHD",
-    targetPrice: 15000,
-    currentFunded: 8500,
-    deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-    creatorId: "user1",
-    creatorName: "Sarah Johnson",
-    members: [
-      { id: "user1", username: "Sarah Johnson", amount: 2500, joinedDate: "2024-01-15" },
-      { id: "user2", username: "Michael Chen", amount: 3000, joinedDate: "2024-01-16" },
-      { id: "user3", username: "Emily Davis", amount: 2000, joinedDate: "2024-01-17" },
-      { id: "user4", username: "John Smith", amount: 1000, joinedDate: "2024-01-18" },
-    ],
-  };
+  const [clanData, setClanData] = useState<any>(null);
 
 
 
