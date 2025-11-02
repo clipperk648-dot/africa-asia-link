@@ -17,7 +17,12 @@ const saveMessages = (id: string, msgs: Msg[]) => localStorage.setItem(storageKe
 const Chat = () => {
   const { id = "1" } = useParams();
   const navigate = useNavigate();
-  const convo = useMemo(() => convList.find(c => c.id === id) || convList[0], [id]);
+  const convo: Conversation = useMemo(() => ({
+    id,
+    name: "Conversation Partner",
+    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${id}`,
+    online: true,
+  }), [id]);
   const [draft, setDraft] = useState("");
   const [msgs, setMsgs] = useState<Msg[]>(() => loadMessages(convo.id));
   const [file, setFile] = useState<File | null>(null);
