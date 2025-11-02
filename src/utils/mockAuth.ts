@@ -32,15 +32,7 @@ export const getCurrentUser = (): User | null => {
   const stored = localStorage.getItem("currentUser");
   if (stored) return JSON.parse(stored);
 
-  const path = typeof window !== "undefined" ? window.location.pathname : "/";
-  const role: User["role"] = path.startsWith("/industry") ? "industry" : "buyer";
-  return {
-    id: "guest",
-    email: "guest@example.com",
-    name: role === "industry" ? "Guest Seller" : "Guest Buyer",
-    role,
-    phone: "",
-  };
+  return null;
 };
 
 export const logout = () => {
