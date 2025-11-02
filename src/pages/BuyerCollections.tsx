@@ -7,6 +7,7 @@ import { ArrowLeft, ChevronUp, ChevronDown } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import ThreeModelFrame from "@/components/ThreeModelFrame";
 import LoadingSplashScreen from "@/components/LoadingSplashScreen";
+import { getModelTextureConfig, getModelRepeat } from "@/utils/modelTextures";
 
 const BuyerCollections = () => {
   const navigate = useNavigate();
