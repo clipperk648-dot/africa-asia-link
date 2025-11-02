@@ -17,7 +17,18 @@ const ClanDetails = () => {
   const [copied, setCopied] = useState(false);
   const [showMoreMembers, setShowMoreMembers] = useState(false);
 
-  const [clanData, setClanData] = useState<any>(null);
+  const [clanData, setClanData] = useState<any>({
+    id: clanId || "clan-1",
+    name: "Clan",
+    description: "A group pooling resources together",
+    targetProductName: "Target Product",
+    targetPrice: 0,
+    currentFunded: 0,
+    deadline: new Date().toISOString(),
+    creatorId: "user1",
+    creatorName: "Creator",
+    members: [],
+  });
 
 
 
