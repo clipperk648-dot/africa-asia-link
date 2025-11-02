@@ -94,6 +94,8 @@ const IndustryCollections = () => {
                     <ThreeModelFrame
                       modelUrl={f.modelUrl}
                       backgroundUrl={(f as any).backgroundUrl}
+                      materialMaps={getModelTextureConfig(f.id)}
+                      repeat={getModelRepeat(f.id)}
                       className="w-full h-full"
                       heightClassName="h-full"
                     />
