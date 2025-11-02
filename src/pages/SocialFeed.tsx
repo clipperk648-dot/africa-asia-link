@@ -21,6 +21,7 @@ import {
   Menu,
   Repeat2,
   User,
+  Camera,
 } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 
@@ -29,6 +30,7 @@ const SocialFeed = () => {
   const user = getCurrentUser();
   const { data: fetchedPosts = [], refetch } = useSocialPosts(50);
   const [posts, setPosts] = useState<any[]>([]);
+  const [statusDraft, setStatusDraft] = useState("");
 
   useEffect(() => {
     const mapped = (fetchedPosts as any[]).map((p: any) => ({
@@ -45,16 +47,13 @@ const SocialFeed = () => {
     }));
     setPosts(mapped);
 
-    // Initialize comments for each post
     const commentSeed: Record<string, { id: string; author: string; text: string; time: string }[]> = {};
     mapped.forEach((p) => {
-      commentSeed[p.id] = [
-        { id: "c1", author: "sarah_j", text: "Love this!", time: "2h" },
-        { id: "c2", author: "michael_c", text: "Great update 👏", time: "1h" },
-      ];
+      commentSeed[p.id] = [];
     });
     setCommentsByPost(commentSeed);
   }, [fetchedPosts]);
+  
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [activePostId, setActivePostId] = useState<string | null>(null);
   const [commentDraft, setCommentDraft] = useState("");
@@ -107,6 +106,12 @@ const SocialFeed = () => {
     });
     setPosts((prev) => prev.map((p) => (p.id === activePostId ? { ...p, comments: p.comments + 1 } : p)));
     setCommentDraft("");
+  };
+
+  const publishStatus = () => {
+    if (!statusDraft.trim()) return;
+    toast.success("Status published!");
+    setStatusDraft("");
   };
 
   return (
@@ -168,94 +173,150 @@ const SocialFeed = () => {
         </div>
       </section>
 
-
-      {/* Feed */}
-      <main className="max-w-3xl mx-auto space-y-0 pb-20">
-        {posts.map((post) => (
-          <div key={post.id} className="bg-background border-b border-border">
-            {/* Post Header */}
-            <div className="flex items-center justify-between px-4 py-3">
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                <img
-                  src={post.avatar}
-                  alt={post.username}
-                  className="w-9 h-9 rounded-full flex-shrink-0"
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-sm truncate">{post.username}</p>
-                  <p className="text-xs text-muted-foreground">{post.timestamp}</p>
-                </div>
-              </div>
-              <Button variant="ghost" size="icon" className="flex-shrink-0 h-8 w-8">
-                <MoreVertical className="w-5 h-5" />
-              </Button>
-            </div>
-
-            {/* Media / Text */}
-            { (post as any).mediaUrl ? (
-              <div className="relative w-full">
-                {String((post as any).mediaUrl).startsWith("data:video") ? (
-                  <video src={(post as any).mediaUrl} controls className="w-full aspect-square object-cover" />
-                ) : (
-                  <img src={(post as any).mediaUrl} alt="Post" className="w-full aspect-square object-cover" loading="lazy" />
-                )}
-              </div>
-            ) : null }
-
-            {/* Post Actions */}
-            <div className="px-4 py-2">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-4">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleLike(post.id)}
-                    className={`h-9 w-9 ${likedPosts.has(post.id) ? "text-red-500" : ""}`}
-                  >
-                    <Heart
-                      className="w-7 h-7"
-                      fill={likedPosts.has(post.id) ? "currentColor" : "none"}
-                      strokeWidth={1.5}
-                    />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => openComments(post.id)}>
-                    <MessageCircle className="w-7 h-7" strokeWidth={1.5} />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => toast("Reposted") }>
-                    <Repeat2 className="w-7 h-7" strokeWidth={1.5} />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => toast("Shared") }>
-                    <Send className="w-7 h-7" strokeWidth={1.5} />
-                  </Button>
-                </div>
-                <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => toast("Saved") }>
-                  <Bookmark className="w-7 h-7" strokeWidth={1.5} />
-                </Button>
-              </div>
-
-              {/* Likes Count */}
-              <p className="font-semibold text-sm mb-2">{post.likes.toLocaleString()} likes</p>
-
-              {/* Caption / Text */}
-              <div className="break-words mb-1">
-                <span className="font-semibold mr-2 text-sm">{post.username}</span>
-                <span className="text-sm">{(post as any).content || (post as any).caption || ""}</span>
-              </div>
-
-              {/* Comments */}
-              <button className="text-sm text-muted-foreground mb-2" onClick={() => openComments(post.id)}>
-                View all {post.comments} comments
-              </button>
-
-              {/* Add Comment */}
-              <div className="flex items-center gap-2 pt-1 border-t border-border/50">
-                <Button variant="ghost" size="sm" className="text-sm text-primary hover:text-primary/80 px-0" onClick={() => openComments(post.id)}>
-                  Add a comment…
-                </Button>
-              </div>
+      {/* Status/Composer Section */}
+      <section className="max-w-3xl mx-auto px-4 py-4 sm:py-6 bg-background/50">
+        <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-4 shadow-sm">
+          <div className="flex items-start gap-3 mb-4">
+            <img
+              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email || "user"}`}
+              alt={user?.name || "Your avatar"}
+              className="w-10 h-10 rounded-full flex-shrink-0"
+            />
+            <div className="flex-1">
+              <p className="font-semibold text-sm">{user?.name || "Create a post"}</p>
+              <p className="text-xs text-muted-foreground">Share what's on your mind</p>
             </div>
           </div>
-        ))}
+          
+          <Textarea
+            value={statusDraft}
+            onChange={(e) => setStatusDraft(e.target.value)}
+            placeholder="What's happening in your business today?"
+            className="min-h-20 resize-none mb-4 bg-background/50 border-border/50"
+          />
+
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+                <Camera className="w-4 h-4" />
+              </Button>
+            </div>
+            <Button onClick={publishStatus} disabled={!statusDraft.trim()} variant="gradient" size="sm">
+              <Send className="w-4 h-4 mr-2" />
+              Post
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Divider */}
+      <div className="max-w-3xl mx-auto px-4 py-2">
+        <div className="h-px bg-gradient-to-r from-transparent via-border/50 to-transparent" />
+      </div>
+
+      {/* Posts Feed Section */}
+      <main className="max-w-3xl mx-auto space-y-0 pb-20">
+        {posts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4">
+            <div className="rounded-full bg-muted/50 p-4 mb-4">
+              <MessageCircle className="w-8 h-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold text-foreground mb-2">No posts yet</h3>
+            <p className="text-sm text-muted-foreground text-center max-w-sm">
+              Be the first to share something with your network. Your posts will appear here once you start posting.
+            </p>
+            <Button onClick={() => navigate("/social/add")} className="mt-4" variant="gradient">
+              <Plus className="w-4 h-4 mr-2" />
+              Create First Post
+            </Button>
+          </div>
+        ) : (
+          posts.map((post) => (
+            <div key={post.id} className="bg-background border-b border-border">
+              {/* Post Header */}
+              <div className="flex items-center justify-between px-4 py-3">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <img
+                    src={post.avatar}
+                    alt={post.username}
+                    className="w-9 h-9 rounded-full flex-shrink-0"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-sm truncate">{post.username}</p>
+                    <p className="text-xs text-muted-foreground">{post.timestamp}</p>
+                  </div>
+                </div>
+                <Button variant="ghost" size="icon" className="flex-shrink-0 h-8 w-8">
+                  <MoreVertical className="w-5 h-5" />
+                </Button>
+              </div>
+
+              {/* Media / Text */}
+              {(post as any).mediaUrl ? (
+                <div className="relative w-full">
+                  {String((post as any).mediaUrl).startsWith("data:video") ? (
+                    <video src={(post as any).mediaUrl} controls className="w-full aspect-square object-cover" />
+                  ) : (
+                    <img src={(post as any).mediaUrl} alt="Post" className="w-full aspect-square object-cover" loading="lazy" />
+                  )}
+                </div>
+              ) : null}
+
+              {/* Post Actions */}
+              <div className="px-4 py-2">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-4">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleLike(post.id)}
+                      className={`h-9 w-9 ${likedPosts.has(post.id) ? "text-red-500" : ""}`}
+                    >
+                      <Heart
+                        className="w-7 h-7"
+                        fill={likedPosts.has(post.id) ? "currentColor" : "none"}
+                        strokeWidth={1.5}
+                      />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => openComments(post.id)}>
+                      <MessageCircle className="w-7 h-7" strokeWidth={1.5} />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => toast("Reposted")}>
+                      <Repeat2 className="w-7 h-7" strokeWidth={1.5} />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => toast("Shared")}>
+                      <Send className="w-7 h-7" strokeWidth={1.5} />
+                    </Button>
+                  </div>
+                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => toast("Saved")}>
+                    <Bookmark className="w-7 h-7" strokeWidth={1.5} />
+                  </Button>
+                </div>
+
+                {/* Likes Count */}
+                <p className="font-semibold text-sm mb-2">{post.likes.toLocaleString()} likes</p>
+
+                {/* Caption / Text */}
+                <div className="break-words mb-1">
+                  <span className="font-semibold mr-2 text-sm">{post.username}</span>
+                  <span className="text-sm">{(post as any).content || (post as any).caption || ""}</span>
+                </div>
+
+                {/* Comments */}
+                <button className="text-sm text-muted-foreground mb-2" onClick={() => openComments(post.id)}>
+                  View all {post.comments} comments
+                </button>
+
+                {/* Add Comment */}
+                <div className="flex items-center gap-2 pt-1 border-t border-border/50">
+                  <Button variant="ghost" size="sm" className="text-sm text-primary hover:text-primary/80 px-0" onClick={() => openComments(post.id)}>
+                    Add a comment…
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </main>
 
       {/* Bottom Navigation */}
@@ -285,6 +346,8 @@ const SocialFeed = () => {
           </div>
         </div>
       </nav>
+
+      {/* Comments Sheet */}
       <Sheet open={!!activePostId} onOpenChange={(o) => (o ? null : closeComments())}>
         <SheetContent side="bottom" className="h-[70vh] p-0">
           <SheetHeader className="px-4 pt-4 pb-2">
