@@ -10,39 +10,8 @@ const ClanAnalytics = () => {
   const navigate = useNavigate();
   const { clanId } = useParams<{ clanId: string }>();
 
-  // Mock clan analytics data
-  const clanData = {
-    id: clanId || "clan-1",
-    name: "Premium Electronics Collective",
-    targetPrice: 15000,
-    currentFunded: 8500,
-    members: 4,
-    deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-  };
-
-  const analyticsData = {
-    fundingVelocity: [
-      { date: "Day 1", amount: 2000 },
-      { date: "Day 2", amount: 1500 },
-      { date: "Day 3", amount: 2000 },
-      { date: "Day 4", amount: 1000 },
-      { date: "Day 5", amount: 2000 },
-    ],
-    memberContributions: [
-      { member: "Sarah Johnson", amount: 2500, percentage: 29.4 },
-      { member: "Michael Chen", amount: 3000, percentage: 35.3 },
-      { member: "Emily Davis", amount: 2000, percentage: 23.5 },
-      { member: "John Smith", amount: 1000, percentage: 11.8 },
-    ],
-    statistics: {
-      avgContribution: 2125,
-      largestContribution: 3000,
-      smallestContribution: 1000,
-      daysRemaining: 25,
-      fundingPercentage: 56.7,
-      projectedDate: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000).toLocaleDateString(),
-    },
-  };
+  const [clanData, setClanData] = useState<any>(null);
+  const [analyticsData, setAnalyticsData] = useState<any>(null);
 
   const progress = Math.min(100, Math.round((clanData.currentFunded / clanData.targetPrice) * 100));
 
