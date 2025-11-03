@@ -199,26 +199,24 @@ const BuyerCollections = () => {
       {/* Fullscreen Video Overlay */}
       {fullscreenFrame !== null && (
         <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center">
-          <div className="w-full h-full flex flex-col items-center justify-center p-4">
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={closeFullscreen}
-              className="absolute top-4 right-4 text-white hover:bg-white/20"
-              aria-label="Close fullscreen"
-            >
-              <X className="w-6 h-6" />
-            </Button>
-            <video
-              ref={fullscreenVideoRef}
-              className="w-screen h-screen object-cover"
-              src={frames[fullscreenFrame]?.videoUrl}
-              controls={false}
-              autoPlay
-              loop
-              muted
-            />
-          </div>
+          <video
+            ref={fullscreenVideoRef}
+            className="absolute inset-0 w-full h-full object-cover"
+            src={frames[fullscreenFrame]?.videoUrl}
+            controls={false}
+            autoPlay
+            loop
+            muted
+          />
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={closeFullscreen}
+            className="absolute top-4 right-4 z-50 text-white hover:bg-white/20 rounded-full"
+            aria-label="Close fullscreen"
+          >
+            <X className="w-6 h-6" />
+          </Button>
         </div>
       )}
 
