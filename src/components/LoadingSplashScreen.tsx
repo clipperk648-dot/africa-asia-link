@@ -52,10 +52,11 @@ const LoadingSplashScreen: React.FC<LoadingSplashScreenProps> = ({
   return (
     <div
       className={cn(
-        "fixed inset-0 z-[999] flex items-center justify-center overflow-hidden",
+        "fixed top-0 left-0 right-0 bottom-0 z-[999] flex items-center justify-center overflow-hidden",
         isVisible ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
         className
       )}
+      style={{ width: "100vw", height: "100vh" }}
     >
       <video
         ref={videoRef}
@@ -63,7 +64,8 @@ const LoadingSplashScreen: React.FC<LoadingSplashScreenProps> = ({
         muted
         playsInline
         preload="auto"
-        className="fixed inset-0 w-screen h-screen object-cover"
+        style={{ width: "100vw", height: "100vh" }}
+        className="absolute top-0 left-0 object-cover"
       >
         <source src={videoUrl} type="video/mp4" />
       </video>
