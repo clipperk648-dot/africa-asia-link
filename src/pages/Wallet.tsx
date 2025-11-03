@@ -41,10 +41,22 @@ const Wallet = () => {
   const location = useLocation();
 
   const [currency, setCurrency] = useState<Currency>("USD");
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const goBack = () => {
     const dest = user?.role === "industry" ? "/industry" : "/buyer";
     navigate(dest);
+  };
+
+  const handleRefresh = async () => {
+    if (isRefreshing || !user?.id) return;
+    setIsRefreshing(true);
+    try {
+      // Simulate refresh delay
+      await new Promise((resolve) => setTimeout(resolve, 800));
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   useEffect(() => {
