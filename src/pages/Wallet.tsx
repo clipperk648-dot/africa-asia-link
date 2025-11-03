@@ -134,16 +134,20 @@ const Wallet = () => {
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-base sm:text-lg font-bold flex items-center gap-2"><History className="w-4 h-4" /> Recent activity</h2>
-            <Button size="xs" variant="ghost">View more</Button>
+            {txs.length > 5 && <Button size="xs" variant="ghost">View all</Button>}
           </div>
-          <GlassCard className="p-0">
-            <div className="divide-y">
-              {txs.length === 0 ? (
-                <div className="p-6 text-center">
-                  <p className="text-sm text-muted-foreground">No transactions yet</p>
-                </div>
-              ) : (
-                txs.map((t: WalletTx) => {
+          {txs.length === 0 ? (
+            <GlassCard className="p-6 text-center">
+              <div className="space-y-2">
+                <History className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
+                <p className="text-sm text-muted-foreground">No transactions yet</p>
+                <p className="text-xs text-muted-foreground">Your transactions will appear here</p>
+              </div>
+            </GlassCard>
+          ) : (
+            <GlassCard className="p-0">
+              <div className="divide-y">
+                {txs.slice(0, 5).map((t: WalletTx) => {
                   const positive = t.type === "deposit";
                   return (
                     <div key={t.id} className="p-4 flex items-center justify-between">
@@ -161,10 +165,10 @@ const Wallet = () => {
                       </div>
                     </div>
                   );
-                })
-              )}
-            </div>
-          </GlassCard>
+                })}
+              </div>
+            </GlassCard>
+          )}
         </section>
       </main>
 
