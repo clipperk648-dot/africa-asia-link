@@ -17,10 +17,20 @@ const BuyerCollections = () => {
   const fullscreenVideoRef = useRef<HTMLVideoElement>(null);
 
   const frames = useMemo(() => [
-    { id: "collection_1", title: "Collection 1" },
-    { id: "collection_2", title: "Collection 2" },
-    { id: "collection_3", title: "Collection 3" },
-    { id: "collection_4", title: "Collection 4" },
+    {
+      id: "collection_1",
+      title: "Collection 1",
+      videoUrl: "https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2F0c96833d8ac746ba8f8470e123ec57ad?alt=media&token=8a70877c-77a0-4213-8746-6ef633920336&apiKey=7afe82ec80e94b858c506425dab51b31",
+      hasVideo: true,
+    },
+    {
+      id: "collection_2",
+      title: "Collection 2",
+      videoUrl: "https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2Fccdd0f1ff47e4a4b8ae298baaa00d7b7?alt=media&token=9e96055e-e92d-46c9-867e-6c60173a0368&apiKey=7afe82ec80e94b858c506425dab51b31",
+      hasVideo: true,
+    },
+    { id: "collection_3", title: "Collection 3", hasVideo: false },
+    { id: "collection_4", title: "Collection 4", hasVideo: false },
   ], []);
 
   const scrollRef = useRef<HTMLDivElement>(null);
