@@ -78,7 +78,16 @@ const Wallet = () => {
             <WalletIcon className="w-5 h-5 text-primary" />
             <h1 className="text-base sm:text-lg font-bold">Wallet</h1>
           </div>
-          <div className="text-xs text-muted-foreground">{APP_NAME}</div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            aria-label="Refresh balance"
+            className={isRefreshing ? "animate-spin" : ""}
+          >
+            <RotateCcw className="w-5 h-5" />
+          </Button>
         </div>
       </header>
 
