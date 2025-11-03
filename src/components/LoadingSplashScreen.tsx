@@ -63,10 +63,67 @@ const LoadingSplashScreen: React.FC<LoadingSplashScreenProps> = ({
         muted
         playsInline
         preload="auto"
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-contain bg-black"
       >
         <source src={videoUrl} type="video/mp4" />
       </video>
+
+      <style>{`
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
+        .loader-spinner {
+          animation: spin 2s linear infinite;
+        }
+      `}</style>
+
+      {/* Loading Overlay */}
+      <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+        <div className="text-center space-y-6">
+          {/* Round Rolling Loader */}
+          <div className="flex justify-center">
+            <div className="relative w-16 h-16">
+              <svg
+                className="loader-spinner"
+                viewBox="0 0 100 100"
+                width="64"
+                height="64"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <defs>
+                  <linearGradient id="spinGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#60a5fa" />
+                    <stop offset="50%" stopColor="#a78bfa" />
+                    <stop offset="100%" stopColor="#f472b6" />
+                  </linearGradient>
+                </defs>
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="42"
+                  fill="none"
+                  stroke="url(#spinGradient)"
+                  strokeWidth="6"
+                  strokeLinecap="round"
+                  strokeDasharray="40 100"
+                />
+              </svg>
+            </div>
+          </div>
+
+          {/* Loading Text */}
+          <div className="text-white">
+            <p className="text-lg font-semibold">{text}</p>
+            <p className="text-sm text-white/70 mt-2">Please wait...</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
