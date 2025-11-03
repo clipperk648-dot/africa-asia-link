@@ -116,17 +116,19 @@ const BuyerCollections = () => {
 
       <div ref={scrollRef} className="snap-y snap-mandatory h-screen overflow-y-scroll scrollbar-hide">
         {frames.map((f, idx) => {
-          const isFirstFrame = idx === 0;
+          const hasVideo = f.hasVideo;
+          const isFrame1 = idx === 0;
+          const isFrame2 = idx === 1;
           return (
             <div key={f.id} className="snap-start h-screen relative">
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 pt-20">
                 <div className="relative h-[70vh] max-h-[70vh] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl z-20 border border-black/10 bg-white">
-                  {isFirstFrame ? (
+                  {hasVideo ? (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-black relative">
                       <video
-                        ref={videoRef}
+                        ref={isFrame1 ? videoRef1 : isFrame2 ? videoRef2 : null}
                         className="w-full h-full object-cover"
-                        src="https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2F0c96833d8ac746ba8f8470e123ec57ad?alt=media&token=8a70877c-77a0-4213-8746-6ef633920336&apiKey=7afe82ec80e94b858c506425dab51b31"
+                        src={f.videoUrl}
                         controls={false}
                       />
                     </div>
@@ -140,25 +142,35 @@ const BuyerCollections = () => {
                   </div>
                 </div>
 
-                {isFirstFrame && (
-                  <div className="flex gap-4 items-center justify-center mt-4">
+                {hasVideo && (
+                  <div className="flex flex-col gap-4 items-center justify-center mt-4">
+                    <div className="flex gap-4">
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        onClick={() => skipVideoBackward(idx)}
+                        aria-label="Skip back 1.7 seconds"
+                        className="rounded-full"
+                      >
+                        <SkipBack className="w-5 h-5" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        onClick={() => skipVideoForward(idx)}
+                        aria-label="Skip forward 1.7 seconds"
+                        className="rounded-full"
+                      >
+                        <SkipForward className="w-5 h-5" />
+                      </Button>
+                    </div>
                     <Button
-                      size="icon"
-                      variant="secondary"
-                      onClick={skipVideoBackward}
-                      aria-label="Skip back 1.7 seconds"
-                      className="rounded-full"
+                      variant="gradient"
+                      onClick={() => playFullscreenVideo(idx)}
+                      className="gap-2"
                     >
-                      <SkipBack className="w-5 h-5" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="secondary"
-                      onClick={skipVideoForward}
-                      aria-label="Skip forward 1.7 seconds"
-                      className="rounded-full"
-                    >
-                      <SkipForward className="w-5 h-5" />
+                      <Maximize2 className="w-4 h-4" />
+                      Full Display
                     </Button>
                   </div>
                 )}
@@ -167,6 +179,30 @@ const BuyerCollections = () => {
           );
         })}
       </div>
+
+      {/* Fullscreen Video Overlay */}
+      {fullscreenFrame !== null && (
+        <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center">
+          <div className="w-full h-full flex flex-col items-center justify-center p-4">
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={closeFullscreen}
+              className="absolute top-4 right-4 text-white hover:bg-white/20"
+              aria-label="Close fullscreen"
+            >
+              <X className="w-6 h-6" />
+            </Button>
+            <video
+              ref={fullscreenVideoRef}
+              className="max-w-full max-h-full"
+              src={frames[fullscreenFrame]?.videoUrl}
+              controls={true}
+              autoPlay
+            />
+          </div>
+        </div>
+      )}
 
       {/* Floating navigation */}
       {!isLoading && (
