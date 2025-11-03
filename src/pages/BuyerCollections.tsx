@@ -3,7 +3,7 @@ import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ChevronUp, ChevronDown, SkipBack, SkipForward } from "lucide-react";
+import { ArrowLeft, ChevronUp, ChevronDown, SkipBack, SkipForward, Maximize2, X } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import LoadingSplashScreen from "@/components/LoadingSplashScreen";
 
@@ -11,7 +11,10 @@ const BuyerCollections = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [currentFrame, setCurrentFrame] = useState(0);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const [fullscreenFrame, setFullscreenFrame] = useState<number | null>(null);
+  const videoRef1 = useRef<HTMLVideoElement>(null);
+  const videoRef2 = useRef<HTMLVideoElement>(null);
+  const fullscreenVideoRef = useRef<HTMLVideoElement>(null);
 
   const frames = useMemo(() => [
     { id: "collection_1", title: "Collection 1" },
