@@ -63,7 +63,7 @@ const LoadingSplashScreen: React.FC<LoadingSplashScreenProps> = ({
         muted
         playsInline
         preload="auto"
-        className="absolute inset-0 w-full h-full object-contain bg-black"
+        className="fixed inset-0 w-screen h-screen object-cover"
       >
         <source src={videoUrl} type="video/mp4" />
       </video>
