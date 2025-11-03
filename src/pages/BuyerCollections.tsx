@@ -46,6 +46,21 @@ const BuyerCollections = () => {
     el.scrollTo({ top: prev * h, behavior: "smooth" });
   }, []);
 
+  const skipVideoBackward = useCallback(() => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 1);
+    }
+  }, []);
+
+  const skipVideoForward = useCallback(() => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = Math.min(
+        videoRef.current.duration,
+        videoRef.current.currentTime + 1
+      );
+    }
+  }, []);
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <LoadingSplashScreen
