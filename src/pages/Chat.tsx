@@ -6,12 +6,7 @@ import ThreeBackground from "@/components/ThreeBackground";
 import { ArrowLeft, Image as ImageIcon, Video as VideoIcon, Send } from "lucide-react";
 
 interface Msg { id: string; from: "me" | "them"; text?: string; mediaUrl?: string; time: string }
-
-const convList = [
-  { id: "1", name: "Sarah Johnson", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah", online: true },
-  { id: "2", name: "Michael Chen", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Michael", online: false },
-  { id: "3", name: "Emily Davis", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emily", online: true },
-];
+interface Conversation { id: string; name: string; avatar: string; online: boolean; }
 
 const storageKey = (id: string) => `chat:conv:${id}`;
 const loadMessages = (id: string): Msg[] => {
@@ -22,7 +17,12 @@ const saveMessages = (id: string, msgs: Msg[]) => localStorage.setItem(storageKe
 const Chat = () => {
   const { id = "1" } = useParams();
   const navigate = useNavigate();
-  const convo = useMemo(() => convList.find(c => c.id === id) || convList[0], [id]);
+  const convo: Conversation = useMemo(() => ({
+    id,
+    name: "Conversation Partner",
+    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${id}`,
+    online: true,
+  }), [id]);
   const [draft, setDraft] = useState("");
   const [msgs, setMsgs] = useState<Msg[]>(() => loadMessages(convo.id));
   const [file, setFile] = useState<File | null>(null);

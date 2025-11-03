@@ -8,36 +8,7 @@ import ThreeBackground from "@/components/ThreeBackground";
 const Messages = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-
-  const conversations = [
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
-      lastMessage: "That sounds great! Let's discuss...",
-      timestamp: "2m ago",
-      unread: 2,
-      online: true,
-    },
-    {
-      id: 2,
-      name: "Michael Chen",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Michael",
-      lastMessage: "Thanks for the update",
-      timestamp: "1h ago",
-      unread: 0,
-      online: false,
-    },
-    {
-      id: 3,
-      name: "Emily Davis",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emily",
-      lastMessage: "See you tomorrow!",
-      timestamp: "3h ago",
-      unread: 1,
-      online: true,
-    },
-  ];
+  const [conversations, setConversations] = useState<any[]>([]);
 
   return (
     <div className="min-h-screen pb-20 relative">

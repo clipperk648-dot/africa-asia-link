@@ -244,7 +244,6 @@ const BuyerDashboard = () => {
                     <Bell className="w-5 h-5" />
                   </Button>
                 </Link>
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-semibold rounded-full px-1.5 leading-none">2</span>
               </div>
 
               {/* Profile dropdown */}

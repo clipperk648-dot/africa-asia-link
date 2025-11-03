@@ -7,6 +7,7 @@ import { ArrowLeft, ChevronUp, ChevronDown } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import ThreeModelFrame from "@/components/ThreeModelFrame";
 import LoadingSplashScreen from "@/components/LoadingSplashScreen";
+import { getModelTextureConfig, getModelRepeat } from "@/utils/modelTextures";
 
 const IndustryCollections = () => {
   const navigate = useNavigate();
@@ -93,6 +94,8 @@ const IndustryCollections = () => {
                     <ThreeModelFrame
                       modelUrl={f.modelUrl}
                       backgroundUrl={(f as any).backgroundUrl}
+                      materialMaps={getModelTextureConfig(f.id)}
+                      repeat={getModelRepeat(f.id)}
                       className="w-full h-full"
                       heightClassName="h-full"
                     />

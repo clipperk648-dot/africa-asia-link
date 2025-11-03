@@ -14,36 +14,8 @@ const VideoFeed = () => {
   const [savedVideos, setSavedVideos] = useState<Set<number>>(new Set());
   const [activeVideoId, setActiveVideoId] = useState<number | null>(null);
   const [commentDraft, setCommentDraft] = useState("");
-  const [commentsByVideo, setCommentsByVideo] = useState<Record<number, { id: string; author: string; text: string; time: string }[]>>({
-    1: [
-      { id: "c1", author: "sarah_j", text: "So cool!", time: "1h" },
-      { id: "c2", author: "michael_c", text: "Love this demo", time: "40m" },
-    ],
-    2: [
-      { id: "c3", author: "emily_d", text: "Inspiring ✨", time: "2h" },
-    ],
-  });
-
-  const videos = [
-    {
-      id: 1,
-      username: "tech_innovator",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=tech",
-      thumbnail: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=700&fit=crop",
-      caption: "Amazing new technology showcase! 🚀",
-      likes: 12500,
-      comments: 234,
-    },
-    {
-      id: 2,
-      username: "creative_designer",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=creative",
-      thumbnail: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&h=700&fit=crop",
-      caption: "Design inspiration for your next project ✨",
-      likes: 8900,
-      comments: 156,
-    },
-  ];
+  const [videos, setVideos] = useState<any[]>([]);
+  const [commentsByVideo, setCommentsByVideo] = useState<Record<number, { id: string; author: string; text: string; time: string }[]>>({});
 
   const handleLike = (videoId: number) => {
     setLikedVideos((prev) => {

@@ -21,40 +21,7 @@ const BuyerNetwork = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
 
-  const [connections, setConnections] = useState<Connection[]>([
-    {
-      id: "1",
-      name: "Shanghai Heavy Industries",
-      role: "Manufacturer",
-      location: "Shanghai, China",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Shanghai",
-      connected: true,
-    },
-    {
-      id: "2",
-      name: "Shenzhen Tech Ltd",
-      role: "Electronics Supplier",
-      location: "Shenzhen, China",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Shenzhen",
-      connected: true,
-    },
-    {
-      id: "3",
-      name: "Guangzhou Fabrics",
-      role: "Textile Manufacturer",
-      location: "Guangzhou, China",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Guangzhou",
-      connected: false,
-    },
-    {
-      id: "4",
-      name: "Beijing Build Co",
-      role: "Construction Equipment",
-      location: "Beijing, China",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Beijing",
-      connected: false,
-    },
-  ]);
+  const [connections, setConnections] = useState<Connection[]>([]);
 
   useEffect(() => {
     if (!user || user.role !== "buyer") {
