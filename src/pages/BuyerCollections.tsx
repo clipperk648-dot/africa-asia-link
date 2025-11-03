@@ -85,17 +85,52 @@ const BuyerCollections = () => {
 
       <div ref={scrollRef} className="snap-y snap-mandatory h-screen overflow-y-scroll scrollbar-hide">
         {frames.map((f, idx) => {
+          const isFirstFrame = idx === 0;
           return (
             <div key={f.id} className="snap-start h-screen relative">
-              <div className="absolute inset-0 flex items-center justify-center">
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 pt-20">
                 <div className="relative h-[92vh] max-h-[92vh] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl z-20 border border-black/10 bg-white">
-                  <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center">
-                    <p className="text-gray-400 text-center px-6">{f.title}</p>
-                  </div>
+                  {isFirstFrame ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-black relative">
+                      <video
+                        ref={videoRef}
+                        className="w-full h-full object-cover"
+                        src="https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2F0c96833d8ac746ba8f8470e123ec57ad?alt=media&token=8a70877c-77a0-4213-8746-6ef633920336&apiKey=7afe82ec80e94b858c506425dab51b31"
+                        controls={false}
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center">
+                      <p className="text-gray-400 text-center px-6">{f.title}</p>
+                    </div>
+                  )}
                   <div className="absolute top-3 right-3 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-white text-xs">
                     Frame {idx + 1} / {frames.length}
                   </div>
                 </div>
+
+                {isFirstFrame && (
+                  <div className="flex gap-4 items-center justify-center mt-4">
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      onClick={skipVideoBackward}
+                      aria-label="Skip back 1 second"
+                      className="rounded-full"
+                    >
+                      <SkipBack className="w-5 h-5" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="secondary"
+                      onClick={skipVideoForward}
+                      aria-label="Skip forward 1 second"
+                      className="rounded-full"
+                    >
+                      <SkipForward className="w-5 h-5" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           );
