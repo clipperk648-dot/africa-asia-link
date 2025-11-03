@@ -358,7 +358,7 @@ const IndustryDashboard = () => {
               <Link to="/industry/collections">
                 <Button className="gap-2 shadow-lg text-base">
                   <Box className="w-5 h-5" />
-                  <span>Open Collections</span>
+                  <span>Browse Collections</span>
                 </Button>
               </Link>
             </div>

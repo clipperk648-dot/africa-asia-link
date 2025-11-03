@@ -4,10 +4,9 @@ import { getCurrentUser } from "@/utils/mockAuth";
 import { getBalance, getTransactions, type WalletTx } from "@/utils/wallet";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
-import { DollarSign, ArrowDownCircle, ArrowUpRight, History, Wallet as WalletIcon, X, ChevronDown, Grid2X2, Send, ArrowLeft, TrendingUp } from "lucide-react";
+import { DollarSign, ArrowDownCircle, ArrowUpRight, History, Wallet as WalletIcon, ChevronDown, Grid2X2, Send, ArrowLeft, RotateCcw } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import WalletBottomNav from "@/components/WalletBottomNav";
-import SlideshowBanner from "@/components/SlideshowBanner";
 import { APP_NAME } from "@/config/app";
 
 const currencies = ["USD", "NGN"] as const;
@@ -42,43 +41,23 @@ const Wallet = () => {
   const location = useLocation();
 
   const [currency, setCurrency] = useState<Currency>("USD");
-  const [showPromo, setShowPromo] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const goBack = () => {
     const dest = user?.role === "industry" ? "/industry" : "/buyer";
     navigate(dest);
   };
 
-  const promoSlides = [
-    {
-      image: "https://images.pexels.com/photos/6236114/pexels-photo-6236114.jpeg",
-      title: "You're almost there!",
-      subtitle: "Get up to $0.25 back on your first deposit transaction. Earn 2% weekly on your savings.",
-      ctaLabel: "Deposit",
-      ctaHref: "/wallet/deposit",
-    },
-    {
-      image: "https://images.pexels.com/photos/7621136/pexels-photo-7621136.jpeg",
-      title: "Deposit and earn",
-      subtitle: "Add funds securely and start earning weekly boosts on your balance.",
-      ctaLabel: "Deposit",
-      ctaHref: "/wallet/deposit",
-    },
-    {
-      image: "https://images.pexels.com/photos/1602726/pexels-photo-1602726.jpeg",
-      title: "Save more, earn more",
-      subtitle: "Grow your savings with steady weekly returns when you deposit.",
-      ctaLabel: "Deposit",
-      ctaHref: "/wallet/deposit",
-    },
-    {
-      image: "https://images.pexels.com/photos/2451622/pexels-photo-2451622.jpeg",
-      title: "Fast and secure",
-      subtitle: "Top up your wallet in seconds and enjoy instant rewards.",
-      ctaLabel: "Deposit",
-      ctaHref: "/wallet/deposit",
-    },
-  ];
+  const handleRefresh = async () => {
+    if (isRefreshing || !user?.id) return;
+    setIsRefreshing(true);
+    try {
+      // Simulate refresh delay
+      await new Promise((resolve) => setTimeout(resolve, 800));
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   useEffect(() => {
     if (!user) navigate("/login");
@@ -99,7 +78,16 @@ const Wallet = () => {
             <WalletIcon className="w-5 h-5 text-primary" />
             <h1 className="text-base sm:text-lg font-bold">Wallet</h1>
           </div>
-          <div className="text-xs text-muted-foreground">{APP_NAME}</div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            aria-label="Refresh balance"
+            className={isRefreshing ? "animate-spin" : ""}
+          >
+            <RotateCcw className="w-5 h-5" />
+          </Button>
         </div>
       </header>
 
@@ -142,63 +130,24 @@ const Wallet = () => {
           </div>
         </div>
 
-        {showPromo && (
-          <div className="relative overflow-hidden rounded-2xl bg-card text-foreground shadow">
-            <button aria-label="Close" className="absolute right-3 top-3 z-20 text-foreground/90 hover:opacity-80" onClick={() => setShowPromo(false)}>
-              <X className="w-4 h-4" />
-            </button>
-            <SlideshowBanner slides={promoSlides} heightClassName="h-36 sm:h-44" />
-          </div>
-        )}
 
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-base sm:text-lg font-bold flex items-center gap-2"><History className="w-4 h-4" /> Recent activity</h2>
-            <Button size="xs" variant="ghost">View more</Button>
+            {txs.length > 5 && <Button size="xs" variant="ghost">View all</Button>}
           </div>
-          <GlassCard className="p-0">
-            <div className="divide-y">
-              {txs.length === 0 ? (
-                <>
-                  <div className="p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-secondary/20">
-                        <TrendingUp className="w-5 h-5 text-secondary" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">E-wallet Boost</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">Yesterday</p>
-                      </div>
-                    </div>
-                    <div className="text-sm font-semibold text-green-600">+$0.01</div>
-                  </div>
-                  <div className="p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-secondary/20">
-                        <TrendingUp className="w-5 h-5 text-secondary" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">E-wallet Boost</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">2 days ago</p>
-                      </div>
-                    </div>
-                    <div className="text-sm font-semibold text-green-600">+$0.01</div>
-                  </div>
-                  <div className="p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-secondary/20">
-                        <TrendingUp className="w-5 h-5 text-secondary" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium">E-wallet Boost</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">3 days ago</p>
-                      </div>
-                    </div>
-                    <div className="text-sm font-semibold text-green-600">+$0.01</div>
-                  </div>
-                </>
-              ) : (
-                txs.map((t: WalletTx) => {
+          {txs.length === 0 ? (
+            <GlassCard className="p-6 text-center">
+              <div className="space-y-2">
+                <History className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
+                <p className="text-sm text-muted-foreground">No transactions yet</p>
+                <p className="text-xs text-muted-foreground">Your transactions will appear here</p>
+              </div>
+            </GlassCard>
+          ) : (
+            <GlassCard className="p-0">
+              <div className="divide-y">
+                {txs.slice(0, 5).map((t: WalletTx) => {
                   const positive = t.type === "deposit";
                   return (
                     <div key={t.id} className="p-4 flex items-center justify-between">
@@ -216,10 +165,10 @@ const Wallet = () => {
                       </div>
                     </div>
                   );
-                })
-              )}
-            </div>
-          </GlassCard>
+                })}
+              </div>
+            </GlassCard>
+          )}
         </section>
       </main>
 

@@ -9,7 +9,7 @@ const transactionsCache: Map<string, WalletTx[]> = new Map();
 export const getBalance = (userId: string | null | undefined, currency = "USD"): number => {
   if (!userId) return 0;
   const userCache = walletCache.get(userId) || new Map();
-  return userCache.get(currency) || 1250;
+  return userCache.get(currency) || 0;
 };
 
 export const getLiveBalance = async (userId: string, currency = "USD") => {
