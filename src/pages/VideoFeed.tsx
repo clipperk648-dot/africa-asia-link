@@ -80,7 +80,15 @@ const VideoFeed = () => {
 
       {/* Video Feed */}
       <div className="snap-y snap-mandatory h-screen overflow-y-scroll scrollbar-hide">
-        {videos.map((video) => (
+        {videos.length === 0 ? (
+          <div className="h-screen flex items-center justify-center">
+            <div className="text-center">
+              <p className="text-xl font-semibold text-white mb-2">No Videos</p>
+              <p className="text-sm text-white/60">No videos available to display</p>
+            </div>
+          </div>
+        ) : (
+          videos.map((video) => (
           <div key={video.id} className="snap-start h-screen relative">
             {/* Video Thumbnail/Player */}
             <div className="absolute inset-0 flex items-center justify-center">
@@ -180,7 +188,8 @@ const VideoFeed = () => {
               <p className="text-sm">{video.caption}</p>
             </div>
           </div>
-        ))}
+        ))
+        )}
       </div>
       <Sheet open={activeVideoId !== null} onOpenChange={(o) => (o ? null : closeComments())}>
         <SheetContent side="bottom" className="h-[70vh] p-0">
