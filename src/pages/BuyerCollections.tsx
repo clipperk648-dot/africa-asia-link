@@ -48,7 +48,7 @@ const BuyerCollections = () => {
 
   const skipVideoBackward = useCallback(() => {
     if (videoRef.current) {
-      videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 1);
+      videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 1.7);
     }
   }, []);
 
@@ -56,7 +56,7 @@ const BuyerCollections = () => {
     if (videoRef.current) {
       videoRef.current.currentTime = Math.min(
         videoRef.current.duration,
-        videoRef.current.currentTime + 1
+        videoRef.current.currentTime + 1.7
       );
     }
   }, []);
@@ -89,7 +89,7 @@ const BuyerCollections = () => {
           return (
             <div key={f.id} className="snap-start h-screen relative">
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 pt-20">
-                <div className="relative h-[92vh] max-h-[92vh] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl z-20 border border-black/10 bg-white">
+                <div className="relative h-[70vh] max-h-[70vh] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl z-20 border border-black/10 bg-white">
                   {isFirstFrame ? (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-black relative">
                       <video
@@ -115,7 +115,7 @@ const BuyerCollections = () => {
                       size="icon"
                       variant="secondary"
                       onClick={skipVideoBackward}
-                      aria-label="Skip back 1 second"
+                      aria-label="Skip back 1.7 seconds"
                       className="rounded-full"
                     >
                       <SkipBack className="w-5 h-5" />
@@ -124,7 +124,7 @@ const BuyerCollections = () => {
                       size="icon"
                       variant="secondary"
                       onClick={skipVideoForward}
-                      aria-label="Skip forward 1 second"
+                      aria-label="Skip forward 1.7 seconds"
                       className="rounded-full"
                     >
                       <SkipForward className="w-5 h-5" />
