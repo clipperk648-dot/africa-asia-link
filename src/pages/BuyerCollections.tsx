@@ -14,6 +14,7 @@ const BuyerCollections = () => {
   const [fullscreenFrame, setFullscreenFrame] = useState<number | null>(null);
   const videoRef1 = useRef<HTMLVideoElement>(null);
   const videoRef2 = useRef<HTMLVideoElement>(null);
+  const videoRef3 = useRef<HTMLVideoElement>(null);
   const fullscreenVideoRef = useRef<HTMLVideoElement>(null);
 
   const frames = useMemo(() => [
@@ -29,7 +30,12 @@ const BuyerCollections = () => {
       videoUrl: "https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2Fccdd0f1ff47e4a4b8ae298baaa00d7b7?alt=media&token=9e96055e-e92d-46c9-867e-6c60173a0368&apiKey=7afe82ec80e94b858c506425dab51b31",
       hasVideo: true,
     },
-    { id: "collection_3", title: "Collection 3", hasVideo: false },
+    {
+      id: "collection_3",
+      title: "Collection 3",
+      videoUrl: "https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2F5dd74dacbecf494da443c829c72a582a?alt=media&token=001f7917-e224-4ee3-a9ab-45a5f7e4206b&apiKey=7afe82ec80e94b858c506425dab51b31",
+      hasVideo: true,
+    },
     { id: "collection_4", title: "Collection 4", hasVideo: false },
   ], []);
 
@@ -59,30 +65,38 @@ const BuyerCollections = () => {
     el.scrollTo({ top: prev * h, behavior: "smooth" });
   }, []);
 
+  const getVideoRef = useCallback((frameIdx: number) => {
+    if (frameIdx === 0) return videoRef1.current;
+    if (frameIdx === 1) return videoRef2.current;
+    if (frameIdx === 2) return videoRef3.current;
+    return null;
+  }, []);
+
   const skipVideoBackward = useCallback((frameIdx: number) => {
-    const videoRef = frameIdx === 0 ? videoRef1.current : frameIdx === 1 ? videoRef2.current : null;
+    const videoRef = getVideoRef(frameIdx);
     if (videoRef) {
       videoRef.currentTime = Math.max(0, videoRef.currentTime - 1.7);
     }
-  }, []);
+  }, [getVideoRef]);
 
   const skipVideoForward = useCallback((frameIdx: number) => {
-    const videoRef = frameIdx === 0 ? videoRef1.current : frameIdx === 1 ? videoRef2.current : null;
+    const videoRef = getVideoRef(frameIdx);
     if (videoRef) {
       videoRef.currentTime = Math.min(
         videoRef.duration,
         videoRef.currentTime + 1.7
       );
     }
-  }, []);
+  }, [getVideoRef]);
 
   const playFullscreenVideo = useCallback((frameIdx: number) => {
-    const videoRef = frameIdx === 0 ? videoRef1.current : frameIdx === 1 ? videoRef2.current : null;
-    if (videoRef) {
-      videoRef.currentTime = 0;
-      videoRef.play();
-    }
     setFullscreenFrame(frameIdx);
+    setTimeout(() => {
+      if (fullscreenVideoRef.current) {
+        fullscreenVideoRef.current.currentTime = 0;
+        fullscreenVideoRef.current.play();
+      }
+    }, 0);
   }, []);
 
   const closeFullscreen = useCallback(() => {
@@ -119,6 +133,7 @@ const BuyerCollections = () => {
           const hasVideo = f.hasVideo;
           const isFrame1 = idx === 0;
           const isFrame2 = idx === 1;
+          const isFrame3 = idx === 2;
           return (
             <div key={f.id} className="snap-start h-screen relative">
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 pt-20">
@@ -126,10 +141,11 @@ const BuyerCollections = () => {
                   {hasVideo ? (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-black relative">
                       <video
-                        ref={isFrame1 ? videoRef1 : isFrame2 ? videoRef2 : null}
+                        ref={isFrame1 ? videoRef1 : isFrame2 ? videoRef2 : isFrame3 ? videoRef3 : null}
                         className="w-full h-full object-cover"
                         src={f.videoUrl}
                         controls={false}
+                        loop
                       />
                     </div>
                   ) : (
@@ -195,10 +211,12 @@ const BuyerCollections = () => {
             </Button>
             <video
               ref={fullscreenVideoRef}
-              className="max-w-full max-h-full"
+              className="w-screen h-screen object-cover"
               src={frames[fullscreenFrame]?.videoUrl}
-              controls={true}
+              controls={false}
               autoPlay
+              loop
+              muted
             />
           </div>
         </div>
