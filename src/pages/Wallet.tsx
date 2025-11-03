@@ -110,14 +110,6 @@ const Wallet = () => {
           </div>
         </div>
 
-        {showPromo && (
-          <div className="relative overflow-hidden rounded-2xl bg-card text-foreground shadow">
-            <button aria-label="Close" className="absolute right-3 top-3 z-20 text-foreground/90 hover:opacity-80" onClick={() => setShowPromo(false)}>
-              <X className="w-4 h-4" />
-            </button>
-            <SlideshowBanner slides={promoSlides} heightClassName="h-36 sm:h-44" />
-          </div>
-        )}
 
         <section className="space-y-3">
           <div className="flex items-center justify-between">
