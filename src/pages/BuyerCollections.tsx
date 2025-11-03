@@ -59,19 +59,37 @@ const BuyerCollections = () => {
     el.scrollTo({ top: prev * h, behavior: "smooth" });
   }, []);
 
-  const skipVideoBackward = useCallback(() => {
-    if (videoRef.current) {
-      videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime - 1.7);
+  const skipVideoBackward = useCallback((frameIdx: number) => {
+    const videoRef = frameIdx === 0 ? videoRef1.current : frameIdx === 1 ? videoRef2.current : null;
+    if (videoRef) {
+      videoRef.currentTime = Math.max(0, videoRef.currentTime - 1.7);
     }
   }, []);
 
-  const skipVideoForward = useCallback(() => {
-    if (videoRef.current) {
-      videoRef.current.currentTime = Math.min(
-        videoRef.current.duration,
-        videoRef.current.currentTime + 1.7
+  const skipVideoForward = useCallback((frameIdx: number) => {
+    const videoRef = frameIdx === 0 ? videoRef1.current : frameIdx === 1 ? videoRef2.current : null;
+    if (videoRef) {
+      videoRef.currentTime = Math.min(
+        videoRef.duration,
+        videoRef.currentTime + 1.7
       );
     }
+  }, []);
+
+  const playFullscreenVideo = useCallback((frameIdx: number) => {
+    const videoRef = frameIdx === 0 ? videoRef1.current : frameIdx === 1 ? videoRef2.current : null;
+    if (videoRef) {
+      videoRef.currentTime = 0;
+      videoRef.play();
+    }
+    setFullscreenFrame(frameIdx);
+  }, []);
+
+  const closeFullscreen = useCallback(() => {
+    if (fullscreenVideoRef.current) {
+      fullscreenVideoRef.current.pause();
+    }
+    setFullscreenFrame(null);
   }, []);
 
   return (
