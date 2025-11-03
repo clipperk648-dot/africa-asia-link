@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/utils/mockAuth";
 import { getBalance, getTransactions, type WalletTx } from "@/utils/wallet";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
-import { DollarSign, ArrowDownCircle, ArrowUpRight, History, Wallet as WalletIcon, ChevronDown, Grid2X2, Send, ArrowLeft } from "lucide-react";
+import { DollarSign, ArrowDownCircle, ArrowUpRight, History, Wallet as WalletIcon, ChevronDown, Grid2X2, Send, ArrowLeft, RotateCcw } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import WalletBottomNav from "@/components/WalletBottomNav";
 import { APP_NAME } from "@/config/app";
