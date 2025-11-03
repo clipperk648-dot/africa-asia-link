@@ -42,43 +42,11 @@ const Wallet = () => {
   const location = useLocation();
 
   const [currency, setCurrency] = useState<Currency>("USD");
-  const [showPromo, setShowPromo] = useState(true);
 
   const goBack = () => {
     const dest = user?.role === "industry" ? "/industry" : "/buyer";
     navigate(dest);
   };
-
-  const promoSlides = [
-    {
-      image: "https://images.pexels.com/photos/6236114/pexels-photo-6236114.jpeg",
-      title: "You're almost there!",
-      subtitle: "Get up to $0.25 back on your first deposit transaction. Earn 2% weekly on your savings.",
-      ctaLabel: "Deposit",
-      ctaHref: "/wallet/deposit",
-    },
-    {
-      image: "https://images.pexels.com/photos/7621136/pexels-photo-7621136.jpeg",
-      title: "Deposit and earn",
-      subtitle: "Add funds securely and start earning weekly boosts on your balance.",
-      ctaLabel: "Deposit",
-      ctaHref: "/wallet/deposit",
-    },
-    {
-      image: "https://images.pexels.com/photos/1602726/pexels-photo-1602726.jpeg",
-      title: "Save more, earn more",
-      subtitle: "Grow your savings with steady weekly returns when you deposit.",
-      ctaLabel: "Deposit",
-      ctaHref: "/wallet/deposit",
-    },
-    {
-      image: "https://images.pexels.com/photos/2451622/pexels-photo-2451622.jpeg",
-      title: "Fast and secure",
-      subtitle: "Top up your wallet in seconds and enjoy instant rewards.",
-      ctaLabel: "Deposit",
-      ctaHref: "/wallet/deposit",
-    },
-  ];
 
   useEffect(() => {
     if (!user) navigate("/login");
