@@ -3,20 +3,16 @@ import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
 import FooterNav from "@/components/FooterNav";
 import ThreeBackground from "@/components/ThreeBackground";
-import { Bell, Package, MessageSquare, AlertTriangle, ArrowLeft } from "lucide-react";
+import { Bell, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { getCurrentUser } from "@/utils/mockAuth";
 
 const Notifications = () => {
   const navigate = useNavigate();
+  const user = getCurrentUser();
+  const dashboardType = user?.role === "industry" ? "industry" : "buyer";
 
-  const notifications = useMemo(
-    () => [
-      { id: "1", title: "Order Shipped", desc: "Order #1024 has been shipped.", icon: Package, time: "2h", type: "info" },
-      { id: "2", title: "New Message", desc: "You have a new message from Shenzhen Tech.", icon: MessageSquare, time: "5h", type: "info" },
-      { id: "3", title: "Low Stock Alert", desc: "Industrial Drill stock below threshold.", icon: AlertTriangle, time: "1d", type: "warn" },
-    ],
-    [],
-  );
+  const notifications = useMemo(() => [], []);
 
   return (
     <div className="min-h-screen pb-24 relative">
