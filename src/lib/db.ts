@@ -21,27 +21,29 @@ async function apiCall<T>(endpoint: string, method: string = "GET", data?: any):
     }
 
     const response = await fetch(`${API_BASE}${endpoint}`, options);
-
     let responseData: any = null;
-    let responseText = "";
 
     try {
-      // Read response body directly (can only be read once)
-      responseText = await response.text();
+      // Try to clone the response first to avoid "body stream already read" errors
+      const clonedResponse = response.clone();
+      const contentType = clonedResponse.headers.get("content-type");
 
-      // Then try to parse as JSON if content looks like JSON
-      if (responseText) {
+      if (contentType && contentType.includes("application/json")) {
         try {
-          responseData = JSON.parse(responseText);
+          responseData = await clonedResponse.json();
         } catch {
-          responseData = { raw: responseText };
+          // If JSON parsing fails, try reading as text
+          const text = await clonedResponse.text();
+          responseData = text ? { raw: text } : {};
         }
       } else {
-        responseData = {};
+        // For non-JSON responses, read as text
+        const text = await clonedResponse.text();
+        responseData = text ? { raw: text } : {};
       }
     } catch (readError) {
       console.error(`Failed to read response from ${endpoint}:`, readError);
-      responseData = { error: "Failed to read response" };
+      responseData = { error: "Failed to read response", details: String(readError) };
     }
 
     if (!response.ok) {
