@@ -154,7 +154,7 @@ const BuyerCollections = () => {
                   {hasVideo ? (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-black relative">
                       <video
-                        ref={isFrame1 ? videoRef1 : isFrame2 ? videoRef2 : isFrame3 ? videoRef3 : null}
+                        ref={isFrame1 ? videoRef1 : isFrame2 ? videoRef2 : isFrame3 ? videoRef3 : isFrame4 ? videoRef4 : null}
                         className="w-full h-full object-cover"
                         src={f.videoUrl}
                         controls={false}
