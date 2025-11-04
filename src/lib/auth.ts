@@ -13,23 +13,38 @@ export interface AuthUser {
 
 // Determine API base URL based on environment
 // All deployments use Express server at /api/auth/*
-// This works for: local dev (localhost:3001), Fly.io production, and Builder.io preview
 const getAPIBaseURL = (): string => {
+  // Check for explicit environment variable
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
 
-  // Check if we're in development (Builder.io local dev)
+  // Check if we're in development (Builder.io local dev or local machine)
   if (import.meta.env.DEV) {
-    // Use Express server endpoints via localhost:3001
+    // Use Express server endpoints via localhost:3001 for local development
     return 'http://localhost:3001/api/auth';
   }
 
-  // Production (Fly.io or other): Use relative URLs to call Express on same domain
+  // Production: Use same-domain relative URLs (Fly.io, etc.)
+  // This assumes the Express server is running on the same domain
   return '/api/auth';
 };
 
 const API_BASE_URL = getAPIBaseURL();
+
+// Helper to check if backend is accessible
+const checkBackendAccess = async (): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_BASE_URL.replace('/auth', '')}/health`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return response.ok;
+  } catch (error) {
+    console.warn('Backend health check failed:', error);
+    return false;
+  }
+};
 
 /**
  * Register a new user via Express API
