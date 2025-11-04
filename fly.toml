@@ -6,9 +6,13 @@ primary_region = "lax"
 [build]
 builder = "paketobuildpacks"
 
-[build.buildpacks]
+[[build.buildpacks]]
 id = "heroku/nodejs-engine"
+
+[[build.buildpacks]]
 id = "heroku/nodejs-npm-build"
+
+[[build.buildpacks]]
 id = "heroku/nodejs-npm-start"
 
 [env]
