@@ -32,7 +32,7 @@ const getAPIBaseURL = (): string => {
 const API_BASE_URL = getAPIBaseURL();
 
 /**
- * Register a new user via API (Express in dev, Netlify Functions in prod)
+ * Register a new user via Express API
  */
 export const registerUser = async (
   email: string,
@@ -46,11 +46,7 @@ export const registerUser = async (
       return { success: false, error: "Missing required fields" };
     }
 
-    const endpoint = IS_DEVELOPMENT
-      ? `${API_BASE_URL}/register`
-      : `${API_BASE_URL}/register-user`;
-
-    const response = await fetch(endpoint, {
+    const response = await fetch(`${API_BASE_URL}/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -77,12 +73,12 @@ export const registerUser = async (
     };
   } catch (error) {
     console.error("Registration failed:", error);
-    return { success: false, error: String(error) || "Registration failed" };
+    return { success: false, error: String(error) || "Registration failed. Please check your connection." };
   }
 };
 
 /**
- * Login user with email and password via API (Express in dev, Netlify Functions in prod)
+ * Login user with email and password via Express API
  */
 export const loginUser = async (
   email: string,
@@ -94,11 +90,7 @@ export const loginUser = async (
       return { success: false, error: "Email and password required" };
     }
 
-    const endpoint = IS_DEVELOPMENT
-      ? `${API_BASE_URL}/login`
-      : `${API_BASE_URL}/login`;
-
-    const response = await fetch(endpoint, {
+    const response = await fetch(`${API_BASE_URL}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -125,12 +117,12 @@ export const loginUser = async (
     };
   } catch (error) {
     console.error("Login failed:", error);
-    return { success: false, error: String(error) || "Login failed. Please try again." };
+    return { success: false, error: String(error) || "Login failed. Please check your connection." };
   }
 };
 
 /**
- * Google OAuth authentication via API (Express in dev, Netlify Functions in prod)
+ * Google OAuth authentication via Express API
  */
 export const googleOAuthLogin = async (
   token: string,
@@ -141,11 +133,7 @@ export const googleOAuthLogin = async (
       return { success: false, error: "Token required" };
     }
 
-    const endpoint = IS_DEVELOPMENT
-      ? `${API_BASE_URL}/google`
-      : `${API_BASE_URL}/google-oauth`;
-
-    const response = await fetch(endpoint, {
+    const response = await fetch(`${API_BASE_URL}/google`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -173,20 +161,16 @@ export const googleOAuthLogin = async (
     };
   } catch (error) {
     console.error("Google OAuth login failed:", error);
-    return { success: false, error: String(error) || "Google authentication failed. Please try again." };
+    return { success: false, error: String(error) || "Google authentication failed. Please check your connection." };
   }
 };
 
 /**
- * Get current user from API by ID (Express in dev, Netlify Functions in prod)
+ * Get current user from Express API by ID
  */
 export const getCurrentUserData = async (userId: string): Promise<AuthUser | null> => {
   try {
-    const endpoint = IS_DEVELOPMENT
-      ? `${API_BASE_URL}/user/${userId}`
-      : `${API_BASE_URL}/get-auth-user?id=${userId}`;
-
-    const response = await fetch(endpoint, {
+    const response = await fetch(`${API_BASE_URL}/user/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
