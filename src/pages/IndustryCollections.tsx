@@ -106,6 +106,61 @@ const IndustryCollections = () => {
     el.scrollTo({ top: prev * h, behavior: "smooth" });
   }, []);
 
+  const getVideoRef = useCallback((frameIdx: number) => {
+    if (frameIdx === 0) return videoRef1.current;
+    if (frameIdx === 1) return videoRef2.current;
+    if (frameIdx === 2) return videoRef3.current;
+    if (frameIdx === 3) return videoRef4.current;
+    return null;
+  }, []);
+
+  const skipVideoBackward = useCallback((frameIdx: number) => {
+    const videoRef = getVideoRef(frameIdx);
+    if (videoRef) {
+      const newTime = videoRef.currentTime - 1.7;
+      if (newTime < 0) {
+        videoRef.currentTime = videoRef.duration + newTime;
+      } else {
+        videoRef.currentTime = newTime;
+      }
+    }
+  }, [getVideoRef]);
+
+  const skipVideoForward = useCallback((frameIdx: number) => {
+    const videoRef = getVideoRef(frameIdx);
+    if (videoRef) {
+      videoRef.currentTime = Math.min(
+        videoRef.duration,
+        videoRef.currentTime + 1.7
+      );
+    }
+  }, [getVideoRef]);
+
+  const playFullscreenVideo = useCallback((frameIdx: number) => {
+    setFullscreenFrame(frameIdx);
+    setTimeout(() => {
+      if (fullscreenVideoRef.current) {
+        fullscreenVideoRef.current.currentTime = 0;
+        fullscreenVideoRef.current.play();
+      }
+    }, 0);
+  }, []);
+
+  const closeFullscreen = useCallback(() => {
+    if (fullscreenVideoRef.current) {
+      fullscreenVideoRef.current.pause();
+    }
+    setFullscreenFrame(null);
+  }, []);
+
+  const handleFullDisplayMouseDown = useCallback((frameIdx: number) => {
+    playFullscreenVideo(frameIdx);
+  }, [playFullscreenVideo]);
+
+  const handleFullDisplayMouseUp = useCallback(() => {
+    closeFullscreen();
+  }, [closeFullscreen]);
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <LoadingSplashScreen
