@@ -66,6 +66,7 @@ export const registerUser = async (
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({ email, password, name, phone, role }),
     });
 
@@ -88,7 +89,10 @@ export const registerUser = async (
     };
   } catch (error) {
     console.error("Registration failed:", error);
-    return { success: false, error: String(error) || "Registration failed. Please check your connection." };
+    const errorMsg = error instanceof TypeError && error.message === "Failed to fetch"
+      ? "Unable to connect to authentication server. Please ensure you're using the correct preview environment."
+      : String(error) || "Registration failed. Please try again.";
+    return { success: false, error: errorMsg };
   }
 };
 
@@ -110,6 +114,7 @@ export const loginUser = async (
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({ email, password, role }),
     });
 
@@ -132,7 +137,10 @@ export const loginUser = async (
     };
   } catch (error) {
     console.error("Login failed:", error);
-    return { success: false, error: String(error) || "Login failed. Please check your connection." };
+    const errorMsg = error instanceof TypeError && error.message === "Failed to fetch"
+      ? "Unable to connect to authentication server. Please ensure you're using the correct preview environment."
+      : String(error) || "Login failed. Please try again.";
+    return { success: false, error: errorMsg };
   }
 };
 
@@ -153,6 +161,7 @@ export const googleOAuthLogin = async (
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({ token, role }),
     });
 
@@ -176,7 +185,10 @@ export const googleOAuthLogin = async (
     };
   } catch (error) {
     console.error("Google OAuth login failed:", error);
-    return { success: false, error: String(error) || "Google authentication failed. Please check your connection." };
+    const errorMsg = error instanceof TypeError && error.message === "Failed to fetch"
+      ? "Unable to connect to authentication server. Please ensure you're using the correct preview environment."
+      : String(error) || "Google authentication failed. Please try again.";
+    return { success: false, error: errorMsg };
   }
 };
 
