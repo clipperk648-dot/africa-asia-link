@@ -21,8 +21,8 @@ const getAPIBaseURL = (): string => {
 
   // Check if we're in development (Builder.io local dev or local machine)
   if (import.meta.env.DEV) {
-    // Use Express server endpoints via localhost:3001 for local development
-    return 'http://localhost:3001/api/auth';
+    // Use Express server endpoints via localhost:3002 for local development
+    return 'http://localhost:3002/api/auth';
   }
 
   // Production: Use same-domain relative URLs (Fly.io, etc.)
