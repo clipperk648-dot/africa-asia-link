@@ -206,6 +206,20 @@ const IndustryCollections = () => {
     closeFullscreen();
   }, [closeFullscreen]);
 
+  useEffect(() => {
+    // Global touch end handler to close fullscreen on any touch end
+    const handleGlobalTouchEnd = () => {
+      if (fullscreenFrame !== null) {
+        closeFullscreen();
+      }
+    };
+
+    window.addEventListener("touchend", handleGlobalTouchEnd);
+    return () => {
+      window.removeEventListener("touchend", handleGlobalTouchEnd);
+    };
+  }, [fullscreenFrame, closeFullscreen]);
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <style>{fullDisplayButtonStyles}</style>
