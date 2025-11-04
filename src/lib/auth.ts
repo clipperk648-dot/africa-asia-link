@@ -104,8 +104,7 @@ export const loginUser = async (
 };
 
 /**
- * Google OAuth authentication using Netlify Function
- * Falls back to demo mode if Netlify functions aren't available
+ * Google OAuth authentication via backend API
  */
 export const googleOAuthLogin = async (
   token: string,
@@ -116,7 +115,7 @@ export const googleOAuthLogin = async (
       return { success: false, error: "Token required" };
     }
 
-    const response = await fetch("/.netlify/functions/google-auth", {
+    const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -143,43 +142,8 @@ export const googleOAuthLogin = async (
       token: data.token,
     };
   } catch (error) {
-    console.warn("Netlify function unavailable, using demo mode:", error);
-    // Development/Demo fallback - create user from token info
-    try {
-      // Try to decode Google token payload (basic decoding, not cryptographic verification)
-      const parts = token.split(".");
-      if (parts.length === 3) {
-        const payload = JSON.parse(atob(parts[1]));
-        return {
-          success: true,
-          user: {
-            id: payload.sub || Math.random().toString(36).substr(2, 9),
-            email: payload.email || "",
-            name: payload.name || payload.email?.split("@")[0] || "Google User",
-            phone: "",
-            role,
-            oauthProvider: "google",
-          },
-          token: "demo-token",
-        };
-      }
-    } catch (decodeError) {
-      console.warn("Failed to decode token:", decodeError);
-    }
-
-    // Final fallback
-    return {
-      success: true,
-      user: {
-        id: Math.random().toString(36).substr(2, 9),
-        email: "",
-        name: "Google User",
-        phone: "",
-        role,
-        oauthProvider: "google",
-      },
-      token: "demo-token",
-    };
+    console.error("Google OAuth login failed:", error);
+    return { success: false, error: String(error) || "Google authentication failed. Please ensure backend server is running." };
   }
 };
 
