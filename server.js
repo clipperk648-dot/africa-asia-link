@@ -3,15 +3,25 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 const app = express();
 const PORT = process.env.PORT || 3001;
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from dist in production
+if (NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'dist')));
+}
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI;
