@@ -10,7 +10,9 @@
 [functions]
   node_bundler = "esbuild"
   directory = "netlify/functions"
-  external_node_modules = ["postgres"]
+  # External node modules that should not be bundled
+  # These need to be installed separately or pre-compiled
+  external_node_modules = ["mongoose"]
 
 [[redirects]]
   from = "/api/auth/*"
