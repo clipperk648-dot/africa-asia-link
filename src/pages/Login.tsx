@@ -114,6 +114,38 @@ const Login = () => {
     }
   };
 
+  const handleGoogleSignIn = () => {
+    if (!selectedRole) {
+      toast({
+        title: "Role Required",
+        description: "Please select whether you're a seller or buyer",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Generate a mock Google user
+    const googleUser = {
+      id: Math.random().toString(36).substr(2, 9),
+      email: `user_${Math.random().toString(36).substr(2, 9)}@gmail.com`,
+      role: selectedRole,
+      name: "Google User",
+    };
+
+    saveSession(googleUser);
+
+    toast({
+      title: "Welcome!",
+      description: `Signed in with Google. (Demo Mode)`,
+    });
+
+    if (selectedRole === "industry") {
+      navigate("/industry");
+    } else {
+      navigate("/buyer");
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       <ThreeBackground />
