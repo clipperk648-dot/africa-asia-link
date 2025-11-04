@@ -289,10 +289,9 @@ const IndustryCollections = () => {
                       <Button
                         size="lg"
                         variant="secondary"
-                        onClick={goPrevFrame}
-                        aria-label="Previous frame"
+                        onClick={() => skipVideoBackward(idx)}
+                        aria-label="Skip back 2 seconds"
                         className="rounded-full w-14 h-14"
-                        disabled={currentFrame === 0}
                       >
                         <ChevronLeft className="w-6 h-6" />
                       </Button>
@@ -304,7 +303,7 @@ const IndustryCollections = () => {
                         onTouchStart={handleTouchStart}
                         onTouchEnd={handleTouchEnd}
                         data-frame-idx={idx}
-                        className="gap-2 full-display-button px-6 py-3"
+                        className="gap-2 full-display-button px-6 py-3 select-none"
                       >
                         <Maximize2 className="w-5 h-5" />
                         Full Display
@@ -312,10 +311,9 @@ const IndustryCollections = () => {
                       <Button
                         size="lg"
                         variant="secondary"
-                        onClick={goNextFrame}
-                        aria-label="Next frame"
+                        onClick={() => skipVideoForward(idx)}
+                        aria-label="Skip forward 2 seconds"
                         className="rounded-full w-14 h-14"
-                        disabled={currentFrame >= frames.length - 1}
                       >
                         <ChevronRight className="w-6 h-6" />
                       </Button>
