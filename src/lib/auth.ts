@@ -11,7 +11,13 @@ export interface AuthUser {
   oauthProvider?: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+// In production (Fly.io), use relative URLs to call the same server
+// In development, use localhost:3001 or VITE_API_URL env var
+const API_BASE_URL = import.meta.env.VITE_API_URL || (
+  typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+    ? '' // Use relative URLs in production (same domain)
+    : 'http://localhost:3001' // Use absolute URL in development
+);
 
 /**
  * Register a new user via backend API
@@ -148,26 +154,35 @@ export const googleOAuthLogin = async (
 };
 
 /**
- * Get current user from database by ID
+ * Get current user from backend API by ID
  */
 export const getCurrentUserData = async (userId: string): Promise<AuthUser | null> => {
   try {
-    if (!isDatabaseConfigured()) {
+    const response = await fetch(`${API_BASE_URL}/api/auth/user/${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      console.error("Failed to fetch user:", response.statusText);
       return null;
     }
 
-    const user = await getUserById(userId);
-    if (!user) {
+    const data = await response.json();
+
+    if (!data.user) {
       return null;
     }
 
     return {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      phone: user.phone,
-      role: user.role,
-      createdAt: user.created_at,
+      id: data.user.id,
+      email: data.user.email,
+      name: data.user.name,
+      phone: data.user.phone,
+      role: data.user.role,
+      createdAt: data.user.created_at,
     };
   } catch (error) {
     console.error("Failed to fetch user:", error);

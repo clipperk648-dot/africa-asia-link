@@ -13,13 +13,8 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
     proxy: {
-      "/.netlify/functions": {
-        target: "http://localhost:8888",
-        changeOrigin: true,
-      },
       "/api": {
-        target: "http://localhost:8888/.netlify/functions",
-        rewrite: (path) => path.replace(/^\/api/, ""),
+        target: "http://localhost:3001",
         changeOrigin: true,
       },
     },

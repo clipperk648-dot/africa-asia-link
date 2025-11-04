@@ -3,15 +3,25 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 const app = express();
 const PORT = process.env.PORT || 3001;
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from dist in production
+if (NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'dist')));
+}
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -320,15 +330,25 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ error: 'Endpoint not found' });
-});
+// In production, serve index.html for non-API routes (React Router fallback)
+if (NODE_ENV === 'production') {
+  app.use((req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  });
+} else {
+  // In development, return 404 for non-API routes
+  app.use((req, res) => {
+    res.status(404).json({ error: 'Endpoint not found' });
+  });
+}
 
 // Start server
 app.listen(PORT, () => {
   console.log(`\n🚀 Backend server running on http://localhost:${PORT}`);
   console.log(`📡 API endpoints available at http://localhost:${PORT}/api`);
+  if (NODE_ENV === 'production') {
+    console.log(`📄 Serving frontend from ${PORT}`);
+  }
   console.log(`\nEndpoints:`);
   console.log(`  POST /api/auth/register - Register new user`);
   console.log(`  POST /api/auth/login - Login with email/password`);
