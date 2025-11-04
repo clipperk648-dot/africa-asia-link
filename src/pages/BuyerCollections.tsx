@@ -268,7 +268,7 @@ const BuyerCollections = () => {
       {!isLoading && <ThreeBackground />}
 
       {!isLoading && (
-        <header className="absolute top-0 left-0 right-0 z-40 bg-card/80 backdrop-blur-md">
+        <header className="absolute top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-md">
           <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
             <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="w-5 h-5" />
@@ -278,7 +278,7 @@ const BuyerCollections = () => {
         </header>
       )}
 
-      <div ref={scrollRef} className="snap-y snap-mandatory h-screen overflow-y-scroll scrollbar-hide">
+      <div ref={scrollRef} className="snap-y snap-mandatory h-screen overflow-y-scroll scrollbar-hide relative z-20">
         {frames.map((f, idx) => {
           const hasVideo = f.hasVideo;
           const isFrame1 = idx === 0;
