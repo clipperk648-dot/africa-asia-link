@@ -57,24 +57,14 @@ const Login = () => {
     setErrors({});
 
     try {
-      // For existing users with mock auth, try login
-      const result = await loginUser(email.trim(), password);
+      const loginResult = await loginUser(email.trim(), password, selectedRole);
 
-      if (result.success && result.user) {
-        // Verify role matches
-        if (result.user.role !== selectedRole) {
-          setErrors({
-            form: `This account is registered as a ${result.user.role}. Please select the correct role or use a different account.`,
-          });
-          setIsLoading(false);
-          return;
-        }
-
-        saveSession(result.user);
+      if (loginResult.success && loginResult.user) {
+        saveSession(loginResult.user);
 
         toast({
           title: "Login Successful",
-          description: `Welcome back, ${result.user.name}!`,
+          description: `Welcome back, ${loginResult.user.name}!`,
         });
 
         if (selectedRole === "industry") {
@@ -83,26 +73,9 @@ const Login = () => {
           navigate("/buyer");
         }
       } else {
-        // If login fails with real auth, fall back to registration
-        const user = {
-          id: Math.random().toString(36).substr(2, 9),
-          email: email.trim(),
-          role: selectedRole,
-          name: name.trim(),
-        };
-
-        saveSession(user);
-
-        toast({
-          title: "Welcome!",
-          description: `Logged in as ${user.name}. (Demo Mode)`,
+        setErrors({
+          form: loginResult.error || "Login failed. Please try again.",
         });
-
-        if (selectedRole === "industry") {
-          navigate("/industry");
-        } else {
-          navigate("/buyer");
-        }
       }
     } catch (error) {
       setErrors({
@@ -114,7 +87,7 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
     if (!selectedRole) {
       toast({
         title: "Role Required",
@@ -124,27 +97,82 @@ const Login = () => {
       return;
     }
 
-    // Generate a mock Google user
-    const googleUser = {
-      id: Math.random().toString(36).substr(2, 9),
-      email: `user_${Math.random().toString(36).substr(2, 9)}@gmail.com`,
-      role: selectedRole,
-      name: "Google User",
-    };
+    setIsLoading(true);
 
-    saveSession(googleUser);
+    try {
+      // Initialize Google Sign-In
+      if (typeof window !== 'undefined' && (window as any).google) {
+        const google = (window as any).google;
+        google.accounts.id.initialize({
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+          callback: async (response: any) => {
+            try {
+              const oauthResult = await googleOAuthLogin(response.credential, selectedRole);
 
-    toast({
-      title: "Welcome!",
-      description: `Signed in with Google. (Demo Mode)`,
-    });
+              if (oauthResult.success && oauthResult.user) {
+                saveSession(oauthResult.user);
 
-    if (selectedRole === "industry") {
-      navigate("/industry");
-    } else {
-      navigate("/buyer");
+                toast({
+                  title: "Welcome!",
+                  description: `Signed in with Google as ${oauthResult.user.name}`,
+                });
+
+                if (selectedRole === "industry") {
+                  navigate("/industry");
+                } else {
+                  navigate("/buyer");
+                }
+              } else {
+                setErrors({
+                  form: oauthResult.error || "Google authentication failed",
+                });
+              }
+            } catch (err) {
+              console.error("OAuth error:", err);
+              setErrors({
+                form: "Google authentication failed",
+              });
+            } finally {
+              setIsLoading(false);
+            }
+          },
+        });
+
+        google.accounts.id.renderButton(
+          document.getElementById('google-signin-button'),
+          { theme: 'outline', size: 'large', width: '100%' }
+        );
+
+        google.accounts.id.prompt();
+      } else {
+        // Fallback if Google API is not loaded
+        console.warn('Google Sign-In SDK not loaded');
+        setErrors({
+          form: "Google Sign-In is not available. Please try again.",
+        });
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error("Google sign in error:", error);
+      setErrors({
+        form: "Google authentication failed",
+      });
+      setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    // Load Google Sign-In SDK
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
