@@ -82,7 +82,12 @@ const BuyerCollections = () => {
   const skipVideoBackward = useCallback((frameIdx: number) => {
     const videoRef = getVideoRef(frameIdx);
     if (videoRef) {
-      videoRef.currentTime = Math.max(0, videoRef.currentTime - 1.7);
+      const newTime = videoRef.currentTime - 1.7;
+      if (newTime < 0) {
+        videoRef.currentTime = videoRef.duration + newTime;
+      } else {
+        videoRef.currentTime = newTime;
+      }
     }
   }, [getVideoRef]);
 
