@@ -3,7 +3,7 @@ import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ChevronUp, ChevronDown, SkipBack, SkipForward, Maximize2, X } from "lucide-react";
+import { ArrowLeft, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import LoadingSplashScreen from "@/components/LoadingSplashScreen";
 
