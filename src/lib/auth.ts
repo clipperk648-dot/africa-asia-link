@@ -1,4 +1,4 @@
-// Authentication utilities - Netlify Functions backend
+// Authentication utilities - Works with both Express (dev) and Netlify Functions (prod)
 
 export interface AuthUser {
   id: string;
@@ -11,13 +11,29 @@ export interface AuthUser {
   oauthProvider?: string;
 }
 
-// Netlify functions endpoint
-// In production, functions are available at /.netlify/functions/
-// In development with local server, use localhost:3001 for Express or /.netlify/functions/ for Netlify
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/.netlify/functions';
+// Determine API base URL based on environment
+// Dev: Use Express server at /api/auth/* (via localhost:3001)
+// Prod (Netlify): Use /.netlify/functions/* endpoints
+const getAPIBaseURL = (): string => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+
+  // Check if we're in development
+  if (import.meta.env.DEV) {
+    // Use Express server endpoints in development
+    return 'http://localhost:3001/api/auth';
+  }
+
+  // Production: Use Netlify Functions
+  return '/.netlify/functions';
+};
+
+const API_BASE_URL = getAPIBaseURL();
+const IS_DEVELOPMENT = import.meta.env.DEV;
 
 /**
- * Register a new user via Netlify function
+ * Register a new user via API (Express in dev, Netlify Functions in prod)
  */
 export const registerUser = async (
   email: string,
@@ -31,7 +47,11 @@ export const registerUser = async (
       return { success: false, error: "Missing required fields" };
     }
 
-    const response = await fetch(`${API_BASE_URL}/register-user`, {
+    const endpoint = IS_DEVELOPMENT
+      ? `${API_BASE_URL}/register`
+      : `${API_BASE_URL}/register-user`;
+
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -63,7 +83,7 @@ export const registerUser = async (
 };
 
 /**
- * Login user with email and password via Netlify function
+ * Login user with email and password via API (Express in dev, Netlify Functions in prod)
  */
 export const loginUser = async (
   email: string,
@@ -75,7 +95,11 @@ export const loginUser = async (
       return { success: false, error: "Email and password required" };
     }
 
-    const response = await fetch(`${API_BASE_URL}/login`, {
+    const endpoint = IS_DEVELOPMENT
+      ? `${API_BASE_URL}/login`
+      : `${API_BASE_URL}/login`;
+
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -107,7 +131,7 @@ export const loginUser = async (
 };
 
 /**
- * Google OAuth authentication via Netlify function
+ * Google OAuth authentication via API (Express in dev, Netlify Functions in prod)
  */
 export const googleOAuthLogin = async (
   token: string,
@@ -118,7 +142,11 @@ export const googleOAuthLogin = async (
       return { success: false, error: "Token required" };
     }
 
-    const response = await fetch(`${API_BASE_URL}/google-oauth`, {
+    const endpoint = IS_DEVELOPMENT
+      ? `${API_BASE_URL}/google`
+      : `${API_BASE_URL}/google-oauth`;
+
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -151,11 +179,15 @@ export const googleOAuthLogin = async (
 };
 
 /**
- * Get current user from Netlify function by ID
+ * Get current user from API by ID (Express in dev, Netlify Functions in prod)
  */
 export const getCurrentUserData = async (userId: string): Promise<AuthUser | null> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/get-auth-user?id=${userId}`, {
+    const endpoint = IS_DEVELOPMENT
+      ? `${API_BASE_URL}/user/${userId}`
+      : `${API_BASE_URL}/get-auth-user?id=${userId}`;
+
+    const response = await fetch(endpoint, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
