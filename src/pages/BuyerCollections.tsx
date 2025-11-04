@@ -238,8 +238,15 @@ const BuyerCollections = () => {
                     </div>
                     <Button
                       variant="gradient"
-                      onClick={() => playFullscreenVideo(idx)}
-                      className="gap-2"
+                      onMouseDown={() => handleFullDisplayMouseDown(idx)}
+                      onMouseUp={handleFullDisplayMouseUp}
+                      onMouseLeave={handleFullDisplayMouseUp}
+                      onTouchStart={(e) => {
+                        e.preventDefault();
+                        handleFullDisplayMouseDown(idx);
+                      }}
+                      onTouchEnd={handleFullDisplayMouseUp}
+                      className="gap-2 full-display-button"
                     >
                       <Maximize2 className="w-4 h-4" />
                       Full Display
