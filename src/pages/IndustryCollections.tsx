@@ -240,6 +240,24 @@ const IndustryCollections = () => {
   return (
     <div className="min-h-screen relative overflow-hidden">
       <style>{fullDisplayButtonStyles}</style>
+
+      {/* Background Video */}
+      <video
+        className="absolute inset-0 w-full h-full object-cover"
+        autoPlay
+        muted
+        loop
+        playsInline
+      >
+        <source
+          src="https://cdn.builder.io/o/assets%2Fc706eebe18b442a3aa75b1244fbbcf66%2F1aaeb9f83cf44d02b2bcd9d5ecf85454?alt=media&token=603a98f3-0dff-4e9a-a40d-2b060c925d1d&apiKey=c706eebe18b442a3aa75b1244fbbcf66"
+          type="video/mp4"
+        />
+      </video>
+
+      {/* Dark overlay for better visibility */}
+      <div className="absolute inset-0 bg-black/40 z-10" />
+
       <LoadingSplashScreen
         videoUrl="https://cdn.builder.io/o/assets%2Fb6198669f4754d65b52a472eb983bf6a%2F6ab81d8bc2104d80a11be4eec42e7669?alt=media&token=25351e25-3755-4cc3-938c-769f0c5526f3&apiKey=b6198669f4754d65b52a472eb983bf6a"
         text="Loading collection"
