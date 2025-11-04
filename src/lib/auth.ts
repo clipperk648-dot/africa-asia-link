@@ -60,8 +60,7 @@ export const registerUser = async (
 };
 
 /**
- * Login user with email and password using Netlify Function
- * Falls back to demo mode if Netlify functions aren't available
+ * Login user with email and password via backend API
  */
 export const loginUser = async (
   email: string,
@@ -73,7 +72,7 @@ export const loginUser = async (
       return { success: false, error: "Email and password required" };
     }
 
-    const response = await fetch("/.netlify/functions/login-user", {
+    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -99,19 +98,8 @@ export const loginUser = async (
       token: data.token,
     };
   } catch (error) {
-    console.warn("Netlify function unavailable, using demo mode:", error);
-    // Development/Demo fallback
-    return {
-      success: true,
-      user: {
-        id: Math.random().toString(36).substr(2, 9),
-        email: email.toLowerCase(),
-        name: email.split("@")[0],
-        phone: "",
-        role,
-      },
-      token: "demo-token",
-    };
+    console.error("Login failed:", error);
+    return { success: false, error: String(error) || "Login failed. Please ensure backend server is running." };
   }
 };
 
