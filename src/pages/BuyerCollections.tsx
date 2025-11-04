@@ -15,6 +15,7 @@ const BuyerCollections = () => {
   const videoRef1 = useRef<HTMLVideoElement>(null);
   const videoRef2 = useRef<HTMLVideoElement>(null);
   const videoRef3 = useRef<HTMLVideoElement>(null);
+  const videoRef4 = useRef<HTMLVideoElement>(null);
   const fullscreenVideoRef = useRef<HTMLVideoElement>(null);
 
   const frames = useMemo(() => [
