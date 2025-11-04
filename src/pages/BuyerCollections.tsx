@@ -146,6 +146,7 @@ const BuyerCollections = () => {
           const isFrame1 = idx === 0;
           const isFrame2 = idx === 1;
           const isFrame3 = idx === 2;
+          const isFrame4 = idx === 3;
           return (
             <div key={f.id} className="snap-start h-screen relative">
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 pt-20">
