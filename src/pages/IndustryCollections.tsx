@@ -186,22 +186,103 @@ const IndustryCollections = () => {
 
       <div ref={scrollRef} className="snap-y snap-mandatory h-screen overflow-y-scroll scrollbar-hide">
         {frames.map((f, idx) => {
+          const hasVideo = f.hasVideo;
+          const isFrame1 = idx === 0;
+          const isFrame2 = idx === 1;
+          const isFrame3 = idx === 2;
+          const isFrame4 = idx === 3;
           return (
             <div key={f.id} className="snap-start h-screen relative">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="relative h-[92vh] max-h-[92vh] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl z-20 border border-black/10 bg-white">
-                  <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center">
-                    <p className="text-gray-400 text-center px-6">{f.title}</p>
-                  </div>
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 pt-20">
+                <div className="relative h-[70vh] max-h-[70vh] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl z-20 border border-black/10 bg-white">
+                  {hasVideo ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-black relative">
+                      <video
+                        ref={isFrame1 ? videoRef1 : isFrame2 ? videoRef2 : isFrame3 ? videoRef3 : isFrame4 ? videoRef4 : null}
+                        className="w-full h-full object-cover"
+                        src={f.videoUrl}
+                        controls={false}
+                        loop
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center">
+                      <p className="text-gray-400 text-center px-6">{f.title}</p>
+                    </div>
+                  )}
                   <div className="absolute top-3 right-3 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full text-white text-xs">
                     Frame {idx + 1} / {frames.length}
                   </div>
                 </div>
+
+                {hasVideo && (
+                  <div className="flex flex-col gap-4 items-center justify-center mt-4">
+                    <div className="flex gap-4">
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        onClick={() => skipVideoBackward(idx)}
+                        aria-label="Skip back 1.7 seconds"
+                        className="rounded-full"
+                      >
+                        <SkipBack className="w-5 h-5" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        onClick={() => skipVideoForward(idx)}
+                        aria-label="Skip forward 1.7 seconds"
+                        className="rounded-full"
+                      >
+                        <SkipForward className="w-5 h-5" />
+                      </Button>
+                    </div>
+                    <Button
+                      variant="gradient"
+                      onMouseDown={() => handleFullDisplayMouseDown(idx)}
+                      onMouseUp={handleFullDisplayMouseUp}
+                      onMouseLeave={handleFullDisplayMouseUp}
+                      onTouchStart={(e) => {
+                        e.preventDefault();
+                        handleFullDisplayMouseDown(idx);
+                      }}
+                      onTouchEnd={handleFullDisplayMouseUp}
+                      className="gap-2 full-display-button"
+                    >
+                      <Maximize2 className="w-4 h-4" />
+                      Full Display
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           );
         })}
       </div>
+
+      {/* Fullscreen Video Overlay */}
+      {fullscreenFrame !== null && (
+        <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center">
+          <video
+            ref={fullscreenVideoRef}
+            className="absolute inset-0 w-full h-full object-cover"
+            src={frames[fullscreenFrame]?.videoUrl}
+            controls={false}
+            autoPlay
+            loop
+            muted
+          />
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={closeFullscreen}
+            className="absolute top-4 right-4 z-50 text-white hover:bg-white/20 rounded-full"
+            aria-label="Close fullscreen"
+          >
+            <X className="w-6 h-6" />
+          </Button>
+        </div>
+      )}
 
       {/* Floating navigation */}
       {!isLoading && (
