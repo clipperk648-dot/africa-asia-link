@@ -1,50 +1,13 @@
-# fly.toml - DEPRECATED - Application has been migrated to Netlify
-# This configuration is no longer used.
-# To deploy the application, use Netlify instead.
-# See netlify.toml for current deployment configuration.
+# ⚠️  DEPRECATED - This file is no longer used
+# This application now uses Netlify for deployment
+# See netlify.toml for current deployment configuration
 
-# Original Fly.io configuration (kept for reference):
-#
-# app = "echina"
-# primary_region = "lax"
-#
-# [build]
-# dockerfile = "Dockerfile"
-#
-# [env]
-# NODE_ENV = "production"
-#
-# [deploy]
-# strategy = "bluegreen"
-# wait_timeout = "300s"
-#
-# [[services]]
-# protocol = "tcp"
-# internal_port = 3001
-# processes = ["app"]
-#
-#   [services.concurrency]
-#   type = "requests"
-#   hard_limit = 1000
-#   soft_limit = 800
-#
-#   [[services.ports]]
-#   number = 80
-#   protocol = "tcp"
-#   handlers = ["http"]
-#
-#   [[services.ports]]
-#   number = 443
-#   protocol = "tcp"
-#   handlers = ["tls", "http"]
-#
-# [http_service]
-# internal_port = 3001
-# force_https = true
-# auto_stop_machines = true
-# auto_start_machines = true
-# min_machines_running = 1
-#
-# [[vm]]
-# memory = "512mb"
-# cpus = 1
+# The application uses:
+# - Netlify for hosting the frontend and serverless functions
+# - MongoDB Atlas for the database
+# - Netlify Functions (/.netlify/functions/*) for the backend API
+
+# To deploy:
+# 1. Push to your Git repository
+# 2. Netlify automatically deploys via Git integration
+# 3. Set MONGODB_URI environment variable in Netlify dashboard
