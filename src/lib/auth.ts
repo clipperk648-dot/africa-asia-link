@@ -11,7 +11,13 @@ export interface AuthUser {
   oauthProvider?: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+// In production (Fly.io), use relative URLs to call the same server
+// In development, use localhost:3001 or VITE_API_URL env var
+const API_BASE_URL = import.meta.env.VITE_API_URL || (
+  typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+    ? '' // Use relative URLs in production (same domain)
+    : 'http://localhost:3001' // Use absolute URL in development
+);
 
 /**
  * Register a new user via backend API
