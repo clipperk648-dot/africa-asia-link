@@ -146,27 +146,25 @@ const BuyerCollections = () => {
     return null;
   }, []);
 
-  const skipVideoBackward = useCallback((frameIdx: number) => {
-    const videoRef = getVideoRef(frameIdx);
-    if (videoRef) {
-      const newTime = videoRef.currentTime - 1.7;
-      if (newTime < 0) {
-        videoRef.currentTime = videoRef.duration + newTime;
-      } else {
-        videoRef.currentTime = newTime;
-      }
-    }
-  }, [getVideoRef]);
+  const goNextFrame = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const h = el.clientHeight;
+    const curr = Math.round(el.scrollTop / h);
+    const next = Math.min(frames.length - 1, curr + 1);
+    setCurrentFrame(next);
+    el.scrollTo({ top: next * h, behavior: "smooth" });
+  }, [frames.length]);
 
-  const skipVideoForward = useCallback((frameIdx: number) => {
-    const videoRef = getVideoRef(frameIdx);
-    if (videoRef) {
-      videoRef.currentTime = Math.min(
-        videoRef.duration,
-        videoRef.currentTime + 1.7
-      );
-    }
-  }, [getVideoRef]);
+  const goPrevFrame = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const h = el.clientHeight;
+    const curr = Math.round(el.scrollTop / h);
+    const prev = Math.max(0, curr - 1);
+    setCurrentFrame(prev);
+    el.scrollTo({ top: prev * h, behavior: "smooth" });
+  }, []);
 
   const playFullscreenVideo = useCallback((frameIdx: number) => {
     setFullscreenFrame(frameIdx);
