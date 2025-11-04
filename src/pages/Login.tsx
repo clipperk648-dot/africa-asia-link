@@ -103,8 +103,18 @@ const Login = () => {
       // Initialize Google Sign-In
       if (typeof window !== 'undefined' && (window as any).google) {
         const google = (window as any).google;
+        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+        if (!clientId) {
+          setErrors({
+            form: "Google Sign-In is not configured. Please use traditional login.",
+          });
+          setIsLoading(false);
+          return;
+        }
+
         google.accounts.id.initialize({
-          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+          client_id: clientId,
           callback: async (response: any) => {
             try {
               const oauthResult = await googleOAuthLogin(response.credential, selectedRole);
@@ -147,8 +157,10 @@ const Login = () => {
       } else {
         // Fallback if Google API is not loaded
         console.warn('Google Sign-In SDK not loaded');
-        setErrors({
-          form: "Google Sign-In is not available. Please try again.",
+        toast({
+          title: "Google Sign-In Unavailable",
+          description: "Please use traditional login or try again later.",
+          variant: "destructive",
         });
         setIsLoading(false);
       }
@@ -163,14 +175,28 @@ const Login = () => {
 
   useEffect(() => {
     // Load Google Sign-In SDK
+    if (document.getElementById('google-gsi-client')) {
+      return; // Already loaded
+    }
+
     const script = document.createElement('script');
+    script.id = 'google-gsi-client';
     script.src = 'https://accounts.google.com/gsi/client';
     script.async = true;
     script.defer = true;
+    script.onload = () => {
+      console.log('Google Sign-In SDK loaded');
+    };
+    script.onerror = () => {
+      console.error('Failed to load Google Sign-In SDK');
+    };
     document.head.appendChild(script);
 
     return () => {
-      document.head.removeChild(script);
+      const existingScript = document.getElementById('google-gsi-client');
+      if (existingScript) {
+        document.head.removeChild(existingScript);
+      }
     };
   }, []);
 
