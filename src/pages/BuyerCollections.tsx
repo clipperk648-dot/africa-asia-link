@@ -75,6 +75,7 @@ const BuyerCollections = () => {
     if (frameIdx === 0) return videoRef1.current;
     if (frameIdx === 1) return videoRef2.current;
     if (frameIdx === 2) return videoRef3.current;
+    if (frameIdx === 3) return videoRef4.current;
     return null;
   }, []);
 
