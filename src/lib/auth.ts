@@ -1,4 +1,4 @@
-// Authentication utilities - MongoDB with Express backend
+// Authentication utilities - Netlify Functions backend
 
 export interface AuthUser {
   id: string;
@@ -11,16 +11,13 @@ export interface AuthUser {
   oauthProvider?: string;
 }
 
-// In production (Fly.io), use relative URLs to call the same server
-// In development, use localhost:3001 or VITE_API_URL env var
-const API_BASE_URL = import.meta.env.VITE_API_URL || (
-  typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-    ? '' // Use relative URLs in production (same domain)
-    : 'http://localhost:3001' // Use absolute URL in development
-);
+// Netlify functions endpoint
+// In production, functions are available at /.netlify/functions/
+// In development with local server, use localhost:3001 for Express or /.netlify/functions/ for Netlify
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/.netlify/functions';
 
 /**
- * Register a new user via backend API
+ * Register a new user via Netlify function
  */
 export const registerUser = async (
   email: string,
@@ -34,7 +31,7 @@ export const registerUser = async (
       return { success: false, error: "Missing required fields" };
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+    const response = await fetch(`${API_BASE_URL}/register-user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -66,7 +63,7 @@ export const registerUser = async (
 };
 
 /**
- * Login user with email and password via backend API
+ * Login user with email and password via Netlify function
  */
 export const loginUser = async (
   email: string,
@@ -78,7 +75,7 @@ export const loginUser = async (
       return { success: false, error: "Email and password required" };
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+    const response = await fetch(`${API_BASE_URL}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -105,12 +102,12 @@ export const loginUser = async (
     };
   } catch (error) {
     console.error("Login failed:", error);
-    return { success: false, error: String(error) || "Login failed. Please ensure backend server is running." };
+    return { success: false, error: String(error) || "Login failed. Please try again." };
   }
 };
 
 /**
- * Google OAuth authentication via backend API
+ * Google OAuth authentication via Netlify function
  */
 export const googleOAuthLogin = async (
   token: string,
@@ -121,7 +118,7 @@ export const googleOAuthLogin = async (
       return { success: false, error: "Token required" };
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
+    const response = await fetch(`${API_BASE_URL}/google-oauth`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -149,16 +146,16 @@ export const googleOAuthLogin = async (
     };
   } catch (error) {
     console.error("Google OAuth login failed:", error);
-    return { success: false, error: String(error) || "Google authentication failed. Please ensure backend server is running." };
+    return { success: false, error: String(error) || "Google authentication failed. Please try again." };
   }
 };
 
 /**
- * Get current user from backend API by ID
+ * Get current user from Netlify function by ID
  */
 export const getCurrentUserData = async (userId: string): Promise<AuthUser | null> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/auth/user/${userId}`, {
+    const response = await fetch(`${API_BASE_URL}/get-auth-user?id=${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
