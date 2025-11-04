@@ -295,12 +295,9 @@ const BuyerCollections = () => {
                         onMouseDown={() => handleFullDisplayMouseDown(idx)}
                         onMouseUp={handleFullDisplayMouseUp}
                         onMouseLeave={handleFullDisplayMouseUp}
-                        onTouchStart={(e) => {
-                          e.preventDefault();
-                          handleFullDisplayMouseDown(idx);
-                        }}
-                        onTouchEnd={handleFullDisplayMouseUp}
-                        onTouchMove={handleTouchMove}
+                        onTouchStart={handleTouchStart}
+                        onTouchEnd={handleTouchEnd}
+                        data-frame-idx={idx}
                         className="gap-2 full-display-button px-6 py-3"
                       >
                         <Maximize2 className="w-5 h-5" />
