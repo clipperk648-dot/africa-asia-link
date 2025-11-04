@@ -35,10 +35,17 @@ const fullDisplayButtonStyles = `
   .full-display-button {
     animation: pulse-glow 2s infinite;
     transition: all 0.2s ease-in-out;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    user-select: none;
   }
 
   .full-display-button:active {
     animation: scalePress 0.3s ease-in-out, pulse-glow 2s infinite;
+  }
+
+  .full-display-button * {
+    pointer-events: none;
   }
 `;
 
@@ -156,6 +163,8 @@ const BuyerCollections = () => {
       } else {
         videoRef.currentTime = newTime;
       }
+      // Ensure video continues playing
+      videoRef.play().catch(() => {});
     }
   }, [getVideoRef]);
 
@@ -169,6 +178,8 @@ const BuyerCollections = () => {
       } else {
         videoRef.currentTime = newTime;
       }
+      // Ensure video continues playing
+      videoRef.play().catch(() => {});
     }
   }, [getVideoRef]);
 
@@ -267,7 +278,10 @@ const BuyerCollections = () => {
                         className="w-full h-full object-cover pointer-events-none"
                         src={f.videoUrl}
                         controls={false}
+                        autoPlay
                         loop
+                        muted
+                        playsInline
                         preload="metadata"
                         onContextMenu={handleVideoContextMenu}
                         disablePictureInPicture
@@ -303,7 +317,7 @@ const BuyerCollections = () => {
                         onTouchStart={handleTouchStart}
                         onTouchEnd={handleTouchEnd}
                         data-frame-idx={idx}
-                        className="gap-2 full-display-button px-6 py-3 select-none"
+                        className="gap-2 full-display-button px-6 py-3"
                       >
                         <Maximize2 className="w-5 h-5" />
                         Full Display
