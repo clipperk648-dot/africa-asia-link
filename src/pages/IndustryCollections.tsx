@@ -258,42 +258,45 @@ const IndustryCollections = () => {
                 </div>
 
                 {hasVideo && (
-                  <div className="flex flex-col gap-4 items-center justify-center mt-4">
-                    <div className="flex gap-4">
+                  <div className="flex flex-col gap-6 items-center justify-center mt-6">
+                    <div className="flex gap-8 items-center">
                       <Button
-                        size="icon"
+                        size="lg"
                         variant="secondary"
-                        onClick={() => skipVideoBackward(idx)}
-                        aria-label="Skip back 1.7 seconds"
-                        className="rounded-full"
+                        onClick={goPrevFrame}
+                        aria-label="Previous frame"
+                        className="rounded-full w-14 h-14"
+                        disabled={currentFrame === 0}
                       >
-                        <SkipBack className="w-5 h-5" />
+                        <ChevronLeft className="w-6 h-6" />
                       </Button>
                       <Button
-                        size="icon"
-                        variant="secondary"
-                        onClick={() => skipVideoForward(idx)}
-                        aria-label="Skip forward 1.7 seconds"
-                        className="rounded-full"
+                        variant="gradient"
+                        onMouseDown={() => handleFullDisplayMouseDown(idx)}
+                        onMouseUp={handleFullDisplayMouseUp}
+                        onMouseLeave={handleFullDisplayMouseUp}
+                        onTouchStart={(e) => {
+                          e.preventDefault();
+                          handleFullDisplayMouseDown(idx);
+                        }}
+                        onTouchEnd={handleFullDisplayMouseUp}
+                        onTouchMove={handleTouchMove}
+                        className="gap-2 full-display-button px-6 py-3"
                       >
-                        <SkipForward className="w-5 h-5" />
+                        <Maximize2 className="w-5 h-5" />
+                        Full Display
+                      </Button>
+                      <Button
+                        size="lg"
+                        variant="secondary"
+                        onClick={goNextFrame}
+                        aria-label="Next frame"
+                        className="rounded-full w-14 h-14"
+                        disabled={currentFrame >= frames.length - 1}
+                      >
+                        <ChevronRight className="w-6 h-6" />
                       </Button>
                     </div>
-                    <Button
-                      variant="gradient"
-                      onMouseDown={() => handleFullDisplayMouseDown(idx)}
-                      onMouseUp={handleFullDisplayMouseUp}
-                      onMouseLeave={handleFullDisplayMouseUp}
-                      onTouchStart={(e) => {
-                        e.preventDefault();
-                        handleFullDisplayMouseDown(idx);
-                      }}
-                      onTouchEnd={handleFullDisplayMouseUp}
-                      className="gap-2 full-display-button"
-                    >
-                      <Maximize2 className="w-4 h-4" />
-                      Full Display
-                    </Button>
                   </div>
                 )}
               </div>
