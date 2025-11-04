@@ -146,25 +146,31 @@ const BuyerCollections = () => {
     return null;
   }, []);
 
-  const goNextFrame = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const h = el.clientHeight;
-    const curr = Math.round(el.scrollTop / h);
-    const next = Math.min(frames.length - 1, curr + 1);
-    setCurrentFrame(next);
-    el.scrollTo({ top: next * h, behavior: "smooth" });
-  }, [frames.length]);
+  const skipVideoBackward = useCallback((frameIdx: number) => {
+    const videoRef = getVideoRef(frameIdx);
+    if (videoRef && videoRef.duration) {
+      const newTime = videoRef.currentTime - 2;
+      if (newTime < 0) {
+        // Loop to near the end
+        videoRef.currentTime = Math.max(0, videoRef.duration + newTime);
+      } else {
+        videoRef.currentTime = newTime;
+      }
+    }
+  }, [getVideoRef]);
 
-  const goPrevFrame = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const h = el.clientHeight;
-    const curr = Math.round(el.scrollTop / h);
-    const prev = Math.max(0, curr - 1);
-    setCurrentFrame(prev);
-    el.scrollTo({ top: prev * h, behavior: "smooth" });
-  }, []);
+  const skipVideoForward = useCallback((frameIdx: number) => {
+    const videoRef = getVideoRef(frameIdx);
+    if (videoRef && videoRef.duration) {
+      const newTime = videoRef.currentTime + 2;
+      if (newTime > videoRef.duration) {
+        // Loop to start
+        videoRef.currentTime = newTime - videoRef.duration;
+      } else {
+        videoRef.currentTime = newTime;
+      }
+    }
+  }, [getVideoRef]);
 
   const playFullscreenVideo = useCallback((frameIdx: number) => {
     setFullscreenFrame(frameIdx);
