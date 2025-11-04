@@ -5,6 +5,20 @@ import crypto from 'crypto';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
+
+// Force load .env file and override any existing environment variables
+const envPath = '.env';
+if (fs.existsSync(envPath)) {
+  const envContent = fs.readFileSync(envPath, 'utf-8');
+  const envVars = dotenv.parse(envContent);
+  Object.keys(envVars).forEach(key => {
+    process.env[key] = envVars[key];
+  });
+  console.log('✓ Environment variables loaded from .env file');
+} else {
+  console.warn('⚠ .env file not found, using existing environment variables');
+}
 
 dotenv.config();
 

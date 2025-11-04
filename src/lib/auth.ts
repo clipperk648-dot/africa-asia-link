@@ -12,21 +12,22 @@ export interface AuthUser {
 }
 
 // Determine API base URL based on environment
-// All deployments use Express server at /api/auth/*
+// Development: Express backend at localhost:3001
+// Production: Netlify Functions at /.netlify/functions/auth-*
 const getAPIBaseURL = (): string => {
-  // Check for explicit environment variable
+  // Check for explicit environment variable (for custom backends)
   if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
+    const baseUrl = import.meta.env.VITE_API_URL;
+    return baseUrl.endsWith('/api/auth') ? baseUrl : `${baseUrl}/api/auth`;
   }
 
-  // Check if we're in development (Builder.io local dev or local machine)
+  // Development: Use Express server backend
   if (import.meta.env.DEV) {
-    // Use Express server endpoints via localhost:3002 for local development
-    return 'http://localhost:3002/api/auth';
+    return 'http://localhost:3001/api/auth';
   }
 
-  // Production: Use same-domain relative URLs (Fly.io, etc.)
-  // This assumes the Express server is running on the same domain
+  // Production: Use Netlify Functions (always use relative path for same-domain routing)
+  // Netlify.toml redirects /api/auth/* to /.netlify/functions/auth-*
   return '/api/auth';
 };
 

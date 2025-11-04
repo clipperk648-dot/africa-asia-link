@@ -10,7 +10,9 @@
 [functions]
   node_bundler = "esbuild"
   directory = "netlify/functions"
-  external_node_modules = ["postgres"]
+  # External node modules that should not be bundled
+  # These need to be installed separately or pre-compiled
+  external_node_modules = ["mongoose"]
 
 [[redirects]]
   from = "/api/auth/*"
@@ -70,7 +72,14 @@
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
 
 # Environment Variables (set these in Netlify Dashboard)
-# DATABASE_URL - PostgreSQL connection string
+# REQUIRED:
+# MONGODB_URI - MongoDB connection string
+#   Format: mongodb+srv://username:password@cluster.mongodb.net/dbname
+#   Get from: MongoDB Atlas > Database > Connect > Drivers
+#   Example: mongodb+srv://user:pass@echina.mongodb.net/echina?appName=Echina
+
+# OPTIONAL:
 # VITE_STRIPE_PUBLIC_KEY - Stripe public key for payments
 # SENDGRID_API_KEY - SendGrid API key for emails
-# VITE_ENABLE_ANALYTICS - Enable analytics tracking
+# VITE_ENABLE_ANALYTICS - Enable analytics tracking (true/false)
+# VITE_GOOGLE_CLIENT_ID - Google OAuth client ID for authentication
