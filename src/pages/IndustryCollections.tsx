@@ -195,12 +195,16 @@ const IndustryCollections = () => {
     e.preventDefault();
   }, []);
 
-  const handleTouchMove = useCallback((e: React.TouchEvent<HTMLButtonElement>) => {
-    // If touch moves away from button, close fullscreen immediately
-    if (fullscreenFrame !== null && e.touches.length === 0) {
-      closeFullscreen();
-    }
-  }, [fullscreenFrame, closeFullscreen]);
+  const handleTouchStart = useCallback((e: React.TouchEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const frameIdx = parseInt(e.currentTarget.getAttribute("data-frame-idx") || "0");
+    playFullscreenVideo(frameIdx);
+  }, [playFullscreenVideo]);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    closeFullscreen();
+  }, [closeFullscreen]);
 
   return (
     <div className="min-h-screen relative overflow-hidden">
