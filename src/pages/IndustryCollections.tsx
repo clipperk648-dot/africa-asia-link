@@ -240,11 +240,13 @@ const IndustryCollections = () => {
                     <div className="w-full h-full flex flex-col items-center justify-center bg-black relative">
                       <video
                         ref={isFrame1 ? videoRef1 : isFrame2 ? videoRef2 : isFrame3 ? videoRef3 : isFrame4 ? videoRef4 : idx === 4 ? videoRef5 : idx === 5 ? videoRef6 : idx === 6 ? videoRef7 : idx === 7 ? videoRef8 : null}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover pointer-events-none"
                         src={f.videoUrl}
                         controls={false}
                         loop
+                        preload="metadata"
                         onContextMenu={handleVideoContextMenu}
+                        disablePictureInPicture
                       />
                     </div>
                   ) : (
