@@ -66,41 +66,90 @@ export const registerUser = async (
 };
 
 /**
- * Login user with email and password
+ * Login user with email and password using Netlify Function
  */
 export const loginUser = async (
   email: string,
-  password: string
-): Promise<{ success: boolean; user?: AuthUser; error?: string }> => {
+  password: string,
+  role: "industry" | "buyer"
+): Promise<{ success: boolean; user?: AuthUser; error?: string; token?: string }> => {
   try {
     if (!email || !password) {
       return { success: false, error: "Email and password required" };
     }
 
-    const user = await getUserByEmail(email);
-    if (!user) {
-      return { success: false, error: "Invalid credentials" };
-    }
+    const response = await fetch("/.netlify/functions/login-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password, role }),
+    });
 
-    const passwordValid = verifyPassword(password, user.password_hash);
-    if (!passwordValid) {
-      return { success: false, error: "Invalid credentials" };
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { success: false, error: data.error || "Login failed" };
     }
 
     return {
       success: true,
       user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        phone: user.phone,
-        role: user.role,
-        createdAt: user.created_at,
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name,
+        phone: data.user.phone,
+        role: data.user.role,
       },
+      token: data.token,
     };
   } catch (error) {
     console.error("Login failed:", error);
     return { success: false, error: String(error) || "Login failed. Please ensure database is connected." };
+  }
+};
+
+/**
+ * Google OAuth authentication using Netlify Function
+ */
+export const googleOAuthLogin = async (
+  token: string,
+  role: "industry" | "buyer"
+): Promise<{ success: boolean; user?: AuthUser; error?: string; token?: string }> => {
+  try {
+    if (!token) {
+      return { success: false, error: "Token required" };
+    }
+
+    const response = await fetch("/.netlify/functions/google-auth", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ token, role }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { success: false, error: data.error || "Google authentication failed" };
+    }
+
+    return {
+      success: true,
+      user: {
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name,
+        phone: data.user.phone,
+        role: data.user.role,
+        oauthProvider: "google",
+      },
+      token: data.token,
+    };
+  } catch (error) {
+    console.error("Google OAuth login failed:", error);
+    return { success: false, error: String(error) || "Google authentication failed" };
   }
 };
 
