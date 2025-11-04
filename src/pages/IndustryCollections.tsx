@@ -195,6 +195,13 @@ const IndustryCollections = () => {
     e.preventDefault();
   }, []);
 
+  const handleTouchMove = useCallback((e: React.TouchEvent<HTMLButtonElement>) => {
+    // If touch moves away from button, close fullscreen immediately
+    if (fullscreenFrame !== null && e.touches.length === 0) {
+      closeFullscreen();
+    }
+  }, [fullscreenFrame, closeFullscreen]);
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <style>{fullDisplayButtonStyles}</style>
