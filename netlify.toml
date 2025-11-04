@@ -13,23 +13,8 @@
   external_node_modules = ["postgres"]
 
 [[redirects]]
-  from = "/api/auth/register"
-  to = "/.netlify/functions/auth-register"
-  status = 200
-
-[[redirects]]
-  from = "/api/auth/login"
-  to = "/.netlify/functions/auth-login"
-  status = 200
-
-[[redirects]]
-  from = "/api/auth/google"
-  to = "/.netlify/functions/auth-google"
-  status = 200
-
-[[redirects]]
-  from = "/api/auth/user/:id"
-  to = "/.netlify/functions/auth-user?id=:id"
+  from = "/api/auth/*"
+  to = "/.netlify/functions/auth-:splat"
   status = 200
 
 [[redirects]]
