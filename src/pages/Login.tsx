@@ -7,7 +7,7 @@ import GlassCard from "@/components/GlassCard";
 import ThreeBackground from "@/components/ThreeBackground";
 import { loginUser, saveSession } from "@/lib/auth";
 import { toast } from "@/hooks/use-toast";
-import { ArrowRight, Building2, ShoppingBag, Eye, EyeOff, Loader2 } from "lucide-react";
+import { ArrowRight, Building2, ShoppingBag, Eye, EyeOff, Loader2, Chrome } from "lucide-react";
 import { z } from "zod";
 import "../styles/auth.css";
 
