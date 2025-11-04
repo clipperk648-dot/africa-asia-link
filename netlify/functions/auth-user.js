@@ -7,7 +7,22 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { id, email } = event.queryStringParameters || {};
+    let id = null;
+    let email = null;
+
+    // Try to get from query parameters first
+    if (event.queryStringParameters) {
+      id = event.queryStringParameters.id;
+      email = event.queryStringParameters.email;
+    }
+
+    // If not in query params, try to extract from path
+    if (!id && !email && event.path) {
+      const pathMatch = event.path.match(/\/user\/([^/?]+)/);
+      if (pathMatch && pathMatch[1]) {
+        id = pathMatch[1];
+      }
+    }
 
     if (!id && !email) {
       return createErrorResponse(400, 'Either id or email is required');
