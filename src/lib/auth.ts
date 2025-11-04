@@ -1,4 +1,4 @@
-// Authentication utilities - MongoDB with Express backend
+// Authentication utilities - Works with Express backend (current) and Netlify Functions (future)
 
 export interface AuthUser {
   id: string;
@@ -11,16 +11,43 @@ export interface AuthUser {
   oauthProvider?: string;
 }
 
-// In production (Fly.io), use relative URLs to call the same server
-// In development, use localhost:3001 or VITE_API_URL env var
-const API_BASE_URL = import.meta.env.VITE_API_URL || (
-  typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-    ? '' // Use relative URLs in production (same domain)
-    : 'http://localhost:3001' // Use absolute URL in development
-);
+// Determine API base URL based on environment
+// All deployments use Express server at /api/auth/*
+const getAPIBaseURL = (): string => {
+  // Check for explicit environment variable
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+
+  // Check if we're in development (Builder.io local dev or local machine)
+  if (import.meta.env.DEV) {
+    // Use Express server endpoints via localhost:3001 for local development
+    return 'http://localhost:3001/api/auth';
+  }
+
+  // Production: Use same-domain relative URLs (Fly.io, etc.)
+  // This assumes the Express server is running on the same domain
+  return '/api/auth';
+};
+
+const API_BASE_URL = getAPIBaseURL();
+
+// Helper to check if backend is accessible
+const checkBackendAccess = async (): Promise<boolean> => {
+  try {
+    const response = await fetch(`${API_BASE_URL.replace('/auth', '')}/health`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return response.ok;
+  } catch (error) {
+    console.warn('Backend health check failed:', error);
+    return false;
+  }
+};
 
 /**
- * Register a new user via backend API
+ * Register a new user via Express API
  */
 export const registerUser = async (
   email: string,
@@ -34,11 +61,12 @@ export const registerUser = async (
       return { success: false, error: "Missing required fields" };
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+    const response = await fetch(`${API_BASE_URL}/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({ email, password, name, phone, role }),
     });
 
@@ -61,12 +89,15 @@ export const registerUser = async (
     };
   } catch (error) {
     console.error("Registration failed:", error);
-    return { success: false, error: String(error) || "Registration failed" };
+    const errorMsg = error instanceof TypeError && error.message === "Failed to fetch"
+      ? "Unable to connect to authentication server. Please ensure you're using the correct preview environment."
+      : String(error) || "Registration failed. Please try again.";
+    return { success: false, error: errorMsg };
   }
 };
 
 /**
- * Login user with email and password via backend API
+ * Login user with email and password via Express API
  */
 export const loginUser = async (
   email: string,
@@ -78,11 +109,12 @@ export const loginUser = async (
       return { success: false, error: "Email and password required" };
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+    const response = await fetch(`${API_BASE_URL}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({ email, password, role }),
     });
 
@@ -105,12 +137,15 @@ export const loginUser = async (
     };
   } catch (error) {
     console.error("Login failed:", error);
-    return { success: false, error: String(error) || "Login failed. Please ensure backend server is running." };
+    const errorMsg = error instanceof TypeError && error.message === "Failed to fetch"
+      ? "Unable to connect to authentication server. Please ensure you're using the correct preview environment."
+      : String(error) || "Login failed. Please try again.";
+    return { success: false, error: errorMsg };
   }
 };
 
 /**
- * Google OAuth authentication via backend API
+ * Google OAuth authentication via Express API
  */
 export const googleOAuthLogin = async (
   token: string,
@@ -121,11 +156,12 @@ export const googleOAuthLogin = async (
       return { success: false, error: "Token required" };
     }
 
-    const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
+    const response = await fetch(`${API_BASE_URL}/google`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({ token, role }),
     });
 
@@ -149,16 +185,19 @@ export const googleOAuthLogin = async (
     };
   } catch (error) {
     console.error("Google OAuth login failed:", error);
-    return { success: false, error: String(error) || "Google authentication failed. Please ensure backend server is running." };
+    const errorMsg = error instanceof TypeError && error.message === "Failed to fetch"
+      ? "Unable to connect to authentication server. Please ensure you're using the correct preview environment."
+      : String(error) || "Google authentication failed. Please try again.";
+    return { success: false, error: errorMsg };
   }
 };
 
 /**
- * Get current user from backend API by ID
+ * Get current user from Express API by ID
  */
 export const getCurrentUserData = async (userId: string): Promise<AuthUser | null> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/auth/user/${userId}`, {
+    const response = await fetch(`${API_BASE_URL}/user/${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
