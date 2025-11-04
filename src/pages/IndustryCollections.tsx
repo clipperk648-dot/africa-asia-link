@@ -3,14 +3,55 @@ import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ChevronUp, ChevronDown } from "lucide-react";
+import { ArrowLeft, ChevronUp, ChevronDown, SkipBack, SkipForward, Maximize2, X } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import LoadingSplashScreen from "@/components/LoadingSplashScreen";
+
+const fullDisplayButtonStyles = `
+  @keyframes scalePress {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(0.95);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes pulse-glow {
+    0% {
+      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
+  }
+
+  .full-display-button {
+    animation: pulse-glow 2s infinite;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .full-display-button:active {
+    animation: scalePress 0.3s ease-in-out, pulse-glow 2s infinite;
+  }
+`;
 
 const IndustryCollections = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [currentFrame, setCurrentFrame] = useState(0);
+  const [fullscreenFrame, setFullscreenFrame] = useState<number | null>(null);
+  const videoRef1 = useRef<HTMLVideoElement>(null);
+  const videoRef2 = useRef<HTMLVideoElement>(null);
+  const videoRef3 = useRef<HTMLVideoElement>(null);
+  const videoRef4 = useRef<HTMLVideoElement>(null);
+  const fullscreenVideoRef = useRef<HTMLVideoElement>(null);
 
   const frames = useMemo(() => [
     { id: "collection_1", title: "Collection 1" },
