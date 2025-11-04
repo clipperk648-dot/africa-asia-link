@@ -1,4 +1,4 @@
-// Authentication utilities - Works with both Express (dev) and Netlify Functions (prod)
+// Authentication utilities - Works with Express backend (current) and Netlify Functions (future)
 
 export interface AuthUser {
   id: string;
@@ -12,25 +12,24 @@ export interface AuthUser {
 }
 
 // Determine API base URL based on environment
-// Dev: Use Express server at /api/auth/* (via localhost:3001)
-// Prod (Netlify): Use /.netlify/functions/* endpoints
+// All deployments use Express server at /api/auth/*
+// This works for: local dev (localhost:3001), Fly.io production, and Builder.io preview
 const getAPIBaseURL = (): string => {
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
 
-  // Check if we're in development
+  // Check if we're in development (Builder.io local dev)
   if (import.meta.env.DEV) {
-    // Use Express server endpoints in development
+    // Use Express server endpoints via localhost:3001
     return 'http://localhost:3001/api/auth';
   }
 
-  // Production: Use Netlify Functions
-  return '/.netlify/functions';
+  // Production (Fly.io or other): Use relative URLs to call Express on same domain
+  return '/api/auth';
 };
 
 const API_BASE_URL = getAPIBaseURL();
-const IS_DEVELOPMENT = import.meta.env.DEV;
 
 /**
  * Register a new user via API (Express in dev, Netlify Functions in prod)
