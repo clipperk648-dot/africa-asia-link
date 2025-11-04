@@ -1,4 +1,4 @@
-// Authentication utilities - Database only, no mock data
+// Authentication utilities - MongoDB with Google OAuth and Traditional Login
 
 import { isDatabaseConfigured, createUser, getUserByEmail, getUserById } from "./db";
 
@@ -9,6 +9,8 @@ export interface AuthUser {
   phone?: string;
   role: "industry" | "buyer";
   createdAt?: string;
+  oauthId?: string;
+  oauthProvider?: string;
 }
 
 // Simple hash function (in production, use bcrypt or similar)
