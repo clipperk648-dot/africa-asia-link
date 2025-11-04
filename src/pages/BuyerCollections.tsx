@@ -118,6 +118,14 @@ const BuyerCollections = () => {
     setFullscreenFrame(null);
   }, []);
 
+  const handleFullDisplayMouseDown = useCallback((frameIdx: number) => {
+    playFullscreenVideo(frameIdx);
+  }, [playFullscreenVideo]);
+
+  const handleFullDisplayMouseUp = useCallback(() => {
+    closeFullscreen();
+  }, [closeFullscreen]);
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <LoadingSplashScreen
