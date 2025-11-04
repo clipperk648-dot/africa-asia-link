@@ -35,10 +35,17 @@ const fullDisplayButtonStyles = `
   .full-display-button {
     animation: pulse-glow 2s infinite;
     transition: all 0.2s ease-in-out;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    user-select: none;
   }
 
   .full-display-button:active {
     animation: scalePress 0.3s ease-in-out, pulse-glow 2s infinite;
+  }
+
+  .full-display-button * {
+    pointer-events: none;
   }
 `;
 
@@ -156,6 +163,8 @@ const BuyerCollections = () => {
       } else {
         videoRef.currentTime = newTime;
       }
+      // Ensure video continues playing
+      videoRef.play().catch(() => {});
     }
   }, [getVideoRef]);
 
@@ -169,6 +178,8 @@ const BuyerCollections = () => {
       } else {
         videoRef.currentTime = newTime;
       }
+      // Ensure video continues playing
+      videoRef.play().catch(() => {});
     }
   }, [getVideoRef]);
 
@@ -229,6 +240,24 @@ const BuyerCollections = () => {
   return (
     <div className="min-h-screen relative overflow-hidden">
       <style>{fullDisplayButtonStyles}</style>
+
+      {/* Background Video */}
+      <video
+        className="absolute inset-0 w-full h-full object-cover"
+        autoPlay
+        muted
+        loop
+        playsInline
+      >
+        <source
+          src="https://cdn.builder.io/o/assets%2Fc706eebe18b442a3aa75b1244fbbcf66%2F1aaeb9f83cf44d02b2bcd9d5ecf85454?alt=media&token=603a98f3-0dff-4e9a-a40d-2b060c925d1d&apiKey=c706eebe18b442a3aa75b1244fbbcf66"
+          type="video/mp4"
+        />
+      </video>
+
+      {/* Dark overlay for better visibility */}
+      <div className="absolute inset-0 bg-black/40 z-10" />
+
       <LoadingSplashScreen
         videoUrl="https://cdn.builder.io/o/assets%2Fb6198669f4754d65b52a472eb983bf6a%2F6ab81d8bc2104d80a11be4eec42e7669?alt=media&token=25351e25-3755-4cc3-938c-769f0c5526f3&apiKey=b6198669f4754d65b52a472eb983bf6a"
         text="Loading collection"
@@ -239,7 +268,7 @@ const BuyerCollections = () => {
       {!isLoading && <ThreeBackground />}
 
       {!isLoading && (
-        <header className="absolute top-0 left-0 right-0 z-40 bg-card/80 backdrop-blur-md">
+        <header className="absolute top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-md">
           <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
             <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="w-5 h-5" />
@@ -249,7 +278,7 @@ const BuyerCollections = () => {
         </header>
       )}
 
-      <div ref={scrollRef} className="snap-y snap-mandatory h-screen overflow-y-scroll scrollbar-hide">
+      <div ref={scrollRef} className="snap-y snap-mandatory h-screen overflow-y-scroll scrollbar-hide relative z-20">
         {frames.map((f, idx) => {
           const hasVideo = f.hasVideo;
           const isFrame1 = idx === 0;
@@ -267,7 +296,10 @@ const BuyerCollections = () => {
                         className="w-full h-full object-cover pointer-events-none"
                         src={f.videoUrl}
                         controls={false}
+                        autoPlay
                         loop
+                        muted
+                        playsInline
                         preload="metadata"
                         onContextMenu={handleVideoContextMenu}
                         disablePictureInPicture
@@ -303,7 +335,7 @@ const BuyerCollections = () => {
                         onTouchStart={handleTouchStart}
                         onTouchEnd={handleTouchEnd}
                         data-frame-idx={idx}
-                        className="gap-2 full-display-button px-6 py-3 select-none"
+                        className="gap-2 full-display-button px-6 py-3"
                       >
                         <Maximize2 className="w-5 h-5" />
                         Full Display

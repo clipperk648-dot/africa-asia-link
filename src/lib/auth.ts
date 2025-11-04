@@ -1,6 +1,4 @@
-// Authentication utilities - Database only, no mock data
-
-import { isDatabaseConfigured, createUser, getUserByEmail, getUserById } from "./db";
+// Authentication utilities - MongoDB with Express backend
 
 export interface AuthUser {
   id: string;
@@ -9,22 +7,14 @@ export interface AuthUser {
   phone?: string;
   role: "industry" | "buyer";
   createdAt?: string;
+  oauthId?: string;
+  oauthProvider?: string;
 }
 
-// Simple hash function (in production, use bcrypt or similar)
-// For demo purposes, this is a basic implementation
-const hashPassword = (password: string): string => {
-  // This is NOT secure for production - use proper bcrypt in real apps
-  return btoa(password + "salt_" + new Date().getTime());
-};
-
-const verifyPassword = (password: string, hash: string): boolean => {
-  // This is NOT secure for production - use proper bcrypt comparison
-  return hash.startsWith(btoa(password + "salt_"));
-};
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 /**
- * Register a new user in the database
+ * Register a new user via backend API
  */
 export const registerUser = async (
   email: string,
@@ -32,73 +22,128 @@ export const registerUser = async (
   name: string,
   phone: string,
   role: "industry" | "buyer"
-): Promise<{ success: boolean; user?: AuthUser; error?: string }> => {
+): Promise<{ success: boolean; user?: AuthUser; error?: string; token?: string }> => {
   try {
-    // Validate inputs
-    if (!email || !password || !name || !phone || !role) {
+    if (!email || !password || !name || !role) {
       return { success: false, error: "Missing required fields" };
     }
 
-    // Check if user already exists
-    const existingUser = await getUserByEmail(email);
-    if (existingUser) {
-      return { success: false, error: "Email already registered" };
-    }
+    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password, name, phone, role }),
+    });
 
-    const passwordHash = hashPassword(password);
-    const user = await createUser(email, passwordHash, name, phone, role);
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { success: false, error: data.error || "Registration failed" };
+    }
 
     return {
       success: true,
       user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name,
+        phone: data.user.phone,
+        role: data.user.role,
       },
+      token: data.token,
     };
   } catch (error) {
     console.error("Registration failed:", error);
-    return { success: false, error: String(error) || "Registration failed. Please ensure database is connected." };
+    return { success: false, error: String(error) || "Registration failed" };
   }
 };
 
 /**
- * Login user with email and password
+ * Login user with email and password via backend API
  */
 export const loginUser = async (
   email: string,
-  password: string
-): Promise<{ success: boolean; user?: AuthUser; error?: string }> => {
+  password: string,
+  role: "industry" | "buyer"
+): Promise<{ success: boolean; user?: AuthUser; error?: string; token?: string }> => {
   try {
     if (!email || !password) {
       return { success: false, error: "Email and password required" };
     }
 
-    const user = await getUserByEmail(email);
-    if (!user) {
-      return { success: false, error: "Invalid credentials" };
-    }
+    const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password, role }),
+    });
 
-    const passwordValid = verifyPassword(password, user.password_hash);
-    if (!passwordValid) {
-      return { success: false, error: "Invalid credentials" };
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { success: false, error: data.error || "Login failed" };
     }
 
     return {
       success: true,
       user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        phone: user.phone,
-        role: user.role,
-        createdAt: user.created_at,
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name,
+        phone: data.user.phone,
+        role: data.user.role,
       },
+      token: data.token,
     };
   } catch (error) {
     console.error("Login failed:", error);
-    return { success: false, error: String(error) || "Login failed. Please ensure database is connected." };
+    return { success: false, error: String(error) || "Login failed. Please ensure backend server is running." };
+  }
+};
+
+/**
+ * Google OAuth authentication via backend API
+ */
+export const googleOAuthLogin = async (
+  token: string,
+  role: "industry" | "buyer"
+): Promise<{ success: boolean; user?: AuthUser; error?: string; token?: string }> => {
+  try {
+    if (!token) {
+      return { success: false, error: "Token required" };
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ token, role }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return { success: false, error: data.error || "Google authentication failed" };
+    }
+
+    return {
+      success: true,
+      user: {
+        id: data.user.id,
+        email: data.user.email,
+        name: data.user.name,
+        phone: data.user.phone,
+        role: data.user.role,
+        oauthProvider: "google",
+      },
+      token: data.token,
+    };
+  } catch (error) {
+    console.error("Google OAuth login failed:", error);
+    return { success: false, error: String(error) || "Google authentication failed. Please ensure backend server is running." };
   }
 };
 
