@@ -54,10 +54,30 @@ const IndustryCollections = () => {
   const fullscreenVideoRef = useRef<HTMLVideoElement>(null);
 
   const frames = useMemo(() => [
-    { id: "collection_1", title: "Collection 1" },
-    { id: "collection_2", title: "Collection 2" },
-    { id: "collection_3", title: "Collection 3" },
-    { id: "collection_4", title: "Collection 4" },
+    {
+      id: "collection_1",
+      title: "Collection 1",
+      videoUrl: "https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2F0c96833d8ac746ba8f8470e123ec57ad?alt=media&token=8a70877c-77a0-4213-8746-6ef633920336&apiKey=7afe82ec80e94b858c506425dab51b31",
+      hasVideo: true,
+    },
+    {
+      id: "collection_2",
+      title: "Collection 2",
+      videoUrl: "https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2Fccdd0f1ff47e4a4b8ae298baaa00d7b7?alt=media&token=9e96055e-e92d-46c9-867e-6c60173a0368&apiKey=7afe82ec80e94b858c506425dab51b31",
+      hasVideo: true,
+    },
+    {
+      id: "collection_3",
+      title: "Collection 3",
+      videoUrl: "https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2F5dd74dacbecf494da443c829c72a582a?alt=media&token=001f7917-e224-4ee3-a9ab-45a5f7e4206b&apiKey=7afe82ec80e94b858c506425dab51b31",
+      hasVideo: true,
+    },
+    {
+      id: "collection_4",
+      title: "Collection 4",
+      videoUrl: "https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2F5a9580b4a2f84dfda83978faceed0619?alt=media&token=6cb3868d-5c56-4159-96bd-78602c3edd9d&apiKey=7afe82ec80e94b858c506425dab51b31",
+      hasVideo: true,
+    },
   ], []);
 
   const scrollRef = useRef<HTMLDivElement>(null);
