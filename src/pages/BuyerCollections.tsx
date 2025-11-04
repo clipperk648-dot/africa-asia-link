@@ -51,6 +51,10 @@ const BuyerCollections = () => {
   const videoRef2 = useRef<HTMLVideoElement>(null);
   const videoRef3 = useRef<HTMLVideoElement>(null);
   const videoRef4 = useRef<HTMLVideoElement>(null);
+  const videoRef5 = useRef<HTMLVideoElement>(null);
+  const videoRef6 = useRef<HTMLVideoElement>(null);
+  const videoRef7 = useRef<HTMLVideoElement>(null);
+  const videoRef8 = useRef<HTMLVideoElement>(null);
   const fullscreenVideoRef = useRef<HTMLVideoElement>(null);
 
   const frames = useMemo(() => [
@@ -76,6 +80,30 @@ const BuyerCollections = () => {
       id: "collection_4",
       title: "Collection 4",
       videoUrl: "https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2F5a9580b4a2f84dfda83978faceed0619?alt=media&token=6cb3868d-5c56-4159-96bd-78602c3edd9d&apiKey=7afe82ec80e94b858c506425dab51b31",
+      hasVideo: true,
+    },
+    {
+      id: "collection_5",
+      title: "Collection 5",
+      videoUrl: "https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2F040aec214cd741d1bc9bdc029e5da3db?alt=media&token=39f99fa6-284d-42b5-8a67-eec11418c8b5&apiKey=7afe82ec80e94b858c506425dab51b31",
+      hasVideo: true,
+    },
+    {
+      id: "collection_6",
+      title: "Collection 6",
+      videoUrl: "https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2Fe53db1a3d8ae4af2885ba42e3e4684e8?alt=media&token=95bb3b68-0d18-4724-b854-aac66e38f79e&apiKey=7afe82ec80e94b858c506425dab51b31",
+      hasVideo: true,
+    },
+    {
+      id: "collection_7",
+      title: "Collection 7",
+      videoUrl: "https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2F8f0fab1ac90c42ffa8e5d44857a1898c?alt=media&token=4a93ef2a-3ab9-4cc1-a6de-3e1f7123001d&apiKey=7afe82ec80e94b858c506425dab51b31",
+      hasVideo: true,
+    },
+    {
+      id: "collection_8",
+      title: "Collection 8",
+      videoUrl: "https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2F8aba381d349b4af9959798a004f43c38?alt=media&token=a243e4e3-2dfc-4db4-ba5a-3556be816acf&apiKey=7afe82ec80e94b858c506425dab51b31",
       hasVideo: true,
     },
   ], []);
@@ -111,6 +139,10 @@ const BuyerCollections = () => {
     if (frameIdx === 1) return videoRef2.current;
     if (frameIdx === 2) return videoRef3.current;
     if (frameIdx === 3) return videoRef4.current;
+    if (frameIdx === 4) return videoRef5.current;
+    if (frameIdx === 5) return videoRef6.current;
+    if (frameIdx === 6) return videoRef7.current;
+    if (frameIdx === 7) return videoRef8.current;
     return null;
   }, []);
 
@@ -161,6 +193,10 @@ const BuyerCollections = () => {
     closeFullscreen();
   }, [closeFullscreen]);
 
+  const handleVideoContextMenu = useCallback((e: React.MouseEvent<HTMLVideoElement>) => {
+    e.preventDefault();
+  }, []);
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <style>{fullDisplayButtonStyles}</style>
@@ -198,11 +234,12 @@ const BuyerCollections = () => {
                   {hasVideo ? (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-black relative">
                       <video
-                        ref={isFrame1 ? videoRef1 : isFrame2 ? videoRef2 : isFrame3 ? videoRef3 : isFrame4 ? videoRef4 : null}
+                        ref={isFrame1 ? videoRef1 : isFrame2 ? videoRef2 : isFrame3 ? videoRef3 : isFrame4 ? videoRef4 : idx === 4 ? videoRef5 : idx === 5 ? videoRef6 : idx === 6 ? videoRef7 : idx === 7 ? videoRef8 : null}
                         className="w-full h-full object-cover"
                         src={f.videoUrl}
                         controls={false}
                         loop
+                        onContextMenu={handleVideoContextMenu}
                       />
                     </div>
                   ) : (
