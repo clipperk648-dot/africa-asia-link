@@ -312,12 +312,15 @@ const BuyerCollections = () => {
         <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center">
           <video
             ref={fullscreenVideoRef}
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
             src={frames[fullscreenFrame]?.videoUrl}
             controls={false}
             autoPlay
             loop
             muted
+            preload="auto"
+            onContextMenu={handleVideoContextMenu}
+            disablePictureInPicture
           />
           <Button
             size="icon"
