@@ -20,13 +20,31 @@ const createSessionToken = (user) => {
   return Buffer.from(JSON.stringify(payload)).toString('base64');
 };
 
+const parseBody = (event) => {
+  let body = event.body;
+
+  if (!body) {
+    throw new Error('Request body is empty');
+  }
+
+  if (event.isBase64Encoded) {
+    body = Buffer.from(body, 'base64').toString('utf-8');
+  }
+
+  if (typeof body === 'string') {
+    return JSON.parse(body);
+  }
+
+  return body;
+};
+
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
     return createErrorResponse(405, 'Method not allowed');
   }
 
   try {
-    const data = JSON.parse(event.body);
+    const data = parseBody(event);
     const { email, password, role } = data;
 
     if (!email || !password || !role) {
