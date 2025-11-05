@@ -17,19 +17,33 @@ const createSuccessResponse = (data) => {
 const parseBody = (event) => {
   let body = event.body;
 
+  // Handle empty body
   if (!body) {
-    throw new Error('Request body is empty');
+    return {};
   }
 
-  if (event.isBase64Encoded) {
-    body = Buffer.from(body, 'base64').toString('utf-8');
+  // Decode base64 if needed
+  if (event.isBase64Encoded && typeof body === 'string') {
+    try {
+      body = Buffer.from(body, 'base64').toString('utf-8');
+    } catch (err) {
+      console.error('Base64 decode error:', err);
+      return {};
+    }
   }
 
+  // Parse JSON if body is a string
   if (typeof body === 'string') {
-    return JSON.parse(body);
+    try {
+      return JSON.parse(body);
+    } catch (err) {
+      console.error('JSON parse error:', err);
+      return {};
+    }
   }
 
-  return body;
+  // If body is already an object, return it
+  return body || {};
 };
 
 module.exports = { createJsonResponse, createErrorResponse, createSuccessResponse, parseBody };

@@ -12,8 +12,7 @@ export interface AuthUser {
 }
 
 // Determine API base URL based on environment
-// Development: Express backend at localhost:3001
-// Production: Netlify Functions at /.netlify/functions/auth-*
+// Uses Netlify Functions redirects: /api/auth/* -> /.netlify/functions/auth-*
 const getAPIBaseURL = (): string => {
   // Check for explicit environment variable (for custom backends)
   if (import.meta.env.VITE_API_URL) {
@@ -22,7 +21,7 @@ const getAPIBaseURL = (): string => {
   }
 
   // Always use relative path for API calls (works in dev and production)
-  // Vite dev server proxy redirects /api/* to http://localhost:3001
+  // Netlify redirects map /api/auth/* endpoints to corresponding functions
   return '/api/auth';
 };
 
@@ -114,10 +113,21 @@ export const loginUser = async (
       body: JSON.stringify({ email, password, role }),
     });
 
-    const data = await response.json();
+    let data;
+    try {
+      // Clone the response to safely read the body if needed
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        return { success: false, error: "Server returned invalid response format" };
+      }
+      data = await response.json();
+    } catch (parseError) {
+      console.error("Failed to parse response:", parseError);
+      return { success: false, error: "Failed to parse server response" };
+    }
 
     if (!response.ok) {
-      return { success: false, error: data.error || "Login failed" };
+      return { success: false, error: data?.error || "Login failed" };
     }
 
     return {

@@ -12,13 +12,37 @@ const createSessionToken = (user) => {
 };
 
 exports.handler = async (event, context) => {
+  // Set CORS headers
+  const headers = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  };
+
+  // Handle OPTIONS request
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers,
+      body: '',
+    };
+  }
+
   if (event.httpMethod !== 'POST') {
     return createErrorResponse(405, 'Method not allowed');
   }
 
   try {
-    const data = parseBody(event);
-    const { token, role } = data;
+    let data;
+    try {
+      data = parseBody(event);
+    } catch (parseErr) {
+      console.error('Body parse error:', parseErr);
+      return createErrorResponse(400, 'Invalid request body');
+    }
+
+    const { token, role } = data || {};
 
     if (!token || !role) {
       return createErrorResponse(400, 'Token and role are required');
@@ -44,64 +68,59 @@ exports.handler = async (event, context) => {
       return createErrorResponse(401, 'Invalid token payload');
     }
 
-    try {
-      const { User, Wallet } = await getModels();
+    const { User, Wallet } = await getModels();
 
-      let user = await User.findOne({ email: payload.email.toLowerCase() });
+    let user = await User.findOne({ email: payload.email.toLowerCase() });
 
-      if (!user) {
-        user = new User({
-          email: payload.email.toLowerCase(),
-          password_hash: `google_${payload.sub}`,
-          name: payload.name || payload.email.split('@')[0],
-          phone: '',
-          role,
-          oauth_id: payload.sub,
-          oauth_provider: 'google',
-        });
+    if (!user) {
+      user = new User({
+        email: payload.email.toLowerCase(),
+        password_hash: `google_${payload.sub}`,
+        name: payload.name || payload.email.split('@')[0],
+        phone: '',
+        role,
+        oauth_id: payload.sub,
+        oauth_provider: 'google',
+      });
 
+      await user.save();
+
+      const wallet = new Wallet({
+        user_id: user._id.toString(),
+        balance: 0,
+        currency: 'USD',
+      });
+
+      await wallet.save();
+    } else {
+      if (!user.oauth_id) {
+        user.oauth_id = payload.sub;
+        user.oauth_provider = 'google';
+        user.updated_at = new Date();
         await user.save();
-
-        const wallet = new Wallet({
-          user_id: user._id.toString(),
-          balance: 0,
-          currency: 'USD',
-        });
-
-        await wallet.save();
-      } else {
-        if (!user.oauth_id) {
-          user.oauth_id = payload.sub;
-          user.oauth_provider = 'google';
-          user.updated_at = new Date();
-          await user.save();
-        }
-
-        if (user.role !== role) {
-          return createErrorResponse(403, `This account is registered as a ${user.role}. Please select the correct role.`);
-        }
       }
 
-      const sessionToken = createSessionToken(user);
-
-      return createJsonResponse(200, {
-        success: true,
-        user: {
-          id: user._id.toString(),
-          email: user.email,
-          name: user.name,
-          phone: user.phone,
-          role: user.role,
-          oauth_provider: 'google',
-        },
-        token: sessionToken,
-      });
-    } catch (dbError) {
-      console.error('Database error:', dbError);
-      return createErrorResponse(500, 'Database error: ' + dbError.message);
+      if (user.role !== role) {
+        return createErrorResponse(403, `This account is registered as a ${user.role}. Please select the correct role.`);
+      }
     }
+
+    const sessionToken = createSessionToken(user);
+
+    return createJsonResponse(200, {
+      success: true,
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        name: user.name,
+        phone: user.phone,
+        role: user.role,
+        oauth_provider: 'google',
+      },
+      token: sessionToken,
+    });
   } catch (error) {
     console.error('Google auth error:', error);
-    return createErrorResponse(500, 'Google authentication failed: ' + error.message);
+    return createErrorResponse(500, 'Google authentication failed: ' + (error.message || 'Unknown error'));
   }
 };

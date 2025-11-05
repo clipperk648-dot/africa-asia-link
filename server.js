@@ -35,7 +35,72 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
-app.use(express.json());
+
+// Custom body parser middleware to prevent "body stream already read" errors
+// Handles cases where the stream may have already been read by other middleware/proxies
+app.use((req, res, next) => {
+  // Skip non-POST/PUT/PATCH requests
+  if (!['POST', 'PUT', 'PATCH'].includes(req.method)) {
+    return next();
+  }
+
+  // Skip if body already parsed
+  if (req.body !== undefined) {
+    return next();
+  }
+
+  const contentType = req.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    return next();
+  }
+
+  let data = '';
+  let isDestroyed = false;
+
+  // Handle if readable is already consumed
+  if (!req.readable) {
+    req.body = {};
+    return next();
+  }
+
+  req.setEncoding('utf8');
+
+  const onData = (chunk) => {
+    data += chunk;
+    // Prevent DoS attacks
+    if (data.length > 1e6) {
+      data = '';
+      req.removeListener('data', onData);
+      req.removeListener('end', onEnd);
+      req.removeListener('error', onError);
+      res.statusCode = 413;
+      res.end(JSON.stringify({ error: 'Payload too large' }));
+      isDestroyed = true;
+    }
+  };
+
+  const onEnd = () => {
+    if (isDestroyed) return;
+    try {
+      req.body = data ? JSON.parse(data) : {};
+    } catch (err) {
+      console.error('JSON parse error:', err);
+      req.body = {};
+    }
+    next();
+  };
+
+  const onError = (err) => {
+    if (isDestroyed) return;
+    console.error('Request stream error:', err);
+    req.body = {};
+    next();
+  };
+
+  req.on('data', onData);
+  req.on('end', onEnd);
+  req.on('error', onError);
+});
 
 // Serve static files from dist in production
 if (NODE_ENV === 'production') {
