@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import LoadingSplashScreen from "@/components/LoadingSplashScreen";
+import { getThemeBgVideoUrl } from "@/utils/theme";
 
 const fullDisplayButtonStyles = `
   @keyframes scalePress {
@@ -250,7 +251,7 @@ const BuyerCollections = () => {
         playsInline
       >
         <source
-          src="https://cdn.builder.io/o/assets%2Fc706eebe18b442a3aa75b1244fbbcf66%2F1aaeb9f83cf44d02b2bcd9d5ecf85454?alt=media&token=603a98f3-0dff-4e9a-a40d-2b060c925d1d&apiKey=c706eebe18b442a3aa75b1244fbbcf66"
+          src={getThemeBgVideoUrl() || "https://cdn.builder.io/o/assets%2Fc706eebe18b442a3aa75b1244fbbcf66%2F1aaeb9f83cf44d02b2bcd9d5ecf85454?alt=media&token=603a98f3-0dff-4e9a-a40d-2b060c925d1d&apiKey=c706eebe18b442a3aa75b1244fbbcf66"}
           type="video/mp4"
         />
       </video>
@@ -269,7 +270,7 @@ const BuyerCollections = () => {
 
       {!isLoading && (
         <header className="absolute top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-md">
-          <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
+          <div className="max-w-3xl mx-auto px-3 py-1 flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
