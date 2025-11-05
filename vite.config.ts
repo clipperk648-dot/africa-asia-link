@@ -5,17 +5,15 @@ import path from "path";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "::",
+    host: "0.0.0.0",
     port: 8080,
-    hmr: {
-      protocol: 'wss',
-      clientPort: 443,
-      overlay: false,
-    },
+    middlewareMode: false,
+    hmr: false,
     proxy: {
       "/api": {
-        target: "http://localhost:3001",
+        target: "http://127.0.0.1:3001",
         changeOrigin: true,
+        ws: true,
       },
     },
   },
