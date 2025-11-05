@@ -35,7 +35,37 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
-app.use(express.json());
+
+// Custom middleware to handle body reading safely
+// This prevents "body stream already read" errors in production environments
+app.use((req, res, next) => {
+  if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
+    let rawData = '';
+    req.setEncoding('utf8');
+
+    req.on('data', chunk => {
+      rawData += chunk;
+    });
+
+    req.on('end', () => {
+      try {
+        if (rawData) {
+          req.body = JSON.parse(rawData);
+        } else {
+          req.body = {};
+        }
+      } catch (e) {
+        req.body = {};
+      }
+      next();
+    });
+  } else {
+    next();
+  }
+});
+
+// Fallback to express.json() for any remaining cases
+app.use(express.json({ strict: false }));
 
 // Serve static files from dist in production
 if (NODE_ENV === 'production') {
