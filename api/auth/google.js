@@ -1,6 +1,6 @@
-const { getModels } = require('../lib/mongodb');
-const { sendError, sendSuccess, handleCors } = require('../lib/helpers');
-const { createSessionToken, parseGoogleToken } = require('../lib/auth');
+import { getModels } from '../lib/mongodb.js';
+import { sendError, sendSuccess, handleCors } from '../lib/helpers.js';
+import { createSessionToken, parseGoogleToken } from '../lib/auth.js';
 
 export default async (req, res) => {
   // Add CORS headers
