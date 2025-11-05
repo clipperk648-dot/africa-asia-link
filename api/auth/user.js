@@ -1,5 +1,5 @@
-const { getModels } = require('../lib/mongodb');
-const { sendError, sendSuccess, handleCors } = require('../lib/helpers');
+import { getModels } from '../lib/mongodb.js';
+import { sendError, sendSuccess, handleCors } from '../lib/helpers.js';
 
 export default async (req, res) => {
   // Add CORS headers
