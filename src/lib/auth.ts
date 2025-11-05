@@ -21,13 +21,8 @@ const getAPIBaseURL = (): string => {
     return baseUrl.endsWith('/api/auth') ? baseUrl : `${baseUrl}/api/auth`;
   }
 
-  // Development: Use Express server backend
-  if (import.meta.env.DEV) {
-    return 'http://localhost:3001/api/auth';
-  }
-
-  // Production: Use Netlify Functions (always use relative path for same-domain routing)
-  // Netlify.toml redirects /api/auth/* to /.netlify/functions/auth-*
+  // Always use relative path for API calls (works in dev and production)
+  // Vite dev server proxy redirects /api/* to http://localhost:3001
   return '/api/auth';
 };
 
