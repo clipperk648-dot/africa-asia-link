@@ -32,11 +32,6 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from dist in production
-if (NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, 'dist')));
-}
-
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI;
 
