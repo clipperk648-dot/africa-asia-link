@@ -1,4 +1,4 @@
-// Authentication utilities - Works with Express backend (current) and Netlify Functions (future)
+// Authentication utilities - Works with Express backend (development) and Vercel Functions (production)
 
 export interface AuthUser {
   id: string;
