@@ -37,45 +37,69 @@ app.use(cors({
 }));
 
 // Custom body parser middleware to prevent "body stream already read" errors
-// This safely reads the body stream once and caches it
+// Handles cases where the stream may have already been read by other middleware/proxies
 app.use((req, res, next) => {
+  // Skip non-POST/PUT/PATCH requests
   if (!['POST', 'PUT', 'PATCH'].includes(req.method)) {
     return next();
   }
 
-  const contentType = req.get('content-type');
-  if (!contentType || !contentType.includes('application/json')) {
+  // Skip if body already parsed
+  if (req.body !== undefined) {
+    return next();
+  }
+
+  const contentType = req.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
     return next();
   }
 
   let data = '';
+  let isDestroyed = false;
+
+  // Handle if readable is already consumed
+  if (!req.readable) {
+    req.body = {};
+    return next();
+  }
+
   req.setEncoding('utf8');
 
-  req.on('data', (chunk) => {
+  const onData = (chunk) => {
     data += chunk;
-    // Prevent DoS attacks with overly large bodies
+    // Prevent DoS attacks
     if (data.length > 1e6) {
       data = '';
-      req.pause();
+      req.removeListener('data', onData);
+      req.removeListener('end', onEnd);
+      req.removeListener('error', onError);
       res.statusCode = 413;
-      res.end('{"error": "Payload too large"}');
+      res.end(JSON.stringify({ error: 'Payload too large' }));
+      isDestroyed = true;
     }
-  });
+  };
 
-  req.on('end', () => {
+  const onEnd = () => {
+    if (isDestroyed) return;
     try {
       req.body = data ? JSON.parse(data) : {};
     } catch (err) {
+      console.error('JSON parse error:', err);
       req.body = {};
     }
     next();
-  });
+  };
 
-  req.on('error', (err) => {
+  const onError = (err) => {
+    if (isDestroyed) return;
     console.error('Request stream error:', err);
-    res.statusCode = 400;
-    res.end('{"error": "Bad request"}');
-  });
+    req.body = {};
+    next();
+  };
+
+  req.on('data', onData);
+  req.on('end', onEnd);
+  req.on('error', onError);
 });
 
 // Serve static files from dist in production
