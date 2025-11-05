@@ -1,5 +1,5 @@
 const { getModels } = require('./mongodb-connection');
-const { createErrorResponse, createJsonResponse } = require('./response-helper');
+const { createErrorResponse, createJsonResponse, parseBody } = require('./response-helper');
 const crypto = require('crypto');
 
 const hashPassword = (password) => {
@@ -14,24 +14,6 @@ const createSessionToken = (user) => {
     exp: Math.floor(Date.now() / 1000) + 86400 * 7,
   };
   return Buffer.from(JSON.stringify(payload)).toString('base64');
-};
-
-const parseBody = (event) => {
-  let body = event.body;
-
-  if (!body) {
-    throw new Error('Request body is empty');
-  }
-
-  if (event.isBase64Encoded) {
-    body = Buffer.from(body, 'base64').toString('utf-8');
-  }
-
-  if (typeof body === 'string') {
-    return JSON.parse(body);
-  }
-
-  return body;
 };
 
 exports.handler = async (event, context) => {
