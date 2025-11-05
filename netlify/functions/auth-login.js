@@ -21,13 +21,37 @@ const createSessionToken = (user) => {
 };
 
 exports.handler = async (event, context) => {
+  // Set CORS headers
+  const headers = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  };
+
+  // Handle OPTIONS request
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 200,
+      headers,
+      body: '',
+    };
+  }
+
   if (event.httpMethod !== 'POST') {
     return createErrorResponse(405, 'Method not allowed');
   }
 
   try {
-    const data = parseBody(event);
-    const { email, password, role } = data;
+    let data;
+    try {
+      data = parseBody(event);
+    } catch (parseErr) {
+      console.error('Body parse error:', parseErr);
+      return createErrorResponse(400, 'Invalid request body');
+    }
+
+    const { email, password, role } = data || {};
 
     if (!email || !password || !role) {
       return createErrorResponse(400, 'Email, password, and role are required');
@@ -37,44 +61,38 @@ exports.handler = async (event, context) => {
       return createErrorResponse(400, 'Invalid role');
     }
 
-    try {
-      const { User } = await getModels();
+    const { User } = await getModels();
+    const user = await User.findOne({ email: email.toLowerCase() });
 
-      const user = await User.findOne({ email: email.toLowerCase() });
-
-      if (!user) {
-        return createErrorResponse(401, 'Invalid credentials');
-      }
-
-      if (user.role !== role) {
-        return createErrorResponse(403, `This account is registered as a ${user.role}. Please select the correct role.`);
-      }
-
-      const isValid = verifyPassword(password, user.password_hash);
-
-      if (!isValid) {
-        return createErrorResponse(401, 'Invalid credentials');
-      }
-
-      const token = createSessionToken(user);
-
-      return createJsonResponse(200, {
-        success: true,
-        user: {
-          id: user._id.toString(),
-          email: user.email,
-          name: user.name,
-          phone: user.phone,
-          role: user.role,
-        },
-        token,
-      });
-    } catch (dbError) {
-      console.error('Database error:', dbError);
-      return createErrorResponse(500, 'Database error: ' + dbError.message);
+    if (!user) {
+      return createErrorResponse(401, 'Invalid credentials');
     }
+
+    if (user.role !== role) {
+      return createErrorResponse(403, `This account is registered as a ${user.role}. Please select the correct role.`);
+    }
+
+    const isValid = verifyPassword(password, user.password_hash);
+
+    if (!isValid) {
+      return createErrorResponse(401, 'Invalid credentials');
+    }
+
+    const token = createSessionToken(user);
+
+    return createJsonResponse(200, {
+      success: true,
+      user: {
+        id: user._id.toString(),
+        email: user.email,
+        name: user.name,
+        phone: user.phone,
+        role: user.role,
+      },
+      token,
+    });
   } catch (error) {
-    console.error('Login error:', error);
-    return createErrorResponse(500, 'Login failed: ' + error.message);
+    console.error('Login handler error:', error);
+    return createErrorResponse(500, 'Login failed: ' + (error.message || 'Unknown error'));
   }
 };
