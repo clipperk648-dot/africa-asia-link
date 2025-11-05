@@ -34,10 +34,10 @@ const checkBackendAccess = async (): Promise<boolean> => {
     const response = await fetch(`${API_BASE_URL.replace('/auth', '')}/health`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(3000),
     });
     return response.ok;
   } catch (error) {
-    console.warn('Backend health check failed:', error);
     return false;
   }
 };
