@@ -12,7 +12,7 @@ export interface AuthUser {
 }
 
 // Determine API base URL based on environment
-// Uses Netlify Functions redirects: /api/auth/* -> /.netlify/functions/auth-*
+// Uses Vercel API routes: /api/auth/* -> /api/auth-*
 const getAPIBaseURL = (): string => {
   // Check for explicit environment variable (for custom backends)
   if (import.meta.env.VITE_API_URL) {
@@ -21,7 +21,7 @@ const getAPIBaseURL = (): string => {
   }
 
   // Always use relative path for API calls (works in dev and production)
-  // Netlify redirects map /api/auth/* endpoints to corresponding functions
+  // Vercel routes /api/auth/* endpoints to corresponding serverless functions
   return '/api/auth';
 };
 
