@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+import crypto from 'crypto';
 
 const hashPassword = (password) => {
   return crypto.createHash('sha256').update(password + 'echina_salt').digest('hex');
@@ -13,7 +13,7 @@ const createSessionToken = (user) => {
     userId: user._id.toString(),
     email: user.email,
     iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 86400 * 7, // 7 days
+    exp: Math.floor(Date.now() / 1000) + 86400 * 7,
   };
   return Buffer.from(JSON.stringify(payload)).toString('base64');
 };
@@ -30,9 +30,4 @@ const parseGoogleToken = (token) => {
   }
 };
 
-module.exports = {
-  hashPassword,
-  verifyPassword,
-  createSessionToken,
-  parseGoogleToken,
-};
+export { hashPassword, verifyPassword, createSessionToken, parseGoogleToken };
