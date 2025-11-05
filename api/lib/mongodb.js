@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 let isConnected = false;
 let connection = null;
@@ -187,4 +187,4 @@ const getModels = async () => {
   return models;
 };
 
-module.exports = { getConnection, getModels };
+export { getConnection, getModels };
