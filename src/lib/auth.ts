@@ -1,4 +1,4 @@
-// Authentication utilities - Works with Express backend (current) and Netlify Functions (future)
+// Authentication utilities - Works with Express backend (development) and Vercel Functions (production)
 
 export interface AuthUser {
   id: string;
@@ -12,7 +12,7 @@ export interface AuthUser {
 }
 
 // Determine API base URL based on environment
-// Uses Netlify Functions redirects: /api/auth/* -> /.netlify/functions/auth-*
+// Uses Vercel API routes: /api/auth/* -> /api/auth-*
 const getAPIBaseURL = (): string => {
   // Check for explicit environment variable (for custom backends)
   if (import.meta.env.VITE_API_URL) {
@@ -21,7 +21,7 @@ const getAPIBaseURL = (): string => {
   }
 
   // Always use relative path for API calls (works in dev and production)
-  // Netlify redirects map /api/auth/* endpoints to corresponding functions
+  // Vercel routes /api/auth/* endpoints to corresponding serverless functions
   return '/api/auth';
 };
 
@@ -291,4 +291,52 @@ export const clearSession = () => {
  */
 export const logoutUser = () => {
   clearSession();
+};
+
+// ============ MOCK AUTHENTICATION (Development Only) ============
+
+/**
+ * Auto-login user with mock data (when backend is unavailable)
+ * This allows users to access the app without authentication barriers
+ */
+export const autoLoginWithMockData = (role: "industry" | "buyer" = "buyer"): AuthUser => {
+  // Create mock user based on role
+  const mockUser: AuthUser = role === "industry"
+    ? {
+        id: 'user_industry_001',
+        email: 'seller@echina.com',
+        name: 'Chen Wei',
+        phone: '+86 138 1234 5678',
+        role: 'industry',
+        createdAt: new Date().toISOString(),
+      }
+    : {
+        id: 'user_buyer_001',
+        email: 'buyer@echina.com',
+        name: 'John Buyer',
+        phone: '+234 801 234 5678',
+        role: 'buyer',
+        createdAt: new Date().toISOString(),
+      };
+
+  // Save to session
+  saveSession(mockUser);
+
+  return mockUser;
+};
+
+/**
+ * Initialize mock authentication on app load
+ * This ensures users are always logged in for development/testing
+ */
+export const initializeMockAuth = (): AuthUser | null => {
+  // Check if user already has a session
+  let session = getSession();
+
+  // If no session, auto-login with mock buyer account
+  if (!session) {
+    session = autoLoginWithMockData("buyer");
+  }
+
+  return session;
 };
