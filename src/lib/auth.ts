@@ -12,8 +12,7 @@ export interface AuthUser {
 }
 
 // Determine API base URL based on environment
-// Development: Express backend at localhost:3001
-// Production: Netlify Functions at /.netlify/functions/auth-*
+// Uses Netlify Functions redirects: /api/auth/* -> /.netlify/functions/auth-*
 const getAPIBaseURL = (): string => {
   // Check for explicit environment variable (for custom backends)
   if (import.meta.env.VITE_API_URL) {
@@ -22,7 +21,7 @@ const getAPIBaseURL = (): string => {
   }
 
   // Always use relative path for API calls (works in dev and production)
-  // Vite dev server proxy redirects /api/* to http://localhost:3001
+  // Netlify redirects map /api/auth/* endpoints to corresponding functions
   return '/api/auth';
 };
 
