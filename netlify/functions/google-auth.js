@@ -1,5 +1,5 @@
 const { getModels } = require('./mongodb-connection');
-const { createErrorResponse, createJsonResponse } = require('./response-helper');
+const { createErrorResponse, createJsonResponse, parseBody } = require('./response-helper');
 const crypto = require('crypto');
 
 // Google OAuth2 verification - you would typically use the google-auth-library
@@ -36,7 +36,7 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const data = JSON.parse(event.body);
+    const data = parseBody(event);
     const { token, role } = data;
 
     if (!token || !role) {

@@ -14,4 +14,22 @@ const createSuccessResponse = (data) => {
   return createJsonResponse(200, data);
 };
 
-module.exports = { createJsonResponse, createErrorResponse, createSuccessResponse };
+const parseBody = (event) => {
+  let body = event.body;
+
+  if (!body) {
+    throw new Error('Request body is empty');
+  }
+
+  if (event.isBase64Encoded) {
+    body = Buffer.from(body, 'base64').toString('utf-8');
+  }
+
+  if (typeof body === 'string') {
+    return JSON.parse(body);
+  }
+
+  return body;
+};
+
+module.exports = { createJsonResponse, createErrorResponse, createSuccessResponse, parseBody };

@@ -1,5 +1,5 @@
 const { getModels } = require('./mongodb-connection');
-const { createErrorResponse, createJsonResponse } = require('./response-helper');
+const { createErrorResponse, createJsonResponse, parseBody } = require('./response-helper');
 const crypto = require('crypto');
 
 // Simple password hashing (in production use bcrypt)
@@ -17,7 +17,7 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const data = JSON.parse(event.body);
+    const data = parseBody(event);
     const { email, password, role } = data;
 
     if (!email || !password || !role) {
