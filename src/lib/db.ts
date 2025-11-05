@@ -1,7 +1,17 @@
 // Frontend API client for database operations
-// These functions call the Netlify backend functions which interact with MongoDB
+// Currently using MOCK DATA - Backend is unavailable
+// All functions return mock data for development/testing
 
-const API_BASE = "/.netlify/functions";
+import { 
+  MOCK_PRODUCTS, 
+  MOCK_ORDERS, 
+  MOCK_CLANS, 
+  MOCK_SOCIAL_POSTS, 
+  MOCK_WALLET, 
+  MOCK_TRANSACTIONS,
+  MOCK_USERS,
+  delay 
+} from '@/utils/mockData';
 
 interface ApiResponse<T> {
   success?: boolean;
@@ -9,60 +19,15 @@ interface ApiResponse<T> {
   [key: string]: any;
 }
 
-async function apiCall<T>(endpoint: string, method: string = "GET", data?: any): Promise<T> {
-  try {
-    const options: RequestInit = {
-      method,
-      headers: { "Content-Type": "application/json" },
-    };
-
-    if (data) {
-      options.body = JSON.stringify(data);
-    }
-
-    const response = await fetch(`${API_BASE}${endpoint}`, options);
-    let responseData: any = null;
-
-    try {
-      // Try to clone the response first to avoid "body stream already read" errors
-      const clonedResponse = response.clone();
-      const contentType = clonedResponse.headers.get("content-type");
-
-      if (contentType && contentType.includes("application/json")) {
-        try {
-          responseData = await clonedResponse.json();
-        } catch {
-          // If JSON parsing fails, try reading as text
-          const text = await clonedResponse.text();
-          responseData = text ? { raw: text } : {};
-        }
-      } else {
-        // For non-JSON responses, read as text
-        const text = await clonedResponse.text();
-        responseData = text ? { raw: text } : {};
-      }
-    } catch (readError) {
-      console.error(`Failed to read response from ${endpoint}:`, readError);
-      responseData = { error: "Failed to read response", details: String(readError) };
-    }
-
-    if (!response.ok) {
-      const errorMsg = responseData?.error || responseData?.message || `HTTP ${response.status}`;
-      throw new Error(errorMsg);
-    }
-
-    return responseData;
-  } catch (error) {
-    console.error(`API call failed: ${endpoint}`, error);
-    throw error;
-  }
-}
+// ============ MOCK API IMPLEMENTATION ============
+// All functions return mock data with a slight delay to simulate network calls
 
 export const isDatabaseConfigured = (): boolean => {
-  return true; // Always consider it configured since we have API endpoints
+  return true;
 };
 
-// Users
+// ============ USERS ============
+
 export const createUser = async (
   email: string,
   passwordHash: string,
@@ -70,87 +35,77 @@ export const createUser = async (
   phone: string,
   role: "industry" | "buyer"
 ): Promise<{ id: string; email: string; name: string; role: "industry" | "buyer" }> => {
-  return await apiCall("/create-user", "POST", {
+  await delay();
+  return {
+    id: `user_${Date.now()}`,
     email,
-    passwordHash,
     name,
-    phone,
     role,
-  });
+  };
 };
 
 export const getUserByEmail = async (email: string): Promise<any> => {
-  try {
-    return await apiCall(`/get-user?email=${encodeURIComponent(email)}`, "GET");
-  } catch {
-    return null;
-  }
+  await delay();
+  return Object.values(MOCK_USERS).find(u => u.email === email) || null;
 };
 
 export const getUserById = async (id: string): Promise<any> => {
-  try {
-    return await apiCall(`/get-user?id=${encodeURIComponent(id)}`, "GET");
-  } catch {
-    return null;
-  }
+  await delay();
+  return Object.values(MOCK_USERS).find(u => u.id === id) || null;
 };
 
-// Products
+// ============ PRODUCTS ============
+
 export const getProducts = async (limit = 20, offset = 0): Promise<any[]> => {
-  try {
-    const result = await apiCall(
-      `/get-products?limit=${limit}&offset=${offset}`,
-      "GET"
-    );
-    return Array.isArray(result) ? result : result.data || [];
-  } catch {
-    return [];
-  }
+  await delay();
+  return MOCK_PRODUCTS.slice(offset, offset + limit);
 };
 
 export const getProductById = async (id: string): Promise<any> => {
-  try {
-    return await apiCall(`/get-product?id=${encodeURIComponent(id)}`, "GET");
-  } catch {
-    return null;
-  }
+  await delay();
+  return MOCK_PRODUCTS.find(p => p.id === id) || null;
 };
 
 export const createProduct = async (productData: any): Promise<any> => {
-  return await apiCall("/create-product", "POST", productData);
+  await delay();
+  const newProduct = {
+    id: `prod_${Date.now()}`,
+    created_at: new Date().toISOString(),
+    ...productData,
+  };
+  MOCK_PRODUCTS.push(newProduct);
+  return newProduct;
 };
 
 export const updateProduct = async (id: string, productData: any): Promise<any> => {
-  try {
-    return await apiCall("/update-product", "POST", {
-      id,
+  await delay();
+  const productIndex = MOCK_PRODUCTS.findIndex(p => p.id === id);
+  if (productIndex !== -1) {
+    MOCK_PRODUCTS[productIndex] = {
+      ...MOCK_PRODUCTS[productIndex],
       ...productData,
-    });
-  } catch {
-    return null;
+      updated_at: new Date().toISOString(),
+    };
+    return MOCK_PRODUCTS[productIndex];
   }
+  return null;
 };
 
 export const deleteProduct = async (id: string): Promise<boolean> => {
-  try {
-    await apiCall("/delete-product", "POST", { id });
+  await delay();
+  const index = MOCK_PRODUCTS.findIndex(p => p.id === id);
+  if (index !== -1) {
+    MOCK_PRODUCTS.splice(index, 1);
     return true;
-  } catch {
-    return false;
   }
+  return false;
 };
 
-// Orders
+// ============ ORDERS ============
+
 export const getOrders = async (userId: string): Promise<any[]> => {
-  try {
-    const result = await apiCall(
-      `/get-orders?userId=${encodeURIComponent(userId)}`,
-      "GET"
-    );
-    return Array.isArray(result) ? result : result.data || [];
-  } catch {
-    return [];
-  }
+  await delay();
+  return MOCK_ORDERS.filter(o => o.buyer_id === userId || o.seller_id === userId);
 };
 
 export const createOrder = async (
@@ -160,23 +115,26 @@ export const createOrder = async (
   quantity: number,
   total: number
 ): Promise<any> => {
-  return await apiCall("/create-order", "POST", {
-    buyerId,
-    sellerId,
-    productId,
+  await delay();
+  const newOrder = {
+    id: `order_${Date.now()}`,
+    buyer_id: buyerId,
+    seller_id: sellerId,
+    product_id: productId,
     quantity,
     total,
-  });
+    status: 'pending' as const,
+    created_at: new Date().toISOString(),
+  };
+  MOCK_ORDERS.push(newOrder);
+  return newOrder;
 };
 
-// Social posts
+// ============ SOCIAL POSTS ============
+
 export const getSocialPosts = async (limit = 20): Promise<any[]> => {
-  try {
-    const result = await apiCall(`/get-social-posts?limit=${limit}`, "GET");
-    return Array.isArray(result) ? result : result.data || [];
-  } catch {
-    return [];
-  }
+  await delay();
+  return MOCK_SOCIAL_POSTS.slice(0, limit);
 };
 
 export const createSocialPost = async (
@@ -184,36 +142,47 @@ export const createSocialPost = async (
   content: string,
   imageUrl?: string
 ): Promise<any> => {
-  return await apiCall("/create-social-post", "POST", {
-    userId,
+  await delay();
+  const newPost = {
+    id: `post_${Date.now()}`,
+    user_id: userId,
+    username: MOCK_USERS[Object.keys(MOCK_USERS).find(k => MOCK_USERS[k as keyof typeof MOCK_USERS].id === userId) as keyof typeof MOCK_USERS]?.name || 'Unknown',
+    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`,
+    type: 'text' as const,
     content,
-    imageUrl,
-  });
+    media_url: imageUrl || null,
+    likes: 0,
+    comments: 0,
+    created_at: new Date().toISOString(),
+  };
+  MOCK_SOCIAL_POSTS.push(newPost);
+  return newPost;
 };
 
-// Clans
+// ============ CLANS ============
+
 export const getClans = async (limit = 20, offset = 0): Promise<any[]> => {
-  try {
-    const result = await apiCall(
-      `/get-clans?limit=${limit}&offset=${offset}`,
-      "GET"
-    );
-    return Array.isArray(result) ? result : result.data || [];
-  } catch {
-    return [];
-  }
+  await delay();
+  return MOCK_CLANS.slice(offset, offset + limit);
 };
 
 export const getClanById = async (id: string): Promise<any> => {
-  try {
-    return await apiCall(`/get-clan?id=${encodeURIComponent(id)}`, "GET");
-  } catch {
-    return null;
-  }
+  await delay();
+  return MOCK_CLANS.find(c => c.id === id) || null;
 };
 
 export const createClan = async (clanData: any): Promise<any> => {
-  return await apiCall("/create-clan", "POST", clanData);
+  await delay();
+  const newClan = {
+    id: `clan_${Date.now()}`,
+    status: 'active' as const,
+    members: [],
+    current_funded: 0,
+    created_at: new Date().toISOString(),
+    ...clanData,
+  };
+  MOCK_CLANS.push(newClan);
+  return newClan;
 };
 
 export const joinClan = async (
@@ -222,35 +191,57 @@ export const joinClan = async (
   username: string,
   contributionAmount: number
 ): Promise<any> => {
-  return await apiCall("/join-clan", "POST", {
-    clanId,
-    userId,
-    username,
-    contributionAmount,
-  });
+  await delay();
+  const clan = MOCK_CLANS.find(c => c.id === clanId);
+  if (clan) {
+    clan.members.push({
+      id: `member_${Date.now()}`,
+      user_id: userId,
+      username,
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`,
+      contributed_amount: contributionAmount,
+      joined_date: new Date().toISOString(),
+    });
+    clan.current_funded += contributionAmount;
+    return clan;
+  }
+  return null;
 };
 
 export const leaveClan = async (clanId: string, userId: string): Promise<any> => {
-  return await apiCall("/leave-clan", "POST", {
-    clanId,
-    userId,
-  });
+  await delay();
+  const clan = MOCK_CLANS.find(c => c.id === clanId);
+  if (clan) {
+    const memberIndex = clan.members.findIndex(m => m.user_id === userId);
+    if (memberIndex !== -1) {
+      const member = clan.members[memberIndex];
+      clan.current_funded -= member.contributed_amount;
+      clan.members.splice(memberIndex, 1);
+    }
+    return clan;
+  }
+  return null;
 };
 
-// Wallet
+// ============ WALLET ============
+
 export const getWalletBalance = async (
   userId: string,
   currency = "USD"
 ): Promise<{ balance: number; currency: string }> => {
-  try {
-    const result = await apiCall(
-      `/get-wallet-balance?userId=${encodeURIComponent(userId)}&currency=${currency}`,
-      "GET"
-    );
-    return result;
-  } catch {
-    return { balance: 0, currency };
+  await delay();
+  // Return mock wallet for the current user
+  if (userId === MOCK_WALLET.user_id) {
+    return {
+      balance: MOCK_WALLET.balance,
+      currency: currency || MOCK_WALLET.currency,
+    };
   }
+  // Return default wallet for other users
+  return {
+    balance: 0,
+    currency,
+  };
 };
 
 export const setWalletBalance = async (
@@ -258,23 +249,23 @@ export const setWalletBalance = async (
   amount: number,
   currency = "USD"
 ): Promise<any> => {
-  return await apiCall("/set-wallet-balance", "POST", {
-    userId,
-    amount,
+  await delay();
+  if (userId === MOCK_WALLET.user_id) {
+    MOCK_WALLET.balance = amount;
+    MOCK_WALLET.updated_at = new Date().toISOString();
+    return MOCK_WALLET;
+  }
+  return {
+    user_id: userId,
+    balance: amount,
     currency,
-  });
+    updated_at: new Date().toISOString(),
+  };
 };
 
 export const getWalletTransactions = async (userId: string): Promise<any[]> => {
-  try {
-    const result = await apiCall(
-      `/get-transactions?userId=${encodeURIComponent(userId)}`,
-      "GET"
-    );
-    return Array.isArray(result) ? result : result.data || [];
-  } catch {
-    return [];
-  }
+  await delay();
+  return MOCK_TRANSACTIONS.filter(t => t.user_id === userId);
 };
 
 export const addWalletTransaction = async (
@@ -286,38 +277,66 @@ export const addWalletTransaction = async (
     note?: string;
   }
 ): Promise<any> => {
-  return await apiCall("/add-transaction", "POST", {
-    userId,
-    ...tx,
-  });
+  await delay();
+  const newTransaction = {
+    id: `txn_${Date.now()}`,
+    user_id: userId,
+    type: tx.type,
+    amount: tx.amount,
+    currency: tx.currency || 'USD',
+    note: tx.note || '',
+    created_at: new Date().toISOString(),
+  };
+  MOCK_TRANSACTIONS.push(newTransaction);
+
+  // Update wallet balance
+  if (tx.type === 'deposit') {
+    const currentWallet = await getWalletBalance(userId);
+    await setWalletBalance(userId, currentWallet.balance + tx.amount);
+  } else if (tx.type === 'payment') {
+    const currentWallet = await getWalletBalance(userId);
+    await setWalletBalance(userId, Math.max(0, currentWallet.balance - tx.amount));
+  }
+
+  return newTransaction;
 };
 
-// Messaging
+// ============ MESSAGING ============
+
+const MOCK_CONVERSATIONS: any[] = [];
+const MOCK_MESSAGES: any[] = [];
+
 export const getConversations = async (userId: string): Promise<any[]> => {
-  try {
-    const result = await apiCall(
-      `/get-conversations?userId=${encodeURIComponent(userId)}`,
-      "GET"
-    );
-    return Array.isArray(result) ? result : result.data || [];
-  } catch {
-    return [];
-  }
+  await delay();
+  const uniquePeers = new Set<string>();
+  MOCK_MESSAGES.forEach(msg => {
+    if (msg.sender_id === userId) uniquePeers.add(msg.recipient_id);
+    if (msg.recipient_id === userId) uniquePeers.add(msg.sender_id);
+  });
+
+  const conversations = Array.from(uniquePeers).map(peerId => ({
+    id: `conv_${userId}_${peerId}`,
+    peer_id: peerId,
+    peer_name: Object.values(MOCK_USERS).find(u => u.id === peerId)?.name || 'Unknown',
+    last_message: MOCK_MESSAGES
+      .filter(m => (m.sender_id === userId && m.recipient_id === peerId) || 
+                   (m.sender_id === peerId && m.recipient_id === userId))
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0],
+    created_at: new Date().toISOString(),
+  }));
+
+  return conversations;
 };
 
 export const getMessages = async (
   userId: string,
   peerId: string
 ): Promise<any[]> => {
-  try {
-    const result = await apiCall(
-      `/get-messages?userId=${encodeURIComponent(userId)}&peerId=${encodeURIComponent(peerId)}`,
-      "GET"
-    );
-    return Array.isArray(result) ? result : result.data || [];
-  } catch {
-    return [];
-  }
+  await delay();
+  return MOCK_MESSAGES
+    .filter(m => (m.sender_id === userId && m.recipient_id === peerId) || 
+                 (m.sender_id === peerId && m.recipient_id === userId))
+    .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 };
 
 export const sendMessage = async (
@@ -326,10 +345,15 @@ export const sendMessage = async (
   content?: string,
   mediaUrl?: string
 ): Promise<any> => {
-  return await apiCall("/send-message", "POST", {
-    senderId,
-    recipientId,
-    content,
-    mediaUrl,
-  });
+  await delay();
+  const newMessage = {
+    id: `msg_${Date.now()}`,
+    sender_id: senderId,
+    recipient_id: recipientId,
+    content: content || '',
+    media_url: mediaUrl || null,
+    created_at: new Date().toISOString(),
+  };
+  MOCK_MESSAGES.push(newMessage);
+  return newMessage;
 };
