@@ -36,36 +36,47 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// Custom middleware to handle body reading safely
-// This prevents "body stream already read" errors in production environments
+// Custom body parser middleware to prevent "body stream already read" errors
+// This safely reads the body stream once and caches it
 app.use((req, res, next) => {
-  if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
-    let rawData = '';
-    req.setEncoding('utf8');
-
-    req.on('data', chunk => {
-      rawData += chunk;
-    });
-
-    req.on('end', () => {
-      try {
-        if (rawData) {
-          req.body = JSON.parse(rawData);
-        } else {
-          req.body = {};
-        }
-      } catch (e) {
-        req.body = {};
-      }
-      next();
-    });
-  } else {
-    next();
+  if (!['POST', 'PUT', 'PATCH'].includes(req.method)) {
+    return next();
   }
-});
 
-// Fallback to express.json() for any remaining cases
-app.use(express.json({ strict: false }));
+  const contentType = req.get('content-type');
+  if (!contentType || !contentType.includes('application/json')) {
+    return next();
+  }
+
+  let data = '';
+  req.setEncoding('utf8');
+
+  req.on('data', (chunk) => {
+    data += chunk;
+    // Prevent DoS attacks with overly large bodies
+    if (data.length > 1e6) {
+      data = '';
+      req.pause();
+      res.statusCode = 413;
+      res.end('{"error": "Payload too large"}');
+    }
+  });
+
+  req.on('end', () => {
+    try {
+      req.body = data ? JSON.parse(data) : {};
+    } catch (err) {
+      req.body = {};
+    }
+    next();
+  });
+
+  req.on('error', (err) => {
+    console.error('Request stream error:', err);
+    res.statusCode = 400;
+    res.end('{"error": "Bad request"}');
+  });
+});
 
 // Serve static files from dist in production
 if (NODE_ENV === 'production') {
