@@ -113,10 +113,21 @@ export const loginUser = async (
       body: JSON.stringify({ email, password, role }),
     });
 
-    const data = await response.json();
+    let data;
+    try {
+      // Clone the response to safely read the body if needed
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        return { success: false, error: "Server returned invalid response format" };
+      }
+      data = await response.json();
+    } catch (parseError) {
+      console.error("Failed to parse response:", parseError);
+      return { success: false, error: "Failed to parse server response" };
+    }
 
     if (!response.ok) {
-      return { success: false, error: data.error || "Login failed" };
+      return { success: false, error: data?.error || "Login failed" };
     }
 
     return {
