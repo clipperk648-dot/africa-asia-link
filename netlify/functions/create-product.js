@@ -1,5 +1,5 @@
 const { getModels } = require('./mongodb-connection');
-const { createErrorResponse, createJsonResponse } = require('./response-helper');
+const { createErrorResponse, createJsonResponse, parseBody } = require('./response-helper');
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
@@ -7,7 +7,7 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const data = JSON.parse(event.body);
+    const data = parseBody(event);
     const {
       name,
       category,
