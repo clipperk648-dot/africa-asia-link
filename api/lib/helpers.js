@@ -44,10 +44,4 @@ const parseBody = async (req) => {
   return req.body || {};
 };
 
-module.exports = {
-  getCorsHeaders,
-  handleCors,
-  sendError,
-  sendSuccess,
-  parseBody,
-};
+export { getCorsHeaders, handleCors, sendError, sendSuccess, parseBody };
