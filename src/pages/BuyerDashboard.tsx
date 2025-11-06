@@ -32,14 +32,14 @@ const ProductCard = ({ product, navigate }: { product: Product; navigate: any })
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <h3 className="font-semibold text-sm sm:text-base truncate">{product.name}</h3>
-          <p className="text-xs sm:text-sm text-muted-foreground truncate">{product.company}</p>
+          <p className="text-xs sm:text-sm text-cyan-300 truncate">{product.company}</p>
         </div>
         <div className="flex items-center gap-1 flex-shrink-0">
           <span className="text-accent">★</span>
           <span className="text-xs sm:text-sm font-medium">{product.rating}</span>
         </div>
       </div>
-      <p className="text-xs sm:text-sm text-muted-foreground truncate">{product.location}</p>
+      <p className="text-xs sm:text-sm text-cyan-300 truncate">{product.location}</p>
       <div className="flex items-center justify-between pt-2 gap-2">
         <p className="text-xl sm:text-2xl font-bold text-primary">
           ${product.price.toLocaleString()}
@@ -139,7 +139,7 @@ const BuyerDashboard = () => {
                   <div className="space-y-4">
                     {/* Menu Items with Glass Morphism */}
                     <div className="space-y-2">
-                      <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-3 mb-3">Navigation</h3>
+                      <h3 className="text-xs font-bold text-cyan-300 uppercase tracking-widest px-3 mb-3">Navigation</h3>
                       <Link to="/profile" className="block">
                         <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
                           <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Profile</span>
@@ -177,7 +177,7 @@ const BuyerDashboard = () => {
 
                     {/* Quick Actions for Buyer */}
                     <div className="pt-4 border-t border-border/50">
-                      <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-3 mb-3">Quick Actions</h3>
+                      <h3 className="text-xs font-bold text-cyan-300 uppercase tracking-widest px-3 mb-3">Quick Actions</h3>
                       <Link to="/buyer/products" className="block mb-1">
                         <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-2">
                           <div className="p-1.5 rounded-md bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
@@ -234,7 +234,7 @@ const BuyerDashboard = () => {
 
           <div className="mt-2 flex items-center justify-between">
             <div>
-              <h1 className="text-base font-semibold">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Buyer'}!</h1>
+              <h1 className="text-base font-semibold text-white">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Buyer'}!</h1>
             </div>
 
             <div className="flex items-center gap-2">
@@ -256,13 +256,13 @@ const BuyerDashboard = () => {
                         <AvatarFallback>{(user?.name?.[0] || 'U')}</AvatarFallback>
                       </Avatar>
                     </div>
-                    <svg className="w-4 h-4 text-muted-foreground" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <svg className="w-4 h-4 text-cyan-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <div className="px-3 py-2">
                     <p className="text-sm font-medium">{user?.name || 'User'}</p>
-                    <p className="text-xs text-muted-foreground">{user?.email}</p>
+                    <p className="text-xs text-cyan-300">{user?.email}</p>
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => navigate('/profile')}>My Profile</DropdownMenuItem>
@@ -289,7 +289,7 @@ const BuyerDashboard = () => {
             <GlassCard key={i} className="text-center p-4">
               <stat.icon className={`w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1.5 ${stat.color}`} />
               <p className="text-base sm:text-lg font-bold">{stat.value}</p>
-              <p className="text-[11px] sm:text-xs text-muted-foreground">{stat.label}</p>
+              <p className="text-[11px] sm:text-xs text-cyan-300">{stat.label}</p>
             </GlassCard>
           ))}
         </div>
@@ -351,7 +351,7 @@ const BuyerDashboard = () => {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold text-base sm:text-lg truncate">{order.productName}</p>
-                      <p className="text-xs sm:text-sm text-muted-foreground">
+                      <p className="text-xs sm:text-sm text-cyan-300">
                         Order #{order.id} • Qty: {order.quantity}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">{order.date}</p>
@@ -405,7 +405,7 @@ const BuyerDashboard = () => {
           </div>
         </section>
 
-        <section className="pt-2 pb-4 text-xs text-muted-foreground text-center">
+        <section className="pt-2 pb-4 text-xs text-cyan-300 text-center">
           <span className="font-medium">Rates:</span> 1 USD ≈ $1,600 • 1 CNY ≈ $220
         </section>
       </main>
