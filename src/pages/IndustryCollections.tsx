@@ -296,23 +296,23 @@ const IndustryCollections = () => {
 
       {!isLoading && (
         <header className="absolute top-0 left-0 right-0 z-50 bg-card/5 backdrop-blur-md">
-          <div className="max-w-3xl mx-auto px-3 py-1 flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Back">
-              <ArrowLeft className="w-5 h-5" />
+          <div className="max-w-3xl mx-auto px-2 sm:px-3 py-1 flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10" onClick={() => navigate(-1)} aria-label="Back">
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
-            <h1 className="text-lg font-bold">Collections</h1>
+            <h1 className="text-base sm:text-lg font-bold">Collections</h1>
           </div>
-          <div className="max-w-3xl mx-auto px-3 pb-1">
-            <div className="flex gap-2 overflow-x-auto no-scrollbar">
-              <Button variant={activeCategory==='all'? 'gradient':'secondary'} size="sm" onClick={() => setActiveCategory('all')}>All</Button>
+          <div className="max-w-3xl mx-auto px-2 sm:px-3 pb-1">
+            <div className="flex gap-1 sm:gap-2 overflow-x-auto no-scrollbar">
+              <Button variant={activeCategory==='all'? 'gradient':'secondary'} size="xs" onClick={() => setActiveCategory('all')} className="text-xs px-2 py-1 sm:px-3 sm:py-2">All</Button>
               {categories.map(c => (
-                <Button key={c.key} variant={activeCategory===c.key? 'gradient':'secondary'} size="sm" onClick={() => {
+                <Button key={c.key} variant={activeCategory===c.key? 'gradient':'secondary'} size="xs" onClick={() => {
                   setActiveCategory(c.key);
                   const idx = (categorizedIndexes[c.key]||[])[0];
                   if (typeof idx === 'number') {
                     const el = scrollRef.current; if (el) { el.scrollTo({ top: idx * el.clientHeight, behavior: 'smooth' }); setCurrentFrame(idx); }
                   }
-                }}>{c.label}</Button>
+                }} className="text-xs px-2 py-1 sm:px-3 sm:py-2">{c.label}</Button>
               ))}
             </div>
           </div>
