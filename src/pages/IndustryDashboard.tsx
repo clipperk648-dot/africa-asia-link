@@ -128,7 +128,7 @@ const IndustryDashboard = () => {
                 <div className="space-y-4">
                   {/* Menu Items with Glass Morphism */}
                   <div className="space-y-2">
-                    <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-3 mb-3">Navigation</h3>
+                    <h3 className="text-xs font-bold text-cyan-300 uppercase tracking-widest px-3 mb-3">Navigation</h3>
                     <Link to="/profile" className="block">
                       <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
                         <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Profile</span>
