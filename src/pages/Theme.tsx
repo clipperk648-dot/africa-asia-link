@@ -7,10 +7,9 @@ import { getThemeBgVideoUrl, setThemeBgVideoUrl, clearThemeBgVideoUrl } from "@/
 import { toast } from "@/hooks/use-toast";
 
 const PRESETS = [
-  "https://cdn.builder.io/o/assets%2Fc706eebe18b442a3aa75b1244fbbcf66%2F1aaeb9f83cf44d02b2bcd9d5ecf85454?alt=media&token=603a98f3-0dff-4e9a-a40d-2b060c925d1d&apiKey=c706eebe18b442a3aa75b1244fbbcf66",
-  "https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2F0c96833d8ac746ba8f8470e123ec57ad?alt=media&token=8a70877c-77a0-4213-8746-6ef633920336&apiKey=7afe82ec80e94b858c506425dab51b31",
-  "https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2Fe53db1a3d8ae4af2885ba42e3e4684e8?alt=media&token=95bb3b68-0d18-4724-b854-aac66e38f79e&apiKey=7afe82ec80e94b858c506425dab51b31",
-  "https://cdn.builder.io/o/assets%2Fb6198669f4754d65b52a472eb983bf6a%2F6ab81d8bc2104d80a11be4eec42e7669?alt=media&token=25351e25-3755-4cc3-938c-769f0c5526f3&apiKey=b6198669f4754d65b52a472eb983bf6a",
+  "https://cdn.builder.io/o/assets%2Fac04b410f62447a685d022b740662952%2F50fac8e3b60e4594a88c28d100834c2e?alt=media&token=6cd2d9a6-2c30-4170-bc75-4c3c5e211104&apiKey=ac04b410f62447a685d022b740662952",
+  "https://cdn.builder.io/o/assets%2Fac04b410f62447a685d022b740662952%2Fae4e6b52283e442885ccefe25dd39758?alt=media&token=11534498-1a45-4c55-a253-99b27e1dae90&apiKey=ac04b410f62447a685d022b740662952",
+  "https://cdn.builder.io/o/assets%2Fac04b410f62447a685d022b740662952%2F01598f5028244eb69218540f7a6fc822?alt=media&token=93a01ff5-eb48-4243-9029-5b8d301fda05&apiKey=ac04b410f62447a685d022b740662952",
 ];
 
 const Theme = () => {
