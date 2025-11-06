@@ -249,6 +249,8 @@ const BuyerCollections = () => {
         muted
         loop
         playsInline
+        preload="metadata"
+        crossOrigin="anonymous"
       >
         <source
           src={getThemeBgVideoUrl() || "https://cdn.builder.io/o/assets%2Fc706eebe18b442a3aa75b1244fbbcf66%2F1aaeb9f83cf44d02b2bcd9d5ecf85454?alt=media&token=603a98f3-0dff-4e9a-a40d-2b060c925d1d&apiKey=c706eebe18b442a3aa75b1244fbbcf66"}
