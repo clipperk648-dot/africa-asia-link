@@ -39,7 +39,7 @@ const Index = () => {
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="none"
           crossOrigin="anonymous"
           className="absolute inset-0 w-full h-full object-cover"
         >
