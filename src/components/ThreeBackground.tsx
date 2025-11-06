@@ -29,6 +29,11 @@ const ThreeBackground = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // Don't render particles when a custom theme background is set
+    if (themeBgUrl) {
+      return;
+    }
+
     // Respect reduced motion: render static gradient only
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) {
@@ -273,7 +278,7 @@ const ThreeBackground = () => {
       window.removeEventListener("orientationchange", handleOrientationChange);
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [themeBgUrl]);
 
   return (
     <>
@@ -282,14 +287,16 @@ const ThreeBackground = () => {
           <source src={themeBgUrl} type="video/mp4" />
         </video>
       ) : null}
-      <canvas
-        ref={canvasRef}
-        className="fixed top-0 left-0 w-full h-full -z-10 bg-gradient-to-br from-background via-background to-primary/5"
-        style={{
-          touchAction: 'none',
-          imageRendering: 'crisp-edges',
-        }}
-      />
+      {!themeBgUrl && (
+        <canvas
+          ref={canvasRef}
+          className="fixed top-0 left-0 w-full h-full -z-10 bg-gradient-to-br from-background via-background to-primary/5"
+          style={{
+            touchAction: 'none',
+            imageRendering: 'crisp-edges',
+          }}
+        />
+      )}
     </>
   );
 };

@@ -7,6 +7,7 @@ import { ArrowLeft, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Maximize2
 import ThreeBackground from "@/components/ThreeBackground";
 import LoadingSplashScreen from "@/components/LoadingSplashScreen";
 import { getThemeBgVideoUrl } from "@/utils/theme";
+import { preloadCollectionVideos, optimizeVideoElement, pauseAllVideosExcept, playVideoSafely } from "@/utils/videoOptimization";
 
 const fullDisplayButtonStyles = `
   @keyframes scalePress {
@@ -121,6 +122,19 @@ const BuyerCollections = () => {
   const handleSplashScreenEnd = useCallback(() => {
     setIsLoading(false);
   }, []);
+
+  // Preload all collection videos at once for optimal performance
+  useEffect(() => {
+    const videoUrls = frames.map(f => f.videoUrl);
+    preloadCollectionVideos(videoUrls).catch(err => {
+      console.warn('Some videos failed to preload:', err);
+    });
+
+    // Cleanup on unmount
+    return () => {
+      // Videos remain cached for better performance on remount
+    };
+  }, [frames]);
 
   const goNext = useCallback(() => {
     const el = scrollRef.current;
@@ -249,7 +263,7 @@ const BuyerCollections = () => {
         muted
         loop
         playsInline
-        preload="none"
+        preload="metadata"
         crossOrigin="anonymous"
       >
         <source
@@ -272,11 +286,11 @@ const BuyerCollections = () => {
 
       {!isLoading && (
         <header className="absolute top-0 left-0 right-0 z-50 bg-card/5 backdrop-blur-md">
-          <div className="max-w-3xl mx-auto px-3 py-1 flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-              <ArrowLeft className="w-5 h-5" />
+          <div className="max-w-3xl mx-auto px-2 sm:px-3 py-1 flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10" onClick={() => navigate(-1)}>
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
-            <h1 className="text-xl font-bold">Collections</h1>
+            <h1 className="text-lg sm:text-xl font-bold">Collections</h1>
           </div>
         </header>
       )}
@@ -303,7 +317,7 @@ const BuyerCollections = () => {
                         loop
                         muted
                         playsInline
-                        preload="none"
+                        preload="metadata"
                         onContextMenu={handleVideoContextMenu}
                         disablePictureInPicture
                       />
@@ -319,16 +333,16 @@ const BuyerCollections = () => {
                 </div>
 
                 {hasVideo && (
-                  <div className="flex flex-col gap-6 items-center justify-center mt-6">
-                    <div className="flex gap-8 items-center">
+                  <div className="flex flex-col gap-4 items-center justify-center mt-4 w-full px-2">
+                    <div className="flex gap-2 sm:gap-4 items-center flex-wrap justify-center">
                       <Button
                         size="lg"
                         variant="secondary"
                         onClick={() => skipVideoBackward(idx)}
                         aria-label="Skip back 2 seconds"
-                        className="rounded-full w-14 h-14"
+                        className="rounded-full w-10 h-10 sm:w-14 sm:h-14"
                       >
-                        <ChevronLeft className="w-6 h-6" />
+                        <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
                       </Button>
                       <Button
                         variant="gradient"
@@ -338,19 +352,20 @@ const BuyerCollections = () => {
                         onTouchStart={handleTouchStart}
                         onTouchEnd={handleTouchEnd}
                         data-frame-idx={idx}
-                        className="gap-2 full-display-button px-6 py-3"
+                        className="gap-2 full-display-button px-3 py-2 sm:px-6 sm:py-3 text-sm sm:text-base"
                       >
-                        <Maximize2 className="w-5 h-5" />
-                        Full Display
+                        <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <span className="hidden sm:inline">Full Display</span>
+                        <span className="sm:hidden">Display</span>
                       </Button>
                       <Button
                         size="lg"
                         variant="secondary"
                         onClick={() => skipVideoForward(idx)}
                         aria-label="Skip forward 2 seconds"
-                        className="rounded-full w-14 h-14"
+                        className="rounded-full w-10 h-10 sm:w-14 sm:h-14"
                       >
-                        <ChevronRight className="w-6 h-6" />
+                        <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
                       </Button>
                     </div>
                   </div>
@@ -390,20 +405,20 @@ const BuyerCollections = () => {
 
       {/* Floating navigation */}
       {!isLoading && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex gap-3">
-          <Button variant="outline" onClick={() => navigate(-1)}>Back</Button>
-          <Button variant="gradient" onClick={goNext} disabled={currentFrame >= frames.length - 1}>Next</Button>
+        <div className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 flex gap-2 sm:gap-3">
+          <Button variant="outline" size="sm" onClick={() => navigate(-1)} className="text-xs sm:text-sm px-3 sm:px-4">Back</Button>
+          <Button variant="gradient" size="sm" onClick={goNext} disabled={currentFrame >= frames.length - 1} className="text-xs sm:text-sm px-3 sm:px-4">Next</Button>
         </div>
       )}
 
       {/* Up/Down arrows for frame navigation */}
       {!isLoading && (
-        <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2">
-          <Button size="icon" variant="secondary" onClick={goPrev} aria-label="Previous frame">
-            <ChevronUp className="w-5 h-5" />
+        <div className="fixed right-2 sm:right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1 sm:gap-2">
+          <Button size="icon" variant="secondary" onClick={goPrev} aria-label="Previous frame" className="h-9 w-9 sm:h-10 sm:w-10">
+            <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
-          <Button size="icon" variant="secondary" onClick={goNext} aria-label="Next frame">
-            <ChevronDown className="w-5 h-5" />
+          <Button size="icon" variant="secondary" onClick={goNext} aria-label="Next frame" className="h-9 w-9 sm:h-10 sm:w-10">
+            <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
         </div>
       )}

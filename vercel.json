@@ -60,9 +60,7 @@
       ]
     }
   ],
-  "env": [
-    "MONGODB_URI"
-  ],
+  "env": {},
   "functions": {
     "api/**/*.{js,ts}": {
       "maxDuration": 60,
