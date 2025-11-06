@@ -136,7 +136,7 @@ const IndustryDashboard = () => {
                     </Link>
                     <Link to="/industry/settings" className="block">
                       <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
-                        <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Settings</span>
+                        <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Settings</span>
                       </div>
                     </Link>
                     <Link to="/industry/collections" className="block">
