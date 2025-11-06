@@ -107,7 +107,7 @@ const IndustryDashboard = () => {
     <div className="min-h-screen pb-24 relative">
       <ThreeBackground />
 
-      <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
+      <header className="backdrop-blur-xl bg-card/10 border-b border-border/20 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-3 py-1">
           {/* Row 1: brand + menu */}
           <div className="flex items-center justify-between">
