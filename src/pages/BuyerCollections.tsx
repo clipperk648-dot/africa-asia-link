@@ -272,11 +272,11 @@ const BuyerCollections = () => {
 
       {!isLoading && (
         <header className="absolute top-0 left-0 right-0 z-50 bg-card/5 backdrop-blur-md">
-          <div className="max-w-3xl mx-auto px-3 py-1 flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-              <ArrowLeft className="w-5 h-5" />
+          <div className="max-w-3xl mx-auto px-2 sm:px-3 py-1 flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10" onClick={() => navigate(-1)}>
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
-            <h1 className="text-xl font-bold">Collections</h1>
+            <h1 className="text-lg sm:text-xl font-bold">Collections</h1>
           </div>
         </header>
       )}
