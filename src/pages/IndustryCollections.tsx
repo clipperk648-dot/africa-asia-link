@@ -9,6 +9,7 @@ import LoadingSplashScreen from "@/components/LoadingSplashScreen";
 import { saveShowroomItem } from "@/utils/showroom";
 import { getThemeBgVideoUrl } from "@/utils/theme";
 import { toast } from "@/hooks/use-toast";
+import { preloadCollectionVideos, optimizeVideoElement, pauseAllVideosExcept, playVideoSafely } from "@/utils/videoOptimization";
 
 const fullDisplayButtonStyles = `
   @keyframes scalePress {
