@@ -44,7 +44,7 @@ const Theme = () => {
       <main className="max-w-4xl mx-auto px-3 py-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
         {PRESETS.map((url) => (
           <div key={url} className="relative rounded-xl overflow-hidden border border-border/50">
-            <video className="w-full h-48 object-cover bg-muted" muted loop playsInline>
+            <video className="w-full h-48 object-cover bg-muted" muted loop playsInline preload="metadata" crossOrigin="anonymous">
               <source src={url} type="video/mp4" />
             </video>
             <div className="p-2 flex items-center justify-between">
