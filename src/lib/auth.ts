@@ -61,14 +61,19 @@ export const registerUser = async (
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include",
       body: JSON.stringify({ email, password, name, phone, role }),
     });
 
-    const data = await response.json();
+    let data;
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      console.error("Failed to parse response:", parseError);
+      return { success: false, error: "Failed to parse server response" };
+    }
 
     if (!response.ok) {
-      return { success: false, error: data.error || "Registration failed" };
+      return { success: false, error: data?.error || "Registration failed" };
     }
 
     return {
@@ -85,7 +90,7 @@ export const registerUser = async (
   } catch (error) {
     console.error("Registration failed:", error);
     const errorMsg = error instanceof TypeError && error.message === "Failed to fetch"
-      ? "Unable to connect to authentication server. Please ensure you're using the correct preview environment."
+      ? "Unable to connect to authentication server. Please check the API URL configuration."
       : String(error) || "Registration failed. Please try again.";
     return { success: false, error: errorMsg };
   }
