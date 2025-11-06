@@ -29,7 +29,7 @@ const Theme = () => {
   return (
     <div className="min-h-screen relative overflow-hidden">
       <ThreeBackground />
-      <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
+      <header className="backdrop-blur-xl bg-card/30 border-b border-border/50 sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-3 py-1 flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Back">
             <ArrowLeft className="w-5 h-5" />
