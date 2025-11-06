@@ -299,10 +299,6 @@ const IndustryCollections = () => {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <h1 className="text-lg font-bold">Collections</h1>
-            <div className="ml-auto flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => navigate('/industry/showroom')}>Showroom</Button>
-              <Button variant="outline" size="sm" onClick={() => navigate('/theme')}>Theme</Button>
-            </div>
           </div>
           <div className="max-w-3xl mx-auto px-3 pb-1">
             <div className="flex gap-2 overflow-x-auto no-scrollbar">
