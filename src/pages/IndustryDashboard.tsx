@@ -27,7 +27,7 @@ const ProductCard = ({ product }: { product: Product }) => (
       />
       <div className="flex-1 min-w-0">
         <h3 className="font-semibold text-sm sm:text-base truncate">{product.name}</h3>
-        <p className="text-[11px] sm:text-xs text-muted-foreground truncate">{product.category}</p>
+        <p className="text-[11px] sm:text-xs text-cyan-300 truncate">{product.category}</p>
         <div className="flex items-center justify-between mt-2 gap-2">
           <p className="text-base sm:text-lg font-bold text-primary">¥{product.price.toLocaleString()}</p>
           <div className="flex items-center gap-1 flex-shrink-0">
@@ -209,7 +209,7 @@ const IndustryDashboard = () => {
           {/* Row 2: welcome + actions */}
           <div className="mt-2 flex items-center justify-between">
             <div>
-              <h1 className="text-base font-semibold">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Seller'}!</h1>
+              <h1 className="text-base font-semibold text-white">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Seller'}!</h1>
             </div>
 
             <div className="flex items-center gap-2">
@@ -230,13 +230,13 @@ const IndustryDashboard = () => {
                         <AvatarFallback>{user?.name?.[0] || "U"}</AvatarFallback>
                       </Avatar>
                     </div>
-                    <svg className="w-4 h-4 text-muted-foreground" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <svg className="w-4 h-4 text-cyan-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <div className="px-3 py-2">
                     <p className="text-sm font-medium">{user?.name || 'User'}</p>
-                    <p className="text-xs text-muted-foreground">{user?.email}</p>
+                    <p className="text-xs text-cyan-300">{user?.email}</p>
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => navigate('/profile')}>My Profile</DropdownMenuItem>
@@ -268,7 +268,7 @@ const IndustryDashboard = () => {
             <GlassCard key={i} className="text-center p-4">
               <stat.icon className={`w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1.5 ${stat.color}`} />
               <p className="text-base sm:text-lg font-bold">{stat.value}</p>
-              <p className="text-[11px] sm:text-xs text-muted-foreground">{stat.label}</p>
+              <p className="text-[11px] sm:text-xs text-cyan-300">{stat.label}</p>
             </GlassCard>
           ))}
         </div>
@@ -322,7 +322,7 @@ const IndustryDashboard = () => {
           <div className="space-y-3">
             {orders.length === 0 ? (
               <GlassCard className="p-8 text-center">
-                <p className="text-muted-foreground">No orders yet.</p>
+                <p className="text-cyan-300">No orders yet.</p>
               </GlassCard>
             ) : (
               orders.slice(0, 2).map((order) => (
@@ -330,7 +330,7 @@ const IndustryDashboard = () => {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold text-base sm:text-lg truncate">{order.productName}</p>
-                      <p className="text-xs sm:text-sm text-muted-foreground">Order #{order.id} • {order.date}</p>
+                      <p className="text-xs sm:text-sm text-cyan-300">Order #{order.id} • {order.date}</p>
                     </div>
                     <div className="flex items-center gap-3 sm:gap-4">
                       <div className="text-left sm:text-right">
@@ -381,7 +381,7 @@ const IndustryDashboard = () => {
           </div>
         </section>
 
-        <section className="py-2 text-xs text-muted-foreground text-center">
+        <section className="py-2 text-xs text-cyan-300 text-center">
           <span className="font-medium">Rates:</span> 1 USD ≈ $7.1 • 1 CNY ≈ $220
         </section>
       </main>
