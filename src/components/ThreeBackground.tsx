@@ -221,11 +221,12 @@ const ThreeBackground = () => {
         }
       }
 
-      if (enableConnections) {
+      // Only draw connections on larger screens for performance
+      if (enableConnections && !isMobile) {
         for (let i = 0; i < particles.length; i++) {
           const a = particles[i];
-          // Limit connection checks on mobile
-          const limit = isMobile ? i + 5 : particles.length;
+          // Limit connection checks to nearby particles only
+          const limit = Math.min(i + 8, particles.length);
           for (let j = i + 1; j < limit; j++) {
             const b = particles[j];
             const dx = a.x - b.x;
@@ -233,9 +234,9 @@ const ThreeBackground = () => {
             const distanceSq = dx * dx + dy * dy;
             if (distanceSq < connectionDistanceSq) {
               const distance = Math.sqrt(distanceSq);
-              const opacity = 0.4 * (1 - distance / connectionDistance);
+              const opacity = 0.3 * (1 - distance / connectionDistance);
               context.strokeStyle = `rgba(138, 108, 253, ${opacity})`;
-              context.lineWidth = isMobile ? 1.5 : 2.5;
+              context.lineWidth = 2;
               context.beginPath();
               context.moveTo(a.x, a.y);
               context.lineTo(b.x, b.y);
