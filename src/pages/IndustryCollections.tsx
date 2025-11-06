@@ -357,16 +357,16 @@ const IndustryCollections = () => {
                 </div>
 
                 {hasVideo && (
-                  <div className="flex flex-col gap-6 items-center justify-center mt-6">
-                    <div className="flex gap-3 items-center flex-wrap justify-center">
+                  <div className="flex flex-col gap-4 items-center justify-center mt-4 w-full px-2">
+                    <div className="flex gap-2 sm:gap-3 items-center flex-wrap justify-center">
                       <Button
                         size="lg"
                         variant="secondary"
                         onClick={() => skipVideoBackward(idx)}
                         aria-label="Skip back 2 seconds"
-                        className="rounded-full w-14 h-14"
+                        className="rounded-full w-10 h-10 sm:w-14 sm:h-14"
                       >
-                        <ChevronLeft className="w-6 h-6" />
+                        <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
                       </Button>
                       <Button
                         variant="gradient"
@@ -376,26 +376,28 @@ const IndustryCollections = () => {
                         onTouchStart={handleTouchStart}
                         onTouchEnd={handleTouchEnd}
                         data-frame-idx={idx}
-                        className="gap-2 full-display-button px-5 py-2"
+                        className="gap-2 full-display-button px-3 py-2 sm:px-5 sm:py-2 text-sm sm:text-base"
                       >
-                        <Maximize2 className="w-5 h-5" />
-                        Full Display
+                        <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <span className="hidden sm:inline">Full Display</span>
+                        <span className="sm:hidden">Display</span>
                       </Button>
                       <Button
                         variant="secondary"
                         onClick={() => { saveShowroomItem(frames[idx].videoUrl, frames[idx].title); toast({ title: 'Collection saved', description: 'Added to your showroom' }); }}
-                        className="px-5 py-2"
+                        className="px-2 py-2 sm:px-4 sm:py-2 text-xs sm:text-sm"
                       >
-                        Save to Showroom
+                        <span className="hidden sm:inline">Save to Showroom</span>
+                        <span className="sm:hidden">Save</span>
                       </Button>
                       <Button
                         size="lg"
                         variant="secondary"
                         onClick={() => skipVideoForward(idx)}
                         aria-label="Skip forward 2 seconds"
-                        className="rounded-full w-14 h-14"
+                        className="rounded-full w-10 h-10 sm:w-14 sm:h-14"
                       >
-                        <ChevronRight className="w-6 h-6" />
+                        <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
                       </Button>
                     </div>
                   </div>
