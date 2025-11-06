@@ -144,7 +144,7 @@ const IndustryDashboard = () => {
                         <div className="p-1.5 rounded-md bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
                           <Box className="w-3 h-3 text-primary" />
                         </div>
-                        <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Collections</span>
+                        <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Collections</span>
                       </div>
                     </Link>
                     <Link to="/industry/showroom" className="block">
@@ -152,7 +152,7 @@ const IndustryDashboard = () => {
                         <div className="p-1.5 rounded-md bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
                           <Box className="w-3 h-3 text-primary" />
                         </div>
-                        <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Showroom</span>
+                        <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Showroom</span>
                       </div>
                     </Link>
                     <Link to="/theme" className="block">
@@ -160,22 +160,22 @@ const IndustryDashboard = () => {
                         <div className="p-1.5 rounded-md bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
                           <Palette className="w-3 h-3 text-primary" />
                         </div>
-                        <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Theme</span>
+                        <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Theme</span>
                       </div>
                     </Link>
                     <Link to="/wallet" className="block">
                       <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
-                        <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Wallet</span>
+                        <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Wallet</span>
                       </div>
                     </Link>
                     <Link to="/invest" className="block">
                       <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
-                        <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Invest</span>
+                        <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Invest</span>
                       </div>
                     </Link>
                     <Link to="/notifications" className="block">
                       <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
-                        <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Notifications</span>
+                        <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Notifications</span>
                       </div>
                     </Link>
                   </div>
