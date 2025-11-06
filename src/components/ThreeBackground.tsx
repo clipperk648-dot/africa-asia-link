@@ -278,7 +278,7 @@ const ThreeBackground = () => {
       window.removeEventListener("orientationchange", handleOrientationChange);
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [themeBgUrl]);
 
   return (
     <>
