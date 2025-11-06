@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Check } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
-import { getThemeBgVideoUrl, setThemeBgVideoUrl } from "@/utils/theme";
+import { getThemeBgVideoUrl, setThemeBgVideoUrl, clearThemeBgVideoUrl } from "@/utils/theme";
 import { toast } from "@/hooks/use-toast";
 
 const PRESETS = [
@@ -36,6 +36,9 @@ const Theme = () => {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h1 className="text-lg font-bold">Theme</h1>
+          <div className="ml-auto">
+            <Button variant="outline" size="sm" onClick={() => { clearThemeBgVideoUrl(); setCurrent(null); toast({ title: 'Theme reset', description: 'Background restored to default.' }); }}>Default</Button>
+          </div>
         </div>
       </header>
 
