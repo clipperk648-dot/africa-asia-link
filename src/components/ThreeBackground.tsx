@@ -278,7 +278,7 @@ const ThreeBackground = () => {
   return (
     <>
       {themeBgUrl ? (
-        <video className="fixed top-0 left-0 w-full h-full object-cover -z-20" autoPlay muted loop playsInline>
+        <video className="fixed top-0 left-0 w-full h-full object-cover -z-20" autoPlay muted loop playsInline preload="metadata" crossOrigin="anonymous">
           <source src={themeBgUrl} type="video/mp4" />
         </video>
       ) : null}
