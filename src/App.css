@@ -216,15 +216,15 @@
 
 /* Stagger animations for list items */
 .animate-stagger {
-  animation: slide-up 0.6s ease-out;
+  animation: slide-up 0.5s ease-out;
 }
 
-.animate-stagger:nth-child(1) { animation-delay: 0.05s; }
-.animate-stagger:nth-child(2) { animation-delay: 0.1s; }
-.animate-stagger:nth-child(3) { animation-delay: 0.15s; }
-.animate-stagger:nth-child(4) { animation-delay: 0.2s; }
-.animate-stagger:nth-child(5) { animation-delay: 0.25s; }
-.animate-stagger:nth-child(6) { animation-delay: 0.3s; }
+.animate-stagger:nth-child(1) { animation-delay: 0.02s; }
+.animate-stagger:nth-child(2) { animation-delay: 0.04s; }
+.animate-stagger:nth-child(3) { animation-delay: 0.06s; }
+.animate-stagger:nth-child(4) { animation-delay: 0.08s; }
+.animate-stagger:nth-child(5) { animation-delay: 0.1s; }
+.animate-stagger:nth-child(6) { animation-delay: 0.12s; }
 
 /* ============================================
    Transition Utilities
