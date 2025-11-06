@@ -9,20 +9,20 @@ type Particle = {
   color: string;
 };
 
-import { getThemeBgVideoUrl } from "@/utils/theme";
+import { getThemeBgVideoUrl, THEME_BG_CHANGED_EVENT } from "@/utils/theme";
 
 const ThreeBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [themeBgUrl, setThemeBgUrl] = useState<string | null>(getThemeBgVideoUrl());
 
-  // Listen for storage changes to update background video
+  // Listen for theme background changes (works in same tab via custom event)
   useEffect(() => {
-    const handleStorageChange = () => {
-      setThemeBgUrl(getThemeBgVideoUrl());
+    const handleThemeChange = (event: any) => {
+      setThemeBgUrl(event.detail);
     };
 
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
+    window.addEventListener(THEME_BG_CHANGED_EVENT, handleThemeChange);
+    return () => window.removeEventListener(THEME_BG_CHANGED_EVENT, handleThemeChange);
   }, []);
 
   useEffect(() => {
