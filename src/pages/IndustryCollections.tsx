@@ -445,12 +445,12 @@ const IndustryCollections = () => {
 
       {/* Up/Down arrows for frame navigation */}
       {!isLoading && (
-        <div className="fixed right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2">
-          <Button size="icon" variant="secondary" onClick={goPrev} aria-label="Previous frame">
-            <ChevronUp className="w-5 h-5" />
+        <div className="fixed right-2 sm:right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1 sm:gap-2">
+          <Button size="icon" variant="secondary" onClick={goPrev} aria-label="Previous frame" className="h-9 w-9 sm:h-10 sm:w-10">
+            <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
-          <Button size="icon" variant="secondary" onClick={goNext} aria-label="Next frame">
-            <ChevronDown className="w-5 h-5" />
+          <Button size="icon" variant="secondary" onClick={goNext} aria-label="Next frame" className="h-9 w-9 sm:h-10 sm:w-10">
+            <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
         </div>
       )}
