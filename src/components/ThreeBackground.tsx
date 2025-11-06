@@ -282,14 +282,16 @@ const ThreeBackground = () => {
           <source src={themeBgUrl} type="video/mp4" />
         </video>
       ) : null}
-      <canvas
-        ref={canvasRef}
-        className="fixed top-0 left-0 w-full h-full -z-10 bg-gradient-to-br from-background via-background to-primary/5"
-        style={{
-          touchAction: 'none',
-          imageRendering: 'crisp-edges',
-        }}
-      />
+      {!themeBgUrl && (
+        <canvas
+          ref={canvasRef}
+          className="fixed top-0 left-0 w-full h-full -z-10 bg-gradient-to-br from-background via-background to-primary/5"
+          style={{
+            touchAction: 'none',
+            imageRendering: 'crisp-edges',
+          }}
+        />
+      )}
     </>
   );
 };
