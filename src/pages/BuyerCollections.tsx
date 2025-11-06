@@ -391,9 +391,9 @@ const BuyerCollections = () => {
 
       {/* Floating navigation */}
       {!isLoading && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex gap-3">
-          <Button variant="outline" onClick={() => navigate(-1)}>Back</Button>
-          <Button variant="gradient" onClick={goNext} disabled={currentFrame >= frames.length - 1}>Next</Button>
+        <div className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 flex gap-2 sm:gap-3">
+          <Button variant="outline" size="sm" onClick={() => navigate(-1)} className="text-xs sm:text-sm px-3 sm:px-4">Back</Button>
+          <Button variant="gradient" size="sm" onClick={goNext} disabled={currentFrame >= frames.length - 1} className="text-xs sm:text-sm px-3 sm:px-4">Next</Button>
         </div>
       )}
 
