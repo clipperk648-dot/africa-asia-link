@@ -203,21 +203,22 @@ const ThreeBackground = () => {
           p.velocityY *= -bounceCoefficient;
         }
 
-        // Particle glow - skip on mobile for better performance
-        if (!isMobile) {
-          const gradient = context.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
-          gradient.addColorStop(0, p.color);
-          gradient.addColorStop(1, "rgba(138,108,253,0)");
-          context.fillStyle = gradient;
+        // Particle glow - use simple shadow instead of expensive gradient
+        const shouldDrawGlow = !isMobile && window.innerWidth > 1024;
+        if (shouldDrawGlow) {
+          context.shadowColor = p.color;
+          context.shadowBlur = p.size * 2;
+          context.fillStyle = p.color;
           context.beginPath();
-          context.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
+          context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          context.fill();
+          context.shadowBlur = 0;
+        } else {
+          context.fillStyle = p.color;
+          context.beginPath();
+          context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
           context.fill();
         }
-
-        context.fillStyle = p.color;
-        context.beginPath();
-        context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        context.fill();
       }
 
       if (enableConnections) {
