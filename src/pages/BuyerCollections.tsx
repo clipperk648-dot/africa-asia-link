@@ -123,6 +123,19 @@ const BuyerCollections = () => {
     setIsLoading(false);
   }, []);
 
+  // Preload all collection videos at once for optimal performance
+  useEffect(() => {
+    const videoUrls = frames.map(f => f.videoUrl);
+    preloadCollectionVideos(videoUrls).catch(err => {
+      console.warn('Some videos failed to preload:', err);
+    });
+
+    // Cleanup on unmount
+    return () => {
+      // Videos remain cached for better performance on remount
+    };
+  }, [frames]);
+
   const goNext = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
