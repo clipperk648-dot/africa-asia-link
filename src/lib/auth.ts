@@ -100,8 +100,8 @@ export const loginUser = async (
   role: "industry" | "buyer"
 ): Promise<{ success: boolean; user?: AuthUser; error?: string; token?: string }> => {
   try {
-    if (!email || !password) {
-      return { success: false, error: "Email and password required" };
+    if (!email || !password || !role) {
+      return { success: false, error: "Email, password, and role are required" };
     }
 
     const response = await fetch(`${API_BASE_URL}/login`, {
@@ -109,17 +109,12 @@ export const loginUser = async (
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include",
       body: JSON.stringify({ email, password, role }),
     });
 
+    // Parse JSON response
     let data;
     try {
-      // Clone the response to safely read the body if needed
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        return { success: false, error: "Server returned invalid response format" };
-      }
       data = await response.json();
     } catch (parseError) {
       console.error("Failed to parse response:", parseError);
@@ -144,7 +139,7 @@ export const loginUser = async (
   } catch (error) {
     console.error("Login failed:", error);
     const errorMsg = error instanceof TypeError && error.message === "Failed to fetch"
-      ? "Unable to connect to authentication server. Please ensure you're using the correct preview environment."
+      ? "Unable to connect to authentication server. Please check the API URL configuration."
       : String(error) || "Login failed. Please try again.";
     return { success: false, error: errorMsg };
   }
