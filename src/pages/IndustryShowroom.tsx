@@ -46,7 +46,7 @@ const IndustryShowroom = () => {
 
       <main className="relative z-20 max-w-3xl mx-auto px-3 pt-14 pb-24">
         {items.length === 0 ? (
-          <div className="text-center text-white/90 py-12">No saved videos yet.</div>
+          <div className="text-center text-white/90 py-12">No saved collections yet.</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {items.map((item) => (
