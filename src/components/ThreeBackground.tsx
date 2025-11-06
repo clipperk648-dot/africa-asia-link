@@ -145,31 +145,38 @@ const ThreeBackground = () => {
       const width = canvas.width;
       const height = canvas.height;
       const isMobile = window.innerWidth < 768;
+      const cohesionRadiusSq = cohesionRadius * cohesionRadius;
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
 
-        // Cohesion towards nearby particles (atomic clustering)
-        // Reduced on mobile for performance
-        let sumX = 0, sumY = 0, count = 0;
-        const maxNearby = isMobile ? 4 : 8;
-        for (let j = 0; j < particles.length && count < maxNearby; j++) {
-          if (i === j) continue;
-          const n = particles[j];
-          const dx = n.x - p.x;
-          const dy = n.y - p.y;
-          const d2 = dx * dx + dy * dy;
-          if (d2 < cohesionRadius * cohesionRadius) {
-            sumX += n.x;
-            sumY += n.y;
-            count++;
+        // Simplified cohesion: check only nearby particles spatially
+        // Skip on mobile for better performance
+        if (!isMobile && i % 2 === 0) {
+          // Apply cohesion only to every other particle to reduce calculations
+          let sumX = 0, sumY = 0, count = 0;
+          const maxNearby = 5;
+          const startIdx = Math.max(0, i - 10);
+          const endIdx = Math.min(particles.length, i + 10);
+
+          for (let j = startIdx; j < endIdx && count < maxNearby; j++) {
+            if (i === j) continue;
+            const n = particles[j];
+            const dx = n.x - p.x;
+            const dy = n.y - p.y;
+            const d2 = dx * dx + dy * dy;
+            if (d2 < cohesionRadiusSq) {
+              sumX += n.x;
+              sumY += n.y;
+              count++;
+            }
           }
-        }
-        if (count > 0) {
-          const cx = sumX / count;
-          const cy = sumY / count;
-          p.velocityX += (cx - p.x) * cohesionStrength;
-          p.velocityY += (cy - p.y) * cohesionStrength;
+          if (count > 0) {
+            const cx = sumX / count;
+            const cy = sumY / count;
+            p.velocityX += (cx - p.x) * cohesionStrength;
+            p.velocityY += (cy - p.y) * cohesionStrength;
+          }
         }
         p.velocityX *= velocityDamping;
         p.velocityY *= velocityDamping;
