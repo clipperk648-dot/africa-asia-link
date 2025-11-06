@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 
 type Particle = {
   x: number;
@@ -13,6 +13,17 @@ import { getThemeBgVideoUrl } from "@/utils/theme";
 
 const ThreeBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [themeBgUrl, setThemeBgUrl] = useState<string | null>(getThemeBgVideoUrl());
+
+  // Listen for storage changes to update background video
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setThemeBgUrl(getThemeBgVideoUrl());
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
