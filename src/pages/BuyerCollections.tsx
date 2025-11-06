@@ -269,7 +269,7 @@ const BuyerCollections = () => {
       {!isLoading && <ThreeBackground />}
 
       {!isLoading && (
-        <header className="absolute top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-md">
+        <header className="absolute top-0 left-0 right-0 z-50 bg-card/30 backdrop-blur-md">
           <div className="max-w-3xl mx-auto px-3 py-1 flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
               <ArrowLeft className="w-5 h-5" />
