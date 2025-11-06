@@ -108,6 +108,17 @@
   }
 }
 
+/* Optimized light mode animations */
+@media (prefers-color-scheme: light) {
+  .animate-gradient-shift {
+    animation: gradient-shift 12s ease infinite !important;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 3s ease-in-out infinite !important;
+  }
+}
+
 @keyframes rotate-smooth {
   from {
     transform: rotate(0deg);
