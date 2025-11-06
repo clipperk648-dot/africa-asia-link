@@ -265,12 +265,11 @@ const ThreeBackground = () => {
     };
   }, []);
 
-  const themeUrl = getThemeBgVideoUrl();
   return (
     <>
-      {themeUrl ? (
+      {themeBgUrl ? (
         <video className="fixed top-0 left-0 w-full h-full object-cover -z-20" autoPlay muted loop playsInline>
-          <source src={themeUrl} type="video/mp4" />
+          <source src={themeBgUrl} type="video/mp4" />
         </video>
       ) : null}
       <canvas
