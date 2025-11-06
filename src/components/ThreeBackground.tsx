@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 
 type Particle = {
   x: number;
@@ -9,10 +9,21 @@ type Particle = {
   color: string;
 };
 
-import { getThemeBgVideoUrl } from "@/utils/theme";
+import { getThemeBgVideoUrl, THEME_BG_CHANGED_EVENT } from "@/utils/theme";
 
 const ThreeBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [themeBgUrl, setThemeBgUrl] = useState<string | null>(getThemeBgVideoUrl());
+
+  // Listen for theme background changes (works in same tab via custom event)
+  useEffect(() => {
+    const handleThemeChange = (event: any) => {
+      setThemeBgUrl(event.detail);
+    };
+
+    window.addEventListener(THEME_BG_CHANGED_EVENT, handleThemeChange);
+    return () => window.removeEventListener(THEME_BG_CHANGED_EVENT, handleThemeChange);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -51,11 +62,12 @@ const ThreeBackground = () => {
 
     const getTargetParticleCount = () => {
       const w = window.innerWidth;
-      // Use window.innerHeight but ensure it's reasonable for mobile
       const h = Math.min(window.innerHeight, window.screen.height);
-      if (w < 640) return 40;
+      if (w < 480) return 25;
+      if (w < 640) return 35;
+      if (w < 1024) return 60;
       const area = w * h;
-      return Math.max(60, Math.min(180, Math.round(area / 35000) + 50));
+      return Math.max(80, Math.min(140, Math.round(area / 40000) + 40));
     };
 
     const createParticle = (): Particle => {
@@ -133,31 +145,38 @@ const ThreeBackground = () => {
       const width = canvas.width;
       const height = canvas.height;
       const isMobile = window.innerWidth < 768;
+      const cohesionRadiusSq = cohesionRadius * cohesionRadius;
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
 
-        // Cohesion towards nearby particles (atomic clustering)
-        // Reduced on mobile for performance
-        let sumX = 0, sumY = 0, count = 0;
-        const maxNearby = isMobile ? 4 : 8;
-        for (let j = 0; j < particles.length && count < maxNearby; j++) {
-          if (i === j) continue;
-          const n = particles[j];
-          const dx = n.x - p.x;
-          const dy = n.y - p.y;
-          const d2 = dx * dx + dy * dy;
-          if (d2 < cohesionRadius * cohesionRadius) {
-            sumX += n.x;
-            sumY += n.y;
-            count++;
+        // Simplified cohesion: check only nearby particles spatially
+        // Skip on mobile for better performance
+        if (!isMobile && i % 2 === 0) {
+          // Apply cohesion only to every other particle to reduce calculations
+          let sumX = 0, sumY = 0, count = 0;
+          const maxNearby = 5;
+          const startIdx = Math.max(0, i - 10);
+          const endIdx = Math.min(particles.length, i + 10);
+
+          for (let j = startIdx; j < endIdx && count < maxNearby; j++) {
+            if (i === j) continue;
+            const n = particles[j];
+            const dx = n.x - p.x;
+            const dy = n.y - p.y;
+            const d2 = dx * dx + dy * dy;
+            if (d2 < cohesionRadiusSq) {
+              sumX += n.x;
+              sumY += n.y;
+              count++;
+            }
           }
-        }
-        if (count > 0) {
-          const cx = sumX / count;
-          const cy = sumY / count;
-          p.velocityX += (cx - p.x) * cohesionStrength;
-          p.velocityY += (cy - p.y) * cohesionStrength;
+          if (count > 0) {
+            const cx = sumX / count;
+            const cy = sumY / count;
+            p.velocityX += (cx - p.x) * cohesionStrength;
+            p.velocityY += (cy - p.y) * cohesionStrength;
+          }
         }
         p.velocityX *= velocityDamping;
         p.velocityY *= velocityDamping;
@@ -184,28 +203,30 @@ const ThreeBackground = () => {
           p.velocityY *= -bounceCoefficient;
         }
 
-        // Particle glow - skip on mobile for better performance
-        if (!isMobile) {
-          const gradient = context.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
-          gradient.addColorStop(0, p.color);
-          gradient.addColorStop(1, "rgba(138,108,253,0)");
-          context.fillStyle = gradient;
+        // Particle glow - use simple shadow instead of expensive gradient
+        const shouldDrawGlow = !isMobile && window.innerWidth > 1024;
+        if (shouldDrawGlow) {
+          context.shadowColor = p.color;
+          context.shadowBlur = p.size * 2;
+          context.fillStyle = p.color;
           context.beginPath();
-          context.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
+          context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          context.fill();
+          context.shadowBlur = 0;
+        } else {
+          context.fillStyle = p.color;
+          context.beginPath();
+          context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
           context.fill();
         }
-
-        context.fillStyle = p.color;
-        context.beginPath();
-        context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        context.fill();
       }
 
-      if (enableConnections) {
+      // Only draw connections on larger screens for performance
+      if (enableConnections && !isMobile) {
         for (let i = 0; i < particles.length; i++) {
           const a = particles[i];
-          // Limit connection checks on mobile
-          const limit = isMobile ? i + 5 : particles.length;
+          // Limit connection checks to nearby particles only
+          const limit = Math.min(i + 8, particles.length);
           for (let j = i + 1; j < limit; j++) {
             const b = particles[j];
             const dx = a.x - b.x;
@@ -213,9 +234,9 @@ const ThreeBackground = () => {
             const distanceSq = dx * dx + dy * dy;
             if (distanceSq < connectionDistanceSq) {
               const distance = Math.sqrt(distanceSq);
-              const opacity = 0.4 * (1 - distance / connectionDistance);
+              const opacity = 0.3 * (1 - distance / connectionDistance);
               context.strokeStyle = `rgba(138, 108, 253, ${opacity})`;
-              context.lineWidth = isMobile ? 1.5 : 2.5;
+              context.lineWidth = 2;
               context.beginPath();
               context.moveTo(a.x, a.y);
               context.lineTo(b.x, b.y);
@@ -254,12 +275,11 @@ const ThreeBackground = () => {
     };
   }, []);
 
-  const themeUrl = getThemeBgVideoUrl();
   return (
     <>
-      {themeUrl ? (
-        <video className="fixed top-0 left-0 w-full h-full object-cover -z-20" autoPlay muted loop playsInline>
-          <source src={themeUrl} type="video/mp4" />
+      {themeBgUrl ? (
+        <video className="fixed top-0 left-0 w-full h-full object-cover -z-20" autoPlay muted loop playsInline preload="none" crossOrigin="anonymous">
+          <source src={themeBgUrl} type="video/mp4" />
         </video>
       ) : null}
       <canvas

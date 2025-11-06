@@ -39,6 +39,8 @@ const Index = () => {
           muted
           loop
           playsInline
+          preload="none"
+          crossOrigin="anonymous"
           className="absolute inset-0 w-full h-full object-cover"
         >
           <source

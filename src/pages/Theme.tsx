@@ -29,7 +29,7 @@ const Theme = () => {
   return (
     <div className="min-h-screen relative overflow-hidden">
       <ThreeBackground />
-      <header className="backdrop-blur-xl bg-card/30 border-b border-border/50 sticky top-0 z-40">
+      <header className="backdrop-blur-xl bg-card/5 border-b border-border/20 sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-3 py-1 flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Back">
             <ArrowLeft className="w-5 h-5" />
@@ -44,7 +44,9 @@ const Theme = () => {
       <main className="max-w-4xl mx-auto px-3 py-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
         {PRESETS.map((url) => (
           <div key={url} className="relative rounded-xl overflow-hidden border border-border/50">
-            <video className="w-full h-48 object-cover" src={url} autoPlay muted loop playsInline />
+            <video className="w-full h-48 object-cover bg-muted" muted loop playsInline preload="metadata" crossOrigin="anonymous">
+              <source src={url} type="video/mp4" />
+            </video>
             <div className="p-2 flex items-center justify-between">
               <span className="text-sm text-muted-foreground truncate">{url.slice(0, 60)}...</span>
               <Button variant={current === url ? 'secondary' : 'gradient'} size="sm" onClick={() => apply(url)}>

@@ -263,7 +263,7 @@ const IndustryCollections = () => {
   }, [fullscreenFrame, closeFullscreen]);
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="h-screen relative overflow-hidden w-screen max-w-full">
       <style>{fullDisplayButtonStyles}</style>
 
       {/* Background Video */}
@@ -273,6 +273,8 @@ const IndustryCollections = () => {
         muted
         loop
         playsInline
+        preload="none"
+        crossOrigin="anonymous"
       >
         <source
           src={getThemeBgVideoUrl() || "https://cdn.builder.io/o/assets%2Fc706eebe18b442a3aa75b1244fbbcf66%2F1aaeb9f83cf44d02b2bcd9d5ecf85454?alt=media&token=603a98f3-0dff-4e9a-a40d-2b060c925d1d&apiKey=c706eebe18b442a3aa75b1244fbbcf66"}
@@ -293,16 +295,12 @@ const IndustryCollections = () => {
       {!isLoading && <ThreeBackground />}
 
       {!isLoading && (
-        <header className="absolute top-0 left-0 right-0 z-50 bg-card/30 backdrop-blur-md">
+        <header className="absolute top-0 left-0 right-0 z-50 bg-card/5 backdrop-blur-md">
           <div className="max-w-3xl mx-auto px-3 py-1 flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Back">
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <h1 className="text-lg font-bold">Collections</h1>
-            <div className="ml-auto flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => navigate('/industry/showroom')}>Showroom</Button>
-              <Button variant="outline" size="sm" onClick={() => navigate('/theme')}>Theme</Button>
-            </div>
           </div>
           <div className="max-w-3xl mx-auto px-3 pb-1">
             <div className="flex gap-2 overflow-x-auto no-scrollbar">
@@ -321,7 +319,7 @@ const IndustryCollections = () => {
         </header>
       )}
 
-      <div ref={scrollRef} className="snap-y snap-mandatory h-screen overflow-y-scroll scrollbar-hide relative z-20">
+      <div ref={scrollRef} className="snap-y snap-mandatory h-screen w-full overflow-y-scroll scrollbar-hide relative z-20">
         {frames.map((f, idx) => {
           const hasVideo = f.hasVideo;
           const isFrame1 = idx === 0;
@@ -329,9 +327,9 @@ const IndustryCollections = () => {
           const isFrame3 = idx === 2;
           const isFrame4 = idx === 3;
           return (
-            <div key={f.id} className="snap-start h-screen relative">
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 pt-20">
-                <div className="relative h-[70vh] max-h-[70vh] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl z-20 border border-black/10 bg-white">
+            <div key={f.id} className="snap-start h-screen w-full relative flex flex-col items-center justify-center">
+              <div className="w-full h-full flex flex-col items-center justify-center gap-4 pt-20 px-3">
+                <div className="relative w-full max-w-sm h-[65vh] max-h-[65vh] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl z-20 border border-black/10 bg-black">
                   {hasVideo ? (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-black relative">
                       <video
@@ -343,7 +341,7 @@ const IndustryCollections = () => {
                         loop
                         muted
                         playsInline
-                        preload="metadata"
+                        preload="none"
                         onContextMenu={handleVideoContextMenu}
                         disablePictureInPicture
                       />

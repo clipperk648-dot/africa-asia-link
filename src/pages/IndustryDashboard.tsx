@@ -107,7 +107,7 @@ const IndustryDashboard = () => {
     <div className="min-h-screen pb-24 relative">
       <ThreeBackground />
 
-      <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
+      <header className="backdrop-blur-xl bg-card/10 border-b border-border/20 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-3 py-1">
           {/* Row 1: brand + menu */}
           <div className="flex items-center justify-between">
@@ -121,7 +121,7 @@ const IndustryDashboard = () => {
                   <Menu className="w-5 h-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-72 sm:w-80 bg-background/80 backdrop-blur-xl border-l border-border/50">
+              <SheetContent side="right" className="w-72 sm:w-80 bg-background/20 backdrop-blur-xl border-l border-border/30">
                 <SheetHeader className="mb-6">
                   <SheetTitle className="text-2xl">Menu</SheetTitle>
                 </SheetHeader>
