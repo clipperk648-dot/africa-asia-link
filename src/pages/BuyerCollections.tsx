@@ -7,6 +7,7 @@ import { ArrowLeft, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Maximize2
 import ThreeBackground from "@/components/ThreeBackground";
 import LoadingSplashScreen from "@/components/LoadingSplashScreen";
 import { getThemeBgVideoUrl } from "@/utils/theme";
+import { preloadCollectionVideos, optimizeVideoElement, pauseAllVideosExcept, playVideoSafely } from "@/utils/videoOptimization";
 
 const fullDisplayButtonStyles = `
   @keyframes scalePress {
