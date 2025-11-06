@@ -355,7 +355,7 @@ const IndustryCollections = () => {
                         loop
                         muted
                         playsInline
-                        preload="none"
+                        preload="metadata"
                         onContextMenu={handleVideoContextMenu}
                         disablePictureInPicture
                       />
