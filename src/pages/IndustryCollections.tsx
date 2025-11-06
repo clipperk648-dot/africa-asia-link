@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import LoadingSplashScreen from "@/components/LoadingSplashScreen";
+import { saveShowroomItem } from "@/utils/showroom";
+import { getThemeBgVideoUrl } from "@/utils/theme";
+import { toast } from "@/hooks/use-toast";
 
 const fullDisplayButtonStyles = `
   @keyframes scalePress {
@@ -64,6 +67,15 @@ const IndustryCollections = () => {
   const videoRef8 = useRef<HTMLVideoElement>(null);
   const fullscreenVideoRef = useRef<HTMLVideoElement>(null);
 
+  const categories = [
+    { key: 'cars', label: 'Cars' },
+    { key: 'shoes', label: 'Shoes' },
+    { key: 'electronics', label: 'Electronics' },
+    { key: 'furniture', label: 'Furniture' },
+    { key: 'others', label: 'Others' },
+  ] as const;
+  const [activeCategory, setActiveCategory] = useState<typeof categories[number]['key'] | 'all'>('all');
+
   const frames = useMemo(() => [
     {
       id: "collection_1",
@@ -114,6 +126,19 @@ const IndustryCollections = () => {
       hasVideo: true,
     },
   ], []);
+
+  const categorizedIndexes: Record<string, number[]> = useMemo(() => ({
+    cars: [0,1],
+    shoes: [2,3],
+    electronics: [4,5],
+    furniture: [6],
+    others: [7],
+  }), []);
+
+  const visibleIndexes = useMemo(() => {
+    if (activeCategory === 'all') return frames.map((_, i) => i);
+    return categorizedIndexes[activeCategory] || [];
+  }, [activeCategory, categorizedIndexes, frames]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -250,7 +275,7 @@ const IndustryCollections = () => {
         playsInline
       >
         <source
-          src="https://cdn.builder.io/o/assets%2Fc706eebe18b442a3aa75b1244fbbcf66%2F1aaeb9f83cf44d02b2bcd9d5ecf85454?alt=media&token=603a98f3-0dff-4e9a-a40d-2b060c925d1d&apiKey=c706eebe18b442a3aa75b1244fbbcf66"
+          src={getThemeBgVideoUrl() || "https://cdn.builder.io/o/assets%2Fc706eebe18b442a3aa75b1244fbbcf66%2F1aaeb9f83cf44d02b2bcd9d5ecf85454?alt=media&token=603a98f3-0dff-4e9a-a40d-2b060c925d1d&apiKey=c706eebe18b442a3aa75b1244fbbcf66"}
           type="video/mp4"
         />
       </video>
@@ -268,12 +293,30 @@ const IndustryCollections = () => {
       {!isLoading && <ThreeBackground />}
 
       {!isLoading && (
-        <header className="absolute top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-md">
-          <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+        <header className="absolute top-0 left-0 right-0 z-50 bg-card/30 backdrop-blur-md">
+          <div className="max-w-3xl mx-auto px-3 py-1 flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Back">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <h1 className="text-xl font-bold">Collections</h1>
+            <h1 className="text-lg font-bold">Collections</h1>
+            <div className="ml-auto flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => navigate('/industry/showroom')}>Showroom</Button>
+              <Button variant="outline" size="sm" onClick={() => navigate('/theme')}>Theme</Button>
+            </div>
+          </div>
+          <div className="max-w-3xl mx-auto px-3 pb-1">
+            <div className="flex gap-2 overflow-x-auto no-scrollbar">
+              <Button variant={activeCategory==='all'? 'gradient':'secondary'} size="sm" onClick={() => setActiveCategory('all')}>All</Button>
+              {categories.map(c => (
+                <Button key={c.key} variant={activeCategory===c.key? 'gradient':'secondary'} size="sm" onClick={() => {
+                  setActiveCategory(c.key);
+                  const idx = (categorizedIndexes[c.key]||[])[0];
+                  if (typeof idx === 'number') {
+                    const el = scrollRef.current; if (el) { el.scrollTo({ top: idx * el.clientHeight, behavior: 'smooth' }); setCurrentFrame(idx); }
+                  }
+                }}>{c.label}</Button>
+              ))}
+            </div>
           </div>
         </header>
       )}
@@ -317,7 +360,7 @@ const IndustryCollections = () => {
 
                 {hasVideo && (
                   <div className="flex flex-col gap-6 items-center justify-center mt-6">
-                    <div className="flex gap-8 items-center">
+                    <div className="flex gap-3 items-center flex-wrap justify-center">
                       <Button
                         size="lg"
                         variant="secondary"
@@ -335,10 +378,17 @@ const IndustryCollections = () => {
                         onTouchStart={handleTouchStart}
                         onTouchEnd={handleTouchEnd}
                         data-frame-idx={idx}
-                        className="gap-2 full-display-button px-6 py-3"
+                        className="gap-2 full-display-button px-5 py-2"
                       >
                         <Maximize2 className="w-5 h-5" />
                         Full Display
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        onClick={() => { saveShowroomItem(frames[idx].videoUrl, frames[idx].title); toast({ title: 'Collection saved', description: 'Added to your showroom' }); }}
+                        className="px-5 py-2"
+                      >
+                        Save to Showroom
                       </Button>
                       <Button
                         size="lg"

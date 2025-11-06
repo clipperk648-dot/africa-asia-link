@@ -64,6 +64,8 @@ const InvestResources = lazy(() => import("./pages/InvestResources"));
 const InvestSettings = lazy(() => import("./pages/InvestSettings"));
 const InvestHistory = lazy(() => import("./pages/InvestHistory"));
 const InvestSecurity = lazy(() => import("./pages/InvestSecurity"));
+const IndustryShowroom = lazy(() => import("./pages/IndustryShowroom"));
+const Theme = lazy(() => import("./pages/Theme"));
 
 const queryClient = new QueryClient();
 
@@ -94,6 +96,7 @@ const AppContent = () => {
         <Route path="/industry/add-property" element={<ProtectedRoute element={<IndustryAddProperty />} requiredRole="industry" />} />
         <Route path="/industry/collections" element={<ProtectedRoute element={<IndustryCollections />} requiredRole="industry" />} />
         <Route path="/industry/recent-activity" element={<ProtectedRoute element={<IndustryRecentActivity />} requiredRole="industry" />} />
+        <Route path="/industry/showroom" element={<ProtectedRoute element={<IndustryShowroom />} requiredRole="industry" />} />
         <Route path="/buyer" element={<ProtectedRoute element={<BuyerDashboard />} requiredRole="buyer" />} />
         <Route path="/buyer/products" element={<ProtectedRoute element={<BuyerProducts />} requiredRole="buyer" />} />
         <Route path="/buyer/network" element={<ProtectedRoute element={<BuyerNetwork />} requiredRole="buyer" />} />
@@ -119,6 +122,7 @@ const AppContent = () => {
         <Route path="/menu" element={<ProtectedRoute element={<MenuPage />} />} />
         <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
         <Route path="/analytics" element={<ProtectedRoute element={<Analytics />} />} />
+        <Route path="/theme" element={<ProtectedRoute element={<Theme />} />} />
         <Route path="/buyer/analytics" element={<ProtectedRoute element={<BuyerAnalytics />} />} />
         <Route path="/wallet/pin" element={<ProtectedRoute element={<WalletPin />} />} />
         <Route path="/wallet" element={<ProtectedRoute element={<WalletGuard element={<Wallet />} requirePin={true} />} />} />

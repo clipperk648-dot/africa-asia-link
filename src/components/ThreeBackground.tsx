@@ -9,6 +9,8 @@ type Particle = {
   color: string;
 };
 
+import { getThemeBgVideoUrl } from "@/utils/theme";
+
 const ThreeBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -252,15 +254,23 @@ const ThreeBackground = () => {
     };
   }, []);
 
+  const themeUrl = getThemeBgVideoUrl();
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed top-0 left-0 w-full h-full -z-10 bg-gradient-to-br from-background via-background to-primary/5"
-      style={{
-        touchAction: 'none',
-        imageRendering: 'crisp-edges',
-      }}
-    />
+    <>
+      {themeUrl ? (
+        <video className="fixed top-0 left-0 w-full h-full object-cover -z-20" autoPlay muted loop playsInline>
+          <source src={themeUrl} type="video/mp4" />
+        </video>
+      ) : null}
+      <canvas
+        ref={canvasRef}
+        className="fixed top-0 left-0 w-full h-full -z-10 bg-gradient-to-br from-background via-background to-primary/5"
+        style={{
+          touchAction: 'none',
+          imageRendering: 'crisp-edges',
+        }}
+      />
+    </>
   );
 };
 

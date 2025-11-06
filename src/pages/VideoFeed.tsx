@@ -65,7 +65,7 @@ const VideoFeed = () => {
 
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-40 bg-black">
-        <div className="max-w-3xl mx-auto px-4 py-4">
+        <div className="max-w-3xl mx-auto px-3 py-1">
           <div className="flex items-center justify-between">
             <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-white">
               <ArrowLeft className="w-5 h-5" />
