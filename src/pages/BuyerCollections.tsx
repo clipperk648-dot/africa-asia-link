@@ -239,7 +239,7 @@ const BuyerCollections = () => {
   }, [fullscreenFrame, closeFullscreen]);
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="h-screen relative overflow-hidden w-screen max-w-full">
       <style>{fullDisplayButtonStyles}</style>
 
       {/* Background Video */}
@@ -249,7 +249,7 @@ const BuyerCollections = () => {
         muted
         loop
         playsInline
-        preload="metadata"
+        preload="none"
         crossOrigin="anonymous"
       >
         <source
@@ -281,7 +281,7 @@ const BuyerCollections = () => {
         </header>
       )}
 
-      <div ref={scrollRef} className="snap-y snap-mandatory h-screen overflow-y-scroll scrollbar-hide relative z-20">
+      <div ref={scrollRef} className="snap-y snap-mandatory h-screen w-full overflow-y-scroll scrollbar-hide relative z-20">
         {frames.map((f, idx) => {
           const hasVideo = f.hasVideo;
           const isFrame1 = idx === 0;
@@ -289,9 +289,9 @@ const BuyerCollections = () => {
           const isFrame3 = idx === 2;
           const isFrame4 = idx === 3;
           return (
-            <div key={f.id} className="snap-start h-screen relative">
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 pt-20">
-                <div className="relative h-[70vh] max-h-[70vh] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl z-20 border border-black/10 bg-white">
+            <div key={f.id} className="snap-start h-screen w-full relative flex flex-col items-center justify-center">
+              <div className="w-full h-full flex flex-col items-center justify-center gap-4 pt-20 px-3">
+                <div className="relative w-full max-w-sm h-[65vh] max-h-[65vh] aspect-[9/16] rounded-2xl overflow-hidden shadow-xl z-20 border border-black/10 bg-black">
                   {hasVideo ? (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-black relative">
                       <video
