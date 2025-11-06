@@ -303,7 +303,7 @@ const BuyerCollections = () => {
                         loop
                         muted
                         playsInline
-                        preload="metadata"
+                        preload="none"
                         onContextMenu={handleVideoContextMenu}
                         disablePictureInPicture
                       />
