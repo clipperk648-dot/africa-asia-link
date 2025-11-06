@@ -132,7 +132,7 @@ const BuyerDashboard = () => {
                     <Menu className="w-5 h-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-72 sm:w-80 bg-background/80 backdrop-blur-xl border-l border-border/50">
+                <SheetContent side="right" className="w-72 sm:w-80 bg-background/20 backdrop-blur-xl border-l border-border/30">
                   <SheetHeader className="mb-6">
                     <SheetTitle className="text-2xl">Menu</SheetTitle>
                   </SheetHeader>
