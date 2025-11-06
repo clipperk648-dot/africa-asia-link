@@ -385,7 +385,7 @@ const IndustryCollections = () => {
                       </Button>
                       <Button
                         variant="secondary"
-                        onClick={() => { saveShowroomItem(frames[idx].videoUrl, frames[idx].title); toast({ title: 'Saved', description: 'Video saved to your showroom' }); }}
+                        onClick={() => { saveShowroomItem(frames[idx].videoUrl, frames[idx].title); toast({ title: 'Collection saved', description: 'Added to your showroom' }); }}
                         className="px-5 py-2"
                       >
                         Save to Showroom

@@ -11,3 +11,7 @@ export const getThemeBgVideoUrl = (): string | null => {
 export const setThemeBgVideoUrl = (url: string) => {
   localStorage.setItem(THEME_BG_KEY, url);
 };
+
+export const clearThemeBgVideoUrl = () => {
+  localStorage.removeItem(THEME_BG_KEY);
+};
