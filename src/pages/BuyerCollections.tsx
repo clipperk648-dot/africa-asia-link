@@ -319,16 +319,16 @@ const BuyerCollections = () => {
                 </div>
 
                 {hasVideo && (
-                  <div className="flex flex-col gap-6 items-center justify-center mt-6">
-                    <div className="flex gap-8 items-center">
+                  <div className="flex flex-col gap-4 items-center justify-center mt-4 w-full px-2">
+                    <div className="flex gap-2 sm:gap-4 items-center flex-wrap justify-center">
                       <Button
                         size="lg"
                         variant="secondary"
                         onClick={() => skipVideoBackward(idx)}
                         aria-label="Skip back 2 seconds"
-                        className="rounded-full w-14 h-14"
+                        className="rounded-full w-10 h-10 sm:w-14 sm:h-14"
                       >
-                        <ChevronLeft className="w-6 h-6" />
+                        <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
                       </Button>
                       <Button
                         variant="gradient"
@@ -338,19 +338,20 @@ const BuyerCollections = () => {
                         onTouchStart={handleTouchStart}
                         onTouchEnd={handleTouchEnd}
                         data-frame-idx={idx}
-                        className="gap-2 full-display-button px-6 py-3"
+                        className="gap-2 full-display-button px-3 py-2 sm:px-6 sm:py-3 text-sm sm:text-base"
                       >
-                        <Maximize2 className="w-5 h-5" />
-                        Full Display
+                        <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <span className="hidden sm:inline">Full Display</span>
+                        <span className="sm:hidden">Display</span>
                       </Button>
                       <Button
                         size="lg"
                         variant="secondary"
                         onClick={() => skipVideoForward(idx)}
                         aria-label="Skip forward 2 seconds"
-                        className="rounded-full w-14 h-14"
+                        className="rounded-full w-10 h-10 sm:w-14 sm:h-14"
                       >
-                        <ChevronRight className="w-6 h-6" />
+                        <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
                       </Button>
                     </div>
                   </div>
