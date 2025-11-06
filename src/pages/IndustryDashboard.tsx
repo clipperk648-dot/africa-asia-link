@@ -187,7 +187,7 @@ const IndustryDashboard = () => {
                         <div className="p-1.5 rounded-md bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
                           <Music2 className="w-3 h-3 text-primary" />
                         </div>
-                        <span className="font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">Social</span>
+                        <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Social</span>
                       </div>
                     </Link>
                   </div>
