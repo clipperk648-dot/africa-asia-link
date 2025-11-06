@@ -29,6 +29,11 @@ const ThreeBackground = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    // Don't render particles when a custom theme background is set
+    if (themeBgUrl) {
+      return;
+    }
+
     // Respect reduced motion: render static gradient only
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) {
