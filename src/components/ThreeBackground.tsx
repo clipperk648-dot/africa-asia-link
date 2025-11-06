@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useTheme } from "next-themes";
 
 type Particle = {
   x: number;
@@ -13,6 +14,7 @@ import { getThemeBgVideoUrl, THEME_BG_CHANGED_EVENT } from "@/utils/theme";
 
 const ThreeBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { resolvedTheme } = useTheme();
   const [themeBgUrl, setThemeBgUrl] = useState<string | null>(getThemeBgVideoUrl());
 
   // Listen for theme background changes (works in same tab via custom event)
@@ -31,6 +33,11 @@ const ThreeBackground = () => {
 
     // Don't render particles when a custom theme background is set
     if (themeBgUrl) {
+      return;
+    }
+
+    // Don't render particles when theme is not default (dark mode)
+    if (resolvedTheme === "dark") {
       return;
     }
 
@@ -278,7 +285,7 @@ const ThreeBackground = () => {
       window.removeEventListener("orientationchange", handleOrientationChange);
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
     };
-  }, [themeBgUrl]);
+  }, [themeBgUrl, resolvedTheme]);
 
   return (
     <>

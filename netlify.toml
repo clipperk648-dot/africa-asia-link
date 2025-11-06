@@ -1,29 +1,12 @@
 [build]
   command = "npm run build"
-  functions = "netlify/functions"
   publish = "dist"
 
 [build.environment]
   NODE_VERSION = "20"
   NPM_VERSION = "10"
 
-[functions]
-  node_bundler = "esbuild"
-  directory = "netlify/functions"
-  # External node modules that should not be bundled
-  # These need to be installed separately or pre-compiled
-  external_node_modules = ["mongoose"]
-
-[[redirects]]
-  from = "/api/auth/*"
-  to = "/.netlify/functions/auth-:splat"
-  status = 200
-
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-
+# Redirect all non-API traffic to index.html for React Router
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -71,15 +54,11 @@
     Permissions-Policy = "camera=(), microphone=(), geolocation=()"
     Strict-Transport-Security = "max-age=31536000; includeSubDomains"
 
-# Environment Variables (set these in Netlify Dashboard)
-# REQUIRED:
-# MONGODB_URI - MongoDB connection string
-#   Format: mongodb+srv://username:password@cluster.mongodb.net/dbname
-#   Get from: MongoDB Atlas > Database > Connect > Drivers
-#   Example: mongodb+srv://user:pass@echina.mongodb.net/echina?appName=Echina
-
-# OPTIONAL:
-# VITE_STRIPE_PUBLIC_KEY - Stripe public key for payments
-# SENDGRID_API_KEY - SendGrid API key for emails
-# VITE_ENABLE_ANALYTICS - Enable analytics tracking (true/false)
-# VITE_GOOGLE_CLIENT_ID - Google OAuth client ID for authentication
+# FRONTEND-ONLY DEPLOYMENT
+# All API requests should be directed to your backend server
+# Set the VITE_API_BASE_URL environment variable in Netlify Dashboard
+# 
+# Environment Variables to set in Netlify Dashboard:
+# VITE_API_BASE_URL - Your backend server URL (e.g., https://your-backend.com or http://localhost:3001 for local development)
+#
+# Example: VITE_API_BASE_URL=https://api.yourdomain.com

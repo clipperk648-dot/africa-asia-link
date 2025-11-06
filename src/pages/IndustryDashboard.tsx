@@ -16,26 +16,26 @@ import GlassSlideshowFrame from "@/components/GlassSlideshowFrame";
 import { getSafeImageUrl, getSafeAvatarUrl, createImageErrorHandler } from "@/utils/imageOptimization";
 
 const ProductCard = ({ product }: { product: Product }) => (
-  <GlassCard className="p-4 sm:p-6 min-w-[280px] sm:min-w-0">
-    <div className="flex gap-3 sm:gap-4">
+  <GlassCard className="p-2 sm:p-3 min-w-[280px] sm:min-w-0">
+    <div className="flex gap-2 sm:gap-3">
       <img
         src={getSafeImageUrl(product.image)}
         alt={product.name}
-        className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0"
+        className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg flex-shrink-0"
         loading="lazy"
         onError={createImageErrorHandler()}
       />
       <div className="flex-1 min-w-0">
-        <h3 className="font-semibold text-sm sm:text-base truncate">{product.name}</h3>
-        <p className="text-[11px] sm:text-xs text-cyan-300 truncate">{product.category}</p>
-        <div className="flex items-center justify-between mt-2 gap-2">
-          <p className="text-base sm:text-lg font-bold text-primary">¥{product.price.toLocaleString()}</p>
+        <h3 className="font-semibold text-xs sm:text-sm truncate">{product.name}</h3>
+        <p className="text-[10px] sm:text-xs text-cyan-300 truncate">{product.category}</p>
+        <div className="flex items-center justify-between mt-1 gap-2">
+          <p className="text-sm sm:text-base font-bold text-primary">¥{product.price.toLocaleString()}</p>
           <div className="flex items-center gap-1 flex-shrink-0">
             <span className="text-accent">★</span>
-            <span className="text-xs sm:text-sm font-medium">{product.rating}</span>
+            <span className="text-[10px] sm:text-xs font-medium">{product.rating}</span>
           </div>
         </div>
-        <div className="flex items-center gap-2 mt-3">
+        <div className="flex items-center gap-2 mt-1">
           <Link to={`/industry/products/${product.id}/edit`} aria-label={`Edit ${product.name}`}>
             <Button variant="glass" size="xs" className="px-2">
               <Pencil className="w-3.5 h-3.5" />
@@ -108,7 +108,7 @@ const IndustryDashboard = () => {
       <ThreeBackground />
 
       <header className="backdrop-blur-sm bg-transparent border-b border-transparent sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-3 py-1">
+        <div className="max-w-7xl mx-auto px-3 py-0.5">
           {/* Row 1: brand + menu */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -207,9 +207,9 @@ const IndustryDashboard = () => {
           </div>
 
           {/* Row 2: welcome + actions */}
-          <div className="mt-2 flex items-center justify-between">
+          <div className="mt-1 flex items-center justify-between">
             <div>
-              <h1 className="text-base font-semibold text-white">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Seller'}!</h1>
+              <h1 className="text-xs font-semibold text-white">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Seller'}!</h1>
             </div>
 
             <div className="flex items-center gap-2">
@@ -257,25 +257,25 @@ const IndustryDashboard = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 py-3 space-y-3">
         {/* Glass Slideshow Frame - Video Banner */}
         <GlassSlideshowFrame
           videoUrl="https://cdn.builder.io/o/assets%2Fb6198669f4754d65b52a472eb983bf6a%2Fa1f93e869b6f419eac1c318985a39a15?alt=media&token=d5e5b0b8-9d79-47e0-bc70-caa9377302de&apiKey=b6198669f4754d65b52a472eb983bf6a"
         />
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 animate-fade-in">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-2 animate-fade-in">
           {stats.map((stat, i) => (
-            <GlassCard key={i} className="text-center p-4">
-              <stat.icon className={`w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1.5 ${stat.color}`} />
-              <p className="text-base sm:text-lg font-bold">{stat.value}</p>
-              <p className="text-[11px] sm:text-xs text-cyan-300">{stat.label}</p>
+            <GlassCard key={i} className="text-center p-2 sm:p-3">
+              <stat.icon className={`w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1 ${stat.color}`} />
+              <p className="text-sm sm:text-base font-bold">{stat.value}</p>
+              <p className="text-[10px] sm:text-xs text-cyan-300">{stat.label}</p>
             </GlassCard>
           ))}
         </div>
 
-        <section className="space-y-3">
+        <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-base sm:text-lg font-bold">Your Products</h2>
+            <h2 className="text-sm sm:text-base font-bold">Your Products</h2>
             <div className="flex items-center gap-2 overflow-x-auto">
               <Link to="/analytics" aria-label="Open Analytics">
                 <Button variant="outline" size="xs" className="gap-2 px-2">
@@ -312,9 +312,9 @@ const IndustryDashboard = () => {
           </div>
         </section>
 
-        <section className="space-y-4">
+        <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg sm:text-xl font-bold">Recent Orders</h2>
+            <h2 className="text-sm sm:text-base font-bold">Recent Orders</h2>
             <Link to="/industry/recent-activity" aria-label="View all orders">
               <Button variant="ghost" size="xs">View All</Button>
             </Link>
@@ -326,15 +326,15 @@ const IndustryDashboard = () => {
               </GlassCard>
             ) : (
               orders.slice(0, 2).map((order) => (
-                <GlassCard key={order.id} className="p-4 sm:p-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                <GlassCard key={order.id} className="p-2 sm:p-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
                     <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-base sm:text-lg truncate">{order.productName}</p>
-                      <p className="text-xs sm:text-sm text-cyan-300">Order #{order.id} • {order.date}</p>
+                      <p className="font-semibold text-xs sm:text-sm truncate">{order.productName}</p>
+                      <p className="text-[10px] sm:text-xs text-cyan-300">Order #{order.id} • {order.date}</p>
                     </div>
-                    <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="flex items-center gap-2 sm:gap-3">
                       <div className="text-left sm:text-right">
-                        <p className="font-bold text-lg sm:text-xl">¥{order.total.toLocaleString()}</p>
+                        <p className="font-bold text-sm sm:text-base">¥{order.total.toLocaleString()}</p>
                       </div>
                       <span
                         className={`text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium whitespace-nowrap ${
@@ -355,9 +355,9 @@ const IndustryDashboard = () => {
           </div>
         </section>
 
-        <section className="space-y-3">
+        <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-base sm:text-lg font-bold">Collections Showcase</h2>
+            <h2 className="text-sm sm:text-base font-bold">Collections Showcase</h2>
             <Link to="/industry/collections" aria-label="View Collections">
               <Button variant="gradient" size="xs" className="gap-2 px-2">
                 <Box className="w-4 h-4" />

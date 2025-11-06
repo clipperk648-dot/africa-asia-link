@@ -61,14 +61,19 @@ export const registerUser = async (
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include",
       body: JSON.stringify({ email, password, name, phone, role }),
     });
 
-    const data = await response.json();
+    let data;
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      console.error("Failed to parse response:", parseError);
+      return { success: false, error: "Failed to parse server response" };
+    }
 
     if (!response.ok) {
-      return { success: false, error: data.error || "Registration failed" };
+      return { success: false, error: data?.error || "Registration failed" };
     }
 
     return {
@@ -85,7 +90,7 @@ export const registerUser = async (
   } catch (error) {
     console.error("Registration failed:", error);
     const errorMsg = error instanceof TypeError && error.message === "Failed to fetch"
-      ? "Unable to connect to authentication server. Please ensure you're using the correct preview environment."
+      ? "Unable to connect to authentication server. Please check the API URL configuration."
       : String(error) || "Registration failed. Please try again.";
     return { success: false, error: errorMsg };
   }
@@ -100,8 +105,8 @@ export const loginUser = async (
   role: "industry" | "buyer"
 ): Promise<{ success: boolean; user?: AuthUser; error?: string; token?: string }> => {
   try {
-    if (!email || !password) {
-      return { success: false, error: "Email and password required" };
+    if (!email || !password || !role) {
+      return { success: false, error: "Email, password, and role are required" };
     }
 
     const response = await fetch(`${API_BASE_URL}/login`, {
@@ -109,17 +114,12 @@ export const loginUser = async (
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include",
       body: JSON.stringify({ email, password, role }),
     });
 
+    // Parse JSON response
     let data;
     try {
-      // Clone the response to safely read the body if needed
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        return { success: false, error: "Server returned invalid response format" };
-      }
       data = await response.json();
     } catch (parseError) {
       console.error("Failed to parse response:", parseError);
@@ -144,7 +144,7 @@ export const loginUser = async (
   } catch (error) {
     console.error("Login failed:", error);
     const errorMsg = error instanceof TypeError && error.message === "Failed to fetch"
-      ? "Unable to connect to authentication server. Please ensure you're using the correct preview environment."
+      ? "Unable to connect to authentication server. Please check the API URL configuration."
       : String(error) || "Login failed. Please try again.";
     return { success: false, error: errorMsg };
   }
@@ -158,8 +158,8 @@ export const googleOAuthLogin = async (
   role: "industry" | "buyer"
 ): Promise<{ success: boolean; user?: AuthUser; error?: string; token?: string }> => {
   try {
-    if (!token) {
-      return { success: false, error: "Token required" };
+    if (!token || !role) {
+      return { success: false, error: "Token and role are required" };
     }
 
     const response = await fetch(`${API_BASE_URL}/google`, {
@@ -167,14 +167,19 @@ export const googleOAuthLogin = async (
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include",
       body: JSON.stringify({ token, role }),
     });
 
-    const data = await response.json();
+    let data;
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      console.error("Failed to parse response:", parseError);
+      return { success: false, error: "Failed to parse server response" };
+    }
 
     if (!response.ok) {
-      return { success: false, error: data.error || "Google authentication failed" };
+      return { success: false, error: data?.error || "Google authentication failed" };
     }
 
     return {
@@ -192,7 +197,7 @@ export const googleOAuthLogin = async (
   } catch (error) {
     console.error("Google OAuth login failed:", error);
     const errorMsg = error instanceof TypeError && error.message === "Failed to fetch"
-      ? "Unable to connect to authentication server. Please ensure you're using the correct preview environment."
+      ? "Unable to connect to authentication server. Please check the API URL configuration."
       : String(error) || "Google authentication failed. Please try again.";
     return { success: false, error: errorMsg };
   }

@@ -24,24 +24,24 @@ const ProductCard = ({ product, navigate }: { product: Product; navigate: any })
     <img
       src={getSafeImageUrl(product.image)}
       alt={product.name}
-      className="w-full h-40 sm:h-48 object-cover rounded-lg mb-4"
+      className="w-full h-24 sm:h-32 object-cover rounded-lg mb-2"
       loading="lazy"
       onError={createImageErrorHandler()}
     />
-    <div className="space-y-2">
+    <div className="space-y-1">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <h3 className="font-semibold text-sm sm:text-base truncate">{product.name}</h3>
-          <p className="text-xs sm:text-sm text-cyan-300 truncate">{product.company}</p>
+          <h3 className="font-semibold text-xs sm:text-sm truncate">{product.name}</h3>
+          <p className="text-[10px] sm:text-xs text-cyan-300 truncate">{product.company}</p>
         </div>
         <div className="flex items-center gap-1 flex-shrink-0">
           <span className="text-accent">★</span>
-          <span className="text-xs sm:text-sm font-medium">{product.rating}</span>
+          <span className="text-[10px] sm:text-xs font-medium">{product.rating}</span>
         </div>
       </div>
-      <p className="text-xs sm:text-sm text-cyan-300 truncate">{product.location}</p>
-      <div className="flex items-center justify-between pt-2 gap-2">
-        <p className="text-xl sm:text-2xl font-bold text-primary">
+      <p className="text-[10px] sm:text-xs text-cyan-300 truncate">{product.location}</p>
+      <div className="flex items-center justify-between pt-1 gap-2">
+        <p className="text-base sm:text-lg font-bold text-primary">
           ${product.price.toLocaleString()}
         </p>
         <div className="flex items-center gap-2">
@@ -118,7 +118,7 @@ const BuyerDashboard = () => {
       <ThreeBackground />
       
       <header className="backdrop-blur-sm bg-transparent border-b border-transparent sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-3 py-1">
+        <div className="max-w-7xl mx-auto px-3 py-0.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 bg-primary text-white rounded-md flex items-center justify-center font-bold text-sm">E</div>
@@ -278,25 +278,25 @@ const BuyerDashboard = () => {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 py-3 space-y-3">
         {/* Glass Slideshow Frame - Video Banner */}
         <GlassSlideshowFrame
           videoUrl="https://cdn.builder.io/o/assets%2Fb6198669f4754d65b52a472eb983bf6a%2Fa1f93e869b6f419eac1c318985a39a15?alt=media&token=d5e5b0b8-9d79-47e0-bc70-caa9377302de&apiKey=b6198669f4754d65b52a472eb983bf6a"
         />
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 animate-fade-in">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-2 animate-fade-in">
           {stats.map((stat, i) => (
-            <GlassCard key={i} className="text-center p-4">
-              <stat.icon className={`w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1.5 ${stat.color}`} />
-              <p className="text-base sm:text-lg font-bold">{stat.value}</p>
-              <p className="text-[11px] sm:text-xs text-cyan-300">{stat.label}</p>
+            <GlassCard key={i} className="text-center p-2 sm:p-3">
+              <stat.icon className={`w-4 h-4 sm:w-5 sm:h-5 mx-auto mb-1 ${stat.color}`} />
+              <p className="text-sm sm:text-base font-bold">{stat.value}</p>
+              <p className="text-[10px] sm:text-xs text-cyan-300">{stat.label}</p>
             </GlassCard>
           ))}
         </div>
 
-        <section className="space-y-3">
+        <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-base sm:text-lg font-bold">Discover Products</h2>
+            <h2 className="text-sm sm:text-base font-bold">Discover Products</h2>
             <div className="flex items-center gap-2 overflow-x-auto">
               <Link to="/buyer/analytics" aria-label="Open Insights">
                 <Button variant="outline" size="xs" className="gap-2 px-2">
@@ -333,9 +333,9 @@ const BuyerDashboard = () => {
           </div>
         </section>
 
-        <section className="space-y-4">
+        <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg sm:text-xl font-bold">My Orders</h2>
+            <h2 className="text-sm sm:text-base font-bold">My Orders</h2>
             <Link to="/buyer/orders" aria-label="View all orders">
               <Button variant="ghost" size="xs">View All</Button>
             </Link>
@@ -347,11 +347,11 @@ const BuyerDashboard = () => {
               </GlassCard>
             ) : (
               orders.map((order) => (
-                <GlassCard key={order.id} className="p-4 sm:p-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                <GlassCard key={order.id} className="p-2 sm:p-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
                     <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-base sm:text-lg truncate">{order.productName}</p>
-                      <p className="text-xs sm:text-sm text-cyan-300">
+                      <p className="font-semibold text-xs sm:text-sm truncate">{order.productName}</p>
+                      <p className="text-[10px] sm:text-xs text-cyan-300">
                         Order #{order.id} • Qty: {order.quantity}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">{order.date}</p>
@@ -379,9 +379,9 @@ const BuyerDashboard = () => {
           </div>
         </section>
 
-        <section className="space-y-3">
+        <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-base sm:text-lg font-bold">Collections Showcase</h2>
+            <h2 className="text-sm sm:text-base font-bold">Collections Showcase</h2>
             <Link to="/buyer/collections" aria-label="View Collections">
               <Button variant="gradient" size="xs" className="gap-2 px-2">
                 <Box className="w-4 h-4" />

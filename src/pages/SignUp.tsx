@@ -118,65 +118,65 @@ const SignUp = () => {
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       <ThreeBackground />
       
-      <div className="w-full max-w-6xl grid md:grid-cols-2 gap-6 sm:gap-8 animate-fade-in">
-        <div className="flex flex-col justify-center space-y-4 sm:space-y-6">
-          <div className="space-y-2">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+      <div className="w-full max-w-6xl grid md:grid-cols-2 gap-3 sm:gap-4 animate-fade-in">
+        <div className="flex flex-col justify-center space-y-2 sm:space-y-3">
+          <div className="space-y-1">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               Echina
             </h1>
-            <p className="text-lg sm:text-xl text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground">
               Join the thriving trade network
             </p>
           </div>
           
-          <div className="space-y-3 sm:space-y-4 pt-2 sm:pt-4">
-            <h2 className="text-xl sm:text-2xl font-semibold text-foreground">Create Your Account As</h2>
-            
-            <GlassCard 
-              className={`cursor-pointer transition-all p-4 sm:p-6 hover:scale-105 transform duration-300 ${
+          <div className="space-y-2 sm:space-y-2 pt-1 sm:pt-2">
+            <h2 className="text-base sm:text-lg font-semibold text-foreground">Create Your Account As</h2>
+
+            <GlassCard
+              className={`cursor-pointer transition-all p-2 sm:p-3 hover:scale-105 transform duration-300 ${
                 selectedRole === "industry" ? "ring-2 ring-primary scale-105" : ""
               }`}
               onClick={() => setSelectedRole("industry")}
             >
-              <div className="flex items-center gap-3 sm:gap-4">
-                <div className={`p-2 sm:p-3 rounded-xl flex-shrink-0 ${
+              <div className="flex items-center gap-2 sm:gap-2">
+                <div className={`p-1.5 sm:p-2 rounded-xl flex-shrink-0 ${
                   selectedRole === "industry" ? "bg-primary" : "bg-primary/20"
                 }`}>
-                  <Building2 className={`w-5 h-5 sm:w-6 sm:h-6 ${
+                  <Building2 className={`w-4 h-4 sm:w-4 sm:h-4 ${
                     selectedRole === "industry" ? "text-white" : "text-primary"
                   }`} />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-semibold text-sm sm:text-base">Seller</p>
-                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Chinese Industry / Manufacturer</p>
+                  <p className="font-semibold text-xs sm:text-sm">Seller</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground truncate">Chinese Industry / Manufacturer</p>
                 </div>
               </div>
             </GlassCard>
-            
-            <GlassCard 
-              className={`cursor-pointer transition-all p-4 sm:p-6 hover:scale-105 transform duration-300 ${
+
+            <GlassCard
+              className={`cursor-pointer transition-all p-2 sm:p-3 hover:scale-105 transform duration-300 ${
                 selectedRole === "buyer" ? "ring-2 ring-secondary scale-105" : ""
               }`}
               onClick={() => setSelectedRole("buyer")}
             >
-              <div className="flex items-center gap-3 sm:gap-4">
-                <div className={`p-2 sm:p-3 rounded-xl flex-shrink-0 ${
+              <div className="flex items-center gap-2 sm:gap-2">
+                <div className={`p-1.5 sm:p-2 rounded-xl flex-shrink-0 ${
                   selectedRole === "buyer" ? "bg-secondary" : "bg-secondary/20"
                 }`}>
-                  <ShoppingBag className={`w-5 h-5 sm:w-6 sm:h-6 ${
+                  <ShoppingBag className={`w-4 h-4 sm:w-4 sm:h-4 ${
                     selectedRole === "buyer" ? "text-white" : "text-secondary"
                   }`} />
                 </div>
                 <div className="min-w-0">
-                  <p className="font-semibold text-sm sm:text-base">Buyer</p>
-                  <p className="text-xs sm:text-sm text-muted-foreground truncate">Nigerian Business / Trader</p>
+                  <p className="font-semibold text-xs sm:text-sm">Buyer</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground truncate">Nigerian Business / Trader</p>
                 </div>
               </div>
             </GlassCard>
           </div>
 
-          <div className="pt-4">
-            <p className="text-sm text-muted-foreground">
+          <div className="pt-2">
+            <p className="text-xs text-muted-foreground">
               Already have an account?{" "}
               <button
                 onClick={() => navigate("/login")}
@@ -188,11 +188,11 @@ const SignUp = () => {
           </div>
         </div>
         
-        <GlassCard className="p-4 sm:p-6 slide-up">
-          <form onSubmit={handleSignUp} className="space-y-4 sm:space-y-5">
-            <div className="space-y-1 sm:space-y-2 text-center">
-              <h2 className="text-2xl sm:text-3xl font-bold">Create Account</h2>
-              <p className="text-sm sm:text-base text-muted-foreground">Fill in your details to get started</p>
+        <GlassCard className="p-3 sm:p-4 slide-up">
+          <form onSubmit={handleSignUp} className="space-y-2 sm:space-y-2">
+            <div className="space-y-1 sm:space-y-1 text-center">
+              <h2 className="text-lg sm:text-xl font-bold">Create Account</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground">Fill in your details to get started</p>
             </div>
 
             {errors.form && (
@@ -201,9 +201,9 @@ const SignUp = () => {
               </div>
             )}
 
-            <div className="space-y-3 sm:space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name / Company Name</Label>
+            <div className="space-y-2 sm:space-y-2">
+              <div className="space-y-1">
+                <Label htmlFor="name" className="text-xs">Full Name / Company Name</Label>
                 <Input
                   id="name"
                   name="name"
@@ -212,15 +212,15 @@ const SignUp = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className={`h-12 bg-background/50 transition-all ${errors.name ? 'border-destructive' : ''}`}
+                  className={`h-9 bg-background/50 transition-all text-sm ${errors.name ? 'border-destructive' : ''}`}
                 />
                 {errors.name && (
-                  <p className="text-sm text-destructive animate-pulse">{errors.name}</p>
+                  <p className="text-xs text-destructive animate-pulse">{errors.name}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+              <div className="space-y-1">
+                <Label htmlFor="email" className="text-xs">Email Address</Label>
                 <Input
                   id="email"
                   name="email"
@@ -229,15 +229,15 @@ const SignUp = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className={`h-12 bg-background/50 transition-all ${errors.email ? 'border-destructive' : ''}`}
+                  className={`h-9 bg-background/50 transition-all text-sm ${errors.email ? 'border-destructive' : ''}`}
                 />
                 {errors.email && (
-                  <p className="text-sm text-destructive animate-pulse">{errors.email}</p>
+                  <p className="text-xs text-destructive animate-pulse">{errors.email}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
+              <div className="space-y-1">
+                <Label htmlFor="phone" className="text-xs">Phone Number</Label>
                 <Input
                   id="phone"
                   name="phone"
@@ -246,15 +246,15 @@ const SignUp = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   required
-                  className={`h-12 bg-background/50 transition-all ${errors.phone ? 'border-destructive' : ''}`}
+                  className={`h-9 bg-background/50 transition-all text-sm ${errors.phone ? 'border-destructive' : ''}`}
                 />
                 {errors.phone && (
-                  <p className="text-sm text-destructive animate-pulse">{errors.phone}</p>
+                  <p className="text-xs text-destructive animate-pulse">{errors.phone}</p>
                 )}
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+
+              <div className="space-y-1">
+                <Label htmlFor="password" className="text-xs">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -264,23 +264,23 @@ const SignUp = () => {
                     value={formData.password}
                     onChange={handleChange}
                     required
-                    className={`h-12 bg-background/50 pr-10 transition-all ${errors.password ? 'border-destructive' : ''}`}
+                    className={`h-9 bg-background/50 pr-10 transition-all text-sm ${errors.password ? 'border-destructive' : ''}`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-sm text-destructive animate-pulse">{errors.password}</p>
+                  <p className="text-xs text-destructive animate-pulse">{errors.password}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <div className="space-y-1">
+                <Label htmlFor="confirmPassword" className="text-xs">Confirm Password</Label>
                 <div className="relative">
                   <Input
                     id="confirmPassword"
@@ -290,18 +290,18 @@ const SignUp = () => {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     required
-                    className={`h-12 bg-background/50 pr-10 transition-all ${errors.confirmPassword ? 'border-destructive' : ''}`}
+                    className={`h-9 bg-background/50 pr-10 transition-all text-sm ${errors.confirmPassword ? 'border-destructive' : ''}`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   >
-                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="text-sm text-destructive animate-pulse">{errors.confirmPassword}</p>
+                  <p className="text-xs text-destructive animate-pulse">{errors.confirmPassword}</p>
                 )}
               </div>
             </div>
@@ -309,24 +309,24 @@ const SignUp = () => {
             <Button
               type="submit"
               variant="gradient"
-              size="lg"
-              className="w-full h-11 sm:h-12 group"
+              size="sm"
+              className="w-full h-8 group text-sm"
               disabled={isLoading}
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   <span>Creating account...</span>
                 </>
               ) : (
                 <>
                   <span>Create Account</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </Button>
-            
-            <div className="text-center text-xs sm:text-sm text-muted-foreground">
+
+            <div className="text-center text-[10px] sm:text-xs text-muted-foreground">
               By signing up, you agree to our terms of service
             </div>
           </form>
