@@ -287,7 +287,7 @@ const IndustryCollections = () => {
         muted
         loop
         playsInline
-        preload="none"
+        preload="metadata"
         crossOrigin="anonymous"
       >
         <source
