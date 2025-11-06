@@ -36,6 +36,11 @@ const ThreeBackground = () => {
       return;
     }
 
+    // Don't render particles when theme is not default (dark mode)
+    if (resolvedTheme === "dark") {
+      return;
+    }
+
     // Respect reduced motion: render static gradient only
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) {
