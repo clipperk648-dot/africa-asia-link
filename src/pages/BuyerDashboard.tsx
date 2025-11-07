@@ -296,7 +296,9 @@ const BuyerDashboard = () => {
 
         <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm sm:text-base font-bold">Discover Products</h2>
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 rounded-lg shadow-lg shadow-blue-500/30">
+              <h2 className="text-sm sm:text-base font-bold text-white">Discover Products</h2>
+            </div>
             <div className="flex items-center gap-2 overflow-x-auto">
               <Link to="/buyer/analytics" aria-label="Open Insights">
                 <Button variant="outline" size="xs" className="gap-2 px-2">
