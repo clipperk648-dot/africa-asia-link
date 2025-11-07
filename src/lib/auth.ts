@@ -198,11 +198,12 @@ export const googleOAuthLogin = async (
       token: data.token,
     };
   } catch (error) {
-    console.error("Google OAuth login failed:", error);
-    const errorMsg = error instanceof TypeError && error.message === "Failed to fetch"
-      ? "Unable to connect to authentication server. Please check the API URL configuration."
-      : String(error) || "Google authentication failed. Please try again.";
-    return { success: false, error: errorMsg };
+    if (error instanceof TypeError && error.message === "Failed to fetch") {
+      console.debug("Backend authentication server unavailable - using mock auth fallback");
+    } else {
+      console.error("Google OAuth error:", error);
+    }
+    return { success: false, error: "Unable to reach authentication server" };
   }
 };
 
