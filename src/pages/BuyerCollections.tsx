@@ -423,7 +423,6 @@ const BuyerCollections = () => {
         </div>
       )}
 
-      {!isLoading && <FooterNav dashboardType="buyer" />}
     </div>
   );
 };

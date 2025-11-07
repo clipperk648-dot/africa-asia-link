@@ -469,7 +469,6 @@ const IndustryCollections = () => {
         </div>
       )}
 
-      {!isLoading && <FooterNav dashboardType="industry" />}
     </div>
   );
 };
