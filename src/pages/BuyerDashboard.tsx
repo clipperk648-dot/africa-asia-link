@@ -337,7 +337,9 @@ const BuyerDashboard = () => {
 
         <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm sm:text-base font-bold">My Orders</h2>
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 rounded-lg shadow-lg shadow-blue-500/30">
+              <h2 className="text-sm sm:text-base font-bold text-white">My Orders</h2>
+            </div>
             <Link to="/buyer/orders" aria-label="View all orders">
               <Button variant="ghost" size="xs">View All</Button>
             </Link>
