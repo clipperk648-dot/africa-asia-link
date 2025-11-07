@@ -311,9 +311,11 @@ const IndustryCollections = () => {
       {!isLoading && (
         <header className="absolute top-0 left-0 right-0 z-50 bg-card/5 backdrop-blur-md">
           <div className="max-w-3xl mx-auto px-2 sm:px-3 py-1 flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10" onClick={() => navigate(-1)} aria-label="Back">
-              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-            </Button>
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-2 py-2 rounded-lg shadow-lg shadow-blue-500/30">
+              <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10" onClick={() => navigate(-1)} aria-label="Back">
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+              </Button>
+            </div>
             <h1 className="text-base sm:text-lg font-bold">Collections</h1>
           </div>
           <div className="max-w-3xl mx-auto px-2 sm:px-3 pb-1">
@@ -449,25 +451,7 @@ const IndustryCollections = () => {
         </div>
       )}
 
-      {/* Floating navigation */}
-      {!isLoading && (
-        <div className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 flex gap-2 sm:gap-3">
-          <Button variant="outline" size="sm" onClick={() => navigate(-1)} className="text-xs sm:text-sm px-3 sm:px-4">Back</Button>
-          <Button variant="gradient" size="sm" onClick={goNext} disabled={currentFrame >= frames.length - 1} className="text-xs sm:text-sm px-3 sm:px-4">Next</Button>
-        </div>
-      )}
 
-      {/* Up/Down arrows for frame navigation */}
-      {!isLoading && (
-        <div className="fixed right-2 sm:right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1 sm:gap-2">
-          <Button size="icon" variant="secondary" onClick={goPrev} aria-label="Previous frame" className="h-9 w-9 sm:h-10 sm:w-10">
-            <ChevronUp className="w-4 h-4 sm:w-5 sm:h-5" />
-          </Button>
-          <Button size="icon" variant="secondary" onClick={goNext} aria-label="Next frame" className="h-9 w-9 sm:h-10 sm:w-10">
-            <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5" />
-          </Button>
-        </div>
-      )}
 
     </div>
   );

@@ -15,6 +15,7 @@ import { APP_NAME } from "@/config/app";
 import GlassSlideshowFrame from "@/components/GlassSlideshowFrame";
 import { getSafeImageUrl, getSafeAvatarUrl, createImageErrorHandler } from "@/utils/imageOptimization";
 import { preloadVideo } from "@/utils/videoOptimization";
+import { getThemeBgVideoUrl } from "@/utils/theme";
 
 const ProductCard = ({ product }: { product: Product }) => (
   <GlassCard className="p-2 sm:p-3 min-w-[280px] sm:min-w-0">
@@ -219,20 +220,63 @@ const IndustryDashboard = () => {
 
           {/* Row 2: welcome + actions */}
           <div className="mt-1 flex items-center justify-between">
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 rounded-lg shadow-lg shadow-blue-500/30">
-              <h1 className="text-sm font-bold text-white drop-shadow-lg">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Seller'}!</h1>
-            </div>
+            {getThemeBgVideoUrl() && (
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-1.5 py-0.5 rounded-lg shadow-lg shadow-blue-500/30">
+                <h1 className="text-sm font-bold text-white drop-shadow-lg">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Seller'}!</h1>
+              </div>
+            )}
+            {!getThemeBgVideoUrl() && (
+              <h1 className="text-sm font-bold">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Seller'}!</h1>
+            )}
 
-            <div className="flex items-center gap-2">
-              <div className="relative bg-gradient-to-r from-blue-500 to-blue-600 px-2 py-2 rounded-lg shadow-lg shadow-blue-500/30">
+            <div className="flex items-center gap-3">
+              {getThemeBgVideoUrl() && (
+                <div className="relative bg-gradient-to-r from-blue-500 to-blue-600 px-1.5 py-0.5 rounded-lg shadow-lg shadow-blue-500/30">
+                  <Link to="/notifications" aria-label="Open Notifications">
+                    <Button variant="ghost" size="icon" className="h-5 w-5">
+                      <Bell className="w-5 h-5" />
+                    </Button>
+                  </Link>
+                </div>
+              )}
+              {!getThemeBgVideoUrl() && (
                 <Link to="/notifications" aria-label="Open Notifications">
                   <Button variant="ghost" size="icon" className="h-5 w-5">
                     <Bell className="w-5 h-5" />
                   </Button>
                 </Link>
-              </div>
+              )}
 
-              <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-2 py-1 rounded-lg shadow-lg shadow-blue-500/30">
+              {getThemeBgVideoUrl() && (
+                <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-1.5 py-0.5 rounded-lg shadow-lg shadow-blue-500/30">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center gap-2 px-2 py-1 rounded-md">
+                        <div className="h-8 w-8 rounded-full border-2 border-border/60 overflow-hidden flex items-center justify-center">
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email || "user"}`} alt={user?.name || "Profile"} />
+                            <AvatarFallback>{user?.name?.[0] || "U"}</AvatarFallback>
+                          </Avatar>
+                        </div>
+                        <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <div className="px-3 py-2">
+                        <p className="text-sm font-medium">{user?.name || 'User'}</p>
+                        <p className="text-xs text-cyan-300">{user?.email}</p>
+                      </div>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => navigate('/profile')}>My Profile</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/industry/settings')}>Account Settings</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/notifications')}>Notifications</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleLogout}>Sign Out</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              )}
+              {!getThemeBgVideoUrl() && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="flex items-center gap-2 px-2 py-1 rounded-md">
@@ -242,7 +286,7 @@ const IndustryDashboard = () => {
                           <AvatarFallback>{user?.name?.[0] || "U"}</AvatarFallback>
                         </Avatar>
                       </div>
-                      <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
@@ -258,26 +302,40 @@ const IndustryDashboard = () => {
                     <DropdownMenuItem onClick={handleLogout}>Sign Out</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              </div>
+              )}
 
-              <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-2 py-2 rounded-lg shadow-lg shadow-blue-500/30">
+              {getThemeBgVideoUrl() && (
+                <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-1.5 py-0.5 rounded-lg shadow-lg shadow-blue-500/30">
+                  <Link to="/wallet" aria-label="Open Wallet">
+                    <Button variant="ghost" size="icon" className="h-5 w-5">
+                      <WalletIcon className="w-5 h-5" />
+                    </Button>
+                  </Link>
+                </div>
+              )}
+              {!getThemeBgVideoUrl() && (
                 <Link to="/wallet" aria-label="Open Wallet">
                   <Button variant="ghost" size="icon" className="h-5 w-5">
                     <WalletIcon className="w-5 h-5" />
                   </Button>
                 </Link>
-              </div>
+              )}
             </div>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-3 space-y-3">
-        {/* Collections Showcase */}
+        {/* Featured Collections Banner */}
         <div className="space-y-2">
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 rounded-lg shadow-lg shadow-blue-500/30">
-            <h2 className="text-sm sm:text-base font-bold text-white">Featured Collections</h2>
-          </div>
+          {getThemeBgVideoUrl() && (
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-1.5 py-0.5 rounded-lg shadow-lg shadow-blue-500/30">
+              <h2 className="text-xs sm:text-sm font-bold text-white">Featured Collections</h2>
+            </div>
+          )}
+          {!getThemeBgVideoUrl() && (
+            <h2 className="text-sm sm:text-base font-bold">Featured Collections</h2>
+          )}
           <GlassSlideshowFrame
             videoUrl="https://cdn.builder.io/o/assets%2Fb6198669f4754d65b52a472eb983bf6a%2Fa1f93e869b6f419eac1c318985a39a15?alt=media&token=d5e5b0b8-9d79-47e0-bc70-caa9377302de&apiKey=b6198669f4754d65b52a472eb983bf6a"
           />
@@ -295,9 +353,14 @@ const IndustryDashboard = () => {
 
         <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 rounded-lg shadow-lg shadow-blue-500/30">
-              <h2 className="text-sm sm:text-base font-bold text-white">Your Products</h2>
-            </div>
+            {getThemeBgVideoUrl() && (
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-1.5 py-0.5 rounded-lg shadow-lg shadow-blue-500/30">
+                <h2 className="text-xs sm:text-sm font-bold text-white">Your Products</h2>
+              </div>
+            )}
+            {!getThemeBgVideoUrl() && (
+              <h2 className="text-sm sm:text-base font-bold">Your Products</h2>
+            )}
             <div className="flex items-center gap-2 overflow-x-auto">
               <Link to="/analytics" aria-label="Open Analytics">
                 <Button variant="outline" size="xs" className="gap-2 px-2">
@@ -336,9 +399,14 @@ const IndustryDashboard = () => {
 
         <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 rounded-lg shadow-lg shadow-blue-500/30">
-              <h2 className="text-sm sm:text-base font-bold text-white">Recent Orders</h2>
-            </div>
+            {getThemeBgVideoUrl() && (
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-1.5 py-0.5 rounded-lg shadow-lg shadow-blue-500/30">
+                <h2 className="text-xs sm:text-sm font-bold text-white">Recent Orders</h2>
+              </div>
+            )}
+            {!getThemeBgVideoUrl() && (
+              <h2 className="text-sm sm:text-base font-bold">Recent Orders</h2>
+            )}
             <Link to="/industry/recent-activity" aria-label="View all orders">
               <Button variant="ghost" size="xs">View All</Button>
             </Link>
@@ -381,7 +449,14 @@ const IndustryDashboard = () => {
 
         <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm sm:text-base font-bold">Collections Showcase</h2>
+            {getThemeBgVideoUrl() && (
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-1.5 py-0.5 rounded-lg shadow-lg shadow-blue-500/30">
+                <h2 className="text-xs sm:text-sm font-bold text-white">Collections Showcase</h2>
+              </div>
+            )}
+            {!getThemeBgVideoUrl() && (
+              <h2 className="text-sm sm:text-base font-bold">Collections Showcase</h2>
+            )}
             <Link to="/industry/collections" aria-label="View Collections">
               <Button variant="gradient" size="xs" className="gap-2 px-2">
                 <Box className="w-4 h-4" />
@@ -405,7 +480,7 @@ const IndustryDashboard = () => {
           </div>
         </section>
 
-        <section className="py-2 text-xs text-cyan-300 text-center">
+        <section className="pt-1 pb-4 text-xs text-cyan-300 text-center">
           <span className="font-medium">Rates:</span> 1 USD ≈ $7.1 • 1 CNY ≈ $220
         </section>
       </main>
