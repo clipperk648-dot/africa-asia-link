@@ -56,13 +56,20 @@ export const registerUser = async (
       return { success: false, error: "Missing required fields" };
     }
 
-    const response = await fetch(`${API_BASE_URL}/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password, name, phone, role }),
-    });
+    let response;
+    try {
+      response = await fetch(`${API_BASE_URL}/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password, name, phone, role }),
+      });
+    } catch (fetchError) {
+      // Network error - backend unavailable
+      console.debug("Backend authentication server unavailable - using mock auth fallback");
+      return { success: false, error: "Unable to reach authentication server" };
+    }
 
     let data;
     try {
@@ -88,11 +95,7 @@ export const registerUser = async (
       token: data.token,
     };
   } catch (error) {
-    if (error instanceof TypeError && error.message === "Failed to fetch") {
-      console.debug("Backend authentication server unavailable - using mock auth fallback");
-    } else {
-      console.error("Registration error:", error);
-    }
+    console.error("Registration error:", error);
     return { success: false, error: "Unable to reach authentication server" };
   }
 };
