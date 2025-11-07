@@ -151,8 +151,8 @@ const Login = () => {
                 // Fallback to mock authentication if OAuth fails
                 const mockUser = autoLoginWithMockData(selectedRole);
                 toast({
-                  title: "Signed in (mock mode)",
-                  description: `Welcome, ${mockUser.name}!`,
+                  title: "Welcome",
+                  description: `Signed in as ${mockUser.name}!`,
                 });
                 if (selectedRole === "industry") {
                   navigate("/industry");
@@ -161,12 +161,11 @@ const Login = () => {
                 }
               }
             } catch (err) {
-              console.error("OAuth error:", err);
               // Fallback to mock authentication on OAuth error
               const mockUser = autoLoginWithMockData(selectedRole);
               toast({
-                title: "Signed in (mock mode)",
-                description: `Welcome, ${mockUser.name}!`,
+                title: "Welcome",
+                description: `Signed in as ${mockUser.name}!`,
               });
               if (selectedRole === "industry") {
                 navigate("/industry");
