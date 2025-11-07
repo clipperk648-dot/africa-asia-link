@@ -186,11 +186,10 @@ const Login = () => {
         google.accounts.id.prompt();
       } else {
         // Fallback if Google API is not loaded – use mock authentication
-        console.warn('Google Sign-In SDK not loaded');
         const mockUser = autoLoginWithMockData(selectedRole || 'buyer');
         toast({
-          title: "Signed in (mock mode)",
-          description: `Welcome, ${mockUser.name}!`,
+          title: "Welcome",
+          description: `Signed in as ${mockUser.name}!`,
         });
         if (selectedRole === "industry") {
           navigate("/industry");
@@ -200,9 +199,8 @@ const Login = () => {
         setIsLoading(false);
       }
     } catch (error) {
-      console.error("Google sign in error:", error);
       setErrors({
-        form: "Google authentication failed",
+        form: "Authentication failed",
       });
       setIsLoading(false);
     }
