@@ -308,4 +308,6 @@ const ThreeBackgroundComponent = () => {
   );
 };
 
+const ThreeBackground = memo(ThreeBackgroundComponent);
+
 export default ThreeBackground;
