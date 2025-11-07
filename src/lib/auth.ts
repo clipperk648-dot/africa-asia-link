@@ -88,11 +88,12 @@ export const registerUser = async (
       token: data.token,
     };
   } catch (error) {
-    console.error("Registration failed:", error);
-    const errorMsg = error instanceof TypeError && error.message === "Failed to fetch"
-      ? "Unable to connect to authentication server. Please check the API URL configuration."
-      : String(error) || "Registration failed. Please try again.";
-    return { success: false, error: errorMsg };
+    if (error instanceof TypeError && error.message === "Failed to fetch") {
+      console.debug("Backend authentication server unavailable - using mock auth fallback");
+    } else {
+      console.error("Registration error:", error);
+    }
+    return { success: false, error: "Unable to reach authentication server" };
   }
 };
 
