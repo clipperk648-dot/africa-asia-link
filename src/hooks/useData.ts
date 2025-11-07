@@ -7,7 +7,8 @@ export const useProducts = (limit = 20, offset = 0) => {
   return useQuery({
     queryKey: ["products", limit, offset],
     queryFn: () => getProducts(limit, offset),
-    refetchInterval: 5000, // Refetch every 5 seconds for better real-time sync
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
   });
 };
 
@@ -17,6 +18,8 @@ export const useProduct = (id: string | undefined) => {
     queryKey: ["product", id],
     queryFn: () => (id ? getProductById(id) : null),
     enabled: !!id,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 };
 
@@ -26,7 +29,8 @@ export const useOrders = (userId: string | undefined) => {
     queryKey: ["orders", userId],
     queryFn: () => (userId ? getOrders(userId) : []),
     enabled: !!userId,
-    refetchInterval: 5000,
+    staleTime: 3 * 60 * 1000, // 3 minutes - more frequent for orders
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 };
 
@@ -35,7 +39,8 @@ export const useSocialPosts = (limit = 20) => {
   return useQuery({
     queryKey: ["socialPosts", limit],
     queryFn: () => getSocialPosts(limit),
-    refetchInterval: 5000,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 };
 
@@ -85,7 +90,8 @@ export const useClans = (limit = 20, offset = 0) => {
   return useQuery({
     queryKey: ["clans", limit, offset],
     queryFn: () => getClans(limit, offset),
-    refetchInterval: 5000, // Refetch every 5 seconds for real-time updates
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 };
 
@@ -94,6 +100,8 @@ export const useClan = (id: string | undefined) => {
     queryKey: ["clan", id],
     queryFn: () => (id ? getClanById(id) : null),
     enabled: !!id,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
   });
 };
 
@@ -144,6 +152,7 @@ export const useWalletBalance = (userId: string | undefined, currency = "USD") =
     queryKey: ["walletBalance", userId, currency],
     queryFn: () => (userId ? getWalletBalance(userId, currency) : { balance: 0, currency }),
     enabled: !!userId,
-    refetchInterval: 5000,
+    staleTime: 2 * 60 * 1000, // 2 minutes - more frequent for sensitive data
+    gcTime: 5 * 60 * 1000, // 5 minutes
   });
 };
