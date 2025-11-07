@@ -57,14 +57,14 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
               })}
 
               {/* Center Primary Action Button */}
-              <div className="absolute left-1/2 -translate-x-1/2 -top-3">
+              <div className="absolute left-1/2 -translate-x-1/2 -top-2">
                 <Link to={primaryAction.path} aria-label={primaryAction.label}>
                   <Button
                     size="icon"
-                    className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 hover:from-primary/90 hover:via-purple-600 hover:to-pink-600 shadow-2xl shadow-primary/50 border-4 border-background relative overflow-hidden group"
+                    className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 hover:from-primary/90 hover:via-purple-600 hover:to-pink-600 shadow-lg shadow-primary/50 border-2 border-background relative overflow-hidden group"
                   >
                     <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <PrimaryActionIcon className="w-7 h-7 relative z-10" strokeWidth={2.5} />
+                    <PrimaryActionIcon className="w-5 h-5 relative z-10" strokeWidth={2.5} />
                     <span className="sr-only">{primaryAction.label}</span>
                   </Button>
                 </Link>
