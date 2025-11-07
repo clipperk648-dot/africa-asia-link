@@ -233,8 +233,8 @@ const BuyerDashboard = () => {
           </div>
 
           <div className="mt-2 flex items-center justify-between">
-            <div>
-              <h1 className="text-base font-semibold text-white">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Buyer'}!</h1>
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 rounded-lg shadow-lg shadow-blue-500/30">
+              <h1 className="text-base font-bold text-white drop-shadow-lg">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Buyer'}!</h1>
             </div>
 
             <div className="flex items-center gap-2">
