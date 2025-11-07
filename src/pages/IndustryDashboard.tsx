@@ -15,6 +15,7 @@ import { APP_NAME } from "@/config/app";
 import GlassSlideshowFrame from "@/components/GlassSlideshowFrame";
 import { getSafeImageUrl, getSafeAvatarUrl, createImageErrorHandler } from "@/utils/imageOptimization";
 import { preloadVideo } from "@/utils/videoOptimization";
+import { getThemeBgVideoUrl } from "@/utils/theme";
 
 const ProductCard = ({ product }: { product: Product }) => (
   <GlassCard className="p-2 sm:p-3 min-w-[280px] sm:min-w-0">
@@ -273,15 +274,6 @@ const IndustryDashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-3 space-y-3">
-        {/* Collections Showcase */}
-        <div className="space-y-2">
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 rounded-lg shadow-lg shadow-blue-500/30">
-            <h2 className="text-sm sm:text-base font-bold text-white">Featured Collections</h2>
-          </div>
-          <GlassSlideshowFrame
-            videoUrl="https://cdn.builder.io/o/assets%2Fb6198669f4754d65b52a472eb983bf6a%2Fa1f93e869b6f419eac1c318985a39a15?alt=media&token=d5e5b0b8-9d79-47e0-bc70-caa9377302de&apiKey=b6198669f4754d65b52a472eb983bf6a"
-          />
-        </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-2 animate-fade-in">
           {stats.map((stat, i) => (
@@ -381,7 +373,14 @@ const IndustryDashboard = () => {
 
         <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm sm:text-base font-bold">Collections Showcase</h2>
+            {getThemeBgVideoUrl() && (
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-3 py-1.5 rounded-lg shadow-lg shadow-blue-500/30">
+                <h2 className="text-xs sm:text-sm font-bold text-white">Collections Showcase</h2>
+              </div>
+            )}
+            {!getThemeBgVideoUrl() && (
+              <h2 className="text-sm sm:text-base font-bold">Collections Showcase</h2>
+            )}
             <Link to="/industry/collections" aria-label="View Collections">
               <Button variant="gradient" size="xs" className="gap-2 px-2">
                 <Box className="w-4 h-4" />
@@ -405,7 +404,7 @@ const IndustryDashboard = () => {
           </div>
         </section>
 
-        <section className="py-2 text-xs text-cyan-300 text-center">
+        <section className="pt-1 pb-4 text-xs text-cyan-300 text-center">
           <span className="font-medium">Rates:</span> 1 USD ≈ $7.1 • 1 CNY ≈ $220
         </section>
       </main>
