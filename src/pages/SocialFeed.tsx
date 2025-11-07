@@ -232,7 +232,7 @@ const SocialFeed = () => {
           </div>
         ) : (
           posts.map((post) => (
-            <div key={post.id} className="bg-background border-b border-border">
+            <div key={post.id} className="bg-background border-b border-border mb-1">
               {/* Post Header */}
               <div className="flex items-center justify-between px-4 py-3">
                 <div className="flex items-center gap-3 min-w-0 flex-1">
