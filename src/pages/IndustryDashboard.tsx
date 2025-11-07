@@ -14,6 +14,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { APP_NAME } from "@/config/app";
 import GlassSlideshowFrame from "@/components/GlassSlideshowFrame";
 import { getSafeImageUrl, getSafeAvatarUrl, createImageErrorHandler } from "@/utils/imageOptimization";
+import { preloadVideo } from "@/utils/videoOptimization";
 
 const ProductCard = ({ product }: { product: Product }) => (
   <GlassCard className="p-2 sm:p-3 min-w-[280px] sm:min-w-0">
