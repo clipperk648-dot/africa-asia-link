@@ -85,6 +85,16 @@ const IndustryDashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    preloadVideo({
+      url: "https://cdn.builder.io/o/assets%2Fb6198669f4754d65b52a472eb983bf6a%2Fa1f93e869b6f419eac1c318985a39a15?alt=media&token=d5e5b0b8-9d79-47e0-bc70-caa9377302de&apiKey=b6198669f4754d65b52a472eb983bf6a",
+      priority: "high",
+      autoplay: true
+    }).catch(() => {
+      // Video preload failed, but component will still work
+    });
+  }, []);
+
   const handleLogout = () => {
     logout();
     navigate("/login");
