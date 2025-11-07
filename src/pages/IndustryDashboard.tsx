@@ -220,9 +220,14 @@ const IndustryDashboard = () => {
 
           {/* Row 2: welcome + actions */}
           <div className="mt-1 flex items-center justify-between">
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 rounded-lg shadow-lg shadow-blue-500/30">
-              <h1 className="text-sm font-bold text-white drop-shadow-lg">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Seller'}!</h1>
-            </div>
+            {getThemeBgVideoUrl() && (
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-1.5 py-0.5 rounded-lg shadow-lg shadow-blue-500/30">
+                <h1 className="text-sm font-bold text-white drop-shadow-lg">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Seller'}!</h1>
+              </div>
+            )}
+            {!getThemeBgVideoUrl() && (
+              <h1 className="text-sm font-bold">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Seller'}!</h1>
+            )}
 
             <div className="flex items-center gap-2">
               <div className="relative bg-gradient-to-r from-blue-500 to-blue-600 px-2 py-2 rounded-lg shadow-lg shadow-blue-500/30">
@@ -287,9 +292,14 @@ const IndustryDashboard = () => {
 
         <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 rounded-lg shadow-lg shadow-blue-500/30">
-              <h2 className="text-sm sm:text-base font-bold text-white">Your Products</h2>
-            </div>
+            {getThemeBgVideoUrl() && (
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-1.5 py-0.5 rounded-lg shadow-lg shadow-blue-500/30">
+                <h2 className="text-xs sm:text-sm font-bold text-white">Your Products</h2>
+              </div>
+            )}
+            {!getThemeBgVideoUrl() && (
+              <h2 className="text-sm sm:text-base font-bold">Your Products</h2>
+            )}
             <div className="flex items-center gap-2 overflow-x-auto">
               <Link to="/analytics" aria-label="Open Analytics">
                 <Button variant="outline" size="xs" className="gap-2 px-2">
@@ -328,9 +338,14 @@ const IndustryDashboard = () => {
 
         <section className="space-y-2">
           <div className="flex items-center justify-between">
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-4 py-2 rounded-lg shadow-lg shadow-blue-500/30">
-              <h2 className="text-sm sm:text-base font-bold text-white">Recent Orders</h2>
-            </div>
+            {getThemeBgVideoUrl() && (
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-1.5 py-0.5 rounded-lg shadow-lg shadow-blue-500/30">
+                <h2 className="text-xs sm:text-sm font-bold text-white">Recent Orders</h2>
+              </div>
+            )}
+            {!getThemeBgVideoUrl() && (
+              <h2 className="text-sm sm:text-base font-bold">Recent Orders</h2>
+            )}
             <Link to="/industry/recent-activity" aria-label="View all orders">
               <Button variant="ghost" size="xs">View All</Button>
             </Link>
@@ -374,7 +389,7 @@ const IndustryDashboard = () => {
         <section className="space-y-2">
           <div className="flex items-center justify-between">
             {getThemeBgVideoUrl() && (
-              <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-3 py-1.5 rounded-lg shadow-lg shadow-blue-500/30">
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-1.5 py-0.5 rounded-lg shadow-lg shadow-blue-500/30">
                 <h2 className="text-xs sm:text-sm font-bold text-white">Collections Showcase</h2>
               </div>
             )}
