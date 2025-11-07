@@ -48,16 +48,18 @@ const Theme = () => {
 
       <main className="max-w-4xl mx-auto px-3 py-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
         {PRESETS.map((url) => (
-          <div key={url} className="relative rounded-xl overflow-hidden border border-border/50">
-            <video className="w-full h-48 object-cover bg-muted" muted loop playsInline preload="metadata" crossOrigin="anonymous">
-              <source src={url} type="video/mp4" />
-            </video>
-            <div className="p-2 flex items-center justify-between">
-              <span className="text-sm text-muted-foreground truncate">{url.slice(0, 60)}...</span>
-              <Button variant={current === url ? 'secondary' : 'gradient'} size="sm" onClick={() => apply(url)}>
-                {current === url ? <Check className="w-4 h-4 mr-1" /> : null}
-                {current === url ? 'Selected' : 'Use'}
-              </Button>
+          <div key={url} className="bg-gradient-to-r from-blue-500 to-blue-600 p-0.5 rounded-xl shadow-lg shadow-blue-500/30">
+            <div className="relative rounded-[10px] overflow-hidden bg-background">
+              <video className="w-full h-48 object-cover bg-muted" muted loop playsInline preload="metadata" crossOrigin="anonymous">
+                <source src={url} type="video/mp4" />
+              </video>
+              <div className="p-2 flex items-center justify-between">
+                <span className="text-sm text-muted-foreground truncate">{url.slice(0, 60)}...</span>
+                <Button variant={current === url ? 'secondary' : 'gradient'} size="sm" onClick={() => apply(url)}>
+                  {current === url ? <Check className="w-4 h-4 mr-1" /> : null}
+                  {current === url ? 'Selected' : 'Use'}
+                </Button>
+              </div>
             </div>
           </div>
         ))}
