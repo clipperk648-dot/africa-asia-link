@@ -30,10 +30,10 @@ export const MOCK_PRODUCTS: Product[] = [
     price: 12500,
     company: 'Jiangxi Ceramics Co.',
     location: 'Jiangxi, China',
-    image: 'https://images.unsplash.com/photo-1564181286556-403733b1f86d?w=500&h=500&fit=crop',
+    image: 'https://images.pexels.com/photos/279746/pexels-photo-279746.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop',
     images: [
-      'https://images.unsplash.com/photo-1564181286556-403733b1f86d?w=500&h=500&fit=crop',
-      'https://images.unsplash.com/photo-1565655109821-7bb385188e98?w=500&h=500&fit=crop',
+      'https://images.pexels.com/photos/279746/pexels-photo-279746.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop',
+      'https://images.pexels.com/photos/262405/pexels-photo-262405.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop',
     ],
     rating: 4.8,
     description: 'Premium ceramic tiles suitable for residential and commercial applications. High durability and aesthetic appeal.',
@@ -47,9 +47,9 @@ export const MOCK_PRODUCTS: Product[] = [
     price: 18000,
     company: 'Baosteel Group',
     location: 'Shanghai, China',
-    image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=500&h=500&fit=crop',
+    image: 'https://images.pexels.com/photos/3938022/pexels-photo-3938022.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop',
     images: [
-      'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=500&h=500&fit=crop',
+      'https://images.pexels.com/photos/3938022/pexels-photo-3938022.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop',
     ],
     rating: 4.9,
     description: 'High-strength steel rebars meeting international standards. Perfect for construction projects.',
@@ -63,9 +63,9 @@ export const MOCK_PRODUCTS: Product[] = [
     price: 45000,
     company: 'Siemens Manufacturing',
     location: 'Beijing, China',
-    image: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500&h=500&fit=crop',
+    image: 'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop',
     images: [
-      'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=500&h=500&fit=crop',
+      'https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop',
     ],
     rating: 4.7,
     description: 'Precision-engineered machinery parts for industrial applications.',
@@ -79,9 +79,9 @@ export const MOCK_PRODUCTS: Product[] = [
     price: 8500,
     company: 'Zhejiang Textile Mills',
     location: 'Hangzhou, China',
-    image: 'https://images.unsplash.com/photo-1535634066-b4ad7b57efb5?w=500&h=500&fit=crop',
+    image: 'https://images.pexels.com/photos/3962286/pexels-photo-3962286.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop',
     images: [
-      'https://images.unsplash.com/photo-1535634066-b4ad7b57efb5?w=500&h=500&fit=crop',
+      'https://images.pexels.com/photos/3962286/pexels-photo-3962286.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop',
     ],
     rating: 4.6,
     description: 'High-quality textiles for apparel and industrial use.',
@@ -95,9 +95,9 @@ export const MOCK_PRODUCTS: Product[] = [
     price: 32000,
     company: 'Shenzhen Tech Electronics',
     location: 'Shenzhen, China',
-    image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&h=500&fit=crop',
+    image: 'https://images.pexels.com/photos/3587477/pexels-photo-3587477.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop',
     images: [
-      'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&h=500&fit=crop',
+      'https://images.pexels.com/photos/3587477/pexels-photo-3587477.jpeg?auto=compress&cs=tinysrgb&w=500&h=500&fit=crop',
     ],
     rating: 4.9,
     description: 'State-of-the-art electronic components for modern devices.',
@@ -159,81 +159,100 @@ export const MOCK_CLANS: Clan[] = [
         id: 'member_001',
         user_id: 'user_buyer_001',
         username: 'John Buyer',
-        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
-        contributed_amount: 250000,
-        joined_date: new Date().toISOString(),
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user_buyer_001',
+        contributed_amount: 150000,
+        joined_date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
       },
     ],
-    created_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+    created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'clan_002',
+    name: 'Tech Innovators',
+    description: 'Electronics and tech component trading group',
+    creator_id: 'user_buyer_001',
+    creator_name: 'John Buyer',
+    target_product_id: 'prod_005',
+    target_product_name: 'Electronic Components',
+    target_price: 320000,
+    current_funded: 180000,
+    deadline: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
+    status: 'active',
+    members: [
+      {
+        id: 'member_002',
+        user_id: 'user_buyer_001',
+        username: 'John Buyer',
+        avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user_buyer_001',
+        contributed_amount: 100000,
+        joined_date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+      },
+    ],
+    created_at: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
   },
 ];
 
-// Mock social posts
-export const MOCK_SOCIAL_POSTS = [
-  {
-    id: 'post_001',
-    user_id: 'user_industry_001',
-    username: 'Chen Wei',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Chen',
-    type: 'text',
-    content: 'Just launched our new ceramic tile collection! Premium quality at competitive prices.',
-    media_url: null,
-    likes: 234,
-    comments: 12,
-    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: 'post_002',
-    user_id: 'user_buyer_001',
-    username: 'John Buyer',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
-    type: 'text',
-    content: 'Great experience trading on Echina! Found high-quality products at excellent prices.',
-    media_url: null,
-    likes: 156,
-    comments: 8,
-    created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-];
-
-// Mock wallet data
+// Mock wallet
 export const MOCK_WALLET = {
   user_id: 'user_buyer_001',
-  balance: 5000000,
-  currency: 'NGN',
+  balance: 50000,
+  currency: 'USD',
   updated_at: new Date().toISOString(),
 };
 
 // Mock transactions
-export const MOCK_TRANSACTIONS = [
+export const MOCK_TRANSACTIONS: any[] = [
   {
     id: 'txn_001',
     user_id: 'user_buyer_001',
-    type: 'deposit' as const,
-    amount: 2000000,
-    currency: 'NGN',
+    type: 'deposit',
+    amount: 10000,
+    currency: 'USD',
     note: 'Initial deposit',
-    created_at: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+    created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
     id: 'txn_002',
     user_id: 'user_buyer_001',
-    type: 'payment' as const,
+    type: 'payment',
     amount: 1250000,
-    currency: 'NGN',
-    note: 'Payment for order #order_001',
-    created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: 'txn_003',
-    user_id: 'user_buyer_001',
-    type: 'deposit' as const,
-    amount: 5000000,
-    currency: 'NGN',
-    note: 'Additional deposit',
-    created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    currency: 'USD',
+    note: 'Order payment for prod_001',
+    created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
   },
 ];
 
-// Simulate API delay (optional, makes it feel more real)
-export const delay = (ms: number = 500) => new Promise(resolve => setTimeout(resolve, ms));
+// Mock social posts
+export const MOCK_SOCIAL_POSTS: any[] = [
+  {
+    id: 'post_001',
+    user_id: 'user_buyer_001',
+    username: 'John Buyer',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user_buyer_001',
+    type: 'text',
+    content: 'Just discovered some amazing suppliers on Echina! The platform really makes international trade seamless.',
+    media_url: null,
+    likes: 125,
+    comments: 8,
+    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'post_002',
+    user_id: 'user_industry_001',
+    username: 'Chen Wei',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user_industry_001',
+    type: 'text',
+    content: 'New batch of high-quality ceramic tiles ready for export. Meeting international standards. DM for bulk orders!',
+    media_url: null,
+    likes: 87,
+    comments: 12,
+    created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+];
+
+// Helper function to simulate network delay
+export const delay = (ms = 100) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+};

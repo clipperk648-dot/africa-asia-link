@@ -56,13 +56,20 @@ export const registerUser = async (
       return { success: false, error: "Missing required fields" };
     }
 
-    const response = await fetch(`${API_BASE_URL}/register`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password, name, phone, role }),
-    });
+    let response;
+    try {
+      response = await fetch(`${API_BASE_URL}/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password, name, phone, role }),
+      });
+    } catch (fetchError) {
+      // Network error - backend unavailable
+      console.debug("Backend authentication server unavailable - using mock auth fallback");
+      return { success: false, error: "Unable to reach authentication server" };
+    }
 
     let data;
     try {
@@ -88,11 +95,7 @@ export const registerUser = async (
       token: data.token,
     };
   } catch (error) {
-    if (error instanceof TypeError && error.message === "Failed to fetch") {
-      console.debug("Backend authentication server unavailable - using mock auth fallback");
-    } else {
-      console.error("Registration error:", error);
-    }
+    console.error("Registration error:", error);
     return { success: false, error: "Unable to reach authentication server" };
   }
 };
@@ -110,13 +113,20 @@ export const loginUser = async (
       return { success: false, error: "Email, password, and role are required" };
     }
 
-    const response = await fetch(`${API_BASE_URL}/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password, role }),
-    });
+    let response;
+    try {
+      response = await fetch(`${API_BASE_URL}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password, role }),
+      });
+    } catch (fetchError) {
+      // Network error - backend unavailable
+      console.debug("Backend authentication server unavailable - using mock auth fallback");
+      return { success: false, error: "Unable to reach authentication server" };
+    }
 
     // Parse JSON response
     let data;
@@ -143,12 +153,7 @@ export const loginUser = async (
       token: data.token,
     };
   } catch (error) {
-    if (error instanceof TypeError && error.message === "Failed to fetch") {
-      // Backend unavailable - this is expected in development without a running server
-      console.debug("Backend authentication server unavailable - using mock auth fallback");
-    } else {
-      console.error("Login error:", error);
-    }
+    console.error("Login error:", error);
     return { success: false, error: "Unable to reach authentication server" };
   }
 };
@@ -165,13 +170,20 @@ export const googleOAuthLogin = async (
       return { success: false, error: "Token and role are required" };
     }
 
-    const response = await fetch(`${API_BASE_URL}/google`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ token, role }),
-    });
+    let response;
+    try {
+      response = await fetch(`${API_BASE_URL}/google`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token, role }),
+      });
+    } catch (fetchError) {
+      // Network error - backend unavailable
+      console.debug("Backend authentication server unavailable - using mock auth fallback");
+      return { success: false, error: "Unable to reach authentication server" };
+    }
 
     let data;
     try {
@@ -198,11 +210,7 @@ export const googleOAuthLogin = async (
       token: data.token,
     };
   } catch (error) {
-    if (error instanceof TypeError && error.message === "Failed to fetch") {
-      console.debug("Backend authentication server unavailable - using mock auth fallback");
-    } else {
-      console.error("Google OAuth error:", error);
-    }
+    console.error("Google OAuth error:", error);
     return { success: false, error: "Unable to reach authentication server" };
   }
 };

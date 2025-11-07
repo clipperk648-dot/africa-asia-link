@@ -73,10 +73,7 @@ const queryClient = new QueryClient();
 const AppContent = () => {
   useEffect(() => {
     // Auto-login with mock data when app loads
-    const user = initializeMockAuth();
-    if (user) {
-      console.log('✅ Mock authentication initialized:', user.email);
-    }
+    initializeMockAuth();
   }, []);
 
   return (

@@ -215,7 +215,7 @@ const SocialFeed = () => {
       </div>
 
       {/* Posts Feed Section */}
-      <main className="max-w-3xl mx-auto space-y-0 pb-20">
+      <main className="max-w-3xl mx-auto space-y-3 pb-20">
         {posts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 px-4">
             <div className="rounded-full bg-muted/50 p-4 mb-4">
