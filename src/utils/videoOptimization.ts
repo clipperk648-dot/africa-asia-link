@@ -74,14 +74,14 @@ export const preloadVideos = (configs: VideoPreloadConfig[]): Promise<PromiseSet
     return (priorityOrder[a.priority || 'medium'] - priorityOrder[b.priority || 'medium']);
   });
 
-  // Preload with staggered timing to avoid network congestion
+  // Preload with minimal stagger for true parallel loading
   return Promise.allSettled(
     sorted.map((config, index) =>
       new Promise<void>((resolve) => {
-        // Stagger preloads by 100ms
+        // Minimal stagger (10ms) to prevent network blocking while enabling true parallelism
         setTimeout(() => {
           preloadVideo(config).then(resolve).catch(() => resolve());
-        }, index * 100);
+        }, index * 10);
       })
     )
   );
