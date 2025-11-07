@@ -308,7 +308,7 @@ const SocialFeed = () => {
                 </button>
 
                 {/* Add Comment */}
-                <div className="flex items-center gap-2 pt-1 border-t border-border/50">
+                <div className="flex items-center gap-2 pt-1 pb-4 border-t border-border/50">
                   <Button variant="ghost" size="sm" className="text-sm text-primary hover:text-primary/80 px-0" onClick={() => openComments(post.id)}>
                     Add a comment…
                   </Button>
