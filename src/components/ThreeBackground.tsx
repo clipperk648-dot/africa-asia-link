@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo, memo } from "react";
 import { useTheme } from "next-themes";
 
 type Particle = {
@@ -12,7 +12,7 @@ type Particle = {
 
 import { getThemeBgVideoUrl, THEME_BG_CHANGED_EVENT } from "@/utils/theme";
 
-const ThreeBackground = () => {
+const ThreeBackgroundComponent = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { resolvedTheme } = useTheme();
   const [themeBgUrl, setThemeBgUrl] = useState<string | null>(getThemeBgVideoUrl());
@@ -290,7 +290,7 @@ const ThreeBackground = () => {
   return (
     <>
       {themeBgUrl ? (
-        <video className="fixed top-0 left-0 w-full h-full object-cover -z-20" autoPlay muted loop playsInline preload="none" crossOrigin="anonymous">
+        <video className="fixed top-0 left-0 w-full h-full object-cover -z-20" autoPlay muted loop playsInline preload="metadata" crossOrigin="anonymous">
           <source src={themeBgUrl} type="video/mp4" />
         </video>
       ) : null}
