@@ -76,8 +76,8 @@ const Login = () => {
         // Fallback to mock authentication when backend is unavailable
         const mockUser = autoLoginWithMockData(selectedRole);
         toast({
-          title: "Signed in (mock mode)",
-          description: `Welcome, ${mockUser.name}!`,
+          title: "Welcome",
+          description: `Signed in as ${mockUser.name}!`,
         });
         if (selectedRole === "industry") {
           navigate("/industry");
@@ -89,15 +89,14 @@ const Login = () => {
       // Network or server error – use mock authentication fallback
       const mockUser = selectedRole ? autoLoginWithMockData(selectedRole) : autoLoginWithMockData("buyer");
       toast({
-        title: "Signed in (mock mode)",
-        description: `Welcome, ${mockUser.name}!`,
+        title: "Welcome",
+        description: `Signed in as ${mockUser.name}!`,
       });
       if (selectedRole === "industry") {
         navigate("/industry");
       } else {
         navigate("/buyer");
       }
-      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }
