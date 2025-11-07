@@ -363,9 +363,11 @@ const IndustryDashboard = () => {
                   <span className="hidden sm:inline">Settings</span>
                 </Button>
               </Link>
-              <Link to="/industry/products" aria-label="View all products">
-                <Button variant="ghost" size="xs">View All</Button>
-              </Link>
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-1.5 py-0.5 rounded-lg shadow-lg shadow-blue-500/30">
+                <Link to="/industry/products" aria-label="View all products">
+                  <Button variant="ghost" size="xs">View All</Button>
+                </Link>
+              </div>
             </div>
           </div>
 
@@ -396,9 +398,11 @@ const IndustryDashboard = () => {
             {!getThemeBgVideoUrl() && (
               <h2 className="text-sm sm:text-base font-bold">Recent Orders</h2>
             )}
-            <Link to="/industry/recent-activity" aria-label="View all orders">
-              <Button variant="ghost" size="xs">View All</Button>
-            </Link>
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-1.5 py-0.5 rounded-lg shadow-lg shadow-blue-500/30">
+              <Link to="/industry/recent-activity" aria-label="View all orders">
+                <Button variant="ghost" size="xs">View All</Button>
+              </Link>
+            </div>
           </div>
           <div className="space-y-3">
             {orders.length === 0 ? (
