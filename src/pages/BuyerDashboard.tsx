@@ -249,40 +249,42 @@ const BuyerDashboard = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="relative">
+              <div className="relative bg-gradient-to-r from-blue-500 to-blue-600 px-2 py-2 rounded-lg shadow-lg shadow-blue-500/30">
                 <Link to="/notifications" aria-label="Open Notifications">
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" className="h-5 w-5">
                     <Bell className="w-5 h-5" />
                   </Button>
                 </Link>
               </div>
 
               {/* Profile dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 px-2 py-1 rounded-md">
-                    <div className="h-8 w-8 rounded-full border-2 border-border/60 overflow-hidden flex items-center justify-center">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email || 'user'}`} alt={user?.name || 'Profile'} />
-                        <AvatarFallback>{(user?.name?.[0] || 'U')}</AvatarFallback>
-                      </Avatar>
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-2 py-1 rounded-lg shadow-lg shadow-blue-500/30">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-2 px-2 py-1 rounded-md">
+                      <div className="h-8 w-8 rounded-full border-2 border-border/60 overflow-hidden flex items-center justify-center">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email || 'user'}`} alt={user?.name || 'Profile'} />
+                          <AvatarFallback>{(user?.name?.[0] || 'U')}</AvatarFallback>
+                        </Avatar>
+                      </div>
+                      <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <div className="px-3 py-2">
+                      <p className="text-sm font-medium">{user?.name || 'User'}</p>
+                      <p className="text-xs text-cyan-300">{user?.email}</p>
                     </div>
-                    <svg className="w-4 h-4 text-cyan-300" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <div className="px-3 py-2">
-                    <p className="text-sm font-medium">{user?.name || 'User'}</p>
-                    <p className="text-xs text-cyan-300">{user?.email}</p>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/profile')}>My Profile</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/buyer/settings')}>Account Settings</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/notifications')}>Notifications</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>Sign Out</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate('/profile')}>My Profile</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/buyer/settings')}>Account Settings</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/notifications')}>Notifications</DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout}>Sign Out</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
 
             </div>
           </div>
