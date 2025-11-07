@@ -80,12 +80,12 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
                     key={item.path}
                     to={item.path}
                     className={cn(
-                      "flex flex-col items-center gap-1 transition-all duration-300",
+                      "flex flex-col items-center gap-0.5 transition-all duration-300 px-3 sm:px-4",
                       isActive ? "text-primary" : "text-muted-foreground"
                     )}
                   >
-                    <Icon className={cn("w-6 h-6", isActive && "scale-110")} strokeWidth={isActive ? 2.5 : 2} />
-                    <span className="text-[10px] font-medium">{item.label}</span>
+                    <Icon className={cn("w-5 h-5", isActive && "scale-110")} strokeWidth={isActive ? 2.5 : 2} />
+                    <span className="text-[9px] font-medium">{item.label}</span>
                   </Link>
                 );
               })}
