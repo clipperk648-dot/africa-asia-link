@@ -142,11 +142,13 @@ export const loginUser = async (
       token: data.token,
     };
   } catch (error) {
-    console.error("Login failed:", error);
-    const errorMsg = error instanceof TypeError && error.message === "Failed to fetch"
-      ? "Unable to connect to authentication server. Please check the API URL configuration."
-      : String(error) || "Login failed. Please try again.";
-    return { success: false, error: errorMsg };
+    if (error instanceof TypeError && error.message === "Failed to fetch") {
+      // Backend unavailable - this is expected in development without a running server
+      console.debug("Backend authentication server unavailable - using mock auth fallback");
+    } else {
+      console.error("Login error:", error);
+    }
+    return { success: false, error: "Unable to reach authentication server" };
   }
 };
 
