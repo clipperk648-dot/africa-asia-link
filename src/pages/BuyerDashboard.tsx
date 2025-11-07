@@ -336,6 +336,20 @@ const BuyerDashboard = () => {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-3 space-y-3">
+        {/* Featured Collections Banner */}
+        <div className="space-y-2">
+          {getThemeBgVideoUrl() && (
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-1.5 py-0.5 rounded-lg shadow-lg shadow-blue-500/30">
+              <h2 className="text-xs sm:text-sm font-bold text-white">Featured Collections</h2>
+            </div>
+          )}
+          {!getThemeBgVideoUrl() && (
+            <h2 className="text-sm sm:text-base font-bold">Featured Collections</h2>
+          )}
+          <GlassSlideshowFrame
+            videoUrl="https://cdn.builder.io/o/assets%2Fb6198669f4754d65b52a472eb983bf6a%2Fa1f93e869b6f419eac1c318985a39a15?alt=media&token=d5e5b0b8-9d79-47e0-bc70-caa9377302de&apiKey=b6198669f4754d65b52a472eb983bf6a"
+          />
+        </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-2 animate-fade-in">
           {stats.map((stat, i) => (
