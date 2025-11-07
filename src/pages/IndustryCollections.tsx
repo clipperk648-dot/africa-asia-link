@@ -287,7 +287,7 @@ const IndustryCollections = () => {
         muted
         loop
         playsInline
-        preload="metadata"
+        preload="auto"
         crossOrigin="anonymous"
       >
         <source
@@ -355,7 +355,7 @@ const IndustryCollections = () => {
                         loop
                         muted
                         playsInline
-                        preload="metadata"
+                        preload="auto"
                         onContextMenu={handleVideoContextMenu}
                         disablePictureInPicture
                       />
@@ -469,7 +469,6 @@ const IndustryCollections = () => {
         </div>
       )}
 
-      {!isLoading && <FooterNav dashboardType="industry" />}
     </div>
   );
 };

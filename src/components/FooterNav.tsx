@@ -33,7 +33,7 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/20 backdrop-blur-md border-t border-border/20">
       <div className="max-w-7xl mx-auto px-2 sm:px-6">
-        <div className={cn("flex items-center justify-around h-16 relative", isIndustry ? "sm:px-8" : "")}>
+        <div className={cn("flex items-center justify-around h-12 relative", isIndustry ? "sm:px-8" : "")}>
           {isIndustry ? (
             <>
               {/* Left Items */}
@@ -46,25 +46,25 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
                     key={item.path}
                     to={item.path}
                     className={cn(
-                      "flex flex-col items-center gap-1 transition-all duration-300",
+                      "flex flex-col items-center gap-0.5 transition-all duration-300 px-3 sm:px-4",
                       isActive ? "text-primary" : "text-muted-foreground"
                     )}
                   >
-                    <Icon className={cn("w-6 h-6", isActive && "scale-110")} strokeWidth={isActive ? 2.5 : 2} />
-                    <span className="text-[10px] font-medium">{item.label}</span>
+                    <Icon className={cn("w-5 h-5", isActive && "scale-110")} strokeWidth={isActive ? 2.5 : 2} />
+                    <span className="text-[9px] font-medium">{item.label}</span>
                   </Link>
                 );
               })}
 
               {/* Center Primary Action Button */}
-              <div className="absolute left-1/2 -translate-x-1/2 -top-3">
+              <div className="absolute left-1/2 -translate-x-1/2 -top-2">
                 <Link to={primaryAction.path} aria-label={primaryAction.label}>
                   <Button
                     size="icon"
-                    className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 hover:from-primary/90 hover:via-purple-600 hover:to-pink-600 shadow-2xl shadow-primary/50 border-4 border-background relative overflow-hidden group"
+                    className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary via-purple-500 to-pink-500 hover:from-primary/90 hover:via-purple-600 hover:to-pink-600 shadow-lg shadow-primary/50 border-2 border-background relative overflow-hidden group"
                   >
                     <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    <PrimaryActionIcon className="w-7 h-7 relative z-10" strokeWidth={2.5} />
+                    <PrimaryActionIcon className="w-5 h-5 relative z-10" strokeWidth={2.5} />
                     <span className="sr-only">{primaryAction.label}</span>
                   </Button>
                 </Link>
@@ -80,12 +80,12 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
                     key={item.path}
                     to={item.path}
                     className={cn(
-                      "flex flex-col items-center gap-1 transition-all duration-300",
+                      "flex flex-col items-center gap-0.5 transition-all duration-300 px-3 sm:px-4",
                       isActive ? "text-primary" : "text-muted-foreground"
                     )}
                   >
-                    <Icon className={cn("w-6 h-6", isActive && "scale-110")} strokeWidth={isActive ? 2.5 : 2} />
-                    <span className="text-[10px] font-medium">{item.label}</span>
+                    <Icon className={cn("w-5 h-5", isActive && "scale-110")} strokeWidth={isActive ? 2.5 : 2} />
+                    <span className="text-[9px] font-medium">{item.label}</span>
                   </Link>
                 );
               })}

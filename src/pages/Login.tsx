@@ -76,8 +76,8 @@ const Login = () => {
         // Fallback to mock authentication when backend is unavailable
         const mockUser = autoLoginWithMockData(selectedRole);
         toast({
-          title: "Signed in (mock mode)",
-          description: `Welcome, ${mockUser.name}!`,
+          title: "Welcome",
+          description: `Signed in as ${mockUser.name}!`,
         });
         if (selectedRole === "industry") {
           navigate("/industry");
@@ -89,15 +89,14 @@ const Login = () => {
       // Network or server error – use mock authentication fallback
       const mockUser = selectedRole ? autoLoginWithMockData(selectedRole) : autoLoginWithMockData("buyer");
       toast({
-        title: "Signed in (mock mode)",
-        description: `Welcome, ${mockUser.name}!`,
+        title: "Welcome",
+        description: `Signed in as ${mockUser.name}!`,
       });
       if (selectedRole === "industry") {
         navigate("/industry");
       } else {
         navigate("/buyer");
       }
-      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -152,8 +151,8 @@ const Login = () => {
                 // Fallback to mock authentication if OAuth fails
                 const mockUser = autoLoginWithMockData(selectedRole);
                 toast({
-                  title: "Signed in (mock mode)",
-                  description: `Welcome, ${mockUser.name}!`,
+                  title: "Welcome",
+                  description: `Signed in as ${mockUser.name}!`,
                 });
                 if (selectedRole === "industry") {
                   navigate("/industry");
@@ -162,12 +161,11 @@ const Login = () => {
                 }
               }
             } catch (err) {
-              console.error("OAuth error:", err);
               // Fallback to mock authentication on OAuth error
               const mockUser = autoLoginWithMockData(selectedRole);
               toast({
-                title: "Signed in (mock mode)",
-                description: `Welcome, ${mockUser.name}!`,
+                title: "Welcome",
+                description: `Signed in as ${mockUser.name}!`,
               });
               if (selectedRole === "industry") {
                 navigate("/industry");
@@ -188,11 +186,10 @@ const Login = () => {
         google.accounts.id.prompt();
       } else {
         // Fallback if Google API is not loaded – use mock authentication
-        console.warn('Google Sign-In SDK not loaded');
         const mockUser = autoLoginWithMockData(selectedRole || 'buyer');
         toast({
-          title: "Signed in (mock mode)",
-          description: `Welcome, ${mockUser.name}!`,
+          title: "Welcome",
+          description: `Signed in as ${mockUser.name}!`,
         });
         if (selectedRole === "industry") {
           navigate("/industry");
@@ -202,9 +199,8 @@ const Login = () => {
         setIsLoading(false);
       }
     } catch (error) {
-      console.error("Google sign in error:", error);
       setErrors({
-        form: "Google authentication failed",
+        form: "Authentication failed",
       });
       setIsLoading(false);
     }

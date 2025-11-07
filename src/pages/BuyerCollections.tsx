@@ -263,7 +263,7 @@ const BuyerCollections = () => {
         muted
         loop
         playsInline
-        preload="metadata"
+        preload="auto"
         crossOrigin="anonymous"
       >
         <source
@@ -317,7 +317,7 @@ const BuyerCollections = () => {
                         loop
                         muted
                         playsInline
-                        preload="metadata"
+                        preload="auto"
                         onContextMenu={handleVideoContextMenu}
                         disablePictureInPicture
                       />
@@ -423,7 +423,6 @@ const BuyerCollections = () => {
         </div>
       )}
 
-      {!isLoading && <FooterNav dashboardType="buyer" />}
     </div>
   );
 };
