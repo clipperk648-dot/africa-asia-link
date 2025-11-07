@@ -33,7 +33,7 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/20 backdrop-blur-md border-t border-border/20">
       <div className="max-w-7xl mx-auto px-2 sm:px-6">
-        <div className={cn("flex items-center justify-around h-16 relative", isIndustry ? "sm:px-8" : "")}>
+        <div className={cn("flex items-center justify-around h-12 relative", isIndustry ? "sm:px-8" : "")}>
           {isIndustry ? (
             <>
               {/* Left Items */}
