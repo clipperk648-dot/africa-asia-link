@@ -110,13 +110,20 @@ export const loginUser = async (
       return { success: false, error: "Email, password, and role are required" };
     }
 
-    const response = await fetch(`${API_BASE_URL}/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password, role }),
-    });
+    let response;
+    try {
+      response = await fetch(`${API_BASE_URL}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password, role }),
+      });
+    } catch (fetchError) {
+      // Network error - backend unavailable
+      console.debug("Backend authentication server unavailable - using mock auth fallback");
+      return { success: false, error: "Unable to reach authentication server" };
+    }
 
     // Parse JSON response
     let data;
@@ -143,12 +150,7 @@ export const loginUser = async (
       token: data.token,
     };
   } catch (error) {
-    if (error instanceof TypeError && error.message === "Failed to fetch") {
-      // Backend unavailable - this is expected in development without a running server
-      console.debug("Backend authentication server unavailable - using mock auth fallback");
-    } else {
-      console.error("Login error:", error);
-    }
+    console.error("Login error:", error);
     return { success: false, error: "Unable to reach authentication server" };
   }
 };
