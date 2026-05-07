@@ -225,12 +225,9 @@ const ProductDetails = () => {
                 />
                 <span className="text-sm text-muted-foreground">{product.unit || "pc"}</span>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 gap-2">
                 <Button className="w-full gap-2" onClick={handleJoinCluster}>
                   <Users2 className="w-4 h-4" /> Join Cluster
-                </Button>
-                <Button variant="outline" className="w-full" onClick={() => navigate(`/messages?product=${product.id}`)}>
-                  Message
                 </Button>
               </div>
               <div className="grid grid-cols-2 gap-2">

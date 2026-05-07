@@ -2,26 +2,24 @@ import { useEffect, useState, Fragment, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser, logout } from "@/utils/mockAuth";
 import { useProducts, useOrders, useWalletBalance } from "@/hooks/useData";
-import type { Product } from "@/types/models";
+import type { Product, Order } from "@/types/models";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, ShoppingCart, Clock, CheckCircle, TrendingUp, Settings, Bell, BarChart3, PlusCircle, Wallet as WalletIcon, Bot, Menu, Box, Music2, Package, Users } from "lucide-react";
+import { LogOut, Clock, CheckCircle, TrendingUp, Settings, Bell, BarChart3, Wallet as WalletIcon, Bot, Menu, Box, Package, Users2, ShoppingCart } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { APP_NAME } from "@/config/app";
-import RateButton from "@/components/RateButton";
-import { addToCart } from "@/utils/cart";
 import { toast } from "@/components/ui/sonner";
 import GlassSlideshowFrame from "@/components/GlassSlideshowFrame";
 import { getSafeImageUrl, getSafeAvatarUrl, createImageErrorHandler } from "@/utils/imageOptimization";
 import { preloadVideo } from "@/utils/videoOptimization";
 import { getThemeBgVideoUrl } from "@/utils/theme";
 
-const ProductCard = ({ product, navigate }: { product: Product; navigate: any }) => (
+const ProductCard = ({ product, navigate }: { product: Product; navigate: (path: string) => void }) => (
   <GlassCard className="p-4 sm:p-6 min-w-[280px] sm:min-w-0">
     <img
       src={getSafeImageUrl(product.image)}
@@ -47,16 +45,15 @@ const ProductCard = ({ product, navigate }: { product: Product; navigate: any })
           ${product.price.toLocaleString()}
         </p>
         <div className="flex items-center gap-2">
-          <RateButton productId={product.id} productName={product.name} size="xs" />
-          <Button variant="accent" size="xs" className="flex-shrink-0" onClick={() => {
-            addToCart({ id: product.id, name: product.name, price: product.price, image: product.image, company: product.company });
-            toast.success("Added to cart");
-          }}>
-            <PlusCircle className="w-4 h-4" />
-            Add to cart
-          </Button>
           <Button variant="outline" size="xs" className="flex-shrink-0" onClick={() => navigate(`/buyer/products/${product.id}`)}>
-            View
+            Details
+          </Button>
+          <Button variant="accent" size="xs" className="flex-shrink-0" onClick={() => {
+            toast.success(`Joining cluster for ${product.name}`);
+            navigate("/cluster");
+          }}>
+            <Users2 className="w-4 h-4 mr-1" />
+            Join Cluster
           </Button>
         </div>
       </div>
@@ -91,9 +88,14 @@ const BuyerDashboard = () => {
   }, [user, navigate]);
 
   useEffect(() => {
-    const interval = setInterval(cycleBotTooltip, 5000);
+    const interval = setInterval(() => {
+      setShowBotTooltip(true);
+      setTooltipText(ctaTexts[tooltipIndex]);
+      tooltipIndex = (tooltipIndex + 1) % ctaTexts.length;
+      setTimeout(() => setShowBotTooltip(false), 2000);
+    }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [tooltipIndex]);
 
   useEffect(() => {
     preloadVideo({
@@ -112,9 +114,9 @@ const BuyerDashboard = () => {
 
   // Calculate stats from real data
   const stats = useMemo(() => {
-    const activeOrders = Array.isArray(orders) ? orders.filter((o: any) => o.status === 'pending').length : 0;
+    const activeOrders = Array.isArray(orders) ? orders.filter((o: Order) => o.status === 'pending').length : 0;
     const pendingOrders = activeOrders;
-    const completedOrders = Array.isArray(orders) ? orders.filter((o: any) => o.status === 'completed').length : 0;
+    const completedOrders = Array.isArray(orders) ? orders.filter((o: Order) => o.status === 'completed').length : 0;
     const walletBalance = walletData?.balance ?? 0;
 
     return [
@@ -175,11 +177,6 @@ const BuyerDashboard = () => {
                           <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Wallet</span>
                         </div>
                       </Link>
-                      <Link to="/invest" className="block">
-                        <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
-                          <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Invest</span>
-                        </div>
-                      </Link>
                       <Link to="/notifications" className="block">
                         <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
                           <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Notifications</span>
@@ -198,32 +195,12 @@ const BuyerDashboard = () => {
                           <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Products</span>
                         </div>
                       </Link>
-                      <Link to="/cart" className="block mb-1">
+                      <Link to="/cluster" className="block mb-1">
                         <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-2">
                           <div className="p-1.5 rounded-md bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
-                            <ShoppingCart className="w-3 h-3 text-primary" />
+                            <Users2 className="w-3 h-3 text-primary" />
                           </div>
-                          <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Cart</span>
-                        </div>
-                      </Link>
-                      <Link to="/buyer/network" className="block">
-                        <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-2">
-                          <div className="p-1.5 rounded-md bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
-                            <Users className="w-3 h-3 text-primary" />
-                          </div>
-                          <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Connect</span>
-                        </div>
-                      </Link>
-                    </div>
-
-                    {/* Social Platform Link */}
-                    <div className="pt-3 border-t border-border/50">
-                      <Link to="/social" className="block">
-                        <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-2">
-                          <div className="p-1.5 rounded-md bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
-                            <Music2 className="w-3 h-3 text-primary" />
-                          </div>
-                          <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Social</span>
+                          <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Clusters</span>
                         </div>
                       </Link>
                     </div>

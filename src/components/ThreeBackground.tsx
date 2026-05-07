@@ -19,8 +19,9 @@ const ThreeBackgroundComponent = () => {
 
   // Listen for theme background changes (works in same tab via custom event)
   useEffect(() => {
-    const handleThemeChange = (event: any) => {
-      setThemeBgUrl(event.detail);
+    const handleThemeChange = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      setThemeBgUrl(customEvent.detail);
     };
 
     window.addEventListener(THEME_BG_CHANGED_EVENT, handleThemeChange);
@@ -33,11 +34,6 @@ const ThreeBackgroundComponent = () => {
 
     // Don't render particles when a custom theme background is set
     if (themeBgUrl) {
-      return;
-    }
-
-    // Don't render particles when theme is not default (dark mode)
-    if (resolvedTheme === "dark") {
       return;
     }
 

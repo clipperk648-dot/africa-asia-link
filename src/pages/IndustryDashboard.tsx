@@ -2,11 +2,11 @@ import { useEffect, useState, Fragment, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { getCurrentUser, logout } from "@/utils/mockAuth";
 import { useProducts, useOrders } from "@/hooks/useData";
-import type { Product } from "@/types/models";
+import type { Product, Order } from "@/types/models";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, TrendingUp, Package, DollarSign, Users, Settings, Bell, BarChart3, LineChart, Pencil, Wallet as WalletIcon, Bot, Menu, Box, Music2, Palette } from "lucide-react";
+import { LogOut, TrendingUp, Package, DollarSign, Users, Settings, Bell, BarChart3, LineChart, Pencil, Wallet as WalletIcon, Bot, Menu, Box, Palette } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -82,9 +82,14 @@ const IndustryDashboard = () => {
   }, [user, navigate]);
 
   useEffect(() => {
-    const interval = setInterval(cycleBotTooltip, 5000);
+    const interval = setInterval(() => {
+      setShowBotTooltip(true);
+      setTooltipText(ctaTexts[tooltipIndex]);
+      tooltipIndex = (tooltipIndex + 1) % ctaTexts.length;
+      setTimeout(() => setShowBotTooltip(false), 2000);
+    }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [tooltipIndex]);
 
   useEffect(() => {
     preloadVideo({
@@ -103,9 +108,9 @@ const IndustryDashboard = () => {
 
   // Calculate stats from real data
   const stats = useMemo(() => {
-    const activeOrders = Array.isArray(orders) ? orders.filter((o: any) => o.status === 'pending').length : 0;
-    const totalRevenue = Array.isArray(orders) ? orders.reduce((sum: number, o: any) => sum + (o.total || 0), 0) : 0;
-    const uniqueBuyers = Array.isArray(orders) ? new Set(orders.map((o: any) => o.buyer_id)).size : 0;
+    const activeOrders = Array.isArray(orders) ? orders.filter((o: Order) => o.status === 'pending').length : 0;
+    const totalRevenue = Array.isArray(orders) ? orders.reduce((sum: number, o: Order) => sum + (o.total || 0), 0) : 0;
+    const uniqueBuyers = Array.isArray(orders) ? new Set(orders.map((o: Order) => o.buyer_id)).size : 0;
 
     return [
       { label: "Total Products", value: String(Array.isArray(products) ? products.length : 0), icon: Package, color: "text-primary" },
@@ -180,26 +185,9 @@ const IndustryDashboard = () => {
                         <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Wallet</span>
                       </div>
                     </Link>
-                    <Link to="/invest" className="block">
-                      <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
-                        <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Invest</span>
-                      </div>
-                    </Link>
                     <Link to="/notifications" className="block">
                       <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
                         <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Notifications</span>
-                      </div>
-                    </Link>
-                  </div>
-
-                  {/* Social Platform Link */}
-                  <div className="pt-3 border-t border-border/50">
-                    <Link to="/social" className="block">
-                      <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-2">
-                        <div className="p-1.5 rounded-md bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
-                          <Music2 className="w-3 h-3 text-primary" />
-                        </div>
-                        <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Social</span>
                       </div>
                     </Link>
                   </div>

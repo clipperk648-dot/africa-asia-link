@@ -20,16 +20,12 @@ const AdminOrders = lazy(() => import("./pages/AdminOrders"));
 const AdminSettings = lazy(() => import("./pages/AdminSettings"));
 const BuyerDashboard = lazy(() => import("./pages/BuyerDashboard"));
 const BuyerProducts = lazy(() => import("./pages/BuyerProducts"));
-const BuyerNetwork = lazy(() => import("./pages/BuyerNetwork"));
 const BuyerSettings = lazy(() => import("./pages/BuyerSettings"));
 const BuyerOrders = lazy(() => import("./pages/BuyerOrders"));
 const BuyerCollections = lazy(() => import("./pages/BuyerCollections"));
 const Cluster = lazy(() => import("./pages/Cluster"));
 const ClusterDetails = lazy(() => import("./pages/ClusterDetails"));
 const ClusterChat = lazy(() => import("./pages/ClusterChat"));
-const Messages = lazy(() => import("./pages/Messages"));
-const Chat = lazy(() => import("./pages/Chat"));
-const VideoFeed = lazy(() => import("./pages/VideoFeed"));
 const SearchPage = lazy(() => import("./pages/SearchPage"));
 const MenuPage = lazy(() => import("./pages/MenuPage"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -49,8 +45,6 @@ const WalletApps = lazy(() => import("./pages/WalletApps"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const BuyerAnalytics = lazy(() => import("./pages/BuyerAnalytics"));
 const Theme = lazy(() => import("./pages/Theme"));
-const SocialFeed = lazy(() => import("./pages/SocialFeed"));
-const SocialAddPost = lazy(() => import("./pages/SocialAddPost"));
 
 const queryClient = new QueryClient();
 
@@ -81,7 +75,6 @@ const AppContent = () => {
         <Route path="/buyer" element={<ProtectedRoute element={<BuyerDashboard />} requiredRole="buyer" />} />
         <Route path="/buyer/products" element={<ProtectedRoute element={<BuyerProducts />} requiredRole="buyer" />} />
         <Route path="/buyer/products/:id" element={<ProtectedRoute element={<ProductDetails />} requiredRole="buyer" />} />
-        <Route path="/buyer/network" element={<ProtectedRoute element={<BuyerNetwork />} requiredRole="buyer" />} />
         <Route path="/buyer/settings" element={<ProtectedRoute element={<BuyerSettings />} requiredRole="buyer" />} />
         <Route path="/buyer/settings/password" element={<ProtectedRoute element={<BuyerChangePassword />} requiredRole="buyer" />} />
         <Route path="/buyer/settings/2fa" element={<ProtectedRoute element={<BuyerTwoFactor />} requiredRole="buyer" />} />
@@ -95,11 +88,6 @@ const AppContent = () => {
         
         {/* Shared Routes */}
         <Route path="/notifications" element={<ProtectedRoute element={<Notifications />} />} />
-        <Route path="/social" element={<ProtectedRoute element={<SocialFeed />} />} />
-        <Route path="/social/add" element={<ProtectedRoute element={<SocialAddPost />} />} />
-        <Route path="/messages" element={<ProtectedRoute element={<Messages />} />} />
-        <Route path="/messages/:id" element={<ProtectedRoute element={<Chat />} />} />
-        <Route path="/video" element={<ProtectedRoute element={<VideoFeed />} />} />
         <Route path="/search" element={<ProtectedRoute element={<SearchPage />} />} />
         <Route path="/menu" element={<ProtectedRoute element={<MenuPage />} />} />
         <Route path="/profile" element={<ProtectedRoute element={<Profile />} />} />
@@ -124,7 +112,7 @@ const AppContent = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
       <TooltipProvider>
         <Toaster />
         <Sonner />
