@@ -20,11 +20,9 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
   const navItems = isAdmin ? [
     { icon: Home, label: "Home", path: basePath },
     { icon: BarChart3, label: "Analytics", path: "/analytics" },
-    { icon: Music2, label: "Social", path: "/social" },
     { icon: Settings, label: "Settings", path: `${basePath}/settings` },
   ] : [
     { icon: Home, label: "Home", path: basePath },
-    { icon: Music2, label: "Social", path: "/social" },
     { icon: Wallet, label: "Wallet", path: "/wallet" },
     { icon: Users2, label: "Cluster", path: "/cluster" },
   ];

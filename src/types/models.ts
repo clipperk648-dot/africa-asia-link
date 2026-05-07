@@ -101,4 +101,25 @@ export interface Cluster {
   members: ClusterMember[];
   createdDate: string;
   icon?: string;
+  preferredShippingMethod?: string;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  phone?: string;
+  role: "admin" | "buyer" | "industry" | string;
+  isAdmin?: boolean;
+  createdAt: string;
+}
+
+export interface Transaction {
+  id: string;
+  user_id: string;
+  type: "deposit" | "payment";
+  amount: number;
+  currency: string;
+  note: string;
+  created_at: string;
 }

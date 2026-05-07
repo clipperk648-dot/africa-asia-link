@@ -34,7 +34,10 @@ const Cluster = () => {
     minOrderAmount: "",
     quantity: "",
     maxMembers: "",
+    preferredShippingMethod: "Standard",
   });
+
+  const shippingMethods = ["DHL", "FedEx", "Sea Freight", "Air Freight", "Express", "Standard"];
 
   const [joinFormData, setJoinFormData] = useState({
     quantity: "",
@@ -48,14 +51,16 @@ const Cluster = () => {
   }, [user, navigate]);
 
   const handleCreateCluster = async () => {
-    if (!createFormData.name || !createFormData.targetProductName || !createFormData.targetPrice) {
+    const clusterName = createFormData.name || `Cluster for ${createFormData.targetProductName}`;
+    
+    if (!createFormData.targetProductName || !createFormData.targetPrice) {
       toast.error("Please fill in all required fields");
       return;
     }
 
     try {
       await createClusterMutation.mutateAsync({
-        name: createFormData.name,
+        name: clusterName,
         description: createFormData.description,
         targetProductId: createFormData.targetProductId,
         targetProductName: createFormData.targetProductName,
@@ -63,6 +68,7 @@ const Cluster = () => {
         minOrderAmount: parseFloat(createFormData.minOrderAmount) || 100,
         quantity: parseInt(createFormData.quantity) || 100,
         maxMembers: parseInt(createFormData.maxMembers) || 50,
+        preferredShippingMethod: createFormData.preferredShippingMethod,
         creatorId: user.id,
         creatorName: user.name || "Creator",
       });
@@ -76,6 +82,7 @@ const Cluster = () => {
         minOrderAmount: "",
         quantity: "",
         maxMembers: "",
+        preferredShippingMethod: "Standard",
       });
       setCreateDialogOpen(false);
       toast.success("Cluster created successfully!");
@@ -152,14 +159,27 @@ const Cluster = () => {
                   </DialogHeader>
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="cluster-name">Cluster Name</Label>
+                      <Label htmlFor="cluster-name">Cluster Name (Optional)</Label>
                       <Input
                         id="cluster-name"
-                        placeholder="e.g., Electronics Buyers"
+                        placeholder="Auto-generated if left blank"
                         value={createFormData.name}
                         onChange={(e) => setCreateFormData({ ...createFormData, name: e.target.value })}
                         className="h-10 bg-background/50"
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="shipping-method">Shipping Method</Label>
+                      <select
+                        id="shipping-method"
+                        className="w-full h-10 bg-background/50 rounded-md border border-input px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                        value={createFormData.preferredShippingMethod}
+                        onChange={(e) => setCreateFormData({ ...createFormData, preferredShippingMethod: e.target.value })}
+                      >
+                        {shippingMethods.map((method) => (
+                          <option key={method} value={method}>{method}</option>
+                        ))}
+                      </select>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="cluster-description">Description (Optional)</Label>
@@ -260,7 +280,14 @@ const Cluster = () => {
                       {/* Cluster Header */}
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
-                          <h3 className="text-xl sm:text-2xl font-bold">{cluster.name}</h3>
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-xl sm:text-2xl font-bold">{cluster.name}</h3>
+                            {cluster.preferredShippingMethod && (
+                              <span className="px-2 py-1 rounded-md bg-primary/20 text-primary text-[10px] font-bold uppercase tracking-wider">
+                                {cluster.preferredShippingMethod}
+                              </span>
+                            )}
+                          </div>
                           <div className="flex flex-wrap gap-4 mt-2 text-sm text-muted-foreground">
                             <div className="flex items-center gap-1">
                               <Users className="w-4 h-4" />

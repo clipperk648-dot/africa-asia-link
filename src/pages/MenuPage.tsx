@@ -31,8 +31,6 @@ const MenuPage = () => {
     { icon: Bookmark, label: "Saved", onClick: () => navigate("/buyer/collections") },
     { icon: Clock, label: "Activity", onClick: () => navigate(user?.role === "buyer" ? "/buyer/orders" : "/industry/recent-activity") },
     { icon: Heart, label: "Favorites", onClick: () => toast.info("Favorites feature coming soon") },
-    { icon: Users, label: "Network", onClick: () => navigate(user?.role === "buyer" ? "/buyer/network" : "/industry/network") },
-    { icon: ShoppingBag, label: "Orders", onClick: () => navigate("/cart") },
     { icon: Bell, label: "Notifications", onClick: () => navigate("/notifications") },
     { icon: HelpCircle, label: "Help & Support", onClick: () => navigate("/support-chat") },
   ];
@@ -87,33 +85,6 @@ const MenuPage = () => {
                 <p className="text-xs text-muted-foreground mt-2 opacity-70">{user?.email || 'user@example.com'}</p>
               </div>
             </div>
-          </GlassCard>
-        </div>
-
-        {/* Dark Mode Toggle - Premium Glass */}
-        <div className="mb-6">
-          <GlassCard className="p-4 flex items-center justify-between group">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
-                {darkMode ? (
-                  <Moon className="w-5 h-5 text-primary" />
-                ) : (
-                  <Sun className="w-5 h-5 text-primary" />
-                )}
-              </div>
-              <div>
-                <span className="font-semibold block">Dark Mode</span>
-                <span className="text-xs text-muted-foreground">Adjust your theme preference</span>
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setTheme(darkMode ? "light" : "dark")}
-              className="text-primary font-semibold hover:bg-primary/20"
-            >
-              {darkMode ? "On" : "Off"}
-            </Button>
           </GlassCard>
         </div>
 

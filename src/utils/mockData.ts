@@ -1,5 +1,5 @@
 // Mock data for development when backend is unavailable
-import { Product, Order, Cluster, User } from '@/types/models';
+import { Product, Order, Cluster, User, Transaction, SocialPost } from '@/types/models';
 
 // Mock users
 export const MOCK_USERS: Record<string, User> = {
@@ -159,6 +159,7 @@ export const MOCK_CLUSTERS: Cluster[] = [
     currentMembers: 5,
     deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     status: 'active',
+    preferredShippingMethod: 'Sea Freight',
     members: [
       {
         id: 'member_001',
@@ -188,6 +189,7 @@ export const MOCK_CLUSTERS: Cluster[] = [
     currentMembers: 3,
     deadline: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
     status: 'active',
+    preferredShippingMethod: 'Air Freight',
     members: [
       {
         id: 'member_002',
@@ -212,7 +214,7 @@ export const MOCK_WALLET = {
 };
 
 // Mock transactions
-export const MOCK_TRANSACTIONS: any[] = [
+export const MOCK_TRANSACTIONS: Transaction[] = [
   {
     id: 'txn_001',
     user_id: 'user_buyer_001',
@@ -234,30 +236,28 @@ export const MOCK_TRANSACTIONS: any[] = [
 ];
 
 // Mock social posts
-export const MOCK_SOCIAL_POSTS: any[] = [
+export const MOCK_SOCIAL_POSTS: SocialPost[] = [
   {
     id: 'post_001',
-    user_id: 'user_buyer_001',
+    userId: 'user_buyer_001',
     username: 'John Buyer',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user_buyer_001',
     type: 'text',
     content: 'Just discovered some amazing suppliers on Echina! The platform really makes international trade seamless.',
-    media_url: null,
     likes: 125,
     comments: 8,
-    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
     id: 'post_002',
-    user_id: 'user_admin_001',
+    userId: 'user_admin_001',
     username: 'Admin User',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user_admin_001',
     type: 'text',
     content: 'New batch of high-quality ceramic tiles ready for export. Meeting international standards. DM for bulk orders!',
-    media_url: null,
     likes: 87,
     comments: 12,
-    created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
   },
 ];
 

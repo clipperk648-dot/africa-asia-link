@@ -1,4 +1,4 @@
-// Authentication utilities - Works with Express backend (development) and Vercel Functions (production)
+// Authentication utilities - Mock data only
 
 export interface AuthUser {
   id: string;
@@ -12,38 +12,8 @@ export interface AuthUser {
   oauthProvider?: string;
 }
 
-// Determine API base URL based on environment
-// Uses Vercel API routes: /api/auth/* -> /api/auth-*
-const getAPIBaseURL = (): string => {
-  // Check for explicit environment variable (for custom backends)
-  if (import.meta.env.VITE_API_URL) {
-    const baseUrl = import.meta.env.VITE_API_URL;
-    return baseUrl.endsWith('/api/auth') ? baseUrl : `${baseUrl}/api/auth`;
-  }
-
-  // Always use relative path for API calls (works in dev and production)
-  // Vercel routes /api/auth/* endpoints to corresponding serverless functions
-  return '/api/auth';
-};
-
-const API_BASE_URL = getAPIBaseURL();
-
-// Helper to check if backend is accessible
-const checkBackendAccess = async (): Promise<boolean> => {
-  try {
-    const response = await fetch(`${API_BASE_URL.replace('/auth', '')}/health`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      signal: AbortSignal.timeout(3000),
-    });
-    return response.ok;
-  } catch (error) {
-    return false;
-  }
-};
-
 /**
- * Register a new user via Express API
+ * Register a new user via Mock Auth
  */
 export const registerUser = async (
   email: string,
@@ -51,203 +21,107 @@ export const registerUser = async (
   name: string,
   phone: string
 ): Promise<{ success: boolean; user?: AuthUser; error?: string; token?: string }> => {
-  try {
-    if (!email || !password || !name) {
-      return { success: false, error: "Missing required fields" };
-    }
+  await new Promise(resolve => setTimeout(resolve, 800)); // Simulate delay
 
-    let response;
-    try {
-      response = await fetch(`${API_BASE_URL}/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password, name, phone }),
-      });
-    } catch (fetchError) {
-      // Network error - backend unavailable
-      console.debug("Backend authentication server unavailable - using mock auth fallback");
-      return { success: false, error: "Unable to reach authentication server" };
-    }
-
-    let data;
-    try {
-      data = await response.json();
-    } catch (parseError) {
-      console.error("Failed to parse response:", parseError);
-      return { success: false, error: "Failed to parse server response" };
-    }
-
-    if (!response.ok) {
-      return { success: false, error: data?.error || "Registration failed" };
-    }
-
-    return {
-      success: true,
-      user: {
-        id: data.user.id,
-        email: data.user.email,
-        name: data.user.name,
-        phone: data.user.phone,
-        role: data.user.role || "buyer",
-      },
-      token: data.token,
-    };
-  } catch (error) {
-    console.error("Registration error:", error);
-    return { success: false, error: "Unable to reach authentication server" };
+  if (!email || !password || !name) {
+    return { success: false, error: "Missing required fields" };
   }
+
+  const user: AuthUser = {
+    id: `user_${Date.now()}`,
+    email,
+    name,
+    phone,
+    role: "buyer",
+    createdAt: new Date().toISOString(),
+  };
+
+  return {
+    success: true,
+    user,
+    token: "mock_token_" + Date.now(),
+  };
 };
 
 /**
- * Login user with email and password via Express API
+ * Login user with email and password via Mock Auth
  */
 export const loginUser = async (
   email: string,
   password: string
 ): Promise<{ success: boolean; user?: AuthUser; error?: string; token?: string }> => {
-  try {
-    if (!email || !password) {
-      return { success: false, error: "Email and password are required" };
-    }
+  await new Promise(resolve => setTimeout(resolve, 800)); // Simulate delay
 
-    let response;
-    try {
-      response = await fetch(`${API_BASE_URL}/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-    } catch (fetchError) {
-      // Network error - backend unavailable
-      console.debug("Backend authentication server unavailable - using mock auth fallback");
-      return { success: false, error: "Unable to reach authentication server" };
-    }
-
-    // Parse JSON response
-    let data;
-    try {
-      data = await response.json();
-    } catch (parseError) {
-      console.error("Failed to parse response:", parseError);
-      return { success: false, error: "Failed to parse server response" };
-    }
-
-    if (!response.ok) {
-      return { success: false, error: data?.error || "Login failed" };
-    }
-
-    return {
-      success: true,
-      user: {
-        id: data.user.id,
-        email: data.user.email,
-        name: data.user.name,
-        phone: data.user.phone,
-        role: data.user.role || "buyer",
-      },
-      token: data.token,
-    };
-  } catch (error) {
-    console.error("Login error:", error);
-    return { success: false, error: "Unable to reach authentication server" };
+  if (!email || !password) {
+    return { success: false, error: "Email and password are required" };
   }
+
+  // Predefined mock accounts
+  if (email === "admin@echina.com" && password === "admin") {
+    const user: AuthUser = {
+      id: 'user_admin_001',
+      email: 'admin@echina.com',
+      name: 'Admin User',
+      phone: '+86 138 1234 5678',
+      role: 'admin',
+      isAdmin: true,
+      createdAt: new Date().toISOString(),
+    };
+    return { success: true, user, token: "mock_token_admin" };
+  }
+
+  const user: AuthUser = {
+    id: 'user_buyer_001',
+    email: email,
+    name: email.split('@')[0],
+    phone: '+234 801 234 5678',
+    role: 'buyer',
+    isAdmin: false,
+    createdAt: new Date().toISOString(),
+  };
+
+  return {
+    success: true,
+    user,
+    token: "mock_token_buyer",
+  };
 };
 
 /**
- * Google OAuth authentication via Express API
+ * Google OAuth authentication via Mock Auth
  */
 export const googleOAuthLogin = async (
   token: string
 ): Promise<{ success: boolean; user?: AuthUser; error?: string; token?: string }> => {
-  try {
-    if (!token) {
-      return { success: false, error: "Token is required" };
-    }
+  await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
+  
+  const user: AuthUser = {
+    id: 'user_google_001',
+    email: 'google_user@gmail.com',
+    name: 'Google User',
+    role: 'buyer',
+    oauthProvider: "google",
+  };
 
-    let response;
-    try {
-      response = await fetch(`${API_BASE_URL}/google`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token }),
-      });
-    } catch (fetchError) {
-      // Network error - backend unavailable
-      console.debug("Backend authentication server unavailable - using mock auth fallback");
-      return { success: false, error: "Unable to reach authentication server" };
-    }
-
-    let data;
-    try {
-      data = await response.json();
-    } catch (parseError) {
-      console.error("Failed to parse response:", parseError);
-      return { success: false, error: "Failed to parse server response" };
-    }
-
-    if (!response.ok) {
-      return { success: false, error: data?.error || "Google authentication failed" };
-    }
-
-    return {
-      success: true,
-      user: {
-        id: data.user.id,
-        email: data.user.email,
-        name: data.user.name,
-        phone: data.user.phone,
-        role: data.user.role || "buyer",
-        oauthProvider: "google",
-      },
-      token: data.token,
-    };
-  } catch (error) {
-    console.error("Google OAuth error:", error);
-    return { success: false, error: "Unable to reach authentication server" };
-  }
+  return {
+    success: true,
+    user,
+    token: "mock_token_google",
+  };
 };
 
 /**
- * Get current user from Express API by ID
+ * Get current user data via Mock Auth
  */
 export const getCurrentUserData = async (userId: string): Promise<AuthUser | null> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/user/${userId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (!response.ok) {
-      console.error("Failed to fetch user:", response.statusText);
-      return null;
-    }
-
-    const data = await response.json();
-
-    if (!data.user) {
-      return null;
-    }
-
-    return {
-      id: data.user.id,
-      email: data.user.email,
-      name: data.user.name,
-      phone: data.user.phone,
-      role: data.user.role,
-      createdAt: data.user.created_at,
-    };
-  } catch (error) {
-    console.error("Failed to fetch user:", error);
-    return null;
-  }
+  await new Promise(resolve => setTimeout(resolve, 300));
+  return {
+    id: userId,
+    email: 'user@example.com',
+    name: 'Example User',
+    role: 'buyer',
+    createdAt: new Date().toISOString(),
+  };
 };
 
 // ============ LOCAL STORAGE SESSION MANAGEMENT ============

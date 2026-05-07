@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import ThreeBackground from "@/components/ThreeBackground";
-import { ArrowLeft, Users, TrendingUp, Target, Clock, Copy, Check, BarChart3, Settings, MessageCircle } from "lucide-react";
+import { ArrowLeft, Users, TrendingUp, Target, Clock, Copy, Check, BarChart3, Settings, MessageCircle, Truck } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { getSafeAvatarUrl } from "@/utils/imageOptimization";
+
+import type { Cluster } from "@/types/models";
 
 const ClusterDetails = () => {
   const navigate = useNavigate();
@@ -17,10 +19,11 @@ const ClusterDetails = () => {
   const [copied, setCopied] = useState(false);
   const [showMoreMembers, setShowMoreMembers] = useState(false);
 
-  const [clusterData, setClusterData] = useState<any>({
+  const [clusterData, setClusterData] = useState<Cluster>({
     id: clusterId || "cluster-1",
     name: "Cluster",
     description: "A group pooling orders together",
+    targetProductId: "prod-1",
     targetProductName: "Target Product",
     targetPrice: 0,
     currentFunded: 0,
@@ -28,10 +31,13 @@ const ClusterDetails = () => {
     quantity: 100,
     maxMembers: 50,
     currentMembers: 0,
+    preferredShippingMethod: "Standard",
     deadline: new Date().toISOString(),
     creatorId: "user1",
     creatorName: "Creator",
     members: [],
+    status: "active",
+    createdDate: new Date().toISOString(),
   });
 
   const handleCopyInvite = () => {
@@ -95,6 +101,15 @@ const ClusterDetails = () => {
                 <p className="text-sm font-semibold">Quantity Ordered</p>
               </div>
               <p className="font-bold text-primary">{clusterData.quantity} units</p>
+            </div>
+
+            {/* Shipping Method */}
+            <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10 border border-primary/20">
+              <div className="flex items-center gap-2">
+                <Truck className="w-5 h-5 text-primary" />
+                <p className="text-sm font-semibold">Shipping Method</p>
+              </div>
+              <p className="font-bold text-primary uppercase tracking-wider">{clusterData.preferredShippingMethod || "Standard"}</p>
             </div>
 
             {/* Progress */}
