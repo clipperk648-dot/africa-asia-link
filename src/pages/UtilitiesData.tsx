@@ -38,7 +38,7 @@ const UtilitiesData = () => {
     }
     const plan = dataPlans[selectedPlan];
     toast.success(`${plan.size} data activated for ${phoneNumber}`);
-    setTimeout(() => navigate("/utilities"), 1500);
+    setTimeout(() => navigate("/wallet"), 1500);
   };
 
   return (
@@ -46,7 +46,7 @@ const UtilitiesData = () => {
       <header className="backdrop-blur-xl bg-card/30 border-b border-border/50 sticky top-0 z-40">
         <div className="max-w-3xl mx-auto px-3 py-1 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/utilities")} aria-label="Go back">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/wallet")} aria-label="Go back">
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <Wifi className="w-5 h-5 text-primary" />

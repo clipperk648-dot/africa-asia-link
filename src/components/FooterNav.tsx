@@ -1,4 +1,4 @@
-import { Home, Package, Users, ShoppingCart, Music2, Zap, TrendingUp, CheckSquare2, Settings, BarChart3, Users2 } from "lucide-react";
+import { Home, Package, Users, ShoppingCart, Music2, Wallet, TrendingUp, CheckSquare2, Settings, BarChart3, Users2 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
     { icon: Settings, label: "Settings", path: `${basePath}/settings` },
   ] : [
     { icon: Home, label: "Home", path: basePath },
-    { icon: Zap, label: "Utilities", path: "/utilities" },
+    { icon: Wallet, label: "Wallet", path: "/wallet" },
     { icon: Users2, label: "Cluster", path: "/cluster" },
   ];
 

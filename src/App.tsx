@@ -45,7 +45,6 @@ const WalletApps = lazy(() => import("./pages/WalletApps"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const BuyerAnalytics = lazy(() => import("./pages/BuyerAnalytics"));
 const Theme = lazy(() => import("./pages/Theme"));
-const Utilities = lazy(() => import("./pages/Utilities"));
 const UtilitiesAirtime = lazy(() => import("./pages/UtilitiesAirtime"));
 const UtilitiesData = lazy(() => import("./pages/UtilitiesData"));
 const UtilitiesTV = lazy(() => import("./pages/UtilitiesTV"));
@@ -104,10 +103,10 @@ const AppContent = () => {
         <Route path="/wallet/pay" element={<ProtectedRoute element={<WalletGuard element={<WalletPay />} requirePin={true} />} />} />
         <Route path="/wallet/apps" element={<ProtectedRoute element={<WalletGuard element={<WalletApps />} requirePin={true} />} />} />
         <Route path="/wallet/deposit" element={<ProtectedRoute element={<WalletGuard element={<WalletDeposit />} requirePin={true} />} />} />
-        <Route path="/utilities" element={<ProtectedRoute element={<Utilities />} />} />
-        <Route path="/utilities/airtime" element={<ProtectedRoute element={<UtilitiesAirtime />} />} />
-        <Route path="/utilities/data" element={<ProtectedRoute element={<UtilitiesData />} />} />
-        <Route path="/utilities/tv" element={<ProtectedRoute element={<UtilitiesTV />} />} />
+        <Route path="/wallet/withdraw" element={<ProtectedRoute element={<WalletGuard element={<WalletWithdraw />} requirePin={true} />} />} />
+        <Route path="/wallet/airtime" element={<ProtectedRoute element={<UtilitiesAirtime />} />} />
+        <Route path="/wallet/data" element={<ProtectedRoute element={<UtilitiesData />} />} />
+        <Route path="/wallet/tv" element={<ProtectedRoute element={<UtilitiesTV />} />} />
         <Route path="/support-chat" element={<ProtectedRoute element={<SupportChat />} />} />
         
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
