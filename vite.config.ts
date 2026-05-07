@@ -9,13 +9,6 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     middlewareMode: false,
     hmr: false,
-    proxy: {
-      "/api": {
-        target: "http://127.0.0.1:3001",
-        changeOrigin: true,
-        ws: true,
-      },
-    },
   },
   plugins: [react()],
   resolve: {
