@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "@/utils/mockAuth";
-import { useClans, useCreateClanMutation, useJoinClanMutation } from "@/hooks/useData";
+import { useClusters, useCreateClusterMutation, useJoinClusterMutation } from "@/hooks/useData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
@@ -14,16 +14,16 @@ import { Crown, MessageCircle, Users, Clock, Target, TrendingUp } from "lucide-r
 import { toast } from "@/components/ui/sonner";
 import { getSafeImageUrl, getSafeAvatarUrl } from "@/utils/imageOptimization";
 
-const Clan = () => {
+const Cluster = () => {
   const navigate = useNavigate();
   const user = getCurrentUser();
-  const { data: clans = [] } = useClans(20, 0);
-  const createClanMutation = useCreateClanMutation();
-  const joinClanMutation = useJoinClanMutation();
+  const { data: clusters = [] } = useClusters(20, 0);
+  const createClusterMutation = useCreateClusterMutation();
+  const joinClusterMutation = useJoinClusterMutation();
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [joinDialogOpen, setJoinDialogOpen] = useState(false);
-  const [selectedClanId, setSelectedClanId] = useState<string | null>(null);
+  const [selectedClusterId, setSelectedClusterId] = useState<string | null>(null);
 
   const [createFormData, setCreateFormData] = useState({
     name: "",
@@ -31,9 +31,13 @@ const Clan = () => {
     targetProductId: "",
     targetProductName: "",
     targetPrice: "",
+    minOrderAmount: "",
+    quantity: "",
+    maxMembers: "",
   });
 
   const [joinFormData, setJoinFormData] = useState({
+    quantity: "",
     amount: "",
   });
 
@@ -43,19 +47,22 @@ const Clan = () => {
     }
   }, [user, navigate]);
 
-  const handleCreateClan = async () => {
+  const handleCreateCluster = async () => {
     if (!createFormData.name || !createFormData.targetProductName || !createFormData.targetPrice) {
       toast.error("Please fill in all required fields");
       return;
     }
 
     try {
-      await createClanMutation.mutateAsync({
+      await createClusterMutation.mutateAsync({
         name: createFormData.name,
         description: createFormData.description,
         targetProductId: createFormData.targetProductId,
         targetProductName: createFormData.targetProductName,
         targetPrice: parseFloat(createFormData.targetPrice),
+        minOrderAmount: parseFloat(createFormData.minOrderAmount) || 100,
+        quantity: parseInt(createFormData.quantity) || 100,
+        maxMembers: parseInt(createFormData.maxMembers) || 50,
         creatorId: user.id,
         creatorName: user.name || "Creator",
       });
@@ -66,33 +73,37 @@ const Clan = () => {
         targetProductId: "",
         targetProductName: "",
         targetPrice: "",
+        minOrderAmount: "",
+        quantity: "",
+        maxMembers: "",
       });
       setCreateDialogOpen(false);
-      toast.success("Clan created successfully!");
+      toast.success("Cluster created successfully!");
     } catch (error) {
-      toast.error("Failed to create clan");
+      toast.error("Failed to create cluster");
     }
   };
 
-  const handleJoinClan = async () => {
-    if (!joinFormData.amount || !selectedClanId) {
-      toast.error("Please enter a contribution amount");
+  const handleJoinCluster = async () => {
+    if (!joinFormData.quantity || !selectedClusterId) {
+      toast.error("Please enter quantity");
       return;
     }
 
     try {
-      await joinClanMutation.mutateAsync({
-        clanId: selectedClanId,
+      await joinClusterMutation.mutateAsync({
+        clusterId: selectedClusterId,
         userId: user.id,
         username: user.name || "Buyer",
-        amount: parseFloat(joinFormData.amount),
+        quantity: parseInt(joinFormData.quantity),
+        amount: parseFloat(joinFormData.amount) || 0,
       });
 
-      setJoinFormData({ amount: "" });
+      setJoinFormData({ quantity: "", amount: "" });
       setJoinDialogOpen(false);
-      toast.success("Joined clan successfully!");
+      toast.success("Joined cluster successfully!");
     } catch (error) {
-      toast.error("Failed to join clan");
+      toast.error("Failed to join cluster");
     }
   };
 
@@ -114,47 +125,47 @@ const Clan = () => {
 
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold mb-2">Clan Buying</h1>
+          <h1 className="text-3xl font-bold mb-2">Cluster Buying</h1>
           <p className="text-muted-foreground">Team up to buy together</p>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        {/* Start a Clan Section */}
+        {/* Start a Cluster Section */}
         <GlassCard className="p-6 sm:p-8 bg-gradient-to-br from-accent/10 via-transparent to-primary/10 border-accent/20">
           <div className="flex items-start gap-4">
             <div className="flex-shrink-0">
               <Crown className="w-10 h-10 sm:w-12 sm:h-12 text-accent" />
             </div>
             <div className="flex-1">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-2">Start a Clan</h2>
-              <p className="text-muted-foreground mb-6">Pool funds with friends and get better prices on bulk purchases</p>
+              <h2 className="text-2xl sm:text-3xl font-bold mb-2">Start a Cluster</h2>
+              <p className="text-muted-foreground mb-6">Pool orders with others to get better bulk prices</p>
               <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
                 <DialogTrigger asChild>
                   <Button className="w-full sm:w-auto h-12 px-8 rounded-full bg-accent hover:bg-accent/90 text-black font-semibold text-lg">
-                    Create New Clan
+                    Create New Cluster
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-md">
                   <DialogHeader>
-                    <DialogTitle>Create a New Clan</DialogTitle>
+                    <DialogTitle>Create a New Cluster</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="clan-name">Clan Name</Label>
+                      <Label htmlFor="cluster-name">Cluster Name</Label>
                       <Input
-                        id="clan-name"
-                        placeholder="e.g., Sneaker Collectors"
+                        id="cluster-name"
+                        placeholder="e.g., Electronics Buyers"
                         value={createFormData.name}
                         onChange={(e) => setCreateFormData({ ...createFormData, name: e.target.value })}
                         className="h-10 bg-background/50"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="clan-description">Description (Optional)</Label>
+                      <Label htmlFor="cluster-description">Description (Optional)</Label>
                       <Textarea
-                        id="clan-description"
-                        placeholder="What's your clan about?"
+                        id="cluster-description"
+                        placeholder="What's your cluster about?"
                         value={createFormData.description}
                         onChange={(e) => setCreateFormData({ ...createFormData, description: e.target.value })}
                         className="bg-background/50 min-h-20"
@@ -181,12 +192,47 @@ const Clan = () => {
                         className="h-10 bg-background/50"
                       />
                     </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="min-order">Min Order ($)</Label>
+                        <Input
+                          id="min-order"
+                          type="number"
+                          placeholder="100"
+                          value={createFormData.minOrderAmount}
+                          onChange={(e) => setCreateFormData({ ...createFormData, minOrderAmount: e.target.value })}
+                          className="h-10 bg-background/50"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="quantity">Quantity</Label>
+                        <Input
+                          id="quantity"
+                          type="number"
+                          placeholder="100"
+                          value={createFormData.quantity}
+                          onChange={(e) => setCreateFormData({ ...createFormData, quantity: e.target.value })}
+                          className="h-10 bg-background/50"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="max-members">Max Members</Label>
+                      <Input
+                        id="max-members"
+                        type="number"
+                        placeholder="50"
+                        value={createFormData.maxMembers}
+                        onChange={(e) => setCreateFormData({ ...createFormData, maxMembers: e.target.value })}
+                        className="h-10 bg-background/50"
+                      />
+                    </div>
                     <Button
-                      onClick={handleCreateClan}
+                      onClick={handleCreateCluster}
                       className="w-full bg-accent hover:bg-accent/90 text-black font-semibold"
-                      disabled={createClanMutation.isPending}
+                      disabled={createClusterMutation.isPending}
                     >
-                      {createClanMutation.isPending ? "Creating..." : "Create Clan"}
+                      {createClusterMutation.isPending ? "Creating..." : "Create Cluster"}
                     </Button>
                   </div>
                 </DialogContent>
@@ -195,30 +241,30 @@ const Clan = () => {
           </div>
         </GlassCard>
 
-        {/* Active Clans Section */}
+        {/* Active Clusters Section */}
         <div>
-          <h2 className="text-2xl font-bold mb-4">Active Clans</h2>
+          <h2 className="text-2xl font-bold mb-4">Active Clusters</h2>
           <div className="space-y-4">
-            {clans.length === 0 ? (
+            {clusters.length === 0 ? (
               <GlassCard className="p-6 text-center text-muted-foreground">
-                No active clans yet. Create the first one!
+                No active clusters yet. Create the first one!
               </GlassCard>
             ) : (
-              clans.map((clan) => {
-                const progress = getProgressPercentage(clan.currentFunded, clan.targetPrice);
-                const daysLeft = getDaysRemaining(clan.deadline);
+              clusters.map((cluster) => {
+                const progress = getProgressPercentage(cluster.currentFunded, cluster.targetPrice);
+                const daysLeft = getDaysRemaining(cluster.deadline);
 
                 return (
-                  <GlassCard key={clan.id} className="p-4 sm:p-6 bg-gradient-to-br from-card/50 to-card/20 border-border/50">
+                  <GlassCard key={cluster.id} className="p-4 sm:p-6 bg-gradient-to-br from-card/50 to-card/20 border-border/50">
                     <div className="space-y-4">
-                      {/* Clan Header */}
+                      {/* Cluster Header */}
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
-                          <h3 className="text-xl sm:text-2xl font-bold">{clan.name}</h3>
+                          <h3 className="text-xl sm:text-2xl font-bold">{cluster.name}</h3>
                           <div className="flex flex-wrap gap-4 mt-2 text-sm text-muted-foreground">
                             <div className="flex items-center gap-1">
                               <Users className="w-4 h-4" />
-                              <span>{clan.members.length} members</span>
+                              <span>{cluster.currentMembers || cluster.members.length} / {cluster.maxMembers} joined</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <Clock className="w-4 h-4" />
@@ -233,7 +279,19 @@ const Clan = () => {
                         <Target className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
                         <div className="min-w-0">
                           <p className="text-xs text-muted-foreground">Target Product</p>
-                          <p className="font-semibold text-sm sm:text-base truncate">{clan.targetProductName}</p>
+                          <p className="font-semibold text-sm sm:text-base truncate">{cluster.targetProductName}</p>
+                        </div>
+                      </div>
+
+                      {/* Quantity Progress */}
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/30">
+                        <TrendingUp className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs text-muted-foreground">Quantity Ordered</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-sm sm:text-base">{cluster.quantity}</p>
+                            <span className="text-xs text-muted-foreground">units target</span>
+                          </div>
                         </div>
                       </div>
 
@@ -242,7 +300,7 @@ const Clan = () => {
                         <div className="flex justify-between items-center mb-2">
                           <p className="text-sm text-muted-foreground">Progress</p>
                           <p className="text-sm font-semibold">
-                            ${(clan.currentFunded ?? 0).toLocaleString()} / ${(clan.targetPrice ?? 0).toLocaleString()}
+                            ${(cluster.currentFunded ?? 0).toLocaleString()} / ${(cluster.targetPrice ?? 0).toLocaleString()}
                           </p>
                         </div>
                         <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
@@ -257,7 +315,7 @@ const Clan = () => {
                       {/* Members Preview */}
                       <div className="flex items-center gap-2">
                         <div className="flex -space-x-2">
-                          {clan.members.slice(0, 3).map((member) => (
+                          {cluster.members.slice(0, 3).map((member) => (
                             <img
                               key={member.id}
                               src={getSafeAvatarUrl(member.username)}
@@ -269,36 +327,47 @@ const Clan = () => {
                               }}
                             />
                           ))}
-                          {clan.members.length > 3 && (
+                          {(cluster.currentMembers || cluster.members.length) > 3 && (
                             <div className="w-8 h-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-xs font-semibold">
-                              +{clan.members.length - 3}
+                              +{(cluster.currentMembers || cluster.members.length) - 3}
                             </div>
                           )}
                         </div>
-                        <span className="text-xs text-muted-foreground ml-2">{clan.members.length} contributors</span>
+                        <span className="text-xs text-muted-foreground ml-2">{cluster.currentMembers || cluster.members.length} buyers joined</span>
                       </div>
 
                       {/* Action Buttons */}
                       <div className="flex gap-2 flex-col sm:flex-row">
-                        <Dialog open={joinDialogOpen && selectedClanId === clan.id} onOpenChange={(open) => {
+                        <Dialog open={joinDialogOpen && selectedClusterId === cluster.id} onOpenChange={(open) => {
                           setJoinDialogOpen(open);
-                          if (open) setSelectedClanId(clan.id);
+                          if (open) setSelectedClusterId(cluster.id);
                         }}>
                           <DialogTrigger asChild>
                             <Button className="flex-1 h-11 bg-accent hover:bg-accent/90 text-black font-semibold">
-                              <TrendingUp className="w-4 h-4 mr-2" />
-                              Contribute & Join
+                              <Users className="w-4 h-4 mr-2" />
+                              Join Cluster
                             </Button>
                           </DialogTrigger>
                           <DialogContent className="max-w-md">
                             <DialogHeader>
-                              <DialogTitle>Contribute to {clan.name}</DialogTitle>
+                              <DialogTitle>Join {cluster.name}</DialogTitle>
                             </DialogHeader>
                             <div className="space-y-4">
                               <div className="space-y-2">
-                                <Label htmlFor="contribution-amount">Contribution Amount ($)</Label>
+                                <Label htmlFor="join-quantity">Quantity (units)</Label>
                                 <Input
-                                  id="contribution-amount"
+                                  id="join-quantity"
+                                  type="number"
+                                  placeholder="0"
+                                  value={joinFormData.quantity}
+                                  onChange={(e) => setJoinFormData({ ...joinFormData, quantity: e.target.value })}
+                                  className="h-10 bg-background/50"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="join-amount">Amount ($)</Label>
+                                <Input
+                                  id="join-amount"
                                   type="number"
                                   placeholder="0.00"
                                   value={joinFormData.amount}
@@ -306,12 +375,15 @@ const Clan = () => {
                                   className="h-10 bg-background/50"
                                 />
                               </div>
+                              {cluster.minOrderAmount && (
+                                <p className="text-xs text-muted-foreground">Minimum order: ${cluster.minOrderAmount}</p>
+                              )}
                               <Button
-                                onClick={handleJoinClan}
+                                onClick={handleJoinCluster}
                                 className="w-full bg-accent hover:bg-accent/90 text-black font-semibold"
-                                disabled={joinClanMutation.isPending}
+                                disabled={joinClusterMutation.isPending}
                               >
-                                {joinClanMutation.isPending ? "Contributing..." : "Contribute"}
+                                {joinClusterMutation.isPending ? "Joining..." : "Join Cluster"}
                               </Button>
                             </div>
                           </DialogContent>
@@ -320,7 +392,7 @@ const Clan = () => {
                           variant="outline"
                           size="icon"
                           className="h-11 w-11 flex-shrink-0"
-                          onClick={() => navigate(`/clan/${clan.id}`)}
+                          onClick={() => navigate(`/cluster/${cluster.id}`)}
                         >
                           <MessageCircle className="w-5 h-5" />
                         </Button>
@@ -339,4 +411,4 @@ const Clan = () => {
   );
 };
 
-export default Clan;
+export default Cluster;

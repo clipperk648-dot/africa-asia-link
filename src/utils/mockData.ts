@@ -1,5 +1,5 @@
 // Mock data for development when backend is unavailable
-import { Product, Order, Clan, User } from '@/types/models';
+import { Product, Order, Cluster, User } from '@/types/models';
 
 // Mock users
 export const MOCK_USERS: Record<string, User> = {
@@ -11,12 +11,13 @@ export const MOCK_USERS: Record<string, User> = {
     role: 'buyer',
     createdAt: new Date().toISOString(),
   },
-  industry: {
-    id: 'user_industry_001',
-    email: 'seller@echina.com',
-    name: 'Chen Wei',
+  admin: {
+    id: 'user_admin_001',
+    email: 'admin@echina.com',
+    name: 'Admin User',
     phone: '+86 138 1234 5678',
-    role: 'industry',
+    role: 'admin',
+    isAdmin: true,
     createdAt: new Date().toISOString(),
   },
 };
@@ -37,7 +38,7 @@ export const MOCK_PRODUCTS: Product[] = [
     ],
     rating: 4.8,
     description: 'Premium ceramic tiles suitable for residential and commercial applications. High durability and aesthetic appeal.',
-    seller_id: 'user_industry_001',
+    seller_id: 'user_admin_001',
     created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
@@ -53,7 +54,7 @@ export const MOCK_PRODUCTS: Product[] = [
     ],
     rating: 4.9,
     description: 'High-strength steel rebars meeting international standards. Perfect for construction projects.',
-    seller_id: 'user_industry_001',
+    seller_id: 'user_admin_001',
     created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
@@ -69,7 +70,7 @@ export const MOCK_PRODUCTS: Product[] = [
     ],
     rating: 4.7,
     description: 'Precision-engineered machinery parts for industrial applications.',
-    seller_id: 'user_industry_001',
+    seller_id: 'user_admin_001',
     created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
@@ -85,7 +86,7 @@ export const MOCK_PRODUCTS: Product[] = [
     ],
     rating: 4.6,
     description: 'High-quality textiles for apparel and industrial use.',
-    seller_id: 'user_industry_001',
+    seller_id: 'user_admin_001',
     created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
@@ -101,7 +102,7 @@ export const MOCK_PRODUCTS: Product[] = [
     ],
     rating: 4.9,
     description: 'State-of-the-art electronic components for modern devices.',
-    seller_id: 'user_industry_001',
+    seller_id: 'user_admin_001',
     created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
   },
 ];
@@ -111,7 +112,7 @@ export const MOCK_ORDERS: Order[] = [
   {
     id: 'order_001',
     buyer_id: 'user_buyer_001',
-    seller_id: 'user_industry_001',
+    seller_id: 'user_admin_001',
     product_id: 'prod_001',
     quantity: 100,
     total: 1250000,
@@ -121,7 +122,7 @@ export const MOCK_ORDERS: Order[] = [
   {
     id: 'order_002',
     buyer_id: 'user_buyer_001',
-    seller_id: 'user_industry_001',
+    seller_id: 'user_admin_001',
     product_id: 'prod_002',
     quantity: 50,
     total: 900000,
@@ -131,7 +132,7 @@ export const MOCK_ORDERS: Order[] = [
   {
     id: 'order_003',
     buyer_id: 'user_buyer_001',
-    seller_id: 'user_industry_001',
+    seller_id: 'user_admin_001',
     product_id: 'prod_003',
     quantity: 5,
     total: 225000,
@@ -140,55 +141,65 @@ export const MOCK_ORDERS: Order[] = [
   },
 ];
 
-// Mock clans
-export const MOCK_CLANS: Clan[] = [
+// Mock clusters
+export const MOCK_CLUSTERS: Cluster[] = [
   {
-    id: 'clan_001',
+    id: 'cluster_001',
     name: 'Builders United',
-    description: 'A community of construction material suppliers',
-    creator_id: 'user_buyer_001',
-    creator_name: 'John Buyer',
-    target_product_id: 'prod_001',
-    target_product_name: 'High-Quality Ceramic Tiles',
-    target_price: 500000,
-    current_funded: 250000,
+    description: 'A community of construction material buyers pooling orders',
+    creatorId: 'user_buyer_001',
+    creatorName: 'John Buyer',
+    targetProductId: 'prod_001',
+    targetProductName: 'High-Quality Ceramic Tiles',
+    targetPrice: 500000,
+    currentFunded: 250000,
+    minOrderAmount: 100,
+    quantity: 1000,
+    maxMembers: 50,
+    currentMembers: 5,
     deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     status: 'active',
     members: [
       {
         id: 'member_001',
-        user_id: 'user_buyer_001',
+        userId: 'user_buyer_001',
         username: 'John Buyer',
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user_buyer_001',
-        contributed_amount: 150000,
-        joined_date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+        joinedQuantity: 100,
+        joinedAmount: 12500,
+        joinedDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
       },
     ],
-    created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    createdDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
   },
   {
-    id: 'clan_002',
+    id: 'cluster_002',
     name: 'Tech Innovators',
     description: 'Electronics and tech component trading group',
-    creator_id: 'user_buyer_001',
-    creator_name: 'John Buyer',
-    target_product_id: 'prod_005',
-    target_product_name: 'Electronic Components',
-    target_price: 320000,
-    current_funded: 180000,
+    creatorId: 'user_buyer_001',
+    creatorName: 'John Buyer',
+    targetProductId: 'prod_005',
+    targetProductName: 'Electronic Components',
+    targetPrice: 320000,
+    currentFunded: 180000,
+    minOrderAmount: 200,
+    quantity: 500,
+    maxMembers: 30,
+    currentMembers: 3,
     deadline: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
     status: 'active',
     members: [
       {
         id: 'member_002',
-        user_id: 'user_buyer_001',
+        userId: 'user_buyer_001',
         username: 'John Buyer',
         avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user_buyer_001',
-        contributed_amount: 100000,
-        joined_date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+        joinedQuantity: 50,
+        joinedAmount: 16000,
+        joinedDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
       },
     ],
-    created_at: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+    createdDate: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
   },
 ];
 
@@ -238,9 +249,9 @@ export const MOCK_SOCIAL_POSTS: any[] = [
   },
   {
     id: 'post_002',
-    user_id: 'user_industry_001',
-    username: 'Chen Wei',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user_industry_001',
+    user_id: 'user_admin_001',
+    username: 'Admin User',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=user_admin_001',
     type: 'text',
     content: 'New batch of high-quality ceramic tiles ready for export. Meeting international standards. DM for bulk orders!',
     media_url: null,

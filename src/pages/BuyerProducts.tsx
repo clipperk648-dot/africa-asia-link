@@ -6,10 +6,8 @@ import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Search, Filter, Star, ShoppingCart, PlusCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Search, Filter, Star, PlusCircle, ChevronLeft, ChevronRight, Users2 } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
-import RateButton from "@/components/RateButton";
-import { addToCart } from "@/utils/cart";
 import { toast } from "@/components/ui/sonner";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -96,6 +94,11 @@ const BuyerProducts = () => {
 
   const scrollBy = (delta: number) => scrollerRef.current?.scrollBy({ left: delta, behavior: "smooth" });
 
+  const handleJoinCluster = (productId: string, productName: string) => {
+    toast.success(`Joining cluster for ${productName}`);
+    navigate("/cluster");
+  };
+
   return (
     <div className="min-h-screen pb-24 relative">
       <ThreeBackground />
@@ -157,7 +160,7 @@ const BuyerProducts = () => {
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-4">
         {filtered.length === 0 && (
-          <GlassCard className="p-6 text-center text-sm text-muted-foreground">No products found in “{active}”.</GlassCard>
+          <GlassCard className="p-6 text-center text-sm text-muted-foreground">No products found in "{active}".</GlassCard>
         )}
         {filtered.map((product) => (
           <GlassCard key={product.id}>
@@ -206,27 +209,14 @@ const BuyerProducts = () => {
                     >
                       Details
                     </Button>
-                    <RateButton productId={product.id} productName={product.name} size="xs" />
-                    <Button
-                      variant="accent"
-                      size="xs"
-                      className="flex-1 sm:flex-none"
-                      onClick={() => {
-                        addToCart({ id: product.id, name: product.name, price: product.price, image: product.image, company: product.company });
-                        toast.success("Added to cart");
-                      }}
-                    >
-                      <PlusCircle className="w-4 h-4" />
-                      Add to cart
-                    </Button>
                     <Button
                       variant="gradient"
                       size="xs"
                       className="flex-1 sm:flex-none"
-                      onClick={() => navigate(`/messages?product=${product.id}`)}
+                      onClick={() => handleJoinCluster(product.id, product.name)}
                     >
-                      <ShoppingCart className="w-4 h-4" />
-                      Inquire
+                      <Users2 className="w-4 h-4 mr-1" />
+                      Join Cluster
                     </Button>
                   </div>
                 </div>

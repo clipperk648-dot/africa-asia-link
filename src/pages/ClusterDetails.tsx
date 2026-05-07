@@ -9,31 +9,33 @@ import { ArrowLeft, Users, TrendingUp, Target, Clock, Copy, Check, BarChart3, Se
 import { toast } from "@/components/ui/sonner";
 import { getSafeAvatarUrl } from "@/utils/imageOptimization";
 
-const ClanDetails = () => {
+const ClusterDetails = () => {
   const navigate = useNavigate();
-  const { clanId } = useParams<{ clanId: string }>();
+  const { clusterId } = useParams<{ clusterId: string }>();
   const user = getCurrentUser();
   
   const [copied, setCopied] = useState(false);
   const [showMoreMembers, setShowMoreMembers] = useState(false);
 
-  const [clanData, setClanData] = useState<any>({
-    id: clanId || "clan-1",
-    name: "Clan",
-    description: "A group pooling resources together",
+  const [clusterData, setClusterData] = useState<any>({
+    id: clusterId || "cluster-1",
+    name: "Cluster",
+    description: "A group pooling orders together",
     targetProductName: "Target Product",
     targetPrice: 0,
     currentFunded: 0,
+    minOrderAmount: 100,
+    quantity: 100,
+    maxMembers: 50,
+    currentMembers: 0,
     deadline: new Date().toISOString(),
     creatorId: "user1",
     creatorName: "Creator",
     members: [],
   });
 
-
-
   const handleCopyInvite = () => {
-    const inviteText = `Join my clan: "${clanData.name}" - Let's pool funds together! Code: ${clanData.id}`;
+    const inviteText = `Join my cluster: "${clusterData.name}" - Let's order together! Code: ${clusterData.id}`;
     navigator.clipboard.writeText(inviteText);
     setCopied(true);
     toast.success("Invite link copied!");
@@ -41,12 +43,12 @@ const ClanDetails = () => {
   };
 
   const getProgressPercentage = () => {
-    return Math.min(100, Math.round((clanData.currentFunded / clanData.targetPrice) * 100));
+    return Math.min(100, Math.round((clusterData.currentFunded / clusterData.targetPrice) * 100));
   };
 
   const getDaysRemaining = () => {
     const now = new Date();
-    const deadlineDate = new Date(clanData.deadline);
+    const deadlineDate = new Date(clusterData.deadline);
     const diffTime = deadlineDate.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays > 0 ? diffDays : 0;
@@ -62,19 +64,19 @@ const ClanDetails = () => {
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-4 py-2">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/clan")}>
+            <Button variant="ghost" size="icon" onClick={() => navigate("/cluster")}>
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="min-w-0">
-              <h1 className="text-lg font-bold truncate">{clanData.name}</h1>
-              <p className="text-xs text-muted-foreground">{clanData.members.length} members</p>
+              <h1 className="text-lg font-bold truncate">{clusterData.name}</h1>
+              <p className="text-xs text-muted-foreground">{clusterData.currentMembers || clusterData.members.length} members</p>
             </div>
           </div>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-        {/* Clan Info Card */}
+        {/* Cluster Info Card */}
         <GlassCard className="p-6 bg-gradient-to-br from-accent/10 via-transparent to-primary/10 border-accent/20">
           <div className="space-y-4">
             {/* Target Product */}
@@ -83,7 +85,16 @@ const ClanDetails = () => {
                 <Target className="w-5 h-5 text-accent" />
                 <p className="text-sm font-semibold text-muted-foreground">Target Product</p>
               </div>
-              <p className="text-lg font-bold">{clanData.targetProductName}</p>
+              <p className="text-lg font-bold">{clusterData.targetProductName}</p>
+            </div>
+
+            {/* Quantity Progress */}
+            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-primary" />
+                <p className="text-sm font-semibold">Quantity Ordered</p>
+              </div>
+              <p className="font-bold text-primary">{clusterData.quantity} units</p>
             </div>
 
             {/* Progress */}
@@ -91,7 +102,7 @@ const ClanDetails = () => {
               <div className="flex justify-between items-center mb-2">
                 <p className="text-sm text-muted-foreground">Progress</p>
                 <p className="text-sm font-semibold">
-                  ${clanData.currentFunded.toLocaleString()} / ${clanData.targetPrice.toLocaleString()}
+                  ${clusterData.currentFunded.toLocaleString()} / ${clusterData.targetPrice.toLocaleString()}
                 </p>
               </div>
               <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
@@ -137,10 +148,10 @@ const ClanDetails = () => {
         <div>
           <div className="flex items-center gap-2 mb-4">
             <Users className="w-5 h-5 text-primary" />
-            <h2 className="text-2xl font-bold">Members ({clanData.members.length})</h2>
+            <h2 className="text-2xl font-bold">Members ({clusterData.members.length})</h2>
           </div>
           <div className="space-y-3">
-            {(showMoreMembers ? clanData.members : clanData.members.slice(0, 3)).map((member) => (
+            {(showMoreMembers ? clusterData.members : clusterData.members.slice(0, 3)).map((member) => (
               <GlassCard key={member.id} className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <img
@@ -160,23 +171,23 @@ const ClanDetails = () => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-accent">${member.amount.toLocaleString()}</p>
+                  <p className="font-semibold text-accent">{member.joinedQuantity || 0} units</p>
                   <p className="text-xs text-muted-foreground">
-                    {((member.amount / clanData.targetPrice) * 100).toFixed(1)}%
+                    ${(member.joinedAmount || 0).toLocaleString()}
                   </p>
                 </div>
               </GlassCard>
             ))}
-            {clanData.members.length > 3 && !showMoreMembers && (
+            {clusterData.members.length > 3 && !showMoreMembers && (
               <Button
                 variant="outline"
                 className="w-full"
                 onClick={() => setShowMoreMembers(true)}
               >
-                View More Members ({clanData.members.length - 3} more)
+                View More Members ({clusterData.members.length - 3} more)
               </Button>
             )}
-            {showMoreMembers && clanData.members.length > 3 && (
+            {showMoreMembers && clusterData.members.length > 3 && (
               <Button
                 variant="outline"
                 className="w-full"
@@ -190,16 +201,16 @@ const ClanDetails = () => {
 
         {/* Chat Section */}
         <div>
-          <h2 className="text-2xl font-bold mb-4">Clan Chat</h2>
+          <h2 className="text-2xl font-bold mb-4">Cluster Chat</h2>
           <GlassCard className="p-6 text-center bg-gradient-to-br from-primary/10 via-transparent to-accent/10 border-primary/20 h-64 flex flex-col items-center justify-center">
             <div className="space-y-4">
               <MessageCircle className="w-12 h-12 text-primary mx-auto opacity-50" />
-              <h3 className="text-lg font-semibold">Join the Clan Chat</h3>
+              <h3 className="text-lg font-semibold">Join the Cluster Chat</h3>
               <p className="text-muted-foreground max-w-sm">
-                Discuss strategy, share updates, and coordinate with {clanData.members.length} other members in real-time.
+                Discuss orders, share updates, and coordinate with {clusterData.members.length} other members.
               </p>
               <Button
-                onClick={() => navigate(`/clan/${clanData.id}/chat`)}
+                onClick={() => navigate(`/cluster/${clusterData.id}/chat`)}
                 className="bg-accent hover:bg-accent/90 text-black font-semibold mt-4"
               >
                 Open Chat
@@ -213,14 +224,14 @@ const ClanDetails = () => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-primary" />
-              <h2 className="text-2xl font-bold">Recent Contributions</h2>
+              <h2 className="text-2xl font-bold">Recent Orders</h2>
             </div>
             <Button variant="outline" size="sm">
               View All
             </Button>
           </div>
           <div className="space-y-2">
-            {clanData.members.map((member, idx) => (
+            {clusterData.members.map((member, idx) => (
               <GlassCard key={idx} className="p-3 flex items-center justify-between bg-card/50 border-border/50">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center text-sm font-bold text-white">
@@ -228,7 +239,12 @@ const ClanDetails = () => {
                   </div>
                   <p className="text-sm font-semibold">{member.username}</p>
                 </div>
-                <p className="text-sm font-bold text-accent">+${member.amount.toLocaleString()}</p>
+                <div className="text-right">
+                  <p className="text-sm font-bold text-accent">{member.joinedQuantity || 0} units</p>
+                  <p className="text-xs text-muted-foreground">
+                    ${(member.joinedAmount || 0).toLocaleString()}
+                  </p>
+                </div>
               </GlassCard>
             ))}
           </div>
@@ -239,7 +255,7 @@ const ClanDetails = () => {
           <Button
             variant="outline"
             className="h-12 flex items-center justify-center gap-2"
-            onClick={() => navigate(`/clan/${clanData.id}/analytics`)}
+            onClick={() => navigate(`/cluster/${clusterData.id}/analytics`)}
           >
             <BarChart3 className="w-4 h-4" />
             View Analytics
@@ -247,10 +263,10 @@ const ClanDetails = () => {
           <Button
             variant="outline"
             className="h-12 flex items-center justify-center gap-2"
-            onClick={() => navigate(`/clan/${clanData.id}/settings`)}
+            onClick={() => navigate(`/cluster/${clusterData.id}/settings`)}
           >
             <Settings className="w-4 h-4" />
-            Clan Settings
+            Cluster Settings
           </Button>
         </div>
       </main>
@@ -260,4 +276,4 @@ const ClanDetails = () => {
   );
 };
 
-export default ClanDetails;
+export default ClusterDetails;

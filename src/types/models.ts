@@ -72,16 +72,17 @@ export interface SocialPost {
   timestamp: string;
 }
 
-export interface ClanMember {
+export interface ClusterMember {
   id: string;
   userId: string;
   username: string;
   avatar?: string;
-  contributedAmount: number;
+  joinedQuantity: number;
+  joinedAmount: number;
   joinedDate: string;
 }
 
-export interface Clan {
+export interface Cluster {
   id: string;
   name: string;
   description?: string;
@@ -91,9 +92,13 @@ export interface Clan {
   targetProductName: string;
   targetPrice: number;
   currentFunded: number;
-  deadline: string; // ISO date string
+  minOrderAmount: number;
+  quantity: number;
+  maxMembers: number;
+  currentMembers: number;
+  deadline: string;
   status: "active" | "completed" | "closed";
-  members: ClanMember[];
+  members: ClusterMember[];
   createdDate: string;
   icon?: string;
 }

@@ -3,9 +3,10 @@ import { getSession, clearSession, type AuthUser } from "@/lib/auth";
 export interface User extends AuthUser {
   id: string;
   email: string;
-  role: "industry" | "buyer";
+  role: "buyer" | "admin";
   name: string;
   phone?: string;
+  isAdmin?: boolean;
 }
 
 // Keep these for backward compatibility, but delegate to new auth system
@@ -26,6 +27,7 @@ export const getCurrentUser = (): User | null => {
       name: session.name,
       role: session.role,
       phone: session.phone,
+      isAdmin: session.isAdmin,
     };
   }
 
