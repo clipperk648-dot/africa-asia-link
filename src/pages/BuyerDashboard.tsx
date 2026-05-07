@@ -6,8 +6,7 @@ import type { Product, Order } from "@/types/models";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, Clock, CheckCircle, TrendingUp, Settings, Bell, BarChart3, Wallet as WalletIcon, Bot, Menu, Box, Package, Users2, ShoppingCart } from "lucide-react";
-import ThreeBackground from "@/components/ThreeBackground";
+import { LogOut, Clock, CheckCircle, TrendingUp, Settings, Bell, BarChart3, Wallet as WalletIcon, Bot, Menu, Box, Package, Users2, ShoppingCart, Smartphone, Wifi, Tv } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -129,7 +128,6 @@ const BuyerDashboard = () => {
 
   return (
     <div className="min-h-screen pb-24 relative">
-      <ThreeBackground />
       
       <header className="backdrop-blur-sm bg-transparent border-b border-transparent sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-3 py-0.5">
@@ -172,9 +170,9 @@ const BuyerDashboard = () => {
                           <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Collections</span>
                         </div>
                       </Link>
-                      <Link to="/wallet" className="block">
+                      <Link to="/utilities" className="block">
                         <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
-                          <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Wallet</span>
+                          <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Utilities</span>
                         </div>
                       </Link>
                       <Link to="/notifications" className="block">
@@ -326,6 +324,30 @@ const BuyerDashboard = () => {
             </GlassCard>
           ))}
         </div>
+
+        <section className="space-y-2">
+          <h2 className="text-sm sm:text-base font-bold">Quick Utilities</h2>
+          <div className="grid grid-cols-3 gap-2">
+            <Link to="/utilities/airtime">
+              <GlassCard className="p-3 sm:p-4 text-center hover:bg-primary/10 transition-all cursor-pointer">
+                <Smartphone className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1 text-primary" />
+                <p className="text-[10px] sm:text-xs font-semibold">Airtime</p>
+              </GlassCard>
+            </Link>
+            <Link to="/utilities/data">
+              <GlassCard className="p-3 sm:p-4 text-center hover:bg-primary/10 transition-all cursor-pointer">
+                <Wifi className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1 text-cyan-300" />
+                <p className="text-[10px] sm:text-xs font-semibold">Data</p>
+              </GlassCard>
+            </Link>
+            <Link to="/utilities/tv">
+              <GlassCard className="p-3 sm:p-4 text-center hover:bg-primary/10 transition-all cursor-pointer">
+                <Tv className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-1 text-secondary" />
+                <p className="text-[10px] sm:text-xs font-semibold">TV</p>
+              </GlassCard>
+            </Link>
+          </div>
+        </section>
 
         <section className="space-y-2">
           <div className="flex items-center justify-between">
