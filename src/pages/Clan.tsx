@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "@/utils/mockAuth";
 import { useClans, useCreateClanMutation, useJoinClanMutation } from "@/hooks/useData";
@@ -242,7 +242,7 @@ const Clan = () => {
                         <div className="flex justify-between items-center mb-2">
                           <p className="text-sm text-muted-foreground">Progress</p>
                           <p className="text-sm font-semibold">
-                            ${clan.currentFunded.toLocaleString()} / ${clan.targetPrice.toLocaleString()}
+                            ${(clan.currentFunded ?? 0).toLocaleString()} / ${(clan.targetPrice ?? 0).toLocaleString()}
                           </p>
                         </div>
                         <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
