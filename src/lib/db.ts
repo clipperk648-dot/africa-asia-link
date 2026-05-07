@@ -5,7 +5,7 @@
 import { 
   MOCK_PRODUCTS, 
   MOCK_ORDERS, 
-  MOCK_CLANS, 
+  MOCK_CLUSTERS, 
   MOCK_SOCIAL_POSTS, 
   MOCK_WALLET, 
   MOCK_TRANSACTIONS,
@@ -32,15 +32,14 @@ export const createUser = async (
   email: string,
   passwordHash: string,
   name: string,
-  phone: string,
-  role: "industry" | "buyer"
-): Promise<{ id: string; email: string; name: string; role: "industry" | "buyer" }> => {
+  phone: string
+): Promise<{ id: string; email: string; name: string; role: string }> => {
   await delay();
   return {
     id: `user_${Date.now()}`,
     email,
     name,
-    role,
+    role: 'buyer',
   };
 };
 
@@ -159,66 +158,73 @@ export const createSocialPost = async (
   return newPost;
 };
 
-// ============ CLANS ============
+// ============ CLUSTERS ============
 
-export const getClans = async (limit = 20, offset = 0): Promise<any[]> => {
+export const getClusters = async (limit = 20, offset = 0): Promise<any[]> => {
   await delay();
-  return MOCK_CLANS.slice(offset, offset + limit);
+  return MOCK_CLUSTERS.slice(offset, offset + limit);
 };
 
-export const getClanById = async (id: string): Promise<any> => {
+export const getClusterById = async (id: string): Promise<any> => {
   await delay();
-  return MOCK_CLANS.find(c => c.id === id) || null;
+  return MOCK_CLUSTERS.find(c => c.id === id) || null;
 };
 
-export const createClan = async (clanData: any): Promise<any> => {
+export const createCluster = async (clusterData: any): Promise<any> => {
   await delay();
-  const newClan = {
-    id: `clan_${Date.now()}`,
+  const newCluster = {
+    id: `cluster_${Date.now()}`,
     status: 'active' as const,
     members: [],
-    current_funded: 0,
-    created_at: new Date().toISOString(),
-    ...clanData,
+    currentFunded: 0,
+    currentMembers: 0,
+    createdDate: new Date().toISOString(),
+    deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+    ...clusterData,
   };
-  MOCK_CLANS.push(newClan);
-  return newClan;
+  MOCK_CLUSTERS.push(newCluster);
+  return newCluster;
 };
 
-export const joinClan = async (
-  clanId: string,
+export const joinCluster = async (
+  clusterId: string,
   userId: string,
   username: string,
-  contributionAmount: number
+  quantity: number,
+  amount?: number
 ): Promise<any> => {
   await delay();
-  const clan = MOCK_CLANS.find(c => c.id === clanId);
-  if (clan) {
-    clan.members.push({
+  const cluster = MOCK_CLUSTERS.find(c => c.id === clusterId);
+  if (cluster) {
+    const newMember = {
       id: `member_${Date.now()}`,
-      user_id: userId,
+      userId,
       username,
       avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`,
-      contributed_amount: contributionAmount,
-      joined_date: new Date().toISOString(),
-    });
-    clan.current_funded += contributionAmount;
-    return clan;
+      joinedQuantity: quantity,
+      joinedAmount: amount || quantity * (cluster.targetPrice / cluster.quantity),
+      joinedDate: new Date().toISOString(),
+    };
+    cluster.members.push(newMember);
+    cluster.currentFunded += newMember.joinedAmount;
+    cluster.currentMembers = cluster.members.length;
+    return cluster;
   }
   return null;
 };
 
-export const leaveClan = async (clanId: string, userId: string): Promise<any> => {
+export const leaveCluster = async (clusterId: string, userId: string): Promise<any> => {
   await delay();
-  const clan = MOCK_CLANS.find(c => c.id === clanId);
-  if (clan) {
-    const memberIndex = clan.members.findIndex(m => m.user_id === userId);
+  const cluster = MOCK_CLUSTERS.find(c => c.id === clusterId);
+  if (cluster) {
+    const memberIndex = cluster.members.findIndex(m => m.userId === userId);
     if (memberIndex !== -1) {
-      const member = clan.members[memberIndex];
-      clan.current_funded -= member.contributed_amount;
-      clan.members.splice(memberIndex, 1);
+      const member = cluster.members[memberIndex];
+      cluster.currentFunded -= member.joinedAmount;
+      cluster.members.splice(memberIndex, 1);
+      cluster.currentMembers = cluster.members.length;
     }
-    return clan;
+    return cluster;
   }
   return null;
 };

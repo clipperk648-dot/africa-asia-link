@@ -7,7 +7,7 @@ import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
-  ShoppingCart,
+  Users2,
   MessageCircle,
   Phone,
   Mail,
@@ -16,25 +16,22 @@ import {
   X,
   Award,
   Share2,
-  Bookmark,
   Maximize2,
   Play,
 } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
-import RateButton from "@/components/RateButton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { addToCart } from "@/utils/cart";
+import { toast } from "@/components/ui/sonner";
 
 const ProductDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const user = getCurrentUser();
-  const { toast } = useToast();
   const { data: product } = useProduct(id);
 
   const images = product?.images || [product?.image].filter(Boolean) as string[];
@@ -92,19 +89,9 @@ const ProductDetails = () => {
     api?.scrollTo(idx);
   };
 
-  const addItemToCart = () => {
-    const validQty = Number.isFinite(qty) && qty > 0 ? Math.floor(qty) : 1;
-    addToCart(
-      {
-        id: product.id,
-        name: product.name,
-        price: product.unitPrice || product.price,
-        image: product.image,
-        company: product.company,
-      },
-      validQty,
-    );
-    toast({ title: "Added to cart", description: `${validQty} × ${product.name}` });
+  const handleJoinCluster = () => {
+    toast.success(`Joining cluster for ${product.name} - Qty: ${qty}`);
+    navigate("/cluster");
   };
 
   return (
@@ -239,17 +226,11 @@ const ProductDetails = () => {
                 <span className="text-sm text-muted-foreground">{product.unit || "pc"}</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <Button className="w-full gap-2" onClick={addItemToCart}>
-                  <ShoppingCart className="w-4 h-4" /> Add to Cart
+                <Button className="w-full gap-2" onClick={handleJoinCluster}>
+                  <Users2 className="w-4 h-4" /> Join Cluster
                 </Button>
                 <Button variant="outline" className="w-full" onClick={() => navigate(`/messages?product=${product.id}`)}>
-                  Send Inquiry
-                </Button>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <RateButton productId={product.id} productName={product.name} size="sm" />
-                <Button variant="ghost" className="w-full" onClick={() => toast({ title: "Saved" })}>
-                  <Bookmark className="w-4 h-4" /> Save
+                  Message
                 </Button>
               </div>
               <div className="grid grid-cols-2 gap-2">

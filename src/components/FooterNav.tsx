@@ -1,44 +1,43 @@
-import { Home, Package, Users, ShoppingCart, Music2, Wallet, TrendingUp, CheckSquare2 } from "lucide-react";
+import { Home, Package, Users, ShoppingCart, Music2, Wallet, TrendingUp, CheckSquare2, Settings, BarChart3, Users2 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 interface FooterNavProps {
-  dashboardType: "industry" | "buyer";
+  dashboardType: "admin" | "buyer";
 }
 
 const FooterNav = ({ dashboardType }: FooterNavProps) => {
   const location = useLocation();
-  const basePath = dashboardType === "industry" ? "/industry" : "/buyer";
-  const isIndustry = dashboardType === "industry";
+  const basePath = dashboardType === "admin" ? "/admin" : "/buyer";
+  const isAdmin = dashboardType === "admin";
 
-  const primaryAction = isIndustry
-    ? { path: `${basePath}/add-property`, Icon: Package, label: "Add goods" }
-    : { path: "/cart", Icon: ShoppingCart, label: "View cart" };
+  const primaryAction = isAdmin
+    ? { path: `${basePath}/products/add`, Icon: Package, label: "Add product" }
+    : { path: "/cluster", Icon: Users2, label: "Clusters" };
   const PrimaryActionIcon = primaryAction.Icon;
 
-  const navItems = isIndustry ? [
+  const navItems = isAdmin ? [
     { icon: Home, label: "Home", path: basePath },
-    { icon: Package, label: "Products", path: `${basePath}/products` },
-    { icon: Users, label: "Network", path: `${basePath}/network` },
+    { icon: BarChart3, label: "Analytics", path: "/analytics" },
     { icon: Music2, label: "Social", path: "/social" },
+    { icon: Settings, label: "Settings", path: `${basePath}/settings` },
   ] : [
     { icon: Home, label: "Home", path: basePath },
     { icon: Music2, label: "Social", path: "/social" },
     { icon: Wallet, label: "Wallet", path: "/wallet" },
-    { icon: TrendingUp, label: "Invest", path: "/invest" },
-    { icon: CheckSquare2, label: "Clan", path: "/clan" },
+    { icon: Users2, label: "Cluster", path: "/cluster" },
   ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/20 backdrop-blur-md border-t border-border/20">
       <div className="max-w-7xl mx-auto px-2 sm:px-6">
-        <div className={cn("flex items-center justify-around h-12 relative", isIndustry ? "sm:px-8" : "")}>
-          {isIndustry ? (
+        <div className={cn("flex items-center justify-around h-12 relative", isAdmin ? "sm:px-8" : "")}>
+          {isAdmin ? (
             <>
               {/* Left Items */}
               {navItems.slice(0, 2).map((item) => {
-                const isActive = location.pathname === item.path;
+                const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + "/");
                 const Icon = item.icon;
 
                 return (
@@ -72,7 +71,7 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
 
               {/* Right Items */}
               {navItems.slice(2, 4).map((item) => {
-                const isActive = location.pathname === item.path;
+                const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + "/");
                 const Icon = item.icon;
 
                 return (
@@ -91,10 +90,10 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
               })}
             </>
           ) : (
-            // Buyer navigation with 5 items
+            // Buyer navigation with 4 items
             <>
               {navItems.map((item) => {
-                const isActive = location.pathname === item.path;
+                const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + "/");
                 const Icon = item.icon;
 
                 return (

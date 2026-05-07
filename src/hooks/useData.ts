@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getProducts, getProductById, getOrders, getSocialPosts, updateProduct, createProduct, deleteProduct, getClans, getClanById, createClan, joinClan, leaveClan, getWalletBalance } from "@/lib/db";
-import type { Product, Clan } from "@/types/models";
+import { getProducts, getProductById, getOrders, getSocialPosts, updateProduct, createProduct, deleteProduct, getClusters, getClusterById, createCluster, joinCluster, leaveCluster, getWalletBalance } from "@/lib/db";
+import type { Product, Cluster } from "@/types/models";
 
 // Fetch all products
 export const useProducts = (limit = 20, offset = 0) => {
@@ -85,62 +85,62 @@ export const useDeleteProductMutation = () => {
   });
 };
 
-// Clan queries and mutations
-export const useClans = (limit = 20, offset = 0) => {
+// Cluster queries and mutations
+export const useClusters = (limit = 20, offset = 0) => {
   return useQuery({
-    queryKey: ["clans", limit, offset],
-    queryFn: () => getClans(limit, offset),
+    queryKey: ["clusters", limit, offset],
+    queryFn: () => getClusters(limit, offset),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
 };
 
-export const useClan = (id: string | undefined) => {
+export const useCluster = (id: string | undefined) => {
   return useQuery({
-    queryKey: ["clan", id],
-    queryFn: () => (id ? getClanById(id) : null),
+    queryKey: ["cluster", id],
+    queryFn: () => (id ? getClusterById(id) : null),
     enabled: !!id,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
 };
 
-export const useCreateClanMutation = () => {
+export const useCreateClusterMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (clanData: Partial<Clan>) => createClan(clanData),
+    mutationFn: (clusterData: Partial<Cluster>) => createCluster(clusterData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clans"] });
+      queryClient.invalidateQueries({ queryKey: ["clusters"] });
     },
   });
 };
 
-export const useJoinClanMutation = () => {
+export const useJoinClusterMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ clanId, userId, username, amount }: { clanId: string; userId: string; username: string; amount: number }) =>
-      joinClan(clanId, userId, username, amount),
+    mutationFn: ({ clusterId, userId, username, quantity, amount }: { clusterId: string; userId: string; username: string; quantity: number; amount?: number }) =>
+      joinCluster(clusterId, userId, username, quantity, amount),
     onSuccess: (data) => {
       if (data) {
-        queryClient.invalidateQueries({ queryKey: ["clans"] });
-        queryClient.invalidateQueries({ queryKey: ["clan", data.id] });
+        queryClient.invalidateQueries({ queryKey: ["clusters"] });
+        queryClient.invalidateQueries({ queryKey: ["cluster", data.id] });
       }
     },
   });
 };
 
-export const useLeaveClanMutation = () => {
+export const useLeaveClusterMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ clanId, userId }: { clanId: string; userId: string }) =>
-      leaveClan(clanId, userId),
+    mutationFn: ({ clusterId, userId }: { clusterId: string; userId: string }) =>
+      leaveCluster(clusterId, userId),
     onSuccess: (data) => {
       if (data) {
-        queryClient.invalidateQueries({ queryKey: ["clans"] });
-        queryClient.invalidateQueries({ queryKey: ["clan", data.id] });
+        queryClient.invalidateQueries({ queryKey: ["clusters"] });
+        queryClient.invalidateQueries({ queryKey: ["cluster", data.id] });
       }
     },
   });

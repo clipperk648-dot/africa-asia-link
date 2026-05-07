@@ -5,7 +5,8 @@ export interface AuthUser {
   email: string;
   name: string;
   phone?: string;
-  role: "industry" | "buyer";
+  role: "buyer" | "admin";
+  isAdmin?: boolean;
   createdAt?: string;
   oauthId?: string;
   oauthProvider?: string;
@@ -48,11 +49,10 @@ export const registerUser = async (
   email: string,
   password: string,
   name: string,
-  phone: string,
-  role: "industry" | "buyer"
+  phone: string
 ): Promise<{ success: boolean; user?: AuthUser; error?: string; token?: string }> => {
   try {
-    if (!email || !password || !name || !role) {
+    if (!email || !password || !name) {
       return { success: false, error: "Missing required fields" };
     }
 
@@ -63,7 +63,7 @@ export const registerUser = async (
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password, name, phone, role }),
+        body: JSON.stringify({ email, password, name, phone }),
       });
     } catch (fetchError) {
       // Network error - backend unavailable
@@ -90,7 +90,7 @@ export const registerUser = async (
         email: data.user.email,
         name: data.user.name,
         phone: data.user.phone,
-        role: data.user.role,
+        role: data.user.role || "buyer",
       },
       token: data.token,
     };
@@ -105,12 +105,11 @@ export const registerUser = async (
  */
 export const loginUser = async (
   email: string,
-  password: string,
-  role: "industry" | "buyer"
+  password: string
 ): Promise<{ success: boolean; user?: AuthUser; error?: string; token?: string }> => {
   try {
-    if (!email || !password || !role) {
-      return { success: false, error: "Email, password, and role are required" };
+    if (!email || !password) {
+      return { success: false, error: "Email and password are required" };
     }
 
     let response;
@@ -120,7 +119,7 @@ export const loginUser = async (
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password, role }),
+        body: JSON.stringify({ email, password }),
       });
     } catch (fetchError) {
       // Network error - backend unavailable
@@ -148,7 +147,7 @@ export const loginUser = async (
         email: data.user.email,
         name: data.user.name,
         phone: data.user.phone,
-        role: data.user.role,
+        role: data.user.role || "buyer",
       },
       token: data.token,
     };
@@ -162,12 +161,11 @@ export const loginUser = async (
  * Google OAuth authentication via Express API
  */
 export const googleOAuthLogin = async (
-  token: string,
-  role: "industry" | "buyer"
+  token: string
 ): Promise<{ success: boolean; user?: AuthUser; error?: string; token?: string }> => {
   try {
-    if (!token || !role) {
-      return { success: false, error: "Token and role are required" };
+    if (!token) {
+      return { success: false, error: "Token is required" };
     }
 
     let response;
@@ -177,7 +175,7 @@ export const googleOAuthLogin = async (
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ token, role }),
+        body: JSON.stringify({ token }),
       });
     } catch (fetchError) {
       // Network error - backend unavailable
@@ -204,7 +202,7 @@ export const googleOAuthLogin = async (
         email: data.user.email,
         name: data.user.name,
         phone: data.user.phone,
-        role: data.user.role,
+        role: data.user.role || "buyer",
         oauthProvider: "google",
       },
       token: data.token,
@@ -316,15 +314,15 @@ export const logoutUser = () => {
  * Auto-login user with mock data (when backend is unavailable)
  * This allows users to access the app without authentication barriers
  */
-export const autoLoginWithMockData = (role: "industry" | "buyer" = "buyer"): AuthUser => {
-  // Create mock user based on role
-  const mockUser: AuthUser = role === "industry"
+export const autoLoginWithMockData = (isAdmin = false): AuthUser => {
+  const mockUser: AuthUser = isAdmin
     ? {
-        id: 'user_industry_001',
-        email: 'seller@echina.com',
-        name: 'Chen Wei',
+        id: 'user_admin_001',
+        email: 'admin@echina.com',
+        name: 'Admin User',
         phone: '+86 138 1234 5678',
-        role: 'industry',
+        role: 'admin',
+        isAdmin: true,
         createdAt: new Date().toISOString(),
       }
     : {
@@ -333,10 +331,10 @@ export const autoLoginWithMockData = (role: "industry" | "buyer" = "buyer"): Aut
         name: 'John Buyer',
         phone: '+234 801 234 5678',
         role: 'buyer',
+        isAdmin: false,
         createdAt: new Date().toISOString(),
       };
 
-  // Save to session
   saveSession(mockUser);
 
   return mockUser;

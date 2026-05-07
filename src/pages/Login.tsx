@@ -7,7 +7,7 @@ import GlassCard from "@/components/GlassCard";
 import ThreeBackground from "@/components/ThreeBackground";
 import { loginUser, googleOAuthLogin, saveSession, autoLoginWithMockData } from "@/lib/auth";
 import { toast } from "@/hooks/use-toast";
-import { ArrowRight, Building2, ShoppingBag, Eye, EyeOff, Loader2, Mail } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Loader2, Mail } from "lucide-react";
 import { z } from "zod";
 import "../styles/auth.css";
 
@@ -22,7 +22,6 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
-  const [selectedRole, setSelectedRole] = useState<"industry" | "buyer" | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -44,20 +43,11 @@ const Login = () => {
       return;
     }
 
-    if (!selectedRole) {
-      toast({
-        title: "Role Required",
-        description: "Please select whether you're a seller or buyer",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsLoading(true);
     setErrors({});
 
     try {
-      const loginResult = await loginUser(email.trim(), password, selectedRole);
+      const loginResult = await loginUser(email.trim(), password);
 
       if (loginResult.success && loginResult.user) {
         saveSession(loginResult.user);
@@ -67,33 +57,34 @@ const Login = () => {
           description: `Welcome back, ${loginResult.user.name}!`,
         });
 
-        if (selectedRole === "industry") {
-          navigate("/industry");
+        // Check if admin
+        if (loginResult.user.isAdmin || loginResult.user.role === "admin") {
+          navigate("/admin");
         } else {
           navigate("/buyer");
         }
       } else {
         // Fallback to mock authentication when backend is unavailable
-        const mockUser = autoLoginWithMockData(selectedRole);
+        const mockUser = autoLoginWithMockData();
         toast({
           title: "Welcome",
           description: `Signed in as ${mockUser.name}!`,
         });
-        if (selectedRole === "industry") {
-          navigate("/industry");
+        if (mockUser.isAdmin) {
+          navigate("/admin");
         } else {
           navigate("/buyer");
         }
       }
     } catch (error) {
       // Network or server error – use mock authentication fallback
-      const mockUser = selectedRole ? autoLoginWithMockData(selectedRole) : autoLoginWithMockData("buyer");
+      const mockUser = autoLoginWithMockData();
       toast({
         title: "Welcome",
         description: `Signed in as ${mockUser.name}!`,
       });
-      if (selectedRole === "industry") {
-        navigate("/industry");
+      if (mockUser.isAdmin) {
+        navigate("/admin");
       } else {
         navigate("/buyer");
       }
@@ -103,15 +94,6 @@ const Login = () => {
   };
 
   const handleGoogleSignIn = async () => {
-    if (!selectedRole) {
-      toast({
-        title: "Role Required",
-        description: "Please select whether you're a seller or buyer",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsLoading(true);
 
     try {
@@ -132,7 +114,7 @@ const Login = () => {
           client_id: clientId,
           callback: async (response: any) => {
             try {
-              const oauthResult = await googleOAuthLogin(response.credential, selectedRole);
+              const oauthResult = await googleOAuthLogin(response.credential);
 
               if (oauthResult.success && oauthResult.user) {
                 saveSession(oauthResult.user);
@@ -142,33 +124,33 @@ const Login = () => {
                   description: `Signed in with Google as ${oauthResult.user.name}`,
                 });
 
-                if (selectedRole === "industry") {
-                  navigate("/industry");
+                if (oauthResult.user.isAdmin || oauthResult.user.role === "admin") {
+                  navigate("/admin");
                 } else {
                   navigate("/buyer");
                 }
               } else {
                 // Fallback to mock authentication if OAuth fails
-                const mockUser = autoLoginWithMockData(selectedRole);
+                const mockUser = autoLoginWithMockData();
                 toast({
                   title: "Welcome",
                   description: `Signed in as ${mockUser.name}!`,
                 });
-                if (selectedRole === "industry") {
-                  navigate("/industry");
+                if (mockUser.isAdmin) {
+                  navigate("/admin");
                 } else {
                   navigate("/buyer");
                 }
               }
             } catch (err) {
               // Fallback to mock authentication on OAuth error
-              const mockUser = autoLoginWithMockData(selectedRole);
+              const mockUser = autoLoginWithMockData();
               toast({
                 title: "Welcome",
                 description: `Signed in as ${mockUser.name}!`,
               });
-              if (selectedRole === "industry") {
-                navigate("/industry");
+              if (mockUser.isAdmin) {
+                navigate("/admin");
               } else {
                 navigate("/buyer");
               }
@@ -186,13 +168,13 @@ const Login = () => {
         google.accounts.id.prompt();
       } else {
         // Fallback if Google API is not loaded – use mock authentication
-        const mockUser = autoLoginWithMockData(selectedRole || 'buyer');
+        const mockUser = autoLoginWithMockData();
         toast({
           title: "Welcome",
           description: `Signed in as ${mockUser.name}!`,
         });
-        if (selectedRole === "industry") {
-          navigate("/industry");
+        if (mockUser.isAdmin) {
+          navigate("/admin");
         } else {
           navigate("/buyer");
         }
@@ -237,68 +219,20 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       <ThreeBackground />
       
-      <div className="w-full max-w-6xl grid md:grid-cols-2 gap-3 sm:gap-4 animate-fade-in">
-        <div className="flex flex-col justify-center space-y-2 sm:space-y-3">
-          <div className="space-y-1">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              Echina
-            </h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              Connecting China Industries with Nigerian Buyers
-            </p>
-          </div>
-          
-          <div className="space-y-2 sm:space-y-2 pt-1 sm:pt-2">
-            <h2 className="text-base sm:text-lg font-semibold text-foreground">Select Your Role</h2>
-
-            <GlassCard
-              className={`cursor-pointer transition-all p-2 sm:p-3 hover:scale-105 transform duration-300 ${
-                selectedRole === "industry" ? "ring-2 ring-primary scale-105" : ""
-              }`}
-              onClick={() => setSelectedRole("industry")}
-            >
-              <div className="flex items-center gap-2 sm:gap-2">
-                <div className={`p-1.5 sm:p-2 rounded-xl flex-shrink-0 ${
-                  selectedRole === "industry" ? "bg-primary" : "bg-primary/20"
-                }`}>
-                  <Building2 className={`w-4 h-4 sm:w-4 sm:h-4 ${
-                    selectedRole === "industry" ? "text-white" : "text-primary"
-                  }`} />
-                </div>
-                <div className="min-w-0">
-                  <p className="font-semibold text-xs sm:text-sm">I'm a Seller</p>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground truncate">Chinese Industry / Manufacturer</p>
-                </div>
-              </div>
-            </GlassCard>
-
-            <GlassCard
-              className={`cursor-pointer transition-all p-2 sm:p-3 hover:scale-105 transform duration-300 ${
-                selectedRole === "buyer" ? "ring-2 ring-secondary scale-105" : ""
-              }`}
-              onClick={() => setSelectedRole("buyer")}
-            >
-              <div className="flex items-center gap-2 sm:gap-2">
-                <div className={`p-1.5 sm:p-2 rounded-xl flex-shrink-0 ${
-                  selectedRole === "buyer" ? "bg-secondary" : "bg-secondary/20"
-                }`}>
-                  <ShoppingBag className={`w-4 h-4 sm:w-4 sm:h-4 ${
-                    selectedRole === "buyer" ? "text-white" : "text-secondary"
-                  }`} />
-                </div>
-                <div className="min-w-0">
-                  <p className="font-semibold text-xs sm:text-sm">I'm a Buyer</p>
-                  <p className="text-[10px] sm:text-xs text-muted-foreground truncate">Nigerian Business / Trader</p>
-                </div>
-              </div>
-            </GlassCard>
-          </div>
+      <div className="w-full max-w-md animate-fade-in">
+        <div className="space-y-1 mb-6 text-center">
+          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            Echina
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Connecting China Industries with Nigerian Buyers
+          </p>
         </div>
         
-        <GlassCard className="p-3 sm:p-4 slide-up">
-          <form onSubmit={handleLogin} className="space-y-3 sm:space-y-3">
-            <div className="space-y-1 sm:space-y-1 text-center">
-              <h2 className="text-lg sm:text-xl font-bold">Welcome Back</h2>
+        <GlassCard className="p-4 sm:p-6 slide-up">
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-1 text-center">
+              <h2 className="text-xl sm:text-2xl font-bold">Welcome Back</h2>
               <p className="text-xs sm:text-sm text-muted-foreground">Sign in to your account</p>
             </div>
 
@@ -308,7 +242,7 @@ const Login = () => {
               </div>
             )}
 
-            <div className="space-y-2 sm:space-y-2">
+            <div className="space-y-3">
               <div className="space-y-1">
                 <Label htmlFor="name" className="text-xs">Full Name / Company Name</Label>
                 <Input
@@ -318,7 +252,7 @@ const Login = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  className="h-9 bg-background/50 text-sm"
+                  className="h-10 bg-background/50 text-sm"
                 />
                 {errors.name && (
                   <p className="text-xs text-destructive">{errors.name}</p>
@@ -334,7 +268,7 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-9 bg-background/50 text-sm"
+                  className="h-10 bg-background/50 text-sm"
                 />
                 {errors.email && (
                   <p className="text-xs text-destructive">{errors.email}</p>
@@ -351,7 +285,7 @@ const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="h-9 bg-background/50 pr-10 text-sm"
+                    className="h-10 bg-background/50 pr-10 text-sm"
                   />
                   <button
                     type="button"
@@ -371,7 +305,7 @@ const Login = () => {
               type="submit"
               variant="gradient"
               size="sm"
-              className="w-full h-8 group text-sm"
+              className="w-full h-10 group text-sm"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -401,7 +335,7 @@ const Login = () => {
                 type="button"
                 variant="outline"
                 size="sm"
-                className="w-full h-8 text-sm"
+                className="w-full h-10 text-sm"
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
               >
