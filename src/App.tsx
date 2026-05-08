@@ -45,6 +45,9 @@ const WalletApps = lazy(() => import("./pages/WalletApps"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const BuyerAnalytics = lazy(() => import("./pages/BuyerAnalytics"));
 const Theme = lazy(() => import("./pages/Theme"));
+const UtilitiesAirtime = lazy(() => import("./pages/UtilitiesAirtime"));
+const UtilitiesData = lazy(() => import("./pages/UtilitiesData"));
+const UtilitiesTV = lazy(() => import("./pages/UtilitiesTV"));
 
 const queryClient = new QueryClient();
 
@@ -101,6 +104,9 @@ const AppContent = () => {
         <Route path="/wallet/apps" element={<ProtectedRoute element={<WalletGuard element={<WalletApps />} requirePin={true} />} />} />
         <Route path="/wallet/deposit" element={<ProtectedRoute element={<WalletGuard element={<WalletDeposit />} requirePin={true} />} />} />
         <Route path="/wallet/withdraw" element={<ProtectedRoute element={<WalletGuard element={<WalletWithdraw />} requirePin={true} />} />} />
+        <Route path="/wallet/airtime" element={<ProtectedRoute element={<UtilitiesAirtime />} />} />
+        <Route path="/wallet/data" element={<ProtectedRoute element={<UtilitiesData />} />} />
+        <Route path="/wallet/tv" element={<ProtectedRoute element={<UtilitiesTV />} />} />
         <Route path="/support-chat" element={<ProtectedRoute element={<SupportChat />} />} />
         
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

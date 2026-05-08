@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/utils/mockAuth";
 import { getBalance, getTransactions, type WalletTx } from "@/utils/wallet";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
-import { DollarSign, ArrowDownCircle, ArrowUpRight, History, Wallet as WalletIcon, ChevronDown, Grid2X2, Send, ArrowLeft, RotateCcw } from "lucide-react";
+import { DollarSign, ArrowDownCircle, ArrowUpRight, History, Wallet as WalletIcon, ChevronDown, Grid2X2, Send, ArrowLeft, RotateCcw, Smartphone, Wifi, Tv } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import WalletBottomNav from "@/components/WalletBottomNav";
 import { APP_NAME } from "@/config/app";
@@ -108,18 +108,12 @@ const Wallet = () => {
               </div>
             </div>
 
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              <Button onClick={() => navigate("/wallet/deposit")} variant="glass" className="justify-start gap-3 bg-white/15 text-white border-white/20 hover:bg-white/25">
+            <div className="mt-5">
+              <Button onClick={() => navigate("/wallet/deposit")} variant="glass" className="w-full justify-start gap-3 bg-white/15 text-white border-white/20 hover:bg-white/25">
                 <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/20">
                   <ArrowDownCircle className="w-4 h-4" />
                 </span>
                 Deposit
-              </Button>
-              <Button onClick={() => navigate("/wallet/withdraw")} variant="glass" className="justify-start gap-3 bg-white/15 text-white border-white/20 hover:bg-white/25">
-                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/20">
-                  <ArrowUpRight className="w-4 h-4" />
-                </span>
-                Withdraw
               </Button>
             </div>
           </div>
@@ -130,6 +124,30 @@ const Wallet = () => {
           </div>
         </div>
 
+
+        <section className="space-y-3">
+          <h2 className="text-base sm:text-lg font-bold">Quick Services</h2>
+          <div className="grid grid-cols-3 gap-2">
+            <Link to="/wallet/airtime">
+              <GlassCard className="p-3 sm:p-4 text-center hover:bg-primary/10 transition-all cursor-pointer border border-border/50 hover:border-primary/50">
+                <Smartphone className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2 text-primary" />
+                <p className="text-[10px] sm:text-xs font-semibold">Airtime</p>
+              </GlassCard>
+            </Link>
+            <Link to="/wallet/data">
+              <GlassCard className="p-3 sm:p-4 text-center hover:bg-primary/10 transition-all cursor-pointer border border-border/50 hover:border-primary/50">
+                <Wifi className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2 text-cyan-300" />
+                <p className="text-[10px] sm:text-xs font-semibold">Data</p>
+              </GlassCard>
+            </Link>
+            <Link to="/wallet/tv">
+              <GlassCard className="p-3 sm:p-4 text-center hover:bg-primary/10 transition-all cursor-pointer border border-border/50 hover:border-primary/50">
+                <Tv className="w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2 text-secondary" />
+                <p className="text-[10px] sm:text-xs font-semibold">TV</p>
+              </GlassCard>
+            </Link>
+          </div>
+        </section>
 
         <section className="space-y-3">
           <div className="flex items-center justify-between">
