@@ -7,10 +7,10 @@ import { ArrowLeft, Tv } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 
 const tvProviders = [
-  { id: "dstv", name: "DStv", color: "bg-blue-600" },
-  { id: "gotv", name: "GOtv", color: "bg-yellow-500" },
-  { id: "startimes", name: "STARTIMES", color: "bg-orange-500" },
-  { id: "showmax", name: "SHOWMAX", color: "bg-pink-500" },
+  { id: "dstv", name: "DStv", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/DStv_logo_2013.svg/1200px-DStv_logo_2013.svg.png" },
+  { id: "gotv", name: "GOtv", logo: "https://upload.wikimedia.org/wikipedia/en/5/5d/GOtv_logo.png" },
+  { id: "startimes", name: "STARTIMES", logo: "https://upload.wikimedia.org/wikipedia/en/f/f3/Startimes_logo.png" },
+  { id: "showmax", name: "SHOWMAX", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/ShowMax_logo.svg/1200px-ShowMax_logo.svg.png" },
 ];
 
 const tvPlans = [
@@ -83,9 +83,7 @@ const UtilitiesTV = () => {
                     : "border-border/50 bg-white/5 hover:border-border/80"
                 }`}
               >
-                <div className={`w-12 h-12 ${provider.color} rounded-lg mb-2 flex items-center justify-center text-white font-bold text-xs`}>
-                  {provider.name[0]}
-                </div>
+                <img src={provider.logo} alt={provider.name} className="w-12 h-12 object-contain mb-2 mx-auto" />
                 <p className="font-semibold text-sm">{provider.name}</p>
               </button>
             ))}

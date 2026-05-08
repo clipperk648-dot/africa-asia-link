@@ -23,7 +23,7 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
     { icon: Settings, label: "Settings", path: `${basePath}/settings` },
   ] : [
     { icon: Home, label: "Home", path: basePath },
-    { icon: Wallet, label: "Wallet", path: "/wallet" },
+    { icon: Wallet, label: "Utilities", path: "/wallet" },
     { icon: Users2, label: "Cluster", path: "/cluster" },
   ];
 

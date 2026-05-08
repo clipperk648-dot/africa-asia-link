@@ -108,18 +108,12 @@ const Wallet = () => {
               </div>
             </div>
 
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              <Button onClick={() => navigate("/wallet/deposit")} variant="glass" className="justify-start gap-3 bg-white/15 text-white border-white/20 hover:bg-white/25">
+            <div className="mt-5">
+              <Button onClick={() => navigate("/wallet/deposit")} variant="glass" className="w-full justify-start gap-3 bg-white/15 text-white border-white/20 hover:bg-white/25">
                 <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/20">
                   <ArrowDownCircle className="w-4 h-4" />
                 </span>
                 Deposit
-              </Button>
-              <Button onClick={() => navigate("/wallet/withdraw")} variant="glass" className="justify-start gap-3 bg-white/15 text-white border-white/20 hover:bg-white/25">
-                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/20">
-                  <ArrowUpRight className="w-4 h-4" />
-                </span>
-                Withdraw
               </Button>
             </div>
           </div>

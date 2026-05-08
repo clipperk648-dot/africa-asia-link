@@ -7,10 +7,10 @@ import { ArrowLeft, Wifi } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 
 const operators = [
-  { id: "airtel", name: "Airtel", color: "bg-red-500" },
-  { id: "mtn", name: "MTN", color: "bg-yellow-500" },
-  { id: "glo", name: "Glo", color: "bg-green-500" },
-  { id: "9mobile", name: "9mobile", color: "bg-purple-500" },
+  { id: "airtel", name: "Airtel", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Airtel_logo.svg/1200px-Airtel_logo.svg.png" },
+  { id: "mtn", name: "MTN", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/MTN_logo.svg/1200px-MTN_logo.svg.png" },
+  { id: "glo", name: "Glo", logo: "https://cdn.builder.io/api/v1/image/assets%2Fcb26b9b3cc474964a502a3a1432ce9ef%2Fd0fa953ed9234d4b8ce5a77ce4c2f5bd?format=webp" },
+  { id: "9mobile", name: "9mobile", logo: "https://cdn.builder.io/api/v1/image/assets%2Fcb26b9b3cc474964a502a3a1432ce9ef%2F51267831a0b54fffa0f20ec4a8638888?format=webp" },
 ];
 
 const dataPlans = [
@@ -73,9 +73,7 @@ const UtilitiesData = () => {
                     : "border-border/50 bg-white/5 hover:border-border/80"
                 }`}
               >
-                <div className={`w-12 h-12 ${op.color} rounded-lg mb-2 flex items-center justify-center text-white font-bold text-sm`}>
-                  {op.name[0]}
-                </div>
+                <img src={op.logo} alt={op.name} className="w-12 h-12 object-contain mb-2 mx-auto" />
                 <p className="font-semibold text-sm">{op.name}</p>
               </button>
             ))}

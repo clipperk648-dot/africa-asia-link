@@ -174,7 +174,7 @@ const BuyerDashboard = () => {
                       </Link>
                       <Link to="/wallet" className="block">
                         <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
-                          <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Wallet</span>
+                          <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Utilities</span>
                         </div>
                       </Link>
                       <Link to="/notifications" className="block">
