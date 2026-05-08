@@ -7,11 +7,34 @@ import { ArrowLeft, Wifi } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 
 const operators = [
-  { id: "airtel", name: "Airtel", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Airtel_logo.svg/1200px-Airtel_logo.svg.png" },
-  { id: "mtn", name: "MTN", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/MTN_logo.svg/1200px-MTN_logo.svg.png" },
-  { id: "glo", name: "Glo", logo: "https://cdn.builder.io/api/v1/image/assets%2Fcb26b9b3cc474964a502a3a1432ce9ef%2Fd0fa953ed9234d4b8ce5a77ce4c2f5bd?format=webp" },
-  { id: "9mobile", name: "9mobile", logo: "https://cdn.builder.io/api/v1/image/assets%2Fcb26b9b3cc474964a502a3a1432ce9ef%2F51267831a0b54fffa0f20ec4a8638888?format=webp" },
+  { id: "airtel", name: "Airtel", kind: "airtel" },
+  { id: "mtn", name: "MTN", kind: "mtn" },
+  { id: "glo", name: "Glo", kind: "glo", logo: "https://cdn.builder.io/api/v1/image/assets%2Fcb26b9b3cc474964a502a3a1432ce9ef%2Fd0fa953ed9234d4b8ce5a77ce4c2f5bd?format=webp" },
+  { id: "9mobile", name: "9mobile", kind: "9mobile", logo: "https://cdn.builder.io/api/v1/image/assets%2Fcb26b9b3cc474964a502a3a1432ce9ef%2F51267831a0b54fffa0f20ec4a8638888?format=webp" },
 ];
+
+const renderOperatorLogo = (operator: (typeof operators)[number]) => {
+  if (operator.kind === "glo" || operator.kind === "9mobile") {
+    return <img src={operator.logo} alt={operator.name} className="w-14 h-14 object-contain mb-2 mx-auto" />;
+  }
+
+  if (operator.kind === "mtn") {
+    return (
+      <div className="w-14 h-14 mb-2 mx-auto rounded-full bg-[#ffd300] border-2 border-black flex items-center justify-center shadow-md">
+        <span className="text-black font-black text-sm tracking-tight">MTN</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-14 h-14 mb-2 mx-auto rounded-2xl bg-white flex items-center justify-center shadow-md px-1">
+      <span className="text-[#e31b23] font-bold italic text-sm tracking-tight lowercase">airtel</span>
+    </div>
+  );
+};
+
+
+
 
 const dataPlans = [
   { size: "1GB", duration: "24 Hrs", price: 350, naira: "₦350" },
@@ -73,7 +96,7 @@ const UtilitiesData = () => {
                     : "border-border/50 bg-white/5 hover:border-border/80"
                 }`}
               >
-                <img src={op.logo} alt={op.name} className="w-12 h-12 object-contain mb-2 mx-auto" />
+                {renderOperatorLogo(op)}
                 <p className="font-semibold text-sm">{op.name}</p>
               </button>
             ))}

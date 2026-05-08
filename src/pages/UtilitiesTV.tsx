@@ -7,11 +7,54 @@ import { ArrowLeft, Tv } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 
 const tvProviders = [
-  { id: "dstv", name: "DStv", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/DStv_logo_2013.svg/1200px-DStv_logo_2013.svg.png" },
-  { id: "gotv", name: "GOtv", logo: "https://upload.wikimedia.org/wikipedia/en/5/5d/GOtv_logo.png" },
-  { id: "startimes", name: "STARTIMES", logo: "https://upload.wikimedia.org/wikipedia/en/f/f3/Startimes_logo.png" },
-  { id: "showmax", name: "SHOWMAX", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0d/ShowMax_logo.svg/1200px-ShowMax_logo.svg.png" },
+  { id: "dstv", name: "DStv", kind: "dstv" },
+  { id: "gotv", name: "GOtv", kind: "gotv" },
+  { id: "startimes", name: "STARTIMES", kind: "startimes" },
+  { id: "showmax", name: "SHOWMAX", kind: "showmax" },
 ];
+
+const renderProviderLogo = (provider: (typeof tvProviders)[number]) => {
+  if (provider.kind === "dstv") {
+    return (
+      <div className="w-16 h-12 mb-2 mx-auto rounded-2xl bg-white flex items-center justify-center shadow-md px-2">
+        <span className="text-[#1496db] font-black italic text-xl tracking-tight">DStv</span>
+      </div>
+    );
+  }
+
+  if (provider.kind === "gotv") {
+    return (
+      <div className="w-16 h-12 mb-2 mx-auto rounded-2xl bg-white flex items-center justify-center shadow-md px-2 gap-0.5">
+        <span className="text-[#1590d8] font-black italic text-lg tracking-tight">GO</span>
+        <span className="text-[#8cc63f] font-black italic text-lg tracking-tight">tv</span>
+      </div>
+    );
+  }
+
+  if (provider.kind === "startimes") {
+    return (
+      <div className="w-16 h-12 mb-2 mx-auto rounded-2xl bg-white flex items-center justify-center shadow-md px-2 gap-1">
+        <div className="relative w-6 h-6">
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#ff8a00] to-[#ffb800]" />
+          <div className="absolute inset-0 translate-x-1 translate-y-1 rounded-full bg-gradient-to-br from-[#1f89ff] to-[#46b3ff] opacity-90" />
+        </div>
+        <span className="text-[#ff8a00] font-black text-[10px] tracking-tight">TV</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-16 h-12 mb-2 mx-auto rounded-2xl bg-white flex items-center justify-center shadow-md px-2 gap-1">
+      <div className="flex gap-1">
+        <span className="w-2.5 h-8 rounded-full bg-[#ef476f] block -skew-x-12" />
+        <span className="w-2.5 h-8 rounded-full bg-[#7b61ff] block -skew-x-12" />
+      </div>
+    </div>
+  );
+};
+
+
+
 
 const tvPlans = [
   { provider: "dstv", name: "DStv Padi", duration: "30 Days", price: 2500, naira: "₦2,500" },
@@ -83,7 +126,7 @@ const UtilitiesTV = () => {
                     : "border-border/50 bg-white/5 hover:border-border/80"
                 }`}
               >
-                <img src={provider.logo} alt={provider.name} className="w-12 h-12 object-contain mb-2 mx-auto" />
+                {renderProviderLogo(provider)}
                 <p className="font-semibold text-sm">{provider.name}</p>
               </button>
             ))}
