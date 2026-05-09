@@ -18,6 +18,9 @@ const AdminProductEdit = lazy(() => import("./pages/AdminProductEdit"));
 const AdminProductStats = lazy(() => import("./pages/AdminProductStats"));
 const AdminOrders = lazy(() => import("./pages/AdminOrders"));
 const AdminSettings = lazy(() => import("./pages/AdminSettings"));
+const AdminCategories = lazy(() => import("./pages/AdminCategories"));
+const AdminReports = lazy(() => import("./pages/AdminReports"));
+const AdminContent = lazy(() => import("./pages/AdminContent"));
 const BuyerDashboard = lazy(() => import("./pages/BuyerDashboard"));
 const BuyerProducts = lazy(() => import("./pages/BuyerProducts"));
 const BuyerSettings = lazy(() => import("./pages/BuyerSettings"));
@@ -74,6 +77,9 @@ const AppContent = () => {
         <Route path="/admin/products/:id/stats" element={<ProtectedRoute element={<AdminProductStats />} requiredRole="admin" />} />
         <Route path="/admin/orders" element={<ProtectedRoute element={<AdminOrders />} requiredRole="admin" />} />
         <Route path="/admin/settings" element={<ProtectedRoute element={<AdminSettings />} requiredRole="admin" />} />
+        <Route path="/admin/categories" element={<ProtectedRoute element={<AdminCategories />} requiredRole="admin" />} />
+        <Route path="/admin/reports" element={<ProtectedRoute element={<AdminReports />} requiredRole="admin" />} />
+        <Route path="/admin/content" element={<ProtectedRoute element={<AdminContent />} requiredRole="admin" />} />
         
         {/* Buyer Routes */}
         <Route path="/buyer" element={<ProtectedRoute element={<BuyerDashboard />} requiredRole="buyer" />} />
