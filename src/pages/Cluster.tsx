@@ -28,16 +28,11 @@ const Cluster = () => {
   const [createFormData, setCreateFormData] = useState({
     name: "",
     description: "",
-    targetProductId: "",
-    targetProductName: "",
-    targetPrice: "",
-    minOrderAmount: "",
-    quantity: "",
-    maxMembers: "",
+    maxMembers: "5",
     preferredShippingMethod: "Standard",
   });
 
-  const shippingMethods = ["DHL", "FedEx", "Sea Freight", "Air Freight", "Express", "Standard"];
+  const shippingMethods = ["FedEx", "Sea Freight", "Air Freight", "Express", "Standard"];
 
   const [joinFormData, setJoinFormData] = useState({
     quantity: "",
@@ -45,43 +40,33 @@ const Cluster = () => {
   });
 
   useEffect(() => {
-    if (!user || user.role !== "buyer") {
+    if (!user || user.role !== "buyer" && user.role !== "admin") {
       navigate("/login");
     }
   }, [user, navigate]);
 
   const handleCreateCluster = async () => {
-    const clusterName = createFormData.name || `Cluster for ${createFormData.targetProductName}`;
+    const clusterName = createFormData.name || `New Cluster`;
     
-    if (!createFormData.targetProductName || !createFormData.targetPrice) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
-
     try {
       await createClusterMutation.mutateAsync({
         name: clusterName,
         description: createFormData.description,
-        targetProductId: createFormData.targetProductId,
-        targetProductName: createFormData.targetProductName,
-        targetPrice: parseFloat(createFormData.targetPrice),
-        minOrderAmount: parseFloat(createFormData.minOrderAmount) || 100,
-        quantity: parseInt(createFormData.quantity) || 100,
-        maxMembers: parseInt(createFormData.maxMembers) || 50,
+        maxMembers: parseInt(createFormData.maxMembers) || 5,
         preferredShippingMethod: createFormData.preferredShippingMethod,
         creatorId: user.id,
         creatorName: user.name || "Creator",
+        targetProductId: "", // Removed from UI
+        targetProductName: "", // Removed from UI
+        targetPrice: 0, // Removed from UI
+        minOrderAmount: 0, // Removed from UI
+        quantity: 0, // Removed from UI
       });
 
       setCreateFormData({
         name: "",
         description: "",
-        targetProductId: "",
-        targetProductName: "",
-        targetPrice: "",
-        minOrderAmount: "",
-        quantity: "",
-        maxMembers: "",
+        maxMembers: "5",
         preferredShippingMethod: "Standard",
       });
       setCreateDialogOpen(false);
@@ -192,56 +177,11 @@ const Cluster = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="target-product">Target Product</Label>
-                      <Input
-                        id="target-product"
-                        placeholder="Product name"
-                        value={createFormData.targetProductName}
-                        onChange={(e) => setCreateFormData({ ...createFormData, targetProductName: e.target.value })}
-                        className="h-10 bg-background/50"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="target-price">Target Price ($)</Label>
-                      <Input
-                        id="target-price"
-                        type="number"
-                        placeholder="0"
-                        value={createFormData.targetPrice}
-                        onChange={(e) => setCreateFormData({ ...createFormData, targetPrice: e.target.value })}
-                        className="h-10 bg-background/50"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="min-order">Min Order ($)</Label>
-                        <Input
-                          id="min-order"
-                          type="number"
-                          placeholder="100"
-                          value={createFormData.minOrderAmount}
-                          onChange={(e) => setCreateFormData({ ...createFormData, minOrderAmount: e.target.value })}
-                          className="h-10 bg-background/50"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="quantity">Quantity</Label>
-                        <Input
-                          id="quantity"
-                          type="number"
-                          placeholder="100"
-                          value={createFormData.quantity}
-                          onChange={(e) => setCreateFormData({ ...createFormData, quantity: e.target.value })}
-                          className="h-10 bg-background/50"
-                        />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
                       <Label htmlFor="max-members">Max Members</Label>
                       <Input
                         id="max-members"
                         type="number"
-                        placeholder="50"
+                        placeholder="5"
                         value={createFormData.maxMembers}
                         onChange={(e) => setCreateFormData({ ...createFormData, maxMembers: e.target.value })}
                         className="h-10 bg-background/50"

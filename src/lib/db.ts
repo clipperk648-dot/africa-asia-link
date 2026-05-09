@@ -1,110 +1,145 @@
-// Frontend API client for database operations
-// Currently using MOCK DATA - Backend is unavailable
-// All functions return mock data for development/testing
-
-import { 
-  MOCK_PRODUCTS, 
-  MOCK_ORDERS, 
-  MOCK_CLUSTERS, 
-  MOCK_SOCIAL_POSTS, 
-  MOCK_WALLET, 
-  MOCK_TRANSACTIONS,
-  MOCK_USERS,
-  delay 
-} from '@/utils/mockData';
-
-interface ApiResponse<T> {
-  success?: boolean;
-  error?: string;
-  [key: string]: any;
-}
-
-// ============ MOCK API IMPLEMENTATION ============
-// All functions return mock data with a slight delay to simulate network calls
+import { supabase } from './supabase';
 
 export const isDatabaseConfigured = (): boolean => {
   return true;
 };
 
-// ============ USERS ============
+// ============ USERS / PROFILES ============
 
-export const createUser = async (
+export const createUserProfile = async (
+  id: string,
   email: string,
-  passwordHash: string,
   name: string,
-  phone: string
-): Promise<{ id: string; email: string; name: string; role: string }> => {
-  await delay();
-  return {
-    id: `user_${Date.now()}`,
-    email,
-    name,
-    role: 'buyer',
-  };
+  phone: string,
+  role: string = 'buyer'
+): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .insert([
+      { id, email, name, phone, role, created_at: new Date().toISOString() }
+    ])
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data;
 };
 
-export const getUserByEmail = async (email: string): Promise<any> => {
-  await delay();
-  return Object.values(MOCK_USERS).find(u => u.email === email) || null;
+export const getUserByEmail = async (email: string): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('email', email)
+    .single();
+  
+  if (error && error.code !== 'PGRST116') return null; // PGRST116 is not found
+  return data;
 };
 
-export const getUserById = async (id: string): Promise<any> => {
-  await delay();
-  return Object.values(MOCK_USERS).find(u => u.id === id) || null;
+export const getUserById = async (id: string): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', id)
+    .single();
+  
+  if (error && error.code !== 'PGRST116') return null;
+  return data;
+};
+
+export const getAllUsers = async (): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*');
+  
+  if (error) return [];
+  return data;
 };
 
 // ============ PRODUCTS ============
 
-export const getProducts = async (limit = 20, offset = 0): Promise<any[]> => {
-  await delay();
-  return MOCK_PRODUCTS.slice(offset, offset + limit);
-};
-
-export const getProductById = async (id: string): Promise<any> => {
-  await delay();
-  return MOCK_PRODUCTS.find(p => p.id === id) || null;
-};
-
-export const createProduct = async (productData: any): Promise<any> => {
-  await delay();
-  const newProduct = {
-    id: `prod_${Date.now()}`,
-    created_at: new Date().toISOString(),
-    ...productData,
-  };
-  MOCK_PRODUCTS.push(newProduct);
-  return newProduct;
-};
-
-export const updateProduct = async (id: string, productData: any): Promise<any> => {
-  await delay();
-  const productIndex = MOCK_PRODUCTS.findIndex(p => p.id === id);
-  if (productIndex !== -1) {
-    MOCK_PRODUCTS[productIndex] = {
-      ...MOCK_PRODUCTS[productIndex],
-      ...productData,
-      updated_at: new Date().toISOString(),
-    };
-    return MOCK_PRODUCTS[productIndex];
+export const getProducts = async (limit = 20, offset = 0, filters: { category?: string, search?: string } = {}): Promise<unknown[]> => {
+  let query = supabase
+    .from('products')
+    .select('*')
+    .range(offset, offset + limit - 1);
+  
+  if (filters.category) {
+    query = query.eq('category', filters.category);
   }
-  return null;
+
+  if (filters.search) {
+    query = query.ilike('name', `%${filters.search}%`);
+  }
+
+  const { data, error } = await query;
+  
+  if (error) return [];
+  return data;
+};
+
+export const getProductById = async (id: string): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('id', id)
+    .single();
+  
+  if (error) return null;
+  return data;
+};
+
+export const createProduct = async (productData: unknown): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('products')
+    .insert([{ ...(productData as object), created_at: new Date().toISOString() }])
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data;
+};
+
+export const updateProduct = async (id: string, productData: unknown): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('products')
+    .update(productData as object)
+    .eq('id', id)
+    .select()
+    .single();
+  
+  if (error) return null;
+  return data;
 };
 
 export const deleteProduct = async (id: string): Promise<boolean> => {
-  await delay();
-  const index = MOCK_PRODUCTS.findIndex(p => p.id === id);
-  if (index !== -1) {
-    MOCK_PRODUCTS.splice(index, 1);
-    return true;
-  }
-  return false;
+  const { error } = await supabase
+    .from('products')
+    .delete()
+    .eq('id', id);
+  
+  return !error;
 };
 
 // ============ ORDERS ============
 
-export const getOrders = async (userId: string): Promise<any[]> => {
-  await delay();
-  return MOCK_ORDERS.filter(o => o.buyer_id === userId || o.seller_id === userId);
+export const getOrders = async (userId: string): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*, products(*)')
+    .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
+  
+  if (error) return [];
+  return data;
+};
+
+export const getAllOrders = async (): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*, products(*), profiles!buyer_id(name)');
+  
+  if (error) return [];
+  return data;
 };
 
 export const createOrder = async (
@@ -113,253 +148,257 @@ export const createOrder = async (
   productId: string,
   quantity: number,
   total: number
-): Promise<any> => {
-  await delay();
-  const newOrder = {
-    id: `order_${Date.now()}`,
-    buyer_id: buyerId,
-    seller_id: sellerId,
-    product_id: productId,
-    quantity,
-    total,
-    status: 'pending' as const,
-    created_at: new Date().toISOString(),
-  };
-  MOCK_ORDERS.push(newOrder);
-  return newOrder;
+): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('orders')
+    .insert([{
+      buyer_id: buyerId,
+      seller_id: sellerId,
+      product_id: productId,
+      quantity,
+      total,
+      status: 'pending',
+      created_at: new Date().toISOString()
+    }])
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data;
 };
 
 // ============ SOCIAL POSTS ============
 
-export const getSocialPosts = async (limit = 20): Promise<any[]> => {
-  await delay();
-  return MOCK_SOCIAL_POSTS.slice(0, limit);
+export const getSocialPosts = async (limit = 20): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('social_posts')
+    .select('*, profiles(name, avatar)')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  
+  if (error) return [];
+  return data;
 };
 
 export const createSocialPost = async (
   userId: string,
   content: string,
-  imageUrl?: string
-): Promise<any> => {
-  await delay();
-  const newPost = {
-    id: `post_${Date.now()}`,
-    user_id: userId,
-    username: MOCK_USERS[Object.keys(MOCK_USERS).find(k => MOCK_USERS[k as keyof typeof MOCK_USERS].id === userId) as keyof typeof MOCK_USERS]?.name || 'Unknown',
-    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`,
-    type: 'text' as const,
-    content,
-    media_url: imageUrl || null,
-    likes: 0,
-    comments: 0,
-    created_at: new Date().toISOString(),
-  };
-  MOCK_SOCIAL_POSTS.push(newPost);
-  return newPost;
+  imageUrl?: string,
+  type: string = 'text'
+): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('social_posts')
+    .insert([{
+      user_id: userId,
+      content,
+      media_url: imageUrl,
+      type,
+      created_at: new Date().toISOString()
+    }])
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data;
 };
 
 // ============ CLUSTERS ============
 
-export const getClusters = async (limit = 20, offset = 0): Promise<any[]> => {
-  await delay();
-  return MOCK_CLUSTERS.slice(offset, offset + limit);
+export const getClusters = async (limit = 20, offset = 0): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('clusters')
+    .select('*, products(*)')
+    .range(offset, offset + limit - 1);
+  
+  if (error) return [];
+  return data;
 };
 
-export const getClusterById = async (id: string): Promise<any> => {
-  await delay();
-  return MOCK_CLUSTERS.find(c => c.id === id) || null;
+export const getClusterById = async (id: string): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('clusters')
+    .select('*, products(*), cluster_members(*, profiles(name, avatar))')
+    .eq('id', id)
+    .single();
+  
+  if (error) return null;
+  return data;
 };
 
-export const createCluster = async (clusterData: any): Promise<any> => {
-  await delay();
-  const newCluster = {
-    id: `cluster_${Date.now()}`,
-    status: 'active' as const,
-    members: [],
-    currentFunded: 0,
-    currentMembers: 0,
-    createdDate: new Date().toISOString(),
-    deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
-    ...clusterData,
-  };
-  MOCK_CLUSTERS.push(newCluster);
-  return newCluster;
+export const createCluster = async (clusterData: unknown): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('clusters')
+    .insert([{
+      ...(clusterData as object),
+      status: 'active',
+      current_funded: 0,
+      current_members: 0,
+      created_at: new Date().toISOString(),
+      shipping_status: 'shipping not started yet'
+    }])
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data;
 };
 
 export const joinCluster = async (
   clusterId: string,
   userId: string,
-  username: string,
   quantity: number,
-  amount?: number
-): Promise<any> => {
-  await delay();
-  const cluster = MOCK_CLUSTERS.find(c => c.id === clusterId);
-  if (cluster) {
-    const newMember = {
-      id: `member_${Date.now()}`,
-      userId,
-      username,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${userId}`,
-      joinedQuantity: quantity,
-      joinedAmount: amount || quantity * (cluster.targetPrice / cluster.quantity),
-      joinedDate: new Date().toISOString(),
-    };
-    cluster.members.push(newMember);
-    cluster.currentFunded += newMember.joinedAmount;
-    cluster.currentMembers = cluster.members.length;
-    return cluster;
+  amount: number
+): Promise<unknown> => {
+  const { data: member, error: memberError } = await supabase
+    .from('cluster_members')
+    .insert([{
+      cluster_id: clusterId,
+      user_id: userId,
+      joined_quantity: quantity,
+      joined_amount: amount,
+      joined_at: new Date().toISOString()
+    }])
+    .select()
+    .single();
+  
+  if (memberError) throw memberError;
+
+  // Update cluster stats (in a real app, this should be a trigger or RPC)
+  const { data: clusterData } = await supabase.from('clusters').select('current_funded, current_members').eq('id', clusterId).single();
+  if (clusterData) {
+    const cluster = clusterData as { current_funded: number, current_members: number };
+    await supabase.from('clusters').update({
+      current_funded: (cluster.current_funded || 0) + amount,
+      current_members: (cluster.current_members || 0) + 1
+    }).eq('id', clusterId);
   }
-  return null;
+
+  return member;
 };
 
-export const leaveCluster = async (clusterId: string, userId: string): Promise<any> => {
-  await delay();
-  const cluster = MOCK_CLUSTERS.find(c => c.id === clusterId);
-  if (cluster) {
-    const memberIndex = cluster.members.findIndex(m => m.userId === userId);
-    if (memberIndex !== -1) {
-      const member = cluster.members[memberIndex];
-      cluster.currentFunded -= member.joinedAmount;
-      cluster.members.splice(memberIndex, 1);
-      cluster.currentMembers = cluster.members.length;
-    }
-    return cluster;
+export const leaveCluster = async (clusterId: string, userId: string): Promise<unknown> => {
+  const { data: memberData, error: fetchError } = await supabase
+    .from('cluster_members')
+    .select('*')
+    .eq('cluster_id', clusterId)
+    .eq('user_id', userId)
+    .single();
+  
+  if (fetchError) return null;
+
+  const member = memberData as { joined_amount: number };
+
+  const { error: deleteError } = await supabase
+    .from('cluster_members')
+    .delete()
+    .eq('cluster_id', clusterId)
+    .eq('user_id', userId);
+  
+  if (deleteError) throw deleteError;
+
+  // Update cluster stats
+  const { data: clusterData } = await supabase.from('clusters').select('current_funded, current_members').eq('id', clusterId).single();
+  if (clusterData) {
+    const cluster = clusterData as { current_funded: number, current_members: number };
+    await supabase.from('clusters').update({
+      current_funded: Math.max(0, (cluster.current_funded || 0) - member.joined_amount),
+      current_members: Math.max(0, (cluster.current_members || 0) - 1)
+    }).eq('id', clusterId);
   }
-  return null;
+
+  return { id: clusterId };
+};
+
+export const updateCluster = async (id: string, data: unknown): Promise<unknown> => {
+  const { data: updated, error } = await supabase
+    .from('clusters')
+    .update(data as object)
+    .eq('id', id)
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return updated;
 };
 
 // ============ WALLET ============
 
-export const getWalletBalance = async (
-  userId: string,
-  currency = "USD"
-): Promise<{ balance: number; currency: string }> => {
-  await delay();
-  // Return mock wallet for the current user
-  if (userId === MOCK_WALLET.user_id) {
-    return {
-      balance: MOCK_WALLET.balance,
-      currency: currency || MOCK_WALLET.currency,
-    };
+export const getWalletBalance = async (userId: string): Promise<{ balance: number; currency: string }> => {
+  const { data, error } = await supabase
+    .from('wallets')
+    .select('balance, currency')
+    .eq('user_id', userId)
+    .single();
+  
+  if (error && error.code === 'PGRST116') {
+    // Create wallet if not exists
+    const { data: newWallet } = await supabase.from('wallets').insert([{ user_id: userId, balance: 0, currency: 'USD' }]).select().single();
+    return (newWallet as { balance: number, currency: string }) || { balance: 0, currency: 'USD' };
   }
-  // Return default wallet for other users
-  return {
-    balance: 0,
-    currency,
-  };
-};
-
-export const setWalletBalance = async (
-  userId: string,
-  amount: number,
-  currency = "USD"
-): Promise<any> => {
-  await delay();
-  if (userId === MOCK_WALLET.user_id) {
-    MOCK_WALLET.balance = amount;
-    MOCK_WALLET.updated_at = new Date().toISOString();
-    return MOCK_WALLET;
-  }
-  return {
-    user_id: userId,
-    balance: amount,
-    currency,
-    updated_at: new Date().toISOString(),
-  };
-};
-
-export const getWalletTransactions = async (userId: string): Promise<any[]> => {
-  await delay();
-  return MOCK_TRANSACTIONS.filter(t => t.user_id === userId);
+  return (data as { balance: number, currency: string }) || { balance: 0, currency: 'USD' };
 };
 
 export const addWalletTransaction = async (
   userId: string,
-  tx: {
-    type: "deposit" | "payment";
-    amount: number;
-    currency?: string;
-    note?: string;
-  }
-): Promise<any> => {
-  await delay();
-  const newTransaction = {
-    id: `txn_${Date.now()}`,
-    user_id: userId,
-    type: tx.type,
-    amount: tx.amount,
-    currency: tx.currency || 'USD',
-    note: tx.note || '',
-    created_at: new Date().toISOString(),
-  };
-  MOCK_TRANSACTIONS.push(newTransaction);
+  tx: { type: "deposit" | "payment"; amount: number; currency?: string; note?: string }
+): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('transactions')
+    .insert([{
+      user_id: userId,
+      type: tx.type,
+      amount: tx.amount,
+      currency: tx.currency || 'USD',
+      note: tx.note || '',
+      created_at: new Date().toISOString()
+    }])
+    .select()
+    .single();
+  
+  if (error) throw error;
 
   // Update wallet balance
-  if (tx.type === 'deposit') {
-    const currentWallet = await getWalletBalance(userId);
-    await setWalletBalance(userId, currentWallet.balance + tx.amount);
-  } else if (tx.type === 'payment') {
-    const currentWallet = await getWalletBalance(userId);
-    await setWalletBalance(userId, Math.max(0, currentWallet.balance - tx.amount));
-  }
+  const currentWallet = await getWalletBalance(userId);
+  const newBalance = tx.type === 'deposit' 
+    ? currentWallet.balance + tx.amount 
+    : currentWallet.balance - tx.amount;
+  
+  await supabase.from('wallets').update({ balance: newBalance }).eq('user_id', userId);
 
-  return newTransaction;
+  return data;
 };
 
 // ============ MESSAGING ============
 
-const MOCK_CONVERSATIONS: any[] = [];
-const MOCK_MESSAGES: any[] = [];
-
-export const getConversations = async (userId: string): Promise<any[]> => {
-  await delay();
-  const uniquePeers = new Set<string>();
-  MOCK_MESSAGES.forEach(msg => {
-    if (msg.sender_id === userId) uniquePeers.add(msg.recipient_id);
-    if (msg.recipient_id === userId) uniquePeers.add(msg.sender_id);
-  });
-
-  const conversations = Array.from(uniquePeers).map(peerId => ({
-    id: `conv_${userId}_${peerId}`,
-    peer_id: peerId,
-    peer_name: Object.values(MOCK_USERS).find(u => u.id === peerId)?.name || 'Unknown',
-    last_message: MOCK_MESSAGES
-      .filter(m => (m.sender_id === userId && m.recipient_id === peerId) || 
-                   (m.sender_id === peerId && m.recipient_id === userId))
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0],
-    created_at: new Date().toISOString(),
-  }));
-
-  return conversations;
-};
-
-export const getMessages = async (
-  userId: string,
-  peerId: string
-): Promise<any[]> => {
-  await delay();
-  return MOCK_MESSAGES
-    .filter(m => (m.sender_id === userId && m.recipient_id === peerId) || 
-                 (m.sender_id === peerId && m.recipient_id === userId))
-    .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-};
-
 export const sendMessage = async (
   senderId: string,
-  recipientId: string,
-  content?: string,
+  recipientId: string | null,
+  content: string,
   mediaUrl?: string
-): Promise<any> => {
-  await delay();
-  const newMessage = {
-    id: `msg_${Date.now()}`,
-    sender_id: senderId,
-    recipient_id: recipientId,
-    content: content || '',
-    media_url: mediaUrl || null,
-    created_at: new Date().toISOString(),
-  };
-  MOCK_MESSAGES.push(newMessage);
-  return newMessage;
+): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('messages')
+    .insert([{
+      sender_id: senderId,
+      recipient_id: recipientId,
+      content,
+      media_url: mediaUrl,
+      created_at: new Date().toISOString()
+    }])
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data;
+};
+
+export const getMessages = async (userId: string, peerId: string): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('messages')
+    .select('*')
+    .or(`and(sender_id.eq.${userId},recipient_id.eq.${peerId}),and(sender_id.eq.${peerId},recipient_id.eq.${userId})`)
+    .order('created_at', { ascending: true });
+  
+  if (error) return [];
+  return data;
 };

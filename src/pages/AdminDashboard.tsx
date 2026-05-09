@@ -1,4 +1,4 @@
-import { useEffect, useState, Fragment, useMemo } from "react";
+import { useEffect, useState, Fragment, useMemo, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { getCurrentUser, logout } from "@/utils/mockAuth";
 import { useProducts, useOrders } from "@/hooks/useData";
@@ -61,15 +61,14 @@ const AdminDashboard = () => {
   const { data: products = [] } = useProducts(20, 0);
   const { data: orders = [] } = useOrders(user?.id);
 
-  const ctaTexts = ["Hi there!", "Need help?", "Chat with us!", "Ask anything!", "We're here!"];
-  let tooltipIndex = 0;
+  const tooltipIndexRef = useRef(0);
 
-  const cycleBotTooltip = () => {
+  const cycleBotTooltip = useCallback(() => {
     setShowBotTooltip(true);
-    setTooltipText(ctaTexts[tooltipIndex]);
-    tooltipIndex = (tooltipIndex + 1) % ctaTexts.length;
+    setTooltipText(ctaTexts[tooltipIndexRef.current]);
+    tooltipIndexRef.current = (tooltipIndexRef.current + 1) % ctaTexts.length;
     setTimeout(() => setShowBotTooltip(false), 2000);
-  };
+  }, []);
 
   useEffect(() => {
     if (!user || user.role !== "admin") {
@@ -80,7 +79,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const interval = setInterval(cycleBotTooltip, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [cycleBotTooltip]);
 
   const handleLogout = () => {
     logout();
@@ -88,9 +87,9 @@ const AdminDashboard = () => {
   };
 
   const stats = useMemo(() => {
-    const activeOrders = Array.isArray(orders) ? orders.filter((o: any) => o.status === 'pending').length : 0;
-    const totalRevenue = Array.isArray(orders) ? orders.reduce((sum: number, o: any) => sum + (o.total || 0), 0) : 0;
-    const uniqueBuyers = Array.isArray(orders) ? new Set(orders.map((o: any) => o.buyer_id)).size : 0;
+    const activeOrders = Array.isArray(orders) ? orders.filter((o: { status: string }) => o.status === 'pending').length : 0;
+    const totalRevenue = Array.isArray(orders) ? orders.reduce((sum: number, o: { total?: number }) => sum + (o.total || 0), 0) : 0;
+    const uniqueBuyers = Array.isArray(orders) ? new Set(orders.map((o: { buyer_id?: string }) => o.buyer_id)).size : 0;
 
     return [
       { label: "Total Products", value: String(Array.isArray(products) ? products.length : 0), icon: Package, color: "text-primary" },
@@ -124,6 +123,12 @@ const AdminDashboard = () => {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <h3 className="text-xs font-bold text-cyan-300 uppercase tracking-widest px-3 mb-3">Navigation</h3>
+                    <Link to="/admin/users" className="block">
+                      <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-2">
+                        <Users className="w-4 h-4 text-primary" />
+                        <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">User Management</span>
+                      </div>
+                    </Link>
                     <Link to="/profile" className="block">
                       <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
                         <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Profile</span>

@@ -15,14 +15,14 @@ import { ArrowLeft, PencilLine, BarChart3, UploadCloud, X, Image as ImageIcon, V
 import ThreeBackground from "@/components/ThreeBackground";
 
 
-const IndustryProductEdit = () => {
+const AdminProductEdit = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const user = getCurrentUser();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!user || user.role !== "industry") navigate("/login");
+    if (!user || user.role !== "admin") navigate("/login");
   }, [user, navigate]);
 
   const { data: product } = useProduct(id!);
@@ -39,7 +39,7 @@ const IndustryProductEdit = () => {
     city: product?.city || "",
     unit: product?.unit || "piece",
     unitPrice: String(product?.unitPrice ?? product?.price ?? ""),
-    currency: (product?.currency as any) || "USD",
+    currency: (product?.currency as "CNY" | "USD" | "NGN") || "USD",
     moq: String(product?.moq ?? ""),
     supplyAbilityPerMonth: String(product?.supplyAbilityPerMonth ?? ""),
     quantityAvailable: String(product?.quantityAvailable ?? ""),
@@ -74,7 +74,10 @@ const IndustryProductEdit = () => {
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [brochureFile, setBrochureFile] = useState<File | null>(null);
 
-  const handle = (key: keyof typeof form) => (e: any) => setForm((p) => ({ ...p, [key]: e.target ? e.target.value : e }));
+  const handle = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | string) => {
+    const value = typeof e === 'string' ? e : e.target.value;
+    setForm((p) => ({ ...p, [key]: value }));
+  };
 
   const handleImageFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -143,7 +146,7 @@ const IndustryProductEdit = () => {
         <main className="max-w-3xl mx-auto px-4 py-6">
           <GlassCard className="p-4">Product not found.</GlassCard>
         </main>
-        <FooterNav dashboardType="industry" />
+        <FooterNav dashboardType="admin" />
       </div>
     );
   }
@@ -540,9 +543,9 @@ const IndustryProductEdit = () => {
         </div>
       </main>
 
-      <FooterNav dashboardType="industry" />
+      <FooterNav dashboardType="admin" />
     </div>
   );
 };
 
-export default IndustryProductEdit;
+export default AdminProductEdit;

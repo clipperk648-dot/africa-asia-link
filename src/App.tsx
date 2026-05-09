@@ -7,9 +7,10 @@ import { Suspense, lazy, useEffect } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import WalletGuard from "@/components/WalletGuard";
 import { ThemeProvider } from "next-themes";
-import { initializeMockAuth } from "@/lib/auth";
+import { initializeAuth } from "@/lib/auth";
 
 const Index = lazy(() => import("./pages/Index"));
+const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const Login = lazy(() => import("./pages/Login"));
 const SignUp = lazy(() => import("./pages/SignUp"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
@@ -26,6 +27,8 @@ const BuyerCollections = lazy(() => import("./pages/BuyerCollections"));
 const Cluster = lazy(() => import("./pages/Cluster"));
 const ClusterDetails = lazy(() => import("./pages/ClusterDetails"));
 const ClusterChat = lazy(() => import("./pages/ClusterChat"));
+const ClusterAnalytics = lazy(() => import("./pages/ClusterAnalytics"));
+const ClusterSettings = lazy(() => import("./pages/ClusterSettings"));
 const SearchPage = lazy(() => import("./pages/SearchPage"));
 const MenuPage = lazy(() => import("./pages/MenuPage"));
 const Profile = lazy(() => import("./pages/Profile"));
@@ -54,8 +57,7 @@ const queryClient = new QueryClient();
 // Initialize mock authentication
 const AppContent = () => {
   useEffect(() => {
-    // Auto-login with mock data when app loads
-    initializeMockAuth();
+    initializeAuth();
   }, []);
 
   return (
@@ -67,6 +69,7 @@ const AppContent = () => {
         
         {/* Admin Routes */}
         <Route path="/admin" element={<ProtectedRoute element={<AdminDashboard />} requiredRole="admin" />} />
+        <Route path="/admin/users" element={<ProtectedRoute element={<AdminUsers />} requiredRole="admin" />} />
         <Route path="/admin/products" element={<ProtectedRoute element={<AdminProducts />} requiredRole="admin" />} />
         <Route path="/admin/products/add" element={<ProtectedRoute element={<AdminProductEdit />} requiredRole="admin" />} />
         <Route path="/admin/products/:id/edit" element={<ProtectedRoute element={<AdminProductEdit />} requiredRole="admin" />} />
@@ -88,6 +91,8 @@ const AppContent = () => {
         <Route path="/cluster" element={<ProtectedRoute element={<Cluster />} requiredRole="buyer" />} />
         <Route path="/cluster/:clusterId" element={<ProtectedRoute element={<ClusterDetails />} requiredRole="buyer" />} />
         <Route path="/cluster/:clusterId/chat" element={<ProtectedRoute element={<ClusterChat />} requiredRole="buyer" />} />
+        <Route path="/cluster/:clusterId/analytics" element={<ProtectedRoute element={<ClusterAnalytics />} requiredRole="buyer" />} />
+        <Route path="/cluster/:clusterId/settings" element={<ProtectedRoute element={<ClusterSettings />} requiredRole="buyer" />} />
         
         {/* Shared Routes */}
         <Route path="/notifications" element={<ProtectedRoute element={<Notifications />} />} />

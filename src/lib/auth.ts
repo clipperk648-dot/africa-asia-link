@@ -1,19 +1,21 @@
-// Authentication utilities - Mock data only
+import { supabase } from './supabase';
 
 export interface AuthUser {
   id: string;
   email: string;
   name: string;
   phone?: string;
-  role: "buyer" | "admin";
+  role: "buyer" | "admin" | "industry";
   isAdmin?: boolean;
   createdAt?: string;
   oauthId?: string;
   oauthProvider?: string;
 }
 
+const ADMIN_EMAIL = 'oluwafemiod7@gmail.com';
+
 /**
- * Register a new user via Mock Auth
+ * Register a new user via Supabase
  */
 export const registerUser = async (
   email: string,
@@ -21,106 +23,117 @@ export const registerUser = async (
   name: string,
   phone: string
 ): Promise<{ success: boolean; user?: AuthUser; error?: string; token?: string }> => {
-  await new Promise(resolve => setTimeout(resolve, 800)); // Simulate delay
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name: name,
+        phone: phone,
+        role: email === ADMIN_EMAIL ? 'admin' : 'buyer',
+      }
+    }
+  });
 
-  if (!email || !password || !name) {
-    return { success: false, error: "Missing required fields" };
+  if (error) return { success: false, error: error.message };
+
+  if (data.user) {
+    const user: AuthUser = {
+      id: data.user.id,
+      email: data.user.email!,
+      name: data.user.user_metadata.full_name,
+      phone: data.user.user_metadata.phone,
+      role: data.user.user_metadata.role || 'buyer',
+      isAdmin: data.user.user_metadata.role === 'admin' || data.user.email === ADMIN_EMAIL,
+      createdAt: data.user.created_at,
+    };
+    return { success: true, user, token: data.session?.access_token };
   }
 
-  const user: AuthUser = {
-    id: `user_${Date.now()}`,
-    email,
-    name,
-    phone,
-    role: "buyer",
-    createdAt: new Date().toISOString(),
-  };
-
-  return {
-    success: true,
-    user,
-    token: "mock_token_" + Date.now(),
-  };
+  return { success: false, error: "Unknown error during registration" };
 };
 
 /**
- * Login user with email and password via Mock Auth
+ * Login user with email and password via Supabase
  */
 export const loginUser = async (
   email: string,
   password: string
 ): Promise<{ success: boolean; user?: AuthUser; error?: string; token?: string }> => {
-  await new Promise(resolve => setTimeout(resolve, 800)); // Simulate delay
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
-  if (!email || !password) {
-    return { success: false, error: "Email and password are required" };
-  }
+  if (error) return { success: false, error: error.message };
 
-  // Predefined mock accounts
-  if (email === "admin@echina.com" && password === "admin") {
+  if (data.user) {
+    const isAdmin = data.user.email === ADMIN_EMAIL || data.user.user_metadata.role === 'admin';
     const user: AuthUser = {
-      id: 'user_admin_001',
-      email: 'admin@echina.com',
-      name: 'Admin User',
-      phone: '+86 138 1234 5678',
-      role: 'admin',
-      isAdmin: true,
-      createdAt: new Date().toISOString(),
+      id: data.user.id,
+      email: data.user.email!,
+      name: data.user.user_metadata.full_name || data.user.email!.split('@')[0],
+      phone: data.user.user_metadata.phone,
+      role: isAdmin ? 'admin' : (data.user.user_metadata.role || 'buyer'),
+      isAdmin: isAdmin,
+      createdAt: data.user.created_at,
     };
-    return { success: true, user, token: "mock_token_admin" };
+    saveSession(user);
+    return { success: true, user, token: data.session?.access_token };
   }
 
-  const user: AuthUser = {
-    id: 'user_buyer_001',
-    email: email,
-    name: email.split('@')[0],
-    phone: '+234 801 234 5678',
-    role: 'buyer',
-    isAdmin: false,
-    createdAt: new Date().toISOString(),
-  };
-
-  return {
-    success: true,
-    user,
-    token: "mock_token_buyer",
-  };
+  return { success: false, error: "Unknown error during login" };
 };
 
 /**
- * Google OAuth authentication via Mock Auth
+ * Google OAuth authentication via Supabase
  */
 export const googleOAuthLogin = async (
   token: string
 ): Promise<{ success: boolean; user?: AuthUser; error?: string; token?: string }> => {
-  await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
-  
-  const user: AuthUser = {
-    id: 'user_google_001',
-    email: 'google_user@gmail.com',
-    name: 'Google User',
-    role: 'buyer',
-    oauthProvider: "google",
-  };
+  // In a real app with Supabase, we usually use signInWithOAuth
+  // If we already have a token from Google, we might use it differently
+  const { data, error } = await supabase.auth.signInWithIdToken({
+    provider: 'google',
+    token: token,
+  });
 
-  return {
-    success: true,
-    user,
-    token: "mock_token_google",
-  };
+  if (error) return { success: false, error: error.message };
+
+  if (data.user) {
+    const isAdmin = data.user.email === ADMIN_EMAIL || data.user.user_metadata.role === 'admin';
+    const user: AuthUser = {
+      id: data.user.id,
+      email: data.user.email!,
+      name: data.user.user_metadata.full_name,
+      role: isAdmin ? 'admin' : (data.user.user_metadata.role || 'buyer'),
+      isAdmin: isAdmin,
+      oauthProvider: "google",
+    };
+    saveSession(user);
+    return { success: true, user, token: data.session?.access_token };
+  }
+
+  return { success: false, error: "Google login failed" };
 };
 
 /**
- * Get current user data via Mock Auth
+ * Get current user data via Supabase
  */
 export const getCurrentUserData = async (userId: string): Promise<AuthUser | null> => {
-  await new Promise(resolve => setTimeout(resolve, 300));
+  const { data: { user }, error } = await supabase.auth.getUser();
+  
+  if (error || !user) return null;
+
+  const isAdmin = user.email === ADMIN_EMAIL || user.user_metadata.role === 'admin';
   return {
-    id: userId,
-    email: 'user@example.com',
-    name: 'Example User',
-    role: 'buyer',
-    createdAt: new Date().toISOString(),
+    id: user.id,
+    email: user.email!,
+    name: user.user_metadata.full_name || user.email!.split('@')[0],
+    phone: user.user_metadata.phone,
+    role: isAdmin ? 'admin' : (user.user_metadata.role || 'buyer'),
+    isAdmin: isAdmin,
+    createdAt: user.created_at,
   };
 };
 
@@ -173,6 +186,7 @@ export const getSession = (): AuthUser | null => {
 export const clearSession = () => {
   localStorage.removeItem(SESSION_USER_KEY);
   localStorage.removeItem(SESSION_KEY);
+  supabase.auth.signOut();
 };
 
 /**
@@ -182,50 +196,25 @@ export const logoutUser = () => {
   clearSession();
 };
 
-// ============ MOCK AUTHENTICATION (Development Only) ============
+// ============ INITIALIZATION ============
 
-/**
- * Auto-login user with mock data (when backend is unavailable)
- * This allows users to access the app without authentication barriers
- */
-export const autoLoginWithMockData = (isAdmin = false): AuthUser => {
-  const mockUser: AuthUser = isAdmin
-    ? {
-        id: 'user_admin_001',
-        email: 'admin@echina.com',
-        name: 'Admin User',
-        phone: '+86 138 1234 5678',
-        role: 'admin',
-        isAdmin: true,
-        createdAt: new Date().toISOString(),
-      }
-    : {
-        id: 'user_buyer_001',
-        email: 'buyer@echina.com',
-        name: 'John Buyer',
-        phone: '+234 801 234 5678',
-        role: 'buyer',
-        isAdmin: false,
-        createdAt: new Date().toISOString(),
-      };
-
-  saveSession(mockUser);
-
-  return mockUser;
-};
-
-/**
- * Initialize mock authentication on app load
- * This ensures users are always logged in for development/testing
- */
-export const initializeMockAuth = (): AuthUser | null => {
-  // Check if user already has a session
-  let session = getSession();
-
-  // If no session, auto-login with mock buyer account
-  if (!session) {
-    session = autoLoginWithMockData("buyer");
+export const initializeAuth = async (): Promise<AuthUser | null> => {
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (session?.user) {
+    const isAdmin = session.user.email === ADMIN_EMAIL || session.user.user_metadata.role === 'admin';
+    const user: AuthUser = {
+      id: session.user.id,
+      email: session.user.email!,
+      name: session.user.user_metadata.full_name || session.user.email!.split('@')[0],
+      phone: session.user.user_metadata.phone,
+      role: isAdmin ? 'admin' : (session.user.user_metadata.role || 'buyer'),
+      isAdmin: isAdmin,
+      createdAt: session.user.created_at,
+    };
+    saveSession(user);
+    return user;
   }
 
-  return session;
+  return getSession();
 };

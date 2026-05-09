@@ -4,13 +4,13 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 interface FooterNavProps {
-  dashboardType: "admin" | "buyer";
+  dashboardType: "admin" | "buyer" | "industry";
 }
 
 const FooterNav = ({ dashboardType }: FooterNavProps) => {
   const location = useLocation();
-  const basePath = dashboardType === "admin" ? "/admin" : "/buyer";
-  const isAdmin = dashboardType === "admin";
+  const isAdmin = dashboardType === "admin" || dashboardType === "industry";
+  const basePath = isAdmin ? (dashboardType === "admin" ? "/admin" : "/industry") : "/buyer";
 
   const primaryAction = isAdmin
     ? { path: `${basePath}/products/add`, Icon: Package, label: "Add product" }
