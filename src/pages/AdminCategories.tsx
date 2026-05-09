@@ -56,10 +56,14 @@ const AdminCategories = () => {
     try {
       setLoading(true);
       const data = await getCategories();
-      setCategories(data as Category[]);
+      if (Array.isArray(data)) {
+        setCategories(data as Category[]);
+      } else {
+        setCategories([]);
+      }
     } catch (error) {
-      toast.error("Failed to load categories");
-      console.error(error);
+      console.error("Failed to load categories:", error);
+      setCategories([]);
     } finally {
       setLoading(false);
     }

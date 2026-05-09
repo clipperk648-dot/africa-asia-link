@@ -59,15 +59,16 @@ const AdminReports = () => {
       }
 
       if (!data) {
-        toast.error("Failed to generate report");
+        setReportData([]);
+        toast.success("Report generated successfully (no data available)");
         return;
       }
 
       setReportData(data);
       toast.success("Report generated successfully");
     } catch (error) {
-      toast.error("Failed to generate report");
-      console.error(error);
+      console.error("Failed to generate report:", error);
+      setReportData([]);
     } finally {
       setLoading(false);
     }

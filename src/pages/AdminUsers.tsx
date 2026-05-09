@@ -42,15 +42,18 @@ const AdminUsers = () => {
   const [suspendingUserId, setSuspendingUserId] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log("AdminUsers - currentUser:", currentUser);
     if (!currentUser || currentUser.role !== "admin") {
       navigate("/login");
     }
   }, [currentUser, navigate]);
 
-  const filteredUsers = (users as User[]).filter((u) =>
-    u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    u.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredUsers = Array.isArray(users)
+    ? (users as User[]).filter((u) =>
+        u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        u.email.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
 
   const handleRoleChange = async (userId: string, newRole: string) => {
     try {

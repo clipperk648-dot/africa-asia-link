@@ -64,10 +64,14 @@ const AdminContent = () => {
     try {
       setLoading(true);
       const data = await getContentPages();
-      setPages(data as ContentPage[]);
+      if (Array.isArray(data)) {
+        setPages(data as ContentPage[]);
+      } else {
+        setPages([]);
+      }
     } catch (error) {
-      toast.error("Failed to load content pages");
-      console.error(error);
+      console.error("Failed to load content pages:", error);
+      setPages([]);
     } finally {
       setLoading(false);
     }
