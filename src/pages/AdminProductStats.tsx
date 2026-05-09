@@ -9,13 +9,13 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, BarChart3, PencilLine } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 
-const IndustryProductStats = () => {
+const AdminProductStats = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const user = getCurrentUser();
 
   useEffect(() => {
-    if (!user || user.role !== "industry") navigate("/login");
+    if (!user || user.role !== "admin") navigate("/login");
   }, [user, navigate]);
 
   const { data: product } = useProduct(id!);
@@ -65,7 +65,7 @@ const IndustryProductStats = () => {
               <div className="flex items-center justify-between gap-2">
                 <h2 className="text-lg sm:text-xl font-bold">{product.name}</h2>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => navigate(`/industry/products/${product.id}/edit`)}>
+                  <Button variant="outline" onClick={() => navigate(`/admin/products/${product.id}/edit`)}>
                     <PencilLine className="w-4 h-4" />
                     Edit
                   </Button>
@@ -125,4 +125,4 @@ const IndustryProductStats = () => {
   );
 };
 
-export default IndustryProductStats;
+export default AdminProductStats;

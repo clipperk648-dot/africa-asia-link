@@ -218,16 +218,6 @@ const AdminDashboard = () => {
                     </Link>
                   </div>
                   <div className="pt-3 border-t border-border/50">
-                    <Link to="/social" className="block">
-                      <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-2">
-                        <div className="p-1.5 rounded-md bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
-                          <Music2 className="w-3 h-3 text-primary" />
-                        </div>
-                        <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Social</span>
-                      </div>
-                    </Link>
-                  </div>
-                  <div className="pt-3 border-t border-border/50">
                     <button onClick={handleLogout} className="w-full p-3 rounded-lg bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent border border-red-500/30 hover:border-red-500/50 hover:from-red-500/20 hover:via-red-500/15 transition-all duration-300 group cursor-pointer flex items-center gap-2">
                       <div className="p-1.5 rounded-md bg-red-500/20 border border-red-500/40 group-hover:bg-red-500/30 transition-colors">
                         <LogOut className="w-3 h-3 text-red-500" />

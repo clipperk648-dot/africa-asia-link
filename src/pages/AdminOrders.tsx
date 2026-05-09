@@ -54,9 +54,12 @@ const AdminOrders = () => {
 
   useEffect(() => {
     let filtered = (orders as Order[]).filter((order) => {
+      const searchLower = searchTerm.toLowerCase();
       const matchesSearch =
-        String(order.id || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-        String(order.product_id || "").toLowerCase().includes(searchTerm.toLowerCase());
+        String(order.id || "").toLowerCase().includes(searchLower) ||
+        String(order.product_id || "").toLowerCase().includes(searchLower) ||
+        String(order.productName || "").toLowerCase().includes(searchLower) ||
+        String(order.buyer_id || "").toLowerCase().includes(searchLower);
       const matchesStatus = !statusFilter || order.status === statusFilter;
       return matchesSearch && matchesStatus;
     });

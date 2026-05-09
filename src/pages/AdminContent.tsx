@@ -220,8 +220,9 @@ const AdminContent = () => {
                         size="sm"
                         className="gap-2"
                         onClick={() => {
-                          window.open(`/${page.slug}`, "_blank");
+                          toast.info("Preview for: " + page.slug + " (route not yet available)");
                         }}
+                        title="Content preview routes are not yet configured"
                       >
                         <Eye className="w-4 h-4" />
                       </Button>

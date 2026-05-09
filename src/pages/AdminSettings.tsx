@@ -29,6 +29,19 @@ const AdminSettings = () => {
   useEffect(() => {
     if (!currentUser || currentUser.role !== "admin") {
       navigate("/login");
+      return;
+    }
+    const saved = localStorage.getItem(`admin_prefs_${currentUser.id}`);
+    if (saved) {
+      try {
+        setPrefs(JSON.parse(saved));
+      } catch (e) {
+        console.error("Failed to load preferences", e);
+      }
+    }
+    const savedAvatar = localStorage.getItem(`admin_avatar_${currentUser.id}`);
+    if (savedAvatar) {
+      setAvatarUrl(savedAvatar);
     }
   }, [currentUser, navigate]);
 
@@ -189,19 +202,13 @@ const AdminSettings = () => {
             <h2 className="text-lg sm:text-xl font-bold">Security</h2>
           </div>
           <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">Security features are managed through your account profile.</p>
             <Button
               variant="outline"
               className="w-full justify-start"
-              onClick={() => navigate("/admin/settings/password")}
+              onClick={() => navigate("/admin")}
             >
-              Change Password
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full justify-start"
-              onClick={() => navigate("/admin/settings/2fa")}
-            >
-              Two-Factor Authentication
+              Back to Dashboard
             </Button>
           </div>
         </GlassCard>
