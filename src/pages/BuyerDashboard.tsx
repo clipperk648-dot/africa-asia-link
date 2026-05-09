@@ -123,7 +123,7 @@ const BuyerDashboard = () => {
       { label: "Active Orders", value: String(activeOrders), icon: ShoppingCart, color: "text-primary" },
       { label: "Pending", value: String(pendingOrders), icon: Clock, color: "text-accent" },
       { label: "Completed", value: String(completedOrders), icon: CheckCircle, color: "text-secondary" },
-      { label: "Wallet Balance", value: `$${walletBalance.toLocaleString()}`, icon: TrendingUp, color: "text-primary" },
+      { label: "In Transit", value: `$${walletBalance.toLocaleString()}`, icon: TrendingUp, color: "text-primary" },
     ];
   }, [orders, walletData]);
 
