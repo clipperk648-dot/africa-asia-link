@@ -368,6 +368,33 @@ export const addWalletTransaction = async (
   return data;
 };
 
+export const getWalletTransactions = async (userId: string): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (error) return [];
+  return data;
+};
+
+export const setWalletBalance = async (userId: string, amount: number, currency: string = 'USD'): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('wallets')
+    .update({ balance: amount, currency })
+    .eq('user_id', userId)
+    .select()
+    .single();
+
+  if (error && error.code === 'PGRST116') {
+    // Create wallet if not exists
+    const { data: newWallet } = await supabase.from('wallets').insert([{ user_id: userId, balance: amount, currency }]).select().single();
+    return newWallet;
+  }
+  return data;
+};
+
 // ============ MESSAGING ============
 
 export const sendMessage = async (
