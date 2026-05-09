@@ -1,4 +1,4 @@
-import { useEffect, useState, Fragment, useMemo, useCallback } from "react";
+import { useEffect, useState, Fragment, useMemo, useCallback, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { getCurrentUser, logout } from "@/utils/mockAuth";
 import { useProducts, useOrders } from "@/hooks/useData";
@@ -6,7 +6,7 @@ import type { Product } from "@/types/models";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { LogOut, TrendingUp, Package, DollarSign, Users, Settings, Bell, BarChart3, LineChart, Pencil, Wallet as WalletIcon, Bot, Menu, Box, Music2, Palette } from "lucide-react";
+import { LogOut, TrendingUp, Package, DollarSign, Users, Settings, Bell, BarChart3, LineChart, Pencil, Wallet as WalletIcon, Bot, Menu, Box, Music2, Palette, ChevronLeft, ChevronRight } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -61,14 +61,57 @@ const AdminDashboard = () => {
   const { data: products = [] } = useProducts(20, 0);
   const { data: orders = [] } = useOrders(user?.id);
 
+  // Collection slideshow state
+  const [currentCollectionSlide, setCurrentCollectionSlide] = useState(0);
+
+  const collections = useMemo(() => [
+    {
+      id: "admin_collection_1",
+      title: "Featured Products",
+      videoUrl: "https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2F0c96833d8ac746ba8f8470e123ec57ad?alt=media&token=8a70877c-77a0-4213-8746-6ef633920336&apiKey=7afe82ec80e94b858c506425dab51b31",
+    },
+    {
+      id: "admin_collection_2",
+      title: "New Arrivals",
+      videoUrl: "https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2Fccdd0f1ff47e4a4b8ae298baaa00d7b7?alt=media&token=9e96055e-e92d-46c9-867e-6c60173a0368&apiKey=7afe82ec80e94b858c506425dab51b31",
+    },
+    {
+      id: "admin_collection_3",
+      title: "Best Sellers",
+      videoUrl: "https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2F5dd74dacbecf494da443c829c72a582a?alt=media&token=001f7917-e224-4ee3-a9ab-45a5f7e4206b&apiKey=7afe82ec80e94b858c506425dab51b31",
+    },
+    {
+      id: "admin_collection_4",
+      title: "Trending Now",
+      videoUrl: "https://cdn.builder.io/o/assets%2F7afe82ec80e94b858c506425dab51b31%2F5a9580b4a2f84dfda83978faceed0619?alt=media&token=6cb3868d-5c56-4159-96bd-78602c3edd9d&apiKey=7afe82ec80e94b858c506425dab51b31",
+    },
+  ], []);
+
+  const ctaTexts = [
+    "Hi there! 👋",
+    "Need help? I'm here!",
+    "Managing clusters? Let's go!",
+    "Check out new orders 📦",
+    "Review user activity 👥",
+  ];
+
   const tooltipIndexRef = useRef(0);
+  const collectionVideoRef = useRef<HTMLVideoElement>(null);
 
   const cycleBotTooltip = useCallback(() => {
     setShowBotTooltip(true);
     setTooltipText(ctaTexts[tooltipIndexRef.current]);
     tooltipIndexRef.current = (tooltipIndexRef.current + 1) % ctaTexts.length;
     setTimeout(() => setShowBotTooltip(false), 2000);
-  }, []);
+  }, [ctaTexts]);
+
+  const nextCollection = useCallback(() => {
+    setCurrentCollectionSlide((prev) => (prev + 1) % collections.length);
+  }, [collections.length]);
+
+  const prevCollection = useCallback(() => {
+    setCurrentCollectionSlide((prev) => (prev - 1 + collections.length) % collections.length);
+  }, [collections.length]);
 
   useEffect(() => {
     if (!user || user.role !== "admin") {
@@ -225,6 +268,66 @@ const AdminDashboard = () => {
             </GlassCard>
           ))}
         </div>
+
+        <section className="space-y-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm sm:text-base font-bold">Collection Showcase</h2>
+          </div>
+          <div className="relative w-full rounded-2xl overflow-hidden bg-gradient-to-br from-primary/20 to-secondary/20 border border-primary/30">
+            <video
+              ref={collectionVideoRef}
+              src={collections[currentCollectionSlide].videoUrl}
+              className="w-full aspect-video object-cover"
+              autoPlay
+              loop
+              muted
+              onError={(e) => {
+                console.warn('Video failed to load:', e);
+                e.currentTarget.poster = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"%3E%3Crect fill="%23111" width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="18" fill="%23ccc"%3EVideo unavailable%3C/text%3E%3C/svg%3E';
+              }}
+            />
+
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+            <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+              <h3 className="text-sm sm:text-base font-bold text-white">{collections[currentCollectionSlide].title}</h3>
+              <p className="text-xs sm:text-sm text-gray-300 mt-1">Slide {currentCollectionSlide + 1} of {collections.length}</p>
+            </div>
+
+            <div className="absolute top-1/2 -translate-y-1/2 left-2 sm:left-4 z-10">
+              <button
+                onClick={prevCollection}
+                className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm"
+                aria-label="Previous collection"
+              >
+                <ChevronLeft className="w-5 h-5 text-white" />
+              </button>
+            </div>
+
+            <div className="absolute top-1/2 -translate-y-1/2 right-2 sm:right-4 z-10">
+              <button
+                onClick={nextCollection}
+                className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors backdrop-blur-sm"
+                aria-label="Next collection"
+              >
+                <ChevronRight className="w-5 h-5 text-white" />
+              </button>
+            </div>
+
+            <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+              {collections.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentCollectionSlide(i)}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    i === currentCollectionSlide ? 'bg-white w-6' : 'bg-white/50 hover:bg-white/70'
+                  }`}
+                  aria-label={`Go to slide ${i + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
 
         <section className="space-y-2">
           <div className="flex items-center justify-between">
