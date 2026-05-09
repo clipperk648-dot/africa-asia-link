@@ -47,9 +47,7 @@ const ThreeBackgroundComponent = () => {
     if (!context) return;
 
     const colors = [
-      "rgba(138, 108, 253, 0.7)",
-      "rgba(255, 193, 7, 0.7)",
-      "rgba(52, 211, 153, 0.7)",
+      "rgba(168, 85, 247, 0.7)",
     ];
 
     let connectionDistance = 220;
@@ -76,6 +74,29 @@ const ThreeBackgroundComponent = () => {
       if (w < 1024) return 60;
       const area = w * h;
       return Math.max(80, Math.min(140, Math.round(area / 40000) + 40));
+    };
+
+    const drawStar = (x: number, y: number, size: number, color: string) => {
+      const innerRadius = size / 2;
+      const outerRadius = size;
+      const points = 5;
+      const angleSlice = (Math.PI * 2) / points;
+
+      context.fillStyle = color;
+      context.beginPath();
+
+      for (let i = 0; i < points * 2; i++) {
+        const angle = (i * angleSlice) / 2 - Math.PI / 2;
+        const radius = i % 2 === 0 ? outerRadius : innerRadius;
+        const px = x + Math.cos(angle) * radius;
+        const py = y + Math.sin(angle) * radius;
+
+        if (i === 0) context.moveTo(px, py);
+        else context.lineTo(px, py);
+      }
+
+      context.closePath();
+      context.fill();
     };
 
     const createParticle = (): Particle => {
@@ -211,21 +232,15 @@ const ThreeBackgroundComponent = () => {
           p.velocityY *= -bounceCoefficient;
         }
 
-        // Particle glow - use simple shadow instead of expensive gradient
+        // Draw star particles with glow
         const shouldDrawGlow = !isMobile && window.innerWidth > 1024;
         if (shouldDrawGlow) {
           context.shadowColor = p.color;
           context.shadowBlur = p.size * 2;
-          context.fillStyle = p.color;
-          context.beginPath();
-          context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          context.fill();
+          drawStar(p.x, p.y, p.size, p.color);
           context.shadowBlur = 0;
         } else {
-          context.fillStyle = p.color;
-          context.beginPath();
-          context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          context.fill();
+          drawStar(p.x, p.y, p.size, p.color);
         }
       }
 

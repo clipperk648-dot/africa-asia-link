@@ -9,19 +9,31 @@ import { toast } from "@/components/ui/sonner";
 const operators = [
   { id: "airtel", name: "Airtel", kind: "airtel" },
   { id: "mtn", name: "MTN", kind: "mtn" },
-  { id: "glo", name: "Glo", kind: "glo", logo: "https://cdn.builder.io/api/v1/image/assets%2Fcb26b9b3cc474964a502a3a1432ce9ef%2Fd0fa953ed9234d4b8ce5a77ce4c2f5bd?format=webp" },
-  { id: "9mobile", name: "9mobile", kind: "9mobile", logo: "https://cdn.builder.io/api/v1/image/assets%2Fcb26b9b3cc474964a502a3a1432ce9ef%2F51267831a0b54fffa0f20ec4a8638888?format=webp" },
+  { id: "glo", name: "Glo", kind: "glo" },
+  { id: "9mobile", name: "9mobile", kind: "9mobile" },
 ];
 
 const renderOperatorLogo = (operator: (typeof operators)[number]) => {
-  if (operator.kind === "glo" || operator.kind === "9mobile") {
-    return <img src={operator.logo} alt={operator.name} className="w-14 h-14 object-contain mb-2 mx-auto" />;
-  }
-
   if (operator.kind === "mtn") {
     return (
       <div className="w-14 h-14 mb-2 mx-auto rounded-full bg-[#ffd300] border-2 border-black flex items-center justify-center shadow-md">
         <span className="text-black font-black text-sm tracking-tight">MTN</span>
+      </div>
+    );
+  }
+
+  if (operator.kind === "glo") {
+    return (
+      <div className="w-14 h-14 mb-2 mx-auto rounded-full bg-[#1bad42] flex items-center justify-center shadow-md">
+        <span className="text-white font-bold text-xs tracking-tight">GLO</span>
+      </div>
+    );
+  }
+
+  if (operator.kind === "9mobile") {
+    return (
+      <div className="w-14 h-14 mb-2 mx-auto rounded-lg bg-[#ff6b35] flex items-center justify-center shadow-md">
+        <span className="text-white font-bold text-xs tracking-tight">9M</span>
       </div>
     );
   }
@@ -36,12 +48,7 @@ const renderOperatorLogo = (operator: (typeof operators)[number]) => {
 
 
 
-const dataPlans = [
-  { size: "1GB", duration: "24 Hrs", price: 350, naira: "₦350" },
-  { size: "2GB", duration: "7 Days", price: 500, naira: "₦500" },
-  { size: "5GB", duration: "30 Days", price: 1500, naira: "₦1,500" },
-  { size: "10GB", duration: "30 Days", price: 3000, naira: "₦3,000" },
-];
+const dataPlans: { size: string; duration: string; price: number; naira: string }[] = [];
 
 const UtilitiesData = () => {
   const navigate = useNavigate();
