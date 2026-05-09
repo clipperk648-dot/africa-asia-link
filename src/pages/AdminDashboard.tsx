@@ -172,6 +172,30 @@ const AdminDashboard = () => {
                         <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">User Management</span>
                       </div>
                     </Link>
+                    <Link to="/admin/categories" className="block">
+                      <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-2">
+                        <Package className="w-4 h-4 text-blue-400" />
+                        <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Categories</span>
+                      </div>
+                    </Link>
+                    <Link to="/admin/reports" className="block">
+                      <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-2">
+                        <BarChart3 className="w-4 h-4 text-green-400" />
+                        <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Reports</span>
+                      </div>
+                    </Link>
+                    <Link to="/admin/content" className="block">
+                      <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-2">
+                        <Box className="w-4 h-4 text-purple-400" />
+                        <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Content</span>
+                      </div>
+                    </Link>
+                    <Link to="/analytics" className="block">
+                      <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4 text-yellow-400" />
+                        <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Analytics</span>
+                      </div>
+                    </Link>
                     <Link to="/profile" className="block">
                       <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
                         <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Profile</span>

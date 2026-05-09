@@ -51,9 +51,42 @@ export const getAllUsers = async (): Promise<unknown[]> => {
   const { data, error } = await supabase
     .from('profiles')
     .select('*');
-  
+
   if (error) return [];
   return data;
+};
+
+export const updateUserRole = async (userId: string, role: string): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({ role })
+    .eq('id', userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const suspendUser = async (userId: string, suspended: boolean): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .update({ suspended })
+    .eq('id', userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const deleteUser = async (userId: string): Promise<boolean> => {
+  const { error } = await supabase
+    .from('profiles')
+    .delete()
+    .eq('id', userId);
+
+  return !error;
 };
 
 // ============ PRODUCTS ============
@@ -414,7 +447,7 @@ export const sendMessage = async (
     }])
     .select()
     .single();
-  
+
   if (error) throw error;
   return data;
 };
@@ -425,7 +458,174 @@ export const getMessages = async (userId: string, peerId: string): Promise<unkno
     .select('*')
     .or(`and(sender_id.eq.${userId},recipient_id.eq.${peerId}),and(sender_id.eq.${peerId},recipient_id.eq.${userId})`)
     .order('created_at', { ascending: true });
-  
+
   if (error) return [];
+  return data;
+};
+
+// ============ CATEGORIES ============
+
+export const getCategories = async (): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('categories')
+    .select('*')
+    .order('name', { ascending: true });
+
+  if (error) return [];
+  return data;
+};
+
+export const createCategory = async (name: string, description?: string): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('categories')
+    .insert([{
+      name,
+      description,
+      created_at: new Date().toISOString()
+    }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const updateCategory = async (id: string, name: string, description?: string): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('categories')
+    .update({ name, description })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const deleteCategory = async (id: string): Promise<boolean> => {
+  const { error } = await supabase
+    .from('categories')
+    .delete()
+    .eq('id', id);
+
+  return !error;
+};
+
+// ============ CONTENT MANAGEMENT ============
+
+export const getContentPages = async (): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('content_pages')
+    .select('*')
+    .order('title', { ascending: true });
+
+  if (error) return [];
+  return data;
+};
+
+export const createContentPage = async (title: string, slug: string, content: string, published: boolean = false): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('content_pages')
+    .insert([{
+      title,
+      slug,
+      content,
+      published,
+      created_at: new Date().toISOString()
+    }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const updateContentPage = async (id: string, title: string, slug: string, content: string, published: boolean): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('content_pages')
+    .update({ title, slug, content, published })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const deleteContentPage = async (id: string): Promise<boolean> => {
+  const { error } = await supabase
+    .from('content_pages')
+    .delete()
+    .eq('id', id);
+
+  return !error;
+};
+
+// ============ ANNOUNCEMENTS ============
+
+export const getAnnouncements = async (): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('announcements')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) return [];
+  return data;
+};
+
+export const createAnnouncement = async (title: string, message: string, type: string = 'info'): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('announcements')
+    .insert([{
+      title,
+      message,
+      type,
+      created_at: new Date().toISOString()
+    }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const deleteAnnouncement = async (id: string): Promise<boolean> => {
+  const { error } = await supabase
+    .from('announcements')
+    .delete()
+    .eq('id', id);
+
+  return !error;
+};
+
+// ============ REPORTS ============
+
+export const generateSalesReport = async (startDate: string, endDate: string): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .gte('created_at', startDate)
+    .lte('created_at', endDate);
+
+  if (error) return null;
+  return data;
+};
+
+export const generateUserReport = async (): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, email, name, role, created_at, suspended');
+
+  if (error) return null;
+  return data;
+};
+
+export const generateProductReport = async (): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) return null;
   return data;
 };
