@@ -3,15 +3,24 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAllUsers } from "@/hooks/useData";
 import { updateUserRole, suspendUser, deleteUser } from "@/lib/db";
+import type { User } from "@/types/models";
 import GlassCard from "@/components/GlassCard";
-import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Users, Shield, User as UserIcon, Mail, Phone, Calendar, Trash2, Check, X, Search } from "lucide-react";
-import ThreeBackground from "@/components/ThreeBackground";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { 
+  Users, User as UserIcon, Mail, 
+  Phone, Calendar, Trash2, Search, Filter,
+  MoreVertical, ShieldCheck, ShieldAlert, UserPlus
+} from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,49 +30,37 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  phone?: string;
-  created_at: string;
-  suspended?: boolean;
-}
+import AdminLayout from "@/components/AdminLayout";
 
 const AdminUsers = () => {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
   const { data: users = [], isLoading, refetch } = useAllUsers();
   const [searchQuery, setSearchQuery] = useState("");
-  const [editingRole, setEditingRole] = useState<{ userId: string; newRole: string } | null>(null);
+  const [roleFilter, setRoleFilter] = useState<string | null>(null);
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
   const [suspendingUserId, setSuspendingUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log("AdminUsers - currentUser:", currentUser);
     if (!currentUser || currentUser.role !== "admin") {
       navigate("/login");
     }
   }, [currentUser, navigate]);
 
-  const filteredUsers = Array.isArray(users)
-    ? (users as User[]).filter((u) =>
-        u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        u.email.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : [];
+  const filteredUsers = (users as User[]).filter((u) => {
+    const matchesSearch = u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          u.email.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesRole = !roleFilter || u.role === roleFilter;
+    return matchesSearch && matchesRole;
+  });
 
   const handleRoleChange = async (userId: string, newRole: string) => {
     try {
       await updateUserRole(userId, newRole);
-      toast.success("User role updated successfully");
-      setEditingRole(null);
+      toast.success(`Role updated to ${newRole}`);
       refetch();
     } catch (error) {
-      toast.error("Failed to update user role");
-      console.error(error);
+      toast.error("Failed to update role");
     }
   };
 
@@ -76,8 +73,7 @@ const AdminUsers = () => {
       setSuspendingUserId(null);
       refetch();
     } catch (error) {
-      toast.error("Failed to update user status");
-      console.error(error);
+      toast.error("Failed to update status");
     }
   };
 
@@ -89,168 +85,127 @@ const AdminUsers = () => {
       refetch();
     } catch (error) {
       toast.error("Failed to delete user");
-      console.error(error);
     }
   };
 
   return (
-    <div className="min-h-screen pb-24 relative">
-      <ThreeBackground />
-
-      <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-3 space-y-3">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div className="flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              <h1 className="text-xl font-bold">User Management</h1>
+    <AdminLayout>
+      <main className="max-w-7xl mx-auto px-4 py-6 w-full space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <div className="relative flex-1 sm:w-80">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by name or email..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-10 bg-background/50 border-white/10"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Select value={roleFilter || "all"} onValueChange={(val) => setRoleFilter(val === "all" ? null : val)}>
+                <SelectTrigger className="w-32 h-10 bg-background/50 border-white/10">
+                  <SelectValue placeholder="Role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Roles</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="industry">Industry</SelectItem>
+                  <SelectItem value="buyer">Buyer</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="outline" size="icon" className="h-10 w-10 border-white/10 hover:bg-white/5">
+                <Filter className="w-4 h-4" />
+              </Button>
             </div>
           </div>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by name or email..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-10 bg-background/50"
-            />
-          </div>
+          <Button size="sm" className="w-full sm:w-auto gap-2 rounded-full shadow-lg shadow-primary/10">
+            <UserPlus className="w-4 h-4" /> Add User
+          </Button>
         </div>
-      </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
         {isLoading ? (
-          <p className="text-center text-muted-foreground">Loading users...</p>
+          <div className="flex justify-center py-20">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          </div>
         ) : filteredUsers.length === 0 ? (
-          <GlassCard className="p-8 text-center">
-            <Users className="w-12 h-12 mx-auto mb-3 text-muted-foreground/50" />
-            <p className="text-muted-foreground">No users found</p>
+          <GlassCard className="p-12 text-center border-white/5">
+            <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-20" />
+            <h3 className="text-lg font-bold text-white">No users found</h3>
+            <p className="text-sm text-muted-foreground">Try adjusting your filters or search query.</p>
           </GlassCard>
         ) : (
           <div className="grid gap-4">
-            {filteredUsers.map((u: User) => (
-              <GlassCard key={u.id} className="p-4">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex items-start gap-4 flex-1">
-                    <Avatar className="h-12 w-12 border-2 border-primary/20 flex-shrink-0">
-                      <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${u.email}`} />
-                      <AvatarFallback>{u.name?.[0] || "U"}</AvatarFallback>
+            {filteredUsers.map((u) => (
+              <GlassCard key={u.id} className="p-5 hover:bg-white/5 transition-colors border-white/5">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <Avatar className="h-12 w-12 border-2 border-primary/10">
+                      <AvatarFallback className="bg-primary/10 text-primary uppercase text-sm font-bold">
+                        {u.name.substring(0, 2)}
+                      </AvatarFallback>
                     </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-bold text-lg">{u.name}</h3>
-                        {u.role === 'admin' && (
-                          <span className="flex items-center gap-1 px-2 py-0.5 bg-red-500/20 text-red-500 text-[10px] font-bold rounded-full uppercase">
-                            <Shield className="w-3 h-3" />
-                            Admin
-                          </span>
-                        )}
-                        {u.role === 'industry' && (
-                          <span className="px-2 py-0.5 bg-blue-500/20 text-blue-500 text-[10px] font-bold rounded-full uppercase">
-                            Industry
-                          </span>
-                        )}
-                        {u.role === 'buyer' && (
-                          <span className="px-2 py-0.5 bg-green-500/20 text-green-500 text-[10px] font-bold rounded-full uppercase">
-                            Buyer
-                          </span>
-                        )}
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                        <h3 className="font-bold text-white truncate">{u.name}</h3>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          u.role === 'admin' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                          u.role === 'industry' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
+                          'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                        }`}>
+                          {u.role}
+                        </span>
                         {u.suspended && (
-                          <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-500 text-[10px] font-bold rounded-full uppercase">
-                            Suspended
-                          </span>
+                          <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase">Suspended</span>
                         )}
                       </div>
-                      <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Mail className="w-3.5 h-3.5" />
-                          {u.email}
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1.5">
+                          <Mail className="w-3 h-3" /> {u.email}
                         </div>
                         {u.phone && (
-                          <div className="flex items-center gap-1">
-                            <Phone className="w-3.5 h-3.5" />
-                            {u.phone}
+                          <div className="flex items-center gap-1.5">
+                            <Phone className="w-3 h-3" /> {u.phone}
                           </div>
                         )}
-                        <div className="flex items-center gap-1">
-                          <Calendar className="w-3.5 h-3.5" />
-                          Joined {new Date(u.created_at).toLocaleDateString()}
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="w-3 h-3" /> Joined {new Date(u.created_at || '').toLocaleDateString()}
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex gap-2 flex-wrap md:flex-nowrap">
-                    {editingRole?.userId === u.id ? (
-                      <div className="flex gap-2 w-full md:w-auto">
-                        <Select
-                          value={editingRole.newRole}
-                          onValueChange={(value) =>
-                            setEditingRole({ userId: u.id, newRole: value })
-                          }
-                        >
-                          <SelectTrigger className="h-9 w-24">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="industry">Industry</SelectItem>
-                            <SelectItem value="buyer">Buyer</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="px-2"
-                          onClick={() =>
-                            handleRoleChange(u.id, editingRole.newRole)
-                          }
-                        >
-                          <Check className="w-4 h-4 text-green-500" />
+                  <div className="flex items-center gap-2 self-end lg:self-center">
+                    <Select value={u.role} onValueChange={(val) => handleRoleChange(u.id, val)}>
+                      <SelectTrigger className="h-9 w-28 bg-white/5 border-white/10 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="industry">Industry</SelectItem>
+                        <SelectItem value="buyer">Buyer</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-9 w-9 border-white/5">
+                          <MoreVertical className="w-4 h-4" />
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="px-2"
-                          onClick={() => setEditingRole(null)}
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="bg-background/95 backdrop-blur-xl border-white/10">
+                        <DropdownMenuItem onClick={() => setSuspendingUserId(u.id)}>
+                          {u.suspended ? <ShieldCheck className="w-4 h-4 mr-2" /> : <ShieldAlert className="w-4 h-4 mr-2" />}
+                          {u.suspended ? 'Unsuspend' : 'Suspend'}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                          onClick={() => setDeletingUserId(u.id)}
                         >
-                          <X className="w-4 h-4 text-red-500" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                          setEditingRole({ userId: u.id, newRole: u.role })
-                        }
-                        className="flex-1 md:flex-none"
-                      >
-                        Edit Role
-                      </Button>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSuspendingUserId(u.id)}
-                      className={`flex-1 md:flex-none ${
-                        u.suspended
-                          ? "text-green-500 border-green-500/50 hover:bg-green-500/10"
-                          : "text-yellow-500 border-yellow-500/50 hover:bg-yellow-500/10"
-                      }`}
-                    >
-                      {u.suspended ? "Unsuspend" : "Suspend"}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setDeletingUserId(u.id)}
-                      className="flex-1 md:flex-none text-red-500 hover:text-red-500 hover:bg-red-500/10 border-red-500/50"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                          <Trash2 className="w-4 h-4 mr-2" /> Delete User
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               </GlassCard>
@@ -259,49 +214,33 @@ const AdminUsers = () => {
         )}
       </main>
 
-      <AlertDialog open={suspendingUserId !== null} onOpenChange={() => setSuspendingUserId(null)}>
-        <AlertDialogContent>
+      {/* Dialogs */}
+      <AlertDialog open={!!suspendingUserId} onOpenChange={() => setSuspendingUserId(null)}>
+        <AlertDialogContent className="bg-background/95 backdrop-blur-xl border-white/10 text-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {(users as User[]).find((u) => u.id === suspendingUserId)?.suspended
-                ? "Unsuspend User?"
-                : "Suspend User?"}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {(users as User[]).find((u) => u.id === suspendingUserId)?.suspended
-                ? "This user will be able to log in again."
-                : "This user will not be able to log in until unsuspended."}
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
+              This will change the user's access to the platform.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => suspendingUserId && handleSuspendUser(suspendingUserId)}
-          >
-            Confirm
-          </AlertDialogAction>
+          <AlertDialogCancel className="border-white/10 bg-transparent text-white hover:bg-white/5">Cancel</AlertDialogCancel>
+          <AlertDialogAction className="bg-primary text-white hover:bg-primary/90" onClick={() => suspendingUserId && handleSuspendUser(suspendingUserId)}>Confirm</AlertDialogAction>
         </AlertDialogContent>
       </AlertDialog>
 
-      <AlertDialog open={deletingUserId !== null} onOpenChange={() => setDeletingUserId(null)}>
-        <AlertDialogContent>
+      <AlertDialog open={!!deletingUserId} onOpenChange={() => setDeletingUserId(null)}>
+        <AlertDialogContent className="bg-background/95 backdrop-blur-xl border-white/10 text-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete User?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. The user account and all associated data will be permanently deleted.
+            <AlertDialogTitle className="text-red-400">Delete User Account?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
+              This action is permanent and cannot be undone. All user data will be lost.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => deletingUserId && handleDeleteUser(deletingUserId)}
-            className="bg-red-600 hover:bg-red-700"
-          >
-            Delete User
-          </AlertDialogAction>
+          <AlertDialogCancel className="border-white/10 bg-transparent text-white hover:bg-white/5">Cancel</AlertDialogCancel>
+          <AlertDialogAction className="bg-red-500 hover:bg-red-600 text-white" onClick={() => deletingUserId && handleDeleteUser(deletingUserId)}>Delete Account</AlertDialogAction>
         </AlertDialogContent>
       </AlertDialog>
-
-      <FooterNav dashboardType="admin" />
-    </div>
+    </AdminLayout>
   );
 };
 

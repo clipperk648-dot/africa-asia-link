@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "@/utils/mockAuth";
 import { Button } from "@/components/ui/button";
 import ThreeBackground from "@/components/ThreeBackground";
-import { ArrowLeft, Settings, Package, Wallet } from "lucide-react";
+import { ArrowLeft, Settings, Package, Wallet, User as UserIcon } from "lucide-react";
 import GlassCard from "@/components/GlassCard";
+import { getSafeAvatarUrl } from "@/utils/imageOptimization";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ const Profile = () => {
         <div className="flex flex-col items-center text-center space-y-4">
           <div className="relative">
             <img
-              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email || 'default'}`}
+              src={getSafeAvatarUrl(user?.name || user?.email || 'default')}
               alt="Profile"
               className="w-32 h-32 rounded-full border-4 border-primary/20 shadow-2xl"
             />

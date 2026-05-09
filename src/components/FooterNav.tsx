@@ -13,7 +13,7 @@ const FooterNav = ({ dashboardType }: FooterNavProps) => {
   const basePath = isAdmin ? (dashboardType === "admin" ? "/admin" : "/industry") : "/buyer";
 
   const primaryAction = isAdmin
-    ? { path: `${basePath}/products/add`, Icon: Package, label: "Add product" }
+    ? (dashboardType === "admin" ? { path: `${basePath}/products/add`, Icon: Package, label: "Add product" } : { path: `${basePath}/products`, Icon: Package, label: "Products" })
     : { path: "/cluster", Icon: Users2, label: "Clusters" };
   const PrimaryActionIcon = primaryAction.Icon;
 

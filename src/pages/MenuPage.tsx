@@ -19,6 +19,7 @@ import ThreeBackground from "@/components/ThreeBackground";
 import { useTheme } from "next-themes";
 import GlassCard from "@/components/GlassCard";
 import { toast } from "@/components/ui/sonner";
+import { getSafeAvatarUrl } from "@/utils/imageOptimization";
 
 const MenuPage = () => {
   const navigate = useNavigate();
@@ -27,9 +28,10 @@ const MenuPage = () => {
   const darkMode = resolvedTheme === "dark";
 
   const menuItems = [
-    { icon: Settings, label: "Settings", onClick: () => navigate(user?.role === "buyer" ? "/buyer/settings" : "/industry/settings") },
+    ...(user?.role === "admin" ? [{ icon: ShoppingBag, label: "Admin Dashboard", onClick: () => navigate("/admin") }] : []),
+    { icon: Settings, label: "Settings", onClick: () => navigate(user?.role === "buyer" ? "/buyer/settings" : "/admin/settings") },
     { icon: Bookmark, label: "Saved", onClick: () => navigate("/buyer/collections") },
-    { icon: Clock, label: "Activity", onClick: () => navigate(user?.role === "buyer" ? "/buyer/orders" : "/industry/recent-activity") },
+    { icon: Clock, label: "Activity", onClick: () => navigate(user?.role === "buyer" ? "/buyer/orders" : "/admin/orders") },
     { icon: Heart, label: "Favorites", onClick: () => toast.info("Favorites feature coming soon") },
     { icon: Bell, label: "Notifications", onClick: () => navigate("/notifications") },
     { icon: HelpCircle, label: "Help & Support", onClick: () => navigate("/support-chat") },
@@ -73,7 +75,7 @@ const MenuPage = () => {
             <div className="relative z-10 flex items-center gap-3">
               <div className="relative">
                 <img
-                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email || 'default'}`}
+                  src={getSafeAvatarUrl(user?.name || user?.email || 'default')}
                   alt="Profile"
                   className="w-16 h-16 rounded-full border-2 border-white/40 shadow-lg"
                 />

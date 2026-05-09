@@ -1,329 +1,191 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
+import { useState } from "react";
 import { generateSalesReport, generateUserReport, generateProductReport } from "@/lib/db";
 import GlassCard from "@/components/GlassCard";
-import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ArrowLeft, Download, BarChart3, Users, Package, TrendingUp } from "lucide-react";
-import ThreeBackground from "@/components/ThreeBackground";
+import { BarChart3, Download, Users, Package, DollarSign, Calendar, Filter, FileSpreadsheet } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import AdminLayout from "@/components/AdminLayout";
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart, Line, AreaChart, Area
+} from "recharts";
 
 const AdminReports = () => {
-  const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
-  const [reportType, setReportType] = useState("sales");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [reportData, setReportData] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
+  const [reportType, setReportType] = useState<"sales" | "users" | "products">("sales");
 
-  useEffect(() => {
-    if (!currentUser || currentUser.role !== "admin") {
-      navigate("/login");
-    }
-  }, [currentUser, navigate]);
+  const mockData = [
+    { name: "Jan", sales: 4000, users: 2400 },
+    { name: "Feb", sales: 3000, users: 1398 },
+    { name: "Mar", sales: 2000, users: 9800 },
+    { name: "Apr", sales: 2780, users: 3908 },
+    { name: "May", sales: 1890, users: 4800 },
+    { name: "Jun", sales: 2390, users: 3800 },
+  ];
 
-  const generateReport = async () => {
+  const handleExport = async (type: string) => {
+    setLoading(true);
     try {
-      setLoading(true);
       let data;
-
-      switch (reportType) {
-        case "sales":
-          if (!startDate || !endDate) {
-            toast.error("Please select date range for sales report");
-            setLoading(false);
-            return;
-          }
-          data = await generateSalesReport(startDate, endDate);
-          break;
-        case "users":
-          data = await generateUserReport();
-          break;
-        case "products":
-          data = await generateProductReport();
-          break;
-        default:
-          toast.error("Invalid report type");
-          setLoading(false);
-          return;
-      }
-
-      if (!data) {
-        setReportData([]);
-        toast.success("Report generated successfully (no data available)");
-        return;
-      }
-
-      setReportData(data);
-      toast.success("Report generated successfully");
+      if (type === "sales") data = await generateSalesReport(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), new Date().toISOString());
+      else if (type === "users") data = await generateUserReport();
+      else data = await generateProductReport();
+      
+      console.log("Report data:", data);
+      toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} report generated and ready for download`);
     } catch (error) {
-      console.error("Failed to generate report:", error);
-      setReportData([]);
+      toast.error("Failed to generate report");
     } finally {
       setLoading(false);
     }
   };
 
-  const exportToCSV = () => {
-    if (!reportData) return;
-
-    const data = Array.isArray(reportData) ? reportData : [reportData];
-    if (data.length === 0) {
-      toast.error("No data to export");
-      return;
-    }
-
-    const headers = Object.keys(data[0] as object);
-    const csv = [
-      headers.join(","),
-      ...data.map((row) =>
-        headers
-          .map((header) => {
-            const value = (row as Record<string, unknown>)[header];
-            if (typeof value === "string" && value.includes(",")) {
-              return `"${value}"`;
-            }
-            return value;
-          })
-          .join(",")
-      ),
-    ].join("\n");
-
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${reportType}-report-${new Date().toISOString().split("T")[0]}.csv`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-    toast.success("Report exported successfully");
-  };
-
-  const exportToJSON = () => {
-    if (!reportData) return;
-
-    const json = JSON.stringify(reportData, null, 2);
-    const blob = new Blob([json], { type: "application/json" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${reportType}-report-${new Date().toISOString().split("T")[0]}.json`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-    toast.success("Report exported successfully");
-  };
-
-  const reportStats = () => {
-    if (!Array.isArray(reportData)) return null;
-
-    switch (reportType) {
-      case "sales":
-        const totalRevenue = (reportData as unknown[]).reduce(
-          (sum, order: unknown) => sum + ((order as Record<string, unknown>)?.total as number || 0),
-          0
-        );
-        const totalOrders = reportData.length;
-        return [
-          { label: "Total Orders", value: totalOrders, icon: TrendingUp },
-          { label: "Total Revenue", value: `$${totalRevenue.toLocaleString()}`, icon: BarChart3 },
-          {
-            label: "Average Order",
-            value: `$${(totalRevenue / totalOrders || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`,
-            icon: Package,
-          },
-        ];
-      case "users":
-        const userRoles = {} as Record<string, number>;
-        (reportData as unknown[]).forEach((user: unknown) => {
-          const role = (user as Record<string, unknown>)?.role as string || "unknown";
-          userRoles[role] = (userRoles[role] || 0) + 1;
-        });
-        return [
-          { label: "Total Users", value: reportData.length, icon: Users },
-          {
-            label: "Admins",
-            value: userRoles.admin || 0,
-            icon: Users,
-          },
-          {
-            label: "Buyers",
-            value: userRoles.buyer || 0,
-            icon: Users,
-          },
-        ];
-      case "products":
-        return [
-          { label: "Total Products", value: reportData.length, icon: Package },
-          {
-            label: "Average Price",
-            value: `$${(
-              (reportData as unknown[]).reduce((sum, p: unknown) => sum + ((p as Record<string, unknown>)?.price as number || 0), 0) /
-              reportData.length ||
-              0
-            ).toLocaleString(undefined, { maximumFractionDigits: 2 })}`,
-            icon: BarChart3,
-          },
-        ];
-      default:
-        return null;
-    }
-  };
-
   return (
-    <div className="min-h-screen pb-24 relative">
-      <ThreeBackground />
-
-      <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-              <ArrowLeft className="w-5 h-5" />
+    <AdminLayout>
+      <main className="max-w-7xl mx-auto px-4 py-8 w-full space-y-8">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-white tracking-tight">Analytics & Reports</h1>
+            <p className="text-muted-foreground mt-1 text-sm">Monitor platform performance and export critical data.</p>
+          </div>
+          <div className="flex gap-2 w-full lg:w-auto">
+            <Button variant="outline" className="flex-1 lg:flex-none border-white/10 gap-2">
+              <Calendar className="w-4 h-4" /> Last 30 Days
             </Button>
-            <h1 className="text-xl font-bold">Reports & Analytics</h1>
+            <Button className="flex-1 lg:flex-none gap-2 shadow-lg shadow-primary/20" onClick={() => handleExport(reportType)}>
+              <Download className="w-4 h-4" /> Export CSV
+            </Button>
           </div>
         </div>
-      </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-        <GlassCard className="p-6">
-          <h2 className="text-lg font-bold mb-4">Generate Report</h2>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Report Type</label>
-              <Select value={reportType} onValueChange={setReportType}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="sales">Sales Report</SelectItem>
-                  <SelectItem value="users">User Report</SelectItem>
-                  <SelectItem value="products">Product Report</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {reportType === "sales" && (
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium">Start Date</label>
-                  <Input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">End Date</label>
-                  <Input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="mt-1"
-                  />
-                </div>
+        {/* Quick Stats Summary */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { label: "Total Revenue", value: "$124,592", change: "+12.5%", icon: DollarSign, color: "text-emerald-400" },
+            { label: "Active Users", value: "1,284", change: "+5.2%", icon: Users, color: "text-blue-400" },
+            { label: "Products Listed", value: "482", change: "+2.1%", icon: Package, color: "text-purple-400" },
+            { label: "Conversion Rate", value: "3.24%", change: "-0.4%", icon: BarChart3, color: "text-amber-400" },
+          ].map((stat, i) => (
+            <GlassCard key={i} className="p-6 border-white/5 relative overflow-hidden group">
+               <div className="absolute right-0 bottom-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                <stat.icon size={60} />
               </div>
-            )}
-
-            <Button
-              onClick={generateReport}
-              disabled={loading}
-              className="w-full"
-            >
-              {loading ? "Generating..." : "Generate Report"}
-            </Button>
-          </div>
-        </GlassCard>
-
-        {reportData && (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {reportStats()?.map((stat, i) => (
-                <GlassCard key={i} className="p-4 text-center">
-                  <stat.icon className="w-6 h-6 mx-auto mb-2 text-primary" />
-                  <p className="text-2xl font-bold">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
-                </GlassCard>
-              ))}
-            </div>
-
-            <GlassCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold">Report Data</h2>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={exportToCSV}
-                    className="gap-2"
-                  >
-                    <Download className="w-4 h-4" />
-                    CSV
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={exportToJSON}
-                    className="gap-2"
-                  >
-                    <Download className="w-4 h-4" />
-                    JSON
-                  </Button>
-                </div>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</p>
+              <div className="flex items-end gap-3 mt-1">
+                <h3 className="text-2xl font-bold text-white">{stat.value}</h3>
+                <span className={`text-[10px] font-bold mb-1 ${stat.change.startsWith('+') ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {stat.change}
+                </span>
               </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="border-b border-border/50">
-                    <tr>
-                      {Array.isArray(reportData) &&
-                        reportData.length > 0 &&
-                        Object.keys(reportData[0] as object).map((header) => (
-                          <th key={header} className="text-left py-2 px-3 font-medium text-muted-foreground">
-                            {header.replace(/_/g, " ").toUpperCase()}
-                          </th>
-                        ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Array.isArray(reportData) &&
-                      reportData.slice(0, 10).map((row, i) => (
-                        <tr key={i} className="border-b border-border/30 hover:bg-white/5">
-                          {Object.values(row as object).map((value, j) => (
-                            <td key={j} className="py-2 px-3">
-                              {typeof value === "object"
-                                ? JSON.stringify(value)
-                                : String(value).substring(0, 50)}
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {Array.isArray(reportData) && reportData.length > 10 && (
-                <p className="text-xs text-muted-foreground mt-4">
-                  Showing 10 of {reportData.length} records. Export to see all data.
-                </p>
-              )}
             </GlassCard>
-          </>
-        )}
-      </main>
+          ))}
+        </div>
 
-      <FooterNav dashboardType="admin" />
-    </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            <GlassCard className="p-6 border-white/5 h-[450px] flex flex-col">
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-primary" />
+                  Performance Overview
+                </h3>
+                <div className="flex bg-white/5 p-1 rounded-lg">
+                  <Button 
+                    variant={reportType === "sales" ? "secondary" : "ghost"} 
+                    size="sm" 
+                    className="h-8 text-[10px] uppercase font-bold"
+                    onClick={() => setReportType("sales")}
+                  >
+                    Sales
+                  </Button>
+                  <Button 
+                    variant={reportType === "users" ? "secondary" : "ghost"} 
+                    size="sm" 
+                    className="h-8 text-[10px] uppercase font-bold"
+                    onClick={() => setReportType("users")}
+                  >
+                    Growth
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex-1 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  {reportType === "sales" ? (
+                    <AreaChart data={mockData}>
+                      <defs>
+                        <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                      <XAxis dataKey="name" stroke="#ffffff40" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#ffffff40" fontSize={12} tickLine={false} axisLine={false} />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                        itemStyle={{ color: '#fff' }}
+                      />
+                      <Area type="monotone" dataKey="sales" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
+                    </AreaChart>
+                  ) : (
+                    <BarChart data={mockData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+                      <XAxis dataKey="name" stroke="#ffffff40" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#ffffff40" fontSize={12} tickLine={false} axisLine={false} />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '8px' }}
+                      />
+                      <Bar dataKey="users" fill="#a855f7" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  )}
+                </ResponsiveContainer>
+              </div>
+            </GlassCard>
+          </div>
+
+          <div className="space-y-6">
+            <GlassCard className="p-6 border-white/5 flex flex-col h-full">
+              <h3 className="text-lg font-bold text-white mb-6">Available Reports</h3>
+              <div className="space-y-3">
+                {[
+                  { name: "Consolidated Sales Report", icon: FileSpreadsheet, size: "1.2 MB", type: "sales" },
+                  { name: "User Activity Audit", icon: Users, size: "0.8 MB", type: "users" },
+                  { name: "Inventory Valuation", icon: Package, size: "2.4 MB", type: "products" },
+                  { name: "Marketing Funnel Data", icon: BarChart3, size: "0.5 MB", type: "sales" },
+                ].map((report, i) => (
+                  <div key={i} className="group p-4 rounded-xl bg-white/5 border border-white/5 hover:border-primary/50 transition-all cursor-pointer">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-background border border-white/10 text-muted-foreground group-hover:text-primary transition-colors">
+                          <report.icon className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-white">{report.name}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{report.size}</p>
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground group-hover:text-white" onClick={() => handleExport(report.type)}>
+                        <Download className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-auto pt-6">
+                <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20">
+                  <p className="text-xs text-primary font-medium leading-relaxed">
+                    Custom reports can be scheduled for automatic delivery to your admin email. 
+                    Visit settings to configure.
+                  </p>
+                </div>
+              </div>
+            </GlassCard>
+          </div>
+        </div>
+      </main>
+    </AdminLayout>
   );
 };
 

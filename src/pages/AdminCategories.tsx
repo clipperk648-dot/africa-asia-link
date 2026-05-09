@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
 import { getCategories, createCategory, updateCategory, deleteCategory } from "@/lib/db";
 import GlassCard from "@/components/GlassCard";
-import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Plus, Pencil, Trash2, Check, X } from "lucide-react";
-import ThreeBackground from "@/components/ThreeBackground";
+import { Plus, Pencil, Trash2, Box, Search } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -26,6 +23,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import AdminLayout from "@/components/AdminLayout";
 
 interface Category {
   id: string;
@@ -36,21 +34,17 @@ interface Category {
 
 const AdminCategories = () => {
   const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNewDialog, setShowNewDialog] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: "", description: "" });
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    if (!currentUser || currentUser.role !== "admin") {
-      navigate("/login");
-      return;
-    }
     loadCategories();
-  }, [currentUser, navigate]);
+  }, []);
 
   const loadCategories = async () => {
     try {
@@ -89,7 +83,6 @@ const AdminCategories = () => {
       loadCategories();
     } catch (error) {
       toast.error("Failed to save category");
-      console.error(error);
     }
   };
 
@@ -101,7 +94,6 @@ const AdminCategories = () => {
       loadCategories();
     } catch (error) {
       toast.error("Failed to delete category");
-      console.error(error);
     }
   };
 
@@ -117,68 +109,65 @@ const AdminCategories = () => {
     setShowNewDialog(true);
   };
 
+  const filteredCategories = categories.filter(c => 
+    c.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="min-h-screen pb-24 relative">
-      <ThreeBackground />
-
-      <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <h1 className="text-xl font-bold">Category Management</h1>
-            </div>
-            <Button variant="gradient" size="sm" onClick={handleNewClick} className="gap-2">
-              <Plus className="w-4 h-4" />
-              New Category
-            </Button>
+    <AdminLayout>
+      <main className="max-w-7xl mx-auto px-4 py-6 w-full space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="relative flex-1 sm:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search categories..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 h-10 bg-background/50 border-white/10"
+            />
           </div>
+          <Button onClick={handleNewClick} className="w-full sm:w-auto gap-2 rounded-full shadow-lg shadow-primary/10">
+            <Plus className="w-4 h-4" /> New Category
+          </Button>
         </div>
-      </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-6 space-y-4">
         {loading ? (
-          <p className="text-center text-muted-foreground">Loading categories...</p>
-        ) : categories.length === 0 ? (
-          <GlassCard className="p-8 text-center">
-            <p className="text-muted-foreground mb-4">No categories yet</p>
-            <Button onClick={handleNewClick}>Create First Category</Button>
+          <div className="flex justify-center py-20">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : filteredCategories.length === 0 ? (
+          <GlassCard className="p-12 text-center border-white/5">
+            <Box className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-20" />
+            <p className="text-muted-foreground mb-4">No categories found</p>
+            <Button variant="outline" onClick={handleNewClick} className="border-white/10">Create First Category</Button>
           </GlassCard>
         ) : (
-          <div className="grid gap-3">
-            {categories.map((category) => (
-              <GlassCard key={category.id} className="p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-lg">{category.name}</h3>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredCategories.map((category) => (
+              <GlassCard key={category.id} className="p-6 border-white/5 hover:bg-white/5 transition-colors group">
+                <div className="flex flex-col h-full justify-between gap-4">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 text-primary">
+                        <Box className="w-4 h-4" />
+                      </div>
+                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10" onClick={() => handleEdit(category)}>
+                           <Pencil className="w-3.5 h-3.5" />
+                         </Button>
+                         <Button variant="ghost" size="icon" className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-400/10" onClick={() => setDeletingId(category.id)}>
+                           <Trash2 className="w-3.5 h-3.5" />
+                         </Button>
+                      </div>
+                    </div>
+                    <h3 className="font-bold text-white text-lg">{category.name}</h3>
                     {category.description && (
-                      <p className="text-sm text-muted-foreground mt-1">{category.description}</p>
+                      <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{category.description}</p>
                     )}
-                    <p className="text-xs text-muted-foreground/50 mt-2">
-                      Created {new Date(category.created_at).toLocaleDateString()}
-                    </p>
                   </div>
-                  <div className="flex gap-2 flex-shrink-0">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(category)}
-                      className="gap-2"
-                    >
-                      <Pencil className="w-4 h-4" />
-                      Edit
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setDeletingId(category.id)}
-                      className="text-red-500 hover:text-red-500 hover:bg-red-500/10 border-red-500/50"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
+                  <p className="text-[10px] text-muted-foreground/50 uppercase tracking-widest font-bold">
+                    ID: {category.id.slice(0, 8)} • {new Date(category.created_at).toLocaleDateString()}
+                  </p>
                 </div>
               </GlassCard>
             ))}
@@ -187,64 +176,61 @@ const AdminCategories = () => {
       </main>
 
       <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
-        <DialogContent>
+        <DialogContent className="bg-background/95 backdrop-blur-xl border-white/10 text-white">
           <DialogHeader>
             <DialogTitle>
               {editingCategory ? "Edit Category" : "Create New Category"}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Category Name</label>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Category Name</label>
               <Input
                 placeholder="e.g., Electronics"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="mt-1"
+                className="bg-background/50 border-white/10"
               />
             </div>
-            <div>
-              <label className="text-sm font-medium">Description</label>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Description</label>
               <Textarea
-                placeholder="Optional description..."
+                placeholder="Briefly describe what goes in this category..."
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="mt-1"
-                rows={3}
+                className="bg-background/50 border-white/10 min-h-[100px]"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowNewDialog(false)}>
+            <Button variant="outline" onClick={() => setShowNewDialog(false)} className="border-white/10 bg-transparent">
               Cancel
             </Button>
-            <Button onClick={handleSave}>
-              {editingCategory ? "Update" : "Create"}
+            <Button onClick={handleSave} className="shadow-lg shadow-primary/20">
+              {editingCategory ? "Save Changes" : "Create Category"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       <AlertDialog open={deletingId !== null} onOpenChange={() => setDeletingId(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-background/95 backdrop-blur-xl border-white/10 text-white">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Category?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. Ensure no products are using this category before deleting.
+            <AlertDialogDescription className="text-muted-foreground">
+              This action cannot be undone. All products associated with this category will remain, but their category reference might break.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel className="border-white/10 bg-transparent">Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => deletingId && handleDelete(deletingId)}
-            className="bg-red-600 hover:bg-red-700"
+            className="bg-red-600 hover:bg-red-700 text-white"
           >
-            Delete
+            Delete Permanently
           </AlertDialogAction>
         </AlertDialogContent>
       </AlertDialog>
-
-      <FooterNav dashboardType="admin" />
-    </div>
+    </AdminLayout>
   );
 };
 

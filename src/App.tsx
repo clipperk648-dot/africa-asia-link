@@ -7,12 +7,14 @@ import { Suspense, lazy, useEffect } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { ThemeProvider } from "next-themes";
 import { initializeAuth } from "@/lib/auth";
+import LoadingProgress from "@/components/LoadingProgress";
 
 const Index = lazy(() => import("./pages/Index"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const Login = lazy(() => import("./pages/Login"));
 const SignUp = lazy(() => import("./pages/SignUp"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AdminClusters = lazy(() => import("./pages/AdminClusters"));
 const AdminProducts = lazy(() => import("./pages/AdminProducts"));
 const AdminProductEdit = lazy(() => import("./pages/AdminProductEdit"));
 const AdminProductStats = lazy(() => import("./pages/AdminProductStats"));
@@ -21,6 +23,7 @@ const AdminSettings = lazy(() => import("./pages/AdminSettings"));
 const AdminCategories = lazy(() => import("./pages/AdminCategories"));
 const AdminReports = lazy(() => import("./pages/AdminReports"));
 const AdminContent = lazy(() => import("./pages/AdminContent"));
+const AdminNotifications = lazy(() => import("./pages/AdminNotifications"));
 const BuyerDashboard = lazy(() => import("./pages/BuyerDashboard"));
 const BuyerProducts = lazy(() => import("./pages/BuyerProducts"));
 const BuyerSettings = lazy(() => import("./pages/BuyerSettings"));
@@ -62,7 +65,7 @@ const AppContent = () => {
   }, []);
 
   return (
-    <Suspense fallback={<div className="p-4 text-sm text-muted-foreground">Loading…</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>}>
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/login" element={<Login />} />
@@ -71,6 +74,7 @@ const AppContent = () => {
         {/* Admin Routes */}
         <Route path="/admin" element={<ProtectedRoute element={<AdminDashboard />} requiredRole="admin" />} />
         <Route path="/admin/users" element={<ProtectedRoute element={<AdminUsers />} requiredRole="admin" />} />
+        <Route path="/admin/clusters" element={<ProtectedRoute element={<AdminClusters />} requiredRole="admin" />} />
         <Route path="/admin/products" element={<ProtectedRoute element={<AdminProducts />} requiredRole="admin" />} />
         <Route path="/admin/products/add" element={<ProtectedRoute element={<AdminProductEdit />} requiredRole="admin" />} />
         <Route path="/admin/products/:id/edit" element={<ProtectedRoute element={<AdminProductEdit />} requiredRole="admin" />} />
@@ -80,6 +84,7 @@ const AppContent = () => {
         <Route path="/admin/categories" element={<ProtectedRoute element={<AdminCategories />} requiredRole="admin" />} />
         <Route path="/admin/reports" element={<ProtectedRoute element={<AdminReports />} requiredRole="admin" />} />
         <Route path="/admin/content" element={<ProtectedRoute element={<AdminContent />} requiredRole="admin" />} />
+        <Route path="/admin/notifications" element={<ProtectedRoute element={<AdminNotifications />} requiredRole="admin" />} />
         
         {/* Buyer Routes */}
         <Route path="/buyer" element={<ProtectedRoute element={<BuyerDashboard />} requiredRole="buyer" />} />
@@ -131,6 +136,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <LoadingProgress />
           <AppContent />
         </BrowserRouter>
       </TooltipProvider>
