@@ -20,12 +20,13 @@ const AdminProductEdit = () => {
   const { id } = useParams<{ id: string }>();
   const user = getCurrentUser();
   const { toast } = useToast();
+  const isAddMode = !id || id === 'add';
 
   useEffect(() => {
     if (!user || user.role !== "admin") navigate("/login");
   }, [user, navigate]);
 
-  const { data: product } = useProduct(id!);
+  const { data: product } = useProduct(id && id !== 'add' ? id : undefined);
 
   const [form, setForm] = useState(() => ({
     nameEN: product?.name || "",
@@ -73,6 +74,52 @@ const AdminProductEdit = () => {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [brochureFile, setBrochureFile] = useState<File | null>(null);
+
+  useEffect(() => {
+    if (product) {
+      setForm({
+        nameEN: product.name || "",
+        nameZH: product.nameZH || "",
+        category: product.category?.toLowerCase() || "machinery",
+        hsCode: product.hsCode || "",
+        brand: product.brand || "",
+        model: product.model || "",
+        originCountry: product.originCountry || "China",
+        province: product.province || "",
+        city: product.city || "",
+        unit: product.unit || "piece",
+        unitPrice: String(product.unitPrice ?? product.price ?? ""),
+        currency: (product.currency as "CNY" | "USD" | "NGN") || "USD",
+        moq: String(product.moq ?? ""),
+        supplyAbilityPerMonth: String(product.supplyAbilityPerMonth ?? ""),
+        quantityAvailable: String(product.quantityAvailable ?? ""),
+        leadTimeDays: String(product.leadTimeDays ?? ""),
+        incoterm: product.incoterm || "FOB",
+        portOfShipment: product.portOfShipment || "",
+        description: product.description || "",
+        specifications: (product.specifications || []).join("\n"),
+        companyName: product.company || "",
+        contactName: product.contactName || "",
+        contactEmail: product.contactEmail || "",
+        contactPhone: product.contactPhone || "",
+        wechat: product.wechat || "",
+        whatsapp: product.whatsapp || "",
+        warrantyMonths: String(product.warrantyMonths ?? ""),
+        oem: !!product.oemAvailable,
+        odm: !!product.odmAvailable,
+        customPackaging: !!product.customPackaging,
+        sampleAvailable: !!product.sampleAvailable,
+        certifications: {
+          ce: product.certifications?.includes("CE") || false,
+          rohs: product.certifications?.includes("RoHS") || false,
+          iso9001: product.certifications?.includes("ISO9001") || false,
+          fcc: product.certifications?.includes("FCC") || false,
+          ccc: product.certifications?.includes("CCC") || false,
+        },
+      });
+      setImagePreviews((product.images || (product.image ? [product.image] : [])) as string[]);
+    }
+  }, [product]);
 
   const handle = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | string) => {
     const value = typeof e === 'string' ? e : e.target.value;
@@ -133,13 +180,13 @@ const AdminProductEdit = () => {
     setBrochureFile(null);
   };
 
-  if (!product) {
+  if (!isAddMode && !product) {
     return (
       <div className="min-h-screen pb-24 relative">
         <ThreeBackground />
         <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
           <div className="max-w-7xl mx-auto px-4 py-2 flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/industry/products")}> <ArrowLeft className="w-5 h-5" /> </Button>
+            <Button variant="ghost" size="icon" onClick={() => navigate("/admin/products")}> <ArrowLeft className="w-5 h-5" /> </Button>
             <h1 className="text-xl font-bold">Edit Product</h1>
           </div>
         </header>
@@ -156,12 +203,12 @@ const AdminProductEdit = () => {
       <ThreeBackground />
       <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-2 flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => { if (window.history.length > 1) navigate(-1); else navigate('/industry/products'); }}>
+          <Button variant="ghost" size="icon" onClick={() => { if (window.history.length > 1) navigate(-1); else navigate('/admin/products'); }}>
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex items-center gap-2">
             <PencilLine className="w-5 h-5" />
-            <h1 className="text-xl font-bold">Edit Product</h1>
+            <h1 className="text-xl font-bold">{isAddMode ? 'Add' : 'Edit'} Product</h1>
           </div>
         </div>
       </header>
@@ -523,23 +570,25 @@ const AdminProductEdit = () => {
         </GlassCard>
 
         <div className="flex flex-col sm:flex-row sm:justify-end gap-3">
-          <Button type="button" variant="outline" onClick={() => { if (window.history.length > 1) navigate(-1); else navigate('/industry/products'); }}>
+          <Button type="button" variant="outline" onClick={() => { if (window.history.length > 1) navigate(-1); else navigate('/admin/products'); }}>
             Cancel
           </Button>
           <Button
             type="button"
             variant="gradient"
             onClick={() => {
-              toast({ title: "Product updated", description: "Your changes have been saved." });
-              if (window.history.length > 1) navigate(-1); else navigate('/industry/products');
+              toast({ title: isAddMode ? "Product created" : "Product updated", description: "Your changes have been saved." });
+              navigate('/admin/products');
             }}
           >
-            Save changes
+            {isAddMode ? 'Create' : 'Save changes'}
           </Button>
-          <Button variant="outline" onClick={() => navigate(`/industry/products/${product.id}/stats`)}>
-            <BarChart3 className="w-4 h-4" />
-            View Stats
-          </Button>
+          {!isAddMode && product && (
+            <Button variant="outline" onClick={() => navigate(`/admin/products/${product.id}/stats`)}>
+              <BarChart3 className="w-4 h-4" />
+              View Stats
+            </Button>
+          )}
         </div>
       </main>
 
