@@ -61,6 +61,14 @@ const AdminDashboard = () => {
   const { data: products = [] } = useProducts(20, 0);
   const { data: orders = [] } = useOrders(user?.id);
 
+  const ctaTexts = [
+    "Hi there! 👋",
+    "Need help? I'm here!",
+    "Managing clusters? Let's go!",
+    "Check out new orders 📦",
+    "Review user activity 👥",
+  ];
+
   const tooltipIndexRef = useRef(0);
 
   const cycleBotTooltip = useCallback(() => {
