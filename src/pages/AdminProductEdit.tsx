@@ -1,129 +1,160 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getCurrentUser } from "@/utils/mockAuth";
-import { useProduct } from "@/hooks/useData";
+import { useProduct, useCreateProductMutation, useUpdateProductMutation } from "@/hooks/useData";
+import type { Product } from "@/types/models";
 import GlassCard from "@/components/GlassCard";
-import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, PencilLine, BarChart3, UploadCloud, X, Image as ImageIcon, Video as VideoIcon, Upload } from "lucide-react";
-import ThreeBackground from "@/components/ThreeBackground";
+import { toast } from "sonner";
+import { ArrowLeft, UploadCloud, X, Image as ImageIcon, Video as VideoIcon, Upload, Save, Eye } from "lucide-react";
+import AdminLayout from "@/components/AdminLayout";
 
+type ProductForm = {
+  nameEN: string;
+  nameZH: string;
+  category: string;
+  hsCode: string;
+  brand: string;
+  model: string;
+  originCountry: string;
+  province: string;
+  city: string;
+  unit: string;
+  unitPrice: string;
+  currency: string;
+  moq: string;
+  supplyAbilityPerMonth: string;
+  quantityAvailable: string;
+  leadTimeDays: string;
+  incoterm: string;
+  portOfShipment: string;
+  description: string;
+  specifications: string;
+  companyName: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  wechat: string;
+  whatsapp: string;
+  warrantyMonths: string;
+  oem: boolean;
+  odm: boolean;
+  customPackaging: boolean;
+  sampleAvailable: boolean;
+  certifications: {
+    ce: boolean;
+    rohs: boolean;
+    iso9001: boolean;
+    fcc: boolean;
+    ccc: boolean;
+  };
+};
 
 const AdminProductEdit = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const user = getCurrentUser();
-  const { toast } = useToast();
   const isAddMode = !id || id === 'add';
 
-  useEffect(() => {
-    if (!user || user.role !== "admin") navigate("/login");
-  }, [user, navigate]);
-
   const { data: product } = useProduct(id && id !== 'add' ? id : undefined);
+  const createProductMutation = useCreateProductMutation();
+  const updateProductMutation = useUpdateProductMutation();
 
-  const [form, setForm] = useState(() => ({
-    nameEN: product?.name || "",
-    nameZH: product?.nameZH || "",
-    category: product?.category?.toLowerCase() || "machinery",
-    hsCode: product?.hsCode || "",
-    brand: product?.brand || "",
-    model: product?.model || "",
-    originCountry: product?.originCountry || "China",
-    province: product?.province || "",
-    city: product?.city || "",
-    unit: product?.unit || "piece",
-    unitPrice: String(product?.unitPrice ?? product?.price ?? ""),
-    currency: (product?.currency as "CNY" | "USD" | "NGN") || "USD",
-    moq: String(product?.moq ?? ""),
-    supplyAbilityPerMonth: String(product?.supplyAbilityPerMonth ?? ""),
-    quantityAvailable: String(product?.quantityAvailable ?? ""),
-    leadTimeDays: String(product?.leadTimeDays ?? ""),
-    incoterm: product?.incoterm || "FOB",
-    portOfShipment: product?.portOfShipment || "",
-    description: product?.description || "",
-    specifications: (product?.specifications || []).join("\n"),
-    companyName: product?.company || "",
-    contactName: product?.contactName || "",
-    contactEmail: product?.contactEmail || "",
-    contactPhone: product?.contactPhone || "",
-    wechat: product?.wechat || "",
-    whatsapp: product?.whatsapp || "",
-    warrantyMonths: String(product?.warrantyMonths ?? ""),
-    oem: !!product?.oemAvailable,
-    odm: !!product?.odmAvailable,
-    customPackaging: !!product?.customPackaging,
-    sampleAvailable: !!product?.sampleAvailable,
+  const [form, setForm] = useState<ProductForm>({
+    nameEN: "",
+    nameZH: "",
+    category: "machinery",
+    hsCode: "",
+    brand: "",
+    model: "",
+    originCountry: "China",
+    province: "",
+    city: "",
+    unit: "piece",
+    unitPrice: "",
+    currency: "USD",
+    moq: "",
+    supplyAbilityPerMonth: "",
+    quantityAvailable: "",
+    leadTimeDays: "",
+    incoterm: "FOB",
+    portOfShipment: "",
+    description: "",
+    specifications: "",
+    companyName: "",
+    contactName: "",
+    contactEmail: "",
+    contactPhone: "",
+    wechat: "",
+    whatsapp: "",
+    warrantyMonths: "",
+    oem: false,
+    odm: false,
+    customPackaging: false,
+    sampleAvailable: false,
     certifications: {
-      ce: product?.certifications?.includes("CE") || false,
-      rohs: product?.certifications?.includes("RoHS") || false,
-      iso9001: product?.certifications?.includes("ISO9001") || false,
-      fcc: product?.certifications?.includes("FCC") || false,
-      ccc: product?.certifications?.includes("CCC") || false,
+      ce: false,
+      rohs: false,
+      iso9001: false,
+      fcc: false,
+      ccc: false,
     },
-  }));
+  });
 
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>(() => (product?.images || (product?.image ? [product.image] : [])) as string[]);
-  const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [videoPreview, setVideoPreview] = useState<string | null>(null);
-  const [brochureFile, setBrochureFile] = useState<File | null>(null);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   useEffect(() => {
     if (product) {
+      const p = product as Product;
       setForm({
-        nameEN: product.name || "",
-        nameZH: product.nameZH || "",
-        category: product.category?.toLowerCase() || "machinery",
-        hsCode: product.hsCode || "",
-        brand: product.brand || "",
-        model: product.model || "",
-        originCountry: product.originCountry || "China",
-        province: product.province || "",
-        city: product.city || "",
-        unit: product.unit || "piece",
-        unitPrice: String(product.unitPrice ?? product.price ?? ""),
-        currency: (product.currency as "CNY" | "USD" | "NGN") || "USD",
-        moq: String(product.moq ?? ""),
-        supplyAbilityPerMonth: String(product.supplyAbilityPerMonth ?? ""),
-        quantityAvailable: String(product.quantityAvailable ?? ""),
-        leadTimeDays: String(product.leadTimeDays ?? ""),
-        incoterm: product.incoterm || "FOB",
-        portOfShipment: product.portOfShipment || "",
-        description: product.description || "",
-        specifications: (product.specifications || []).join("\n"),
-        companyName: product.company || "",
-        contactName: product.contactName || "",
-        contactEmail: product.contactEmail || "",
-        contactPhone: product.contactPhone || "",
-        wechat: product.wechat || "",
-        whatsapp: product.whatsapp || "",
-        warrantyMonths: String(product.warrantyMonths ?? ""),
-        oem: !!product.oemAvailable,
-        odm: !!product.odmAvailable,
-        customPackaging: !!product.customPackaging,
-        sampleAvailable: !!product.sampleAvailable,
+        nameEN: p.name || "",
+        nameZH: p.nameZH || "",
+        category: p.category?.toLowerCase() || "machinery",
+        hsCode: p.hsCode || "",
+        brand: p.brand || "",
+        model: p.model || "",
+        originCountry: p.originCountry || "China",
+        province: p.province || "",
+        city: p.city || "",
+        unit: p.unit || "piece",
+        unitPrice: String(p.unitPrice ?? p.price ?? ""),
+        currency: (p.currency as string) || "USD",
+        moq: String(p.moq ?? ""),
+        supplyAbilityPerMonth: String(p.supplyAbilityPerMonth ?? ""),
+        quantityAvailable: String(p.quantityAvailable ?? ""),
+        leadTimeDays: String(p.leadTimeDays ?? ""),
+        incoterm: p.incoterm || "FOB",
+        portOfShipment: p.portOfShipment || "",
+        description: p.description || "",
+        specifications: (p.specifications || []).join("\n"),
+        companyName: p.company || "",
+        contactName: p.contactName || "",
+        contactEmail: p.contactEmail || "",
+        contactPhone: p.contactPhone || "",
+        wechat: p.wechat || "",
+        whatsapp: p.whatsapp || "",
+        warrantyMonths: String(p.warrantyMonths ?? ""),
+        oem: !!p.oemAvailable,
+        odm: !!p.odmAvailable,
+        customPackaging: !!p.customPackaging,
+        sampleAvailable: !!p.sampleAvailable,
         certifications: {
-          ce: product.certifications?.includes("CE") || false,
-          rohs: product.certifications?.includes("RoHS") || false,
-          iso9001: product.certifications?.includes("ISO9001") || false,
-          fcc: product.certifications?.includes("FCC") || false,
-          ccc: product.certifications?.includes("CCC") || false,
+          ce: p.certifications?.includes("CE") || false,
+          rohs: p.certifications?.includes("RoHS") || false,
+          iso9001: p.certifications?.includes("ISO9001") || false,
+          fcc: p.certifications?.includes("FCC") || false,
+          ccc: p.certifications?.includes("CCC") || false,
         },
       });
-      setImagePreviews((product.images || (product.image ? [product.image] : [])) as string[]);
+      setImagePreviews((p.images || (p.image ? [p.image] : [])) as string[]);
     }
   }, [product]);
 
-  const handle = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | string) => {
-    const value = typeof e === 'string' ? e : e.target.value;
-    setForm((p) => ({ ...p, [key]: value }));
+  const handleInput = (key: keyof ProductForm, value: any) => {
+    setForm(p => ({ ...p, [key]: value }));
   };
 
   const handleImageFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,468 +163,231 @@ const AdminProductEdit = () => {
       toast.error("Maximum 6 images allowed");
       return;
     }
-
-    const newFiles = [...imageFiles, ...files];
-    setImageFiles(newFiles);
-
     files.forEach((file) => {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreviews((prev) => [...prev, e.target?.result as string]);
-      };
+      reader.onload = (e) => setImagePreviews(prev => [...prev, e.target?.result as string]);
       reader.readAsDataURL(file);
     });
   };
 
   const removeImage = (index: number) => {
-    setImageFiles((prev) => prev.filter((_, i) => i !== index));
-    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleSave = async () => {
+    try {
+      const productData: Partial<Product> = {
+        name: form.nameEN,
+        nameZH: form.nameZH,
+        category: form.category,
+        hsCode: form.hsCode,
+        brand: form.brand,
+        model: form.model,
+        originCountry: form.originCountry,
+        province: form.province,
+        city: form.city,
+        unit: form.unit,
+        price: parseFloat(form.unitPrice),
+        unitPrice: parseFloat(form.unitPrice),
+        currency: form.currency as "USD" | "CNY" | "NGN",
+        moq: parseInt(form.moq),
+        supplyAbilityPerMonth: parseInt(form.supplyAbilityPerMonth),
+        quantityAvailable: parseInt(form.quantityAvailable),
+        leadTimeDays: parseInt(form.leadTimeDays),
+        incoterm: form.incoterm,
+        portOfShipment: form.portOfShipment,
+        description: form.description,
+        specifications: form.specifications.split("\n").filter(Boolean),
+        company: form.companyName,
+        contactName: form.contactName,
+        contactEmail: form.contactEmail,
+        contactPhone: form.contactPhone,
+        wechat: form.wechat,
+        whatsapp: form.whatsapp,
+        warrantyMonths: parseInt(form.warrantyMonths),
+        oemAvailable: form.oem,
+        odmAvailable: form.odm,
+        customPackaging: form.customPackaging,
+        sampleAvailable: form.sampleAvailable,
+        image: imagePreviews[0] || "",
+        images: imagePreviews,
+        location: `${form.city}, ${form.originCountry || 'China'}`
+      };
 
-    setVideoFile(file);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setVideoPreview(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const removeVideo = () => {
-    setVideoFile(null);
-    setVideoPreview(null);
-  };
-
-  const handleBrochureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type !== "application/pdf") {
-      toast.error("Only PDF files are allowed for brochures");
-      return;
+      if (isAddMode) {
+        await createProductMutation.mutateAsync(productData);
+        toast.success("Product created successfully");
+      } else {
+        await updateProductMutation.mutateAsync({ id: id!, data: productData });
+        toast.success("Product updated successfully");
+      }
+      navigate('/admin/products');
+    } catch (error) {
+      toast.error("Failed to save product");
     }
-    setBrochureFile(file || null);
   };
-
-  const removeBrochure = () => {
-    setBrochureFile(null);
-  };
-
-  if (!isAddMode && !product) {
-    return (
-      <div className="min-h-screen pb-24 relative">
-        <ThreeBackground />
-        <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-          <div className="max-w-7xl mx-auto px-4 py-2 flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/admin/products")}> <ArrowLeft className="w-5 h-5" /> </Button>
-            <h1 className="text-xl font-bold">Edit Product</h1>
-          </div>
-        </header>
-        <main className="max-w-3xl mx-auto px-4 py-6">
-          <GlassCard className="p-4">Product not found.</GlassCard>
-        </main>
-        <FooterNav dashboardType="admin" />
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen pb-24 relative">
-      <ThreeBackground />
-      <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => { if (window.history.length > 1) navigate(-1); else navigate('/admin/products'); }}>
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div className="flex items-center gap-2">
-            <PencilLine className="w-5 h-5" />
-            <h1 className="text-xl font-bold">{isAddMode ? 'Add' : 'Edit'} Product</h1>
+    <AdminLayout>
+      <main className="max-w-5xl mx-auto px-4 py-8 w-full space-y-8 pb-32">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex items-center gap-4">
+            <Button variant="outline" size="icon" className="rounded-full border-white/10" onClick={() => navigate(-1)}>
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-white tracking-tight">
+                {isAddMode ? 'Add New Product' : 'Edit Product'}
+              </h1>
+              <p className="text-muted-foreground mt-1 text-sm">
+                {isAddMode ? 'Create a new item in your global catalog.' : `Updating ${(product as Product)?.name || 'product'}`}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2 w-full sm:w-auto">
+             {!isAddMode && (
+               <Button variant="outline" className="flex-1 sm:flex-none border-white/10 gap-2" onClick={() => navigate(`/buyer/products/${id}`)}>
+                 <Eye className="w-4 h-4" /> Preview
+               </Button>
+             )}
+             <Button className="flex-1 sm:flex-none gap-2 shadow-lg shadow-primary/20" onClick={handleSave}>
+               <Save className="w-4 h-4" /> Save Product
+             </Button>
           </div>
         </div>
-      </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-6 space-y-6">
-        <GlassCard className="p-4 sm:p-6 space-y-6">
-          {/* Product details */}
-          <section className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="nameEN">Product name (English)</Label>
-                <Input id="nameEN" value={form.nameEN} onChange={handle("nameEN")} className="h-11 bg-background/50" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="nameZH">产品名称 (Chinese)</Label>
-                <Input id="nameZH" value={form.nameZH} onChange={handle("nameZH")} className="h-11 bg-background/50" />
-              </div>
-              <div className="space-y-2">
-                <Label>Category</Label>
-                <Select value={form.category} onValueChange={(v) => setForm((p) => ({ ...p, category: v }))}>
-                  <SelectTrigger className="h-11 bg-background/50"><SelectValue placeholder="Select category" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="machinery">Machinery</SelectItem>
-                    <SelectItem value="electronics">Electronics</SelectItem>
-                    <SelectItem value="home">Home Appliances</SelectItem>
-                    <SelectItem value="textiles">Textiles</SelectItem>
-                    <SelectItem value="tools">Tools & Hardware</SelectItem>
-                    <SelectItem value="auto">Auto Parts</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="hsCode">HS Code</Label>
-                <Input id="hsCode" value={form.hsCode} onChange={handle("hsCode")} className="h-11 bg-background/50" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="brand">Brand</Label>
-                <Input id="brand" value={form.brand} onChange={handle("brand")} className="h-11 bg-background/50" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="model">Model / SKU</Label>
-                <Input id="model" value={form.model} onChange={handle("model")} className="h-11 bg-background/50" />
-              </div>
-              <div className="space-y-2 sm:col-span-2">
-                <Label>Origin</Label>
-                <div className="grid grid-cols-3 gap-2">
-                  <Input value={form.originCountry} onChange={handle("originCountry")} className="h-11 bg-background/50" />
-                  <Input value={form.province} onChange={handle("province")} className="h-11 bg-background/50" placeholder="Province" />
-                  <Input value={form.city} onChange={handle("city")} className="h-11 bg-background/50" placeholder="City" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            <GlassCard className="p-6 border-white/5 space-y-6">
+              <h3 className="text-lg font-bold text-white border-b border-white/5 pb-4">Basic Information</h3>
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Product Name (EN)</Label>
+                  <Input value={form.nameEN} onChange={(e) => handleInput("nameEN", e.target.value)} className="bg-background/50 border-white/10 h-11" placeholder="e.g., Industrial Sorter" />
                 </div>
-              </div>
-              <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="description">Short description</Label>
-                <Textarea id="description" value={form.description} onChange={handle("description")} className="min-h-[100px] bg-background/50" />
-              </div>
-              <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="specifications">Key specifications (one per line)</Label>
-                <Textarea id="specifications" value={form.specifications} onChange={handle("specifications")} className="min-h-[120px] bg-background/50" />
-              </div>
-            </div>
-          </section>
-        </GlassCard>
-
-        {/* Trade information */}
-        <GlassCard className="p-4 sm:p-6 space-y-6">
-          <section className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Unit price</Label>
-                <div className="grid grid-cols-3 gap-2">
-                  <Select value={form.currency as any} onValueChange={(v) => setForm((p) => ({ ...p, currency: v as any }))}>
-                    <SelectTrigger className="h-11 bg-background/50"><SelectValue /></SelectTrigger>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">产品名称 (ZH)</Label>
+                  <Input value={form.nameZH} onChange={(e) => handleInput("nameZH", e.target.value)} className="bg-background/50 border-white/10 h-11" placeholder="例如：工业分选机" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Category</Label>
+                  <Select value={form.category} onValueChange={(v) => handleInput("category", v)}>
+                    <SelectTrigger className="bg-background/50 border-white/10 h-11"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="CNY">CNY (¥)</SelectItem>
-                      <SelectItem value="USD">USD ($)</SelectItem>
-                      <SelectItem value="NGN">NGN (₦)</SelectItem>
+                      <SelectItem value="machinery">Machinery</SelectItem>
+                      <SelectItem value="electronics">Electronics</SelectItem>
+                      <SelectItem value="home">Home Appliances</SelectItem>
+                      <SelectItem value="textiles">Textiles</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Input value={form.unitPrice} onChange={handle("unitPrice")} className="col-span-2 h-11 bg-background/50" type="number" min="0" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Brand</Label>
+                  <Input value={form.brand} onChange={(e) => handleInput("brand", e.target.value)} className="bg-background/50 border-white/10 h-11" />
+                </div>
+                <div className="sm:col-span-2 space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Description</Label>
+                  <Textarea value={form.description} onChange={(e) => handleInput("description", e.target.value)} className="bg-background/50 border-white/10 min-h-[120px]" />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label>Unit</Label>
-                <Select value={form.unit} onValueChange={(v) => setForm((p) => ({ ...p, unit: v }))}>
-                  <SelectTrigger className="h-11 bg-background/50"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="piece">Piece</SelectItem>
-                    <SelectItem value="set">Set</SelectItem>
-                    <SelectItem value="kg">Kg</SelectItem>
-                    <SelectItem value="ton">Ton</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="moq">MOQ</Label>
-                <Input id="moq" value={form.moq} onChange={handle("moq")} className="h-11 bg-background/50" type="number" min="1" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="supplyAbilityPerMonth">Supply ability (per month)</Label>
-                <Input id="supplyAbilityPerMonth" value={form.supplyAbilityPerMonth} onChange={handle("supplyAbilityPerMonth")} className="h-11 bg-background/50" type="number" min="0" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="quantityAvailable">Quantity available</Label>
-                <Input id="quantityAvailable" value={form.quantityAvailable} onChange={handle("quantityAvailable")} className="h-11 bg-background/50" type="number" min="0" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="leadTimeDays">Lead time (days)</Label>
-                <Input id="leadTimeDays" value={form.leadTimeDays} onChange={handle("leadTimeDays")} className="h-11 bg-background/50" type="number" min="0" />
-              </div>
-              <div className="space-y-2">
-                <Label>Incoterm</Label>
-                <Select value={form.incoterm} onValueChange={(v) => setForm((p) => ({ ...p, incoterm: v }))}>
-                  <SelectTrigger className="h-11 bg-background/50"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="EXW">EXW</SelectItem>
-                    <SelectItem value="FOB">FOB</SelectItem>
-                    <SelectItem value="CIF">CIF</SelectItem>
-                    <SelectItem value="DDP">DDP</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Port of shipment</Label>
-                <Input value={form.portOfShipment} onChange={handle("portOfShipment")} className="h-11 bg-background/50" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="warrantyMonths">Warranty (months)</Label>
-                <Input id="warrantyMonths" value={form.warrantyMonths} onChange={handle("warrantyMonths")} className="h-11 bg-background/50" type="number" min="0" />
-              </div>
-            </div>
-          </section>
-        </GlassCard>
+            </GlassCard>
 
-        {/* Services & certifications */}
-        <GlassCard className="p-4 sm:p-6 space-y-6">
-          <section className="space-y-4">
-            <h2 className="text-lg sm:text-xl font-semibold">Services & certifications</h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="flex items-center justify-between gap-4 rounded-lg border border-border/60 bg-background/40 px-4 py-3">
-                <div>
-                  <p className="font-medium text-sm">OEM / ODM available</p>
-                  <p className="text-xs text-muted-foreground">Support customization for your markets.</p>
+            <GlassCard className="p-6 border-white/5 space-y-6">
+              <h3 className="text-lg font-bold text-white border-b border-white/5 pb-4">Trade & Logistics</h3>
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Price & Currency</Label>
+                  <div className="flex gap-2">
+                    <Select value={form.currency} onValueChange={(v) => handleInput("currency", v)}>
+                      <SelectTrigger className="w-24 bg-background/50 border-white/10 h-11"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="USD">USD</SelectItem>
+                        <SelectItem value="CNY">CNY</SelectItem>
+                        <SelectItem value="NGN">NGN</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input type="number" value={form.unitPrice} onChange={(e) => handleInput("unitPrice", e.target.value)} className="flex-1 bg-background/50 border-white/10 h-11" />
+                  </div>
                 </div>
-                <Switch checked={form.oem} onCheckedChange={(v) => setForm((p) => ({ ...p, oem: v }))} />
-              </div>
-              <div className="flex items-center justify-between gap-4 rounded-lg border border-border/60 bg-background/40 px-4 py-3">
-                <div>
-                  <p className="font-medium text-sm">Custom packaging</p>
-                  <p className="text-xs text-muted-foreground">Logo, labels, manuals in EN/中文.</p>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">MOQ</Label>
+                  <Input type="number" value={form.moq} onChange={(e) => handleInput("moq", e.target.value)} className="bg-background/50 border-white/10 h-11" />
                 </div>
-                <Switch checked={form.customPackaging} onCheckedChange={(v) => setForm((p) => ({ ...p, customPackaging: v }))} />
-              </div>
-              <div className="flex items-center justify-between gap-4 rounded-lg border border-border/60 bg-background/40 px-4 py-3">
-                <div>
-                  <p className="font-medium text-sm">Sample available</p>
-                  <p className="text-xs text-muted-foreground">Refundable upon bulk order.</p>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Lead Time (Days)</Label>
+                  <Input type="number" value={form.leadTimeDays} onChange={(e) => handleInput("leadTimeDays", e.target.value)} className="bg-background/50 border-white/10 h-11" />
                 </div>
-                <Switch checked={form.sampleAvailable} onCheckedChange={(v) => setForm((p) => ({ ...p, sampleAvailable: v }))} />
-              </div>
-              <div className="space-y-2 rounded-lg border border-border/60 bg-background/40 px-4 py-3 sm:col-span-2">
-                <p className="font-medium text-sm mb-2">Certifications</p>
-                <div className="grid grid-cols-5 gap-2 text-sm">
-                  {(["CE","RoHS","ISO9001","FCC","CCC"] as const).map((c) => (
-                    <label key={c} className="flex items-center gap-2">
-                      <input type="checkbox" checked={(form.certifications as any)[c.toLowerCase()]} onChange={(e) => setForm((p: any) => ({ ...p, certifications: { ...p.certifications, [c.toLowerCase()]: e.target.checked } }))} /> {c}
-                    </label>
-                  ))}
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Incoterm</Label>
+                  <Select value={form.incoterm} onValueChange={(v) => handleInput("incoterm", v)}>
+                    <SelectTrigger className="bg-background/50 border-white/10 h-11"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="FOB">FOB</SelectItem>
+                      <SelectItem value="CIF">CIF</SelectItem>
+                      <SelectItem value="DDP">DDP</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
-            </div>
-          </section>
-        </GlassCard>
+            </GlassCard>
+          </div>
 
-        {/* Media */}
-        <GlassCard className="p-4 sm:p-6 space-y-6">
-          <section className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg sm:text-xl font-semibold">Media</h2>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <UploadCloud className="w-4 h-4" /> Upload or update media
+          <div className="space-y-6">
+            <GlassCard className="p-6 border-white/5 space-y-6">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <ImageIcon className="w-5 h-5 text-primary" /> Media
+              </h3>
+              
+              <div className="grid grid-cols-2 gap-2">
+                {imagePreviews.map((preview, idx) => (
+                  <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-white/10 group">
+                    <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+                    <button onClick={() => removeImage(idx)} className="absolute top-1 right-1 p-1 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+                {imagePreviews.length < 6 && (
+                  <label className="aspect-square rounded-lg border-2 border-dashed border-white/10 flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
+                    <Upload className="w-5 h-5 text-muted-foreground mb-1" />
+                    <span className="text-[9px] font-bold uppercase text-muted-foreground">Upload</span>
+                    <input type="file" className="hidden" accept="image/*" multiple onChange={handleImageFilesChange} />
+                  </label>
+                )}
               </div>
-            </div>
+            </GlassCard>
 
-            {/* Images */}
-            <div className="space-y-4">
+            <GlassCard className="p-6 border-white/5 space-y-4">
+              <h3 className="text-lg font-bold text-white">Capabilities</h3>
+              {[
+                { id: "oem", label: "OEM Available" },
+                { id: "odm", label: "ODM Available" },
+                { id: "sampleAvailable", label: "Samples" },
+                { id: "customPackaging", label: "Custom Packaging" },
+              ].map(item => (
+                <div key={item.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/5">
+                  <span className="text-xs font-bold text-white">{item.label}</span>
+                  <Switch checked={(form as any)[item.id]} onCheckedChange={(v) => handleInput(item.id as keyof ProductForm, v)} />
+                </div>
+              ))}
+            </GlassCard>
+
+            <div className="p-6 rounded-3xl bg-primary/5 border border-primary/20 space-y-4">
               <div className="flex items-center gap-2">
-                <ImageIcon className="w-5 h-5 text-primary" />
-                <Label className="text-base font-semibold">Product Images</Label>
-                <span className="text-xs text-muted-foreground">({imagePreviews.length}/6)</span>
+                <UploadCloud className="w-5 h-5 text-primary" />
+                <h4 className="text-sm font-bold text-white">Video & Docs</h4>
               </div>
-
-              {imagePreviews.length > 0 && (
-                <div className="grid grid-cols-3 gap-3">
-                  {imagePreviews.map((preview, idx) => (
-                    <div key={idx} className="relative group">
-                      <img src={preview} alt={`Preview ${idx}`} className="w-full aspect-square object-cover rounded-lg" />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(idx)}
-                        className="absolute top-1 right-1 p-1 bg-black/50 hover:bg-black/70 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <div className="relative">
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageFilesChange}
-                  multiple
-                  disabled={imagePreviews.length >= 6}
-                  className="hidden"
-                  id="image-input"
-                />
-                <label
-                  htmlFor="image-input"
-                  className={`flex items-center justify-center w-full p-6 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
-                    imagePreviews.length >= 6
-                      ? "border-muted bg-muted/20 cursor-not-allowed opacity-50"
-                      : "border-border hover:border-primary/50"
-                  }`}
-                >
-                  <div className="text-center">
-                    <Upload className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
-                    <p className="font-medium text-sm">Click to upload images</p>
-                    <p className="text-xs text-muted-foreground">PNG, JPG, GIF up to 5MB each</p>
-                  </div>
-                </label>
-              </div>
+              <Button variant="outline" className="w-full border-white/10 h-10 gap-2 text-xs">
+                <VideoIcon className="w-4 h-4" /> Add Product Video
+              </Button>
+              <Button variant="outline" className="w-full border-white/10 h-10 gap-2 text-xs">
+                <UploadCloud className="w-4 h-4" /> Upload PDF Brochure
+              </Button>
             </div>
-
-            {/* Video */}
-            <div className="space-y-4 border-t border-border/50 pt-6">
-              <div className="flex items-center gap-2">
-                <VideoIcon className="w-5 h-5 text-primary" />
-                <Label className="text-base font-semibold">Product Video</Label>
-              </div>
-
-              {videoPreview && (
-                <div className="relative w-full rounded-lg overflow-hidden bg-muted/50 aspect-video">
-                  <video src={videoPreview} controls className="w-full h-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={removeVideo}
-                    className="absolute top-2 right-2 p-1 bg-black/50 hover:bg-black/70 rounded-full text-white"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-              )}
-
-              <div className="relative">
-                <Input
-                  type="file"
-                  accept="video/*"
-                  onChange={handleVideoChange}
-                  disabled={!!videoFile}
-                  className="hidden"
-                  id="video-input"
-                />
-                <label
-                  htmlFor="video-input"
-                  className={`flex items-center justify-center w-full p-6 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
-                    videoFile
-                      ? "border-muted bg-muted/20 cursor-not-allowed opacity-50"
-                      : "border-border hover:border-primary/50"
-                  }`}
-                >
-                  <div className="text-center">
-                    <Upload className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
-                    <p className="font-medium text-sm">Click to upload video</p>
-                    <p className="text-xs text-muted-foreground">MP4, WebM up to 50MB</p>
-                    {videoFile && <p className="text-xs font-semibold text-primary mt-2">{videoFile.name}</p>}
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            {/* Brochure */}
-            <div className="space-y-4 border-t border-border/50 pt-6">
-              <Label className="text-base font-semibold">PDF Brochure (Optional)</Label>
-
-              {brochureFile && (
-                <div className="p-3 rounded-lg bg-secondary/20 border border-secondary/50 flex items-center justify-between">
-                  <p className="text-sm font-medium text-secondary">{brochureFile.name}</p>
-                  <button
-                    type="button"
-                    onClick={removeBrochure}
-                    className="p-1 hover:bg-secondary/20 rounded text-secondary"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
-
-              <div className="relative">
-                <Input
-                  type="file"
-                  accept=".pdf"
-                  onChange={handleBrochureChange}
-                  disabled={!!brochureFile}
-                  className="hidden"
-                  id="brochure-input"
-                />
-                <label
-                  htmlFor="brochure-input"
-                  className={`flex items-center justify-center w-full p-6 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
-                    brochureFile
-                      ? "border-muted bg-muted/20 cursor-not-allowed opacity-50"
-                      : "border-border hover:border-primary/50"
-                  }`}
-                >
-                  <div className="text-center">
-                    <Upload className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
-                    <p className="font-medium text-sm">Click to upload PDF</p>
-                    <p className="text-xs text-muted-foreground">PDF up to 10MB</p>
-                  </div>
-                </label>
-              </div>
-            </div>
-          </section>
-        </GlassCard>
-
-        {/* Contact */}
-        <GlassCard className="p-4 sm:p-6 space-y-6">
-          <section className="space-y-4">
-            <h2 className="text-lg sm:text-xl font-semibold">Contact</h2>
-            <div className="grid gap-4 sm:grid-cols-3">
-              <div className="space-y-2 sm:col-span-1">
-                <Label htmlFor="companyName">Company name</Label>
-                <Input id="companyName" value={form.companyName} onChange={handle("companyName")} className="h-11 bg-background/50" />
-              </div>
-              <div className="space-y-2 sm:col-span-1">
-                <Label htmlFor="contactName">Contact person</Label>
-                <Input id="contactName" value={form.contactName} onChange={handle("contactName")} className="h-11 bg-background/50" />
-              </div>
-              <div className="space-y-2 sm:col-span-1">
-                <Label htmlFor="contactEmail">Email</Label>
-                <Input id="contactEmail" value={form.contactEmail} onChange={handle("contactEmail")} className="h-11 bg-background/50" type="email" />
-              </div>
-              <div className="space-y-2 sm:col-span-1">
-                <Label htmlFor="contactPhone">Phone</Label>
-                <Input id="contactPhone" value={form.contactPhone} onChange={handle("contactPhone")} className="h-11 bg-background/50" />
-              </div>
-              <div className="space-y-2 sm:col-span-1">
-                <Label htmlFor="wechat">WeChat</Label>
-                <Input id="wechat" value={form.wechat} onChange={handle("wechat")} className="h-11 bg-background/50" />
-              </div>
-              <div className="space-y-2 sm:col-span-1">
-                <Label htmlFor="whatsapp">WhatsApp</Label>
-                <Input id="whatsapp" value={form.whatsapp} onChange={handle("whatsapp")} className="h-11 bg-background/50" />
-              </div>
-            </div>
-          </section>
-        </GlassCard>
-
-        <div className="flex flex-col sm:flex-row sm:justify-end gap-3">
-          <Button type="button" variant="outline" onClick={() => { if (window.history.length > 1) navigate(-1); else navigate('/admin/products'); }}>
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            variant="gradient"
-            onClick={() => {
-              toast({ title: isAddMode ? "Product created" : "Product updated", description: "Your changes have been saved." });
-              navigate('/admin/products');
-            }}
-          >
-            {isAddMode ? 'Create' : 'Save changes'}
-          </Button>
-          {!isAddMode && product && (
-            <Button variant="outline" onClick={() => navigate(`/admin/products/${product.id}/stats`)}>
-              <BarChart3 className="w-4 h-4" />
-              View Stats
-            </Button>
-          )}
+          </div>
         </div>
       </main>
-
-      <FooterNav dashboardType="admin" />
-    </div>
+    </AdminLayout>
   );
 };
 

@@ -103,9 +103,16 @@ export interface Cluster {
   icon?: string;
   preferredShippingMethod?: string;
   shippingStatus?: "shipping not started yet" | "in transit" | "in warehouse" | "delivered";
+  shipping_status?: string;
   shippingCountdown?: number;
   shippingStartedAt?: string;
+  shipping_started_at?: string;
   stopCounting?: boolean;
+  stop_counting?: boolean;
+  current_funded?: number;
+  current_members?: number;
+  max_members?: number;
+  cluster_members?: ClusterMember[];
 }
 
 export interface User {

@@ -1,15 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
 import { getContentPages, createContentPage, updateContentPage, deleteContentPage } from "@/lib/db";
 import GlassCard from "@/components/GlassCard";
-import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Plus, Pencil, Trash2, Eye } from "lucide-react";
-import ThreeBackground from "@/components/ThreeBackground";
+import { Plus, Pencil, Trash2, FileText, Globe, Search, Check, X, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -27,6 +22,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import AdminLayout from "@/components/AdminLayout";
+import { Switch } from "@/components/ui/switch";
 
 interface ContentPage {
   id: string;
@@ -38,84 +35,54 @@ interface ContentPage {
 }
 
 const AdminContent = () => {
-  const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
   const [pages, setPages] = useState<ContentPage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showNewDialog, setShowNewDialog] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
   const [editingPage, setEditingPage] = useState<ContentPage | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    title: "",
-    slug: "",
-    content: "",
-    published: false,
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  const [formData, setFormData] = useState({ 
+    title: "", 
+    slug: "", 
+    content: "", 
+    published: false 
   });
 
   useEffect(() => {
-    if (!currentUser || currentUser.role !== "admin") {
-      navigate("/login");
-      return;
-    }
     loadPages();
-  }, [currentUser, navigate]);
+  }, []);
 
   const loadPages = async () => {
     try {
       setLoading(true);
       const data = await getContentPages();
-      if (Array.isArray(data)) {
-        setPages(data as ContentPage[]);
-      } else {
-        setPages([]);
-      }
+      setPages(data as ContentPage[]);
     } catch (error) {
-      console.error("Failed to load content pages:", error);
-      setPages([]);
+      toast.error("Failed to load content pages");
     } finally {
       setLoading(false);
     }
   };
 
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-  };
-
   const handleSave = async () => {
-    if (!formData.title.trim() || !formData.content.trim()) {
-      toast.error("Title and content are required");
+    if (!formData.title.trim() || !formData.slug.trim()) {
+      toast.error("Title and Slug are required");
       return;
     }
 
     try {
-      const slug = formData.slug || generateSlug(formData.title);
-
       if (editingPage) {
-        await updateContentPage(
-          editingPage.id,
-          formData.title,
-          slug,
-          formData.content,
-          formData.published
-        );
+        await updateContentPage(editingPage.id, formData.title, formData.slug, formData.content, formData.published);
         toast.success("Page updated successfully");
       } else {
-        await createContentPage(
-          formData.title,
-          slug,
-          formData.content,
-          formData.published
-        );
+        await createContentPage(formData.title, formData.slug, formData.content, formData.published);
         toast.success("Page created successfully");
       }
-      resetForm();
+      setShowDialog(false);
       loadPages();
     } catch (error) {
       toast.error("Failed to save page");
-      console.error(error);
     }
   };
 
@@ -127,122 +94,99 @@ const AdminContent = () => {
       loadPages();
     } catch (error) {
       toast.error("Failed to delete page");
-      console.error(error);
     }
   };
 
   const handleEdit = (page: ContentPage) => {
     setEditingPage(page);
-    setFormData({
-      title: page.title,
-      slug: page.slug,
-      content: page.content,
-      published: page.published,
+    setFormData({ 
+      title: page.title, 
+      slug: page.slug, 
+      content: page.content, 
+      published: page.published 
     });
-    setShowNewDialog(true);
+    setShowDialog(true);
   };
 
-  const handleNewClick = () => {
-    resetForm();
+  const handleNew = () => {
     setEditingPage(null);
-    setShowNewDialog(true);
+    setFormData({ title: "", slug: "", content: "", published: false });
+    setShowDialog(true);
   };
 
-  const resetForm = () => {
-    setFormData({
-      title: "",
-      slug: "",
-      content: "",
-      published: false,
-    });
-    setShowNewDialog(false);
-  };
+  const filteredPages = pages.filter(p => 
+    p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.slug.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="min-h-screen pb-24 relative">
-      <ThreeBackground />
-
-      <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-                <ArrowLeft className="w-5 h-5" />
-              </Button>
-              <h1 className="text-xl font-bold">Content Management</h1>
-            </div>
-            <Button variant="gradient" size="sm" onClick={handleNewClick} className="gap-2">
-              <Plus className="w-4 h-4" />
-              New Page
-            </Button>
+    <AdminLayout>
+      <main className="max-w-7xl mx-auto px-4 py-6 w-full space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="relative flex-1 sm:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search pages..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 h-10 bg-background/50 border-white/10"
+            />
           </div>
+          <Button onClick={handleNew} className="w-full sm:w-auto gap-2 rounded-full shadow-lg shadow-primary/10">
+            <Plus className="w-4 h-4" /> New Page
+          </Button>
         </div>
-      </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-6 space-y-4">
         {loading ? (
-          <p className="text-center text-muted-foreground">Loading content pages...</p>
-        ) : pages.length === 0 ? (
-          <GlassCard className="p-8 text-center">
-            <p className="text-muted-foreground mb-4">No content pages yet</p>
-            <Button onClick={handleNewClick}>Create First Page</Button>
+          <div className="flex justify-center py-20">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : filteredPages.length === 0 ? (
+          <GlassCard className="p-12 text-center border-white/5">
+            <FileText className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-20" />
+            <p className="text-muted-foreground mb-4">No content pages found</p>
+            <Button variant="outline" onClick={handleNew} className="border-white/10">Create First Page</Button>
           </GlassCard>
         ) : (
-          <div className="grid gap-3">
-            {pages.map((page) => (
-              <GlassCard key={page.id} className="p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-bold text-lg">{page.title}</h3>
-                      {page.published ? (
-                        <span className="px-2 py-0.5 bg-green-500/20 text-green-500 text-[10px] font-bold rounded-full uppercase">
-                          Published
-                        </span>
-                      ) : (
-                        <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-500 text-[10px] font-bold rounded-full uppercase">
-                          Draft
-                        </span>
-                      )}
+          <div className="grid gap-4">
+            {filteredPages.map((page) => (
+              <GlassCard key={page.id} className="p-5 border-white/5 hover:bg-white/5 transition-colors group">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 text-primary">
+                      <FileText className="w-5 h-5" />
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1">/{page.slug}</p>
-                    <p className="text-sm text-muted-foreground/70 mt-2 line-clamp-2">
-                      {page.content}
-                    </p>
-                    <p className="text-xs text-muted-foreground/50 mt-2">
-                      Created {new Date(page.created_at).toLocaleDateString()}
-                    </p>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <h3 className="font-bold text-white truncate">{page.title}</h3>
+                        {page.published ? (
+                          <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase">Published</span>
+                        ) : (
+                          <span className="bg-white/5 text-muted-foreground border border-white/10 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase">Draft</span>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-1">
+                        <Globe className="w-3 h-3" /> /{page.slug}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex gap-2 flex-shrink-0">
-                    {page.published && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-2"
-                        onClick={() => {
-                          toast.info("Preview for: " + page.slug + " (route not yet available)");
-                        }}
-                        title="Content preview routes are not yet configured"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                    )}
-                    <Button
-                      variant="outline"
-                      size="sm"
+
+                  <div className="flex items-center gap-2 self-end md:self-center">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-9 gap-2 text-xs font-bold border border-white/5 hover:bg-white/5"
                       onClick={() => handleEdit(page)}
-                      className="gap-2"
                     >
-                      <Pencil className="w-4 h-4" />
-                      Edit
+                      <Pencil className="w-3.5 h-3.5" /> Edit
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-9 text-red-400 hover:text-red-300 hover:bg-red-400/10 border border-white/5"
                       onClick={() => setDeletingId(page.id)}
-                      className="text-red-500 hover:text-red-500 hover:bg-red-500/10 border-red-500/50"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </Button>
                   </div>
                 </div>
@@ -252,91 +196,83 @@ const AdminContent = () => {
         )}
       </main>
 
-      <Dialog open={showNewDialog} onOpenChange={setShowNewDialog}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto">
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+        <DialogContent className="max-w-2xl bg-background/95 backdrop-blur-xl border-white/10 text-white">
           <DialogHeader>
             <DialogTitle>
-              {editingPage ? "Edit Page" : "Create New Page"}
+              {editingPage ? "Edit Content Page" : "Create New Content Page"}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Title</label>
-              <Input
-                placeholder="Page title"
-                value={formData.title}
-                onChange={(e) => {
-                  setFormData({ ...formData, title: e.target.value });
-                  if (!editingPage) {
-                    setFormData((prev) => ({
-                      ...prev,
-                      slug: generateSlug(e.target.value),
-                    }));
-                  }
-                }}
-                className="mt-1"
-              />
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Title</label>
+                <Input
+                  placeholder="e.g., Privacy Policy"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  className="bg-background/50 border-white/10"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">URL Slug</label>
+                <Input
+                  placeholder="e.g., privacy-policy"
+                  value={formData.slug}
+                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                  className="bg-background/50 border-white/10"
+                />
+              </div>
             </div>
-            <div>
-              <label className="text-sm font-medium">URL Slug</label>
-              <Input
-                placeholder="page-slug"
-                value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Content</label>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Content (HTML/Markdown support)</label>
               <Textarea
-                placeholder="Page content..."
+                placeholder="Write your page content here..."
                 value={formData.content}
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                className="mt-1"
-                rows={8}
+                className="bg-background/50 border-white/10 min-h-[250px] font-mono text-sm"
               />
             </div>
-            <div className="flex items-center gap-3">
-              <Switch
-                checked={formData.published}
-                onCheckedChange={(checked) =>
-                  setFormData({ ...formData, published: checked })
-                }
+            <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5">
+              <div className="space-y-0.5">
+                <p className="text-sm font-bold text-white">Publish Page</p>
+                <p className="text-[10px] text-muted-foreground">Make this page visible to the public immediately.</p>
+              </div>
+              <Switch 
+                checked={formData.published} 
+                onCheckedChange={(val) => setFormData({ ...formData, published: val })}
               />
-              <label className="text-sm font-medium">Publish page</label>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={resetForm}>
+            <Button variant="outline" onClick={() => setShowDialog(false)} className="border-white/10 bg-transparent">
               Cancel
             </Button>
-            <Button onClick={handleSave}>
-              {editingPage ? "Update" : "Create"}
+            <Button onClick={handleSave} className="shadow-lg shadow-primary/20">
+              {editingPage ? "Update Page" : "Publish Content"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       <AlertDialog open={deletingId !== null} onOpenChange={() => setDeletingId(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-background/95 backdrop-blur-xl border-white/10 text-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Page?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. The content page will be permanently deleted.
+            <AlertDialogTitle>Delete Content Page?</AlertDialogTitle>
+            <AlertDialogDescription className="text-muted-foreground">
+              This will permanently remove the page from the platform. Links to this slug will lead to a 404 error.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel className="border-white/10 bg-transparent">Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => deletingId && handleDelete(deletingId)}
-            className="bg-red-600 hover:bg-red-700"
+            className="bg-red-600 hover:bg-red-700 text-white"
           >
-            Delete
+            Delete Permanently
           </AlertDialogAction>
         </AlertDialogContent>
       </AlertDialog>
-
-      <FooterNav dashboardType="admin" />
-    </div>
+    </AdminLayout>
   );
 };
 

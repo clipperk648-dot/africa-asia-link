@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAllOrders } from "@/hooks/useData";
 import GlassCard from "@/components/GlassCard";
-import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Search, Filter } from "lucide-react";
-import ThreeBackground from "@/components/ThreeBackground";
+import { Search, Filter, ShoppingCart, Package, Calendar, User as UserIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import AdminLayout from "@/components/AdminLayout";
 
 type SortOption = "newest" | "oldest" | "price-high" | "price-low" | "status";
 
@@ -38,22 +36,14 @@ interface Order {
 }
 
 const AdminOrders = () => {
-  const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
-  const { data: orders = [] } = useAllOrders();
+  const { data: orders = [], isLoading } = useAllOrders();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    if (!currentUser || currentUser.role !== "admin") {
-      navigate("/login");
-    }
-  }, [currentUser, navigate]);
-
-  useEffect(() => {
-    let filtered = (orders as Order[]).filter((order) => {
+    const filtered = (orders as Order[]).filter((order) => {
       const searchLower = searchTerm.toLowerCase();
       const matchesSearch =
         String(order.id || "").toLowerCase().includes(searchLower) ||
@@ -89,67 +79,53 @@ const AdminOrders = () => {
     switch (status) {
       case "completed":
       case "delivered":
-        return "bg-green-500/20 text-green-500";
+        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
       case "pending":
-        return "bg-yellow-500/20 text-yellow-500";
+        return "bg-amber-500/10 text-amber-400 border-amber-500/20";
       case "cancelled":
       case "failed":
-        return "bg-red-500/20 text-red-500";
+        return "bg-red-500/10 text-red-400 border-red-500/20";
       case "processing":
       case "shipped":
-        return "bg-blue-500/20 text-blue-500";
+        return "bg-blue-500/10 text-blue-400 border-blue-500/20";
       default:
-        return "bg-gray-500/20 text-gray-500";
+        return "bg-white/5 text-muted-foreground border-white/10";
     }
   };
 
   return (
-    <div className="min-h-screen pb-24 relative">
-      <ThreeBackground />
-
-      <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-3 space-y-3">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/admin")}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <h1 className="text-xl font-bold">All Orders</h1>
+    <AdminLayout>
+      <main className="max-w-7xl mx-auto px-4 py-6 w-full space-y-6">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by order ID or product..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 h-10 bg-background/50 border-white/10"
+            />
           </div>
 
           <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by order ID or product..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-10 bg-background/50"
-              />
-            </div>
-
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-10 w-10"
-                  title="Filter by status"
+                  className="h-10 w-10 border-white/10 hover:bg-white/5"
                 >
                   <Filter className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={() => setStatusFilter(null)}
-                  className={!statusFilter ? "bg-accent" : ""}
-                >
+              <DropdownMenuContent align="end" className="bg-background/95 backdrop-blur-xl border-white/10">
+                <DropdownMenuItem onClick={() => setStatusFilter(null)}>
                   All Status
                 </DropdownMenuItem>
                 {statuses.map((status) => (
                   <DropdownMenuItem
                     key={status}
                     onClick={() => setStatusFilter(status)}
-                    className={statusFilter === status ? "bg-accent" : ""}
                   >
                     {status.charAt(0).toUpperCase() + status.slice(1)}
                   </DropdownMenuItem>
@@ -158,10 +134,10 @@ const AdminOrders = () => {
             </DropdownMenu>
 
             <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
-              <SelectTrigger className="w-32 h-10">
-                <SelectValue placeholder="Sort" />
+              <SelectTrigger className="w-40 h-10 bg-background/50 border-white/10">
+                <SelectValue placeholder="Sort by" />
               </SelectTrigger>
-              <SelectContent align="end">
+              <SelectContent className="bg-background/95 backdrop-blur-xl border-white/10">
                 <SelectItem value="newest">Newest First</SelectItem>
                 <SelectItem value="oldest">Oldest First</SelectItem>
                 <SelectItem value="price-high">Price: High to Low</SelectItem>
@@ -171,50 +147,65 @@ const AdminOrders = () => {
             </Select>
           </div>
         </div>
-      </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6 space-y-3">
-        {filteredOrders.length > 0 ? (
-          filteredOrders.map((order) => (
-            <GlassCard key={order.id} className="p-4 sm:p-6 transition-all hover:shadow-lg">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-base sm:text-lg truncate">
-                    Order #{order.id}
-                  </p>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs sm:text-sm text-muted-foreground mt-1">
-                    <span>Qty: {order.quantity || 1}</span>
-                    <span>Buyer: {order.buyer_id || "N/A"}</span>
-                    <span>{new Date(order.created_at || "").toLocaleDateString()}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <div className="text-left sm:text-right">
-                    <p className="font-bold text-lg sm:text-xl">
-                      ${(order.total || 0).toLocaleString()}
-                    </p>
-                  </div>
-                  <span
-                    className={`text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium whitespace-nowrap ${getStatusColor(
-                      order.status
-                    )}`}
-                  >
-                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                  </span>
-                </div>
-              </div>
-            </GlassCard>
-          ))
+        {isLoading ? (
+          <div className="flex justify-center py-20">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : filteredOrders.length === 0 ? (
+          <GlassCard className="p-12 text-center border-white/5">
+            <ShoppingCart className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-20" />
+            <h3 className="text-lg font-bold text-white">No orders found</h3>
+          </GlassCard>
         ) : (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <p className="text-lg font-semibold text-muted-foreground">No orders found</p>
-            <p className="text-sm text-muted-foreground/60">Try adjusting your search or filters</p>
+          <div className="grid gap-3">
+            {filteredOrders.map((order) => (
+              <GlassCard key={order.id} className="p-5 border-white/5 hover:bg-white/5 transition-colors">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 text-primary shrink-0">
+                      <Package className="w-6 h-6" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-bold text-white text-base truncate">
+                        {order.productName || `Order #${order.id.slice(0,8)}`}
+                      </h3>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mt-1">
+                        <div className="flex items-center gap-1.5">
+                          <UserIcon className="w-3 h-3" /> {order.buyer_id || "Guest"}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="w-3 h-3" /> {new Date(order.created_at || "").toLocaleDateString()}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold">QTY:</span> {order.quantity || 1}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 border-white/5 pt-4 md:pt-0">
+                    <div className="text-left md:text-right">
+                      <p className="text-xl font-bold text-white tracking-tight">
+                        ${(order.total || 0).toLocaleString()}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mt-0.5">Total Amount</p>
+                    </div>
+                    <span
+                      className={`text-[10px] px-3 py-1.5 rounded-full font-bold uppercase tracking-widest border ${getStatusColor(
+                        order.status
+                      )}`}
+                    >
+                      {order.status}
+                    </span>
+                  </div>
+                </div>
+              </GlassCard>
+            ))}
           </div>
         )}
       </main>
-
-      <FooterNav dashboardType="admin" />
-    </div>
+    </AdminLayout>
   );
 };
 

@@ -630,3 +630,76 @@ export const generateProductReport = async (): Promise<unknown> => {
   if (error) return null;
   return data;
 };
+
+// ============ NOTIFICATIONS ============
+
+export const getNotifications = async (userId: string): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('notifications')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (error) return [];
+  return data;
+};
+
+export const createNotification = async (userId: string, title: string, message: string, type: string = 'info'): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('notifications')
+    .insert([{
+      user_id: userId,
+      title,
+      message,
+      type,
+      created_at: new Date().toISOString()
+    }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const markNotificationAsRead = async (id: string): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('notifications')
+    .update({ read: true })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+// ============ SUPPORT MESSAGES ============
+
+export const getSupportMessages = async (userId: string): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('support_messages')
+    .select('*')
+    .or(`sender_id.eq.${userId},recipient_id.eq.${userId}`)
+    .order('created_at', { ascending: true });
+
+  if (error) return [];
+  return data;
+};
+
+export const createSupportMessage = async (senderId: string, recipientId: string | null, text: string, senderRole?: string): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('support_messages')
+    .insert([{
+      sender_id: senderId,
+      recipient_id: recipientId,
+      text,
+      sender_role: senderRole,
+      created_at: new Date().toISOString()
+    }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+

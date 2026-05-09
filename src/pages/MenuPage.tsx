@@ -28,9 +28,10 @@ const MenuPage = () => {
   const darkMode = resolvedTheme === "dark";
 
   const menuItems = [
-    { icon: Settings, label: "Settings", onClick: () => navigate(user?.role === "buyer" ? "/buyer/settings" : "/industry/settings") },
+    ...(user?.role === "admin" ? [{ icon: ShoppingBag, label: "Admin Dashboard", onClick: () => navigate("/admin") }] : []),
+    { icon: Settings, label: "Settings", onClick: () => navigate(user?.role === "buyer" ? "/buyer/settings" : "/admin/settings") },
     { icon: Bookmark, label: "Saved", onClick: () => navigate("/buyer/collections") },
-    { icon: Clock, label: "Activity", onClick: () => navigate(user?.role === "buyer" ? "/buyer/orders" : "/industry/recent-activity") },
+    { icon: Clock, label: "Activity", onClick: () => navigate(user?.role === "buyer" ? "/buyer/orders" : "/admin/orders") },
     { icon: Heart, label: "Favorites", onClick: () => toast.info("Favorites feature coming soon") },
     { icon: Bell, label: "Notifications", onClick: () => navigate("/notifications") },
     { icon: HelpCircle, label: "Help & Support", onClick: () => navigate("/support-chat") },

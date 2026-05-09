@@ -1,14 +1,12 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useClusters, useUpdateClusterMutation } from "@/hooks/useData";
 import type { Cluster } from "@/types/models";
 import GlassCard from "@/components/GlassCard";
-import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Users, Package, Clock, CheckCircle, Truck, Warehouse, CheckCircle2, Play, Square } from "lucide-react";
-import ThreeBackground from "@/components/ThreeBackground";
+import { Users, Package, Clock, Truck, Play, Square, Search, Filter } from "lucide-react";
 import { toast } from "sonner";
 import {
   Select,
@@ -17,11 +15,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import AdminLayout from "@/components/AdminLayout";
 
 const AdminClusters = () => {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
-  const { data: clusters = [], refetch } = useClusters();
+  const { data: clusters = [], refetch, isLoading } = useClusters();
   const updateClusterMutation = useUpdateClusterMutation();
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -31,18 +30,18 @@ const AdminClusters = () => {
     }
   }, [currentUser, navigate]);
 
-  const handleStatusChange = async (clusterId: string, status: string, shippingMethod: string) => {
+  const handleStatusChange = async (clusterId: string, status: string) => {
     try {
-      const data: Record<string, string | boolean | number | null> = { shipping_status: status };
+      const updateData: Partial<Cluster> = { shipping_status: status };
       
       if (status === "in transit") {
-        data.shipping_started_at = new Date().toISOString();
-        data.stop_counting = false;
+        updateData.shipping_started_at = new Date().toISOString();
+        updateData.stop_counting = false;
       }
 
       await updateClusterMutation.mutateAsync({
         id: clusterId,
-        data
+        data: updateData
       });
       toast.success(`Cluster status updated to ${status}`);
       refetch();
@@ -100,116 +99,119 @@ const AdminClusters = () => {
 
   const filteredClusters = (clusters as Cluster[]).filter(c => 
     c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.targetProductName?.toLowerCase().includes(searchTerm.toLowerCase())
+    (c.targetProductName || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="min-h-screen pb-24 relative">
-      <ThreeBackground />
-
-      <header className="backdrop-blur-xl bg-card/80 border-b border-border/50 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/admin")}>
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <h1 className="text-xl font-bold">Cluster Management</h1>
-          </div>
-          <div className="mt-3">
+    <AdminLayout>
+      <main className="max-w-7xl mx-auto px-4 py-6 w-full space-y-6">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1 sm:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               placeholder="Search clusters..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-background/50"
+              className="pl-10 h-10 bg-background/50 border-white/10"
             />
           </div>
+          <Button variant="outline" size="icon" className="h-10 w-10 border-white/10 hover:bg-white/5">
+            <Filter className="w-4 h-4" />
+          </Button>
         </div>
-      </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-6 space-y-4">
-        {filteredClusters.length === 0 ? (
-          <GlassCard className="p-12 text-center text-muted-foreground">
-            No clusters found.
+        {isLoading ? (
+          <div className="flex justify-center py-20">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : filteredClusters.length === 0 ? (
+          <GlassCard className="p-12 text-center border-white/5">
+            <Truck className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-20" />
+            <h3 className="text-lg font-bold text-white">No clusters found</h3>
           </GlassCard>
         ) : (
-          filteredClusters.map((cluster) => (
-            <GlassCard key={cluster.id} className="p-6">
-              <div className="flex flex-col md:flex-row justify-between gap-6">
-                <div className="flex-1 space-y-4">
-                  <div>
-                    <h3 className="text-lg font-bold">{cluster.name}</h3>
-                    <p className="text-sm text-muted-foreground">Product: {cluster.target_product_name}</p>
-                  </div>
+          <div className="grid gap-4">
+            {filteredClusters.map((cluster) => (
+              <GlassCard key={cluster.id} className="p-6 border-white/5 hover:bg-white/5 transition-colors">
+                <div className="flex flex-col md:flex-row justify-between gap-6">
+                  <div className="flex-1 space-y-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-white">{cluster.name}</h3>
+                      <p className="text-sm text-muted-foreground">Product: <span className="text-primary/80">{cluster.targetProductName || "General Trade"}</span></p>
+                    </div>
 
-                  <div className="flex flex-wrap gap-4 text-sm">
-                    <div className="flex items-center gap-1.5">
-                      <Users className="w-4 h-4 text-primary" />
-                      <span>{cluster.current_members} / {cluster.max_members} Members</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Package className="w-4 h-4 text-secondary" />
-                      <span>{cluster.quantity} units</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Truck className="w-4 h-4 text-accent" />
-                      <span>{cluster.preferred_shipping_method || "Standard"}</span>
-                    </div>
-                  </div>
-
-                  {cluster.shipping_status === "in transit" && cluster.shipping_started_at && (
-                    <div className="p-3 bg-primary/10 rounded-lg border border-primary/20">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-primary" />
-                          <span className="font-semibold text-primary">
-                            {cluster.stop_counting ? "Countdown Paused" : getCountdown(cluster.shipping_started_at, cluster.preferred_shipping_method)}
-                          </span>
-                        </div>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => handleToggleCounting(cluster.id, !cluster.stop_counting)}
-                        >
-                          {cluster.stop_counting ? <Play className="w-4 h-4" /> : <Square className="w-4 h-4" />}
-                        </Button>
+                    <div className="flex flex-wrap gap-4 text-xs">
+                      <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5">
+                        <Users className="w-3.5 h-3.5 text-blue-400" />
+                        <span>{cluster.current_members || cluster.cluster_members?.length || 0} / {cluster.max_members || 5} Members</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5">
+                        <Package className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>{cluster.quantity || 0} units</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/5">
+                        <Truck className="w-3.5 h-3.5 text-amber-400" />
+                        <span className="uppercase font-bold tracking-tighter">{cluster.preferredShippingMethod || "Standard"}</span>
                       </div>
                     </div>
-                  )}
-                </div>
 
-                <div className="w-full md:w-64 space-y-3">
-                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Status Control</p>
-                  <Select 
-                    value={cluster.shipping_status || "shipping not started yet"} 
-                    onValueChange={(val) => handleStatusChange(cluster.id, val, cluster.preferred_shipping_method)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="shipping not started yet">Shipping Not Started</SelectItem>
-                      <SelectItem value="in transit" disabled={cluster.current_members < cluster.max_members}>
-                        In Transit {cluster.current_members < cluster.max_members && "(Wait for full members)"}
-                      </SelectItem>
-                      <SelectItem value="in warehouse">In Warehouse</SelectItem>
-                      <SelectItem value="delivered">Delivered</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    {cluster.shipping_status === "in transit" && cluster.shipping_started_at && (
+                      <div className="p-4 bg-primary/5 rounded-xl border border-primary/20">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 bg-primary/20 rounded-lg animate-pulse">
+                              <Clock className="w-4 h-4 text-primary" />
+                            </div>
+                            <div>
+                              <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Arrival Estimate</p>
+                              <p className="font-mono font-bold text-primary">
+                                {cluster.stop_counting ? "PAUSED" : getCountdown(cluster.shipping_started_at, cluster.preferredShippingMethod || '')}
+                              </p>
+                            </div>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-8 w-8 p-0 rounded-full border border-white/10 hover:bg-white/5"
+                            onClick={() => handleToggleCounting(cluster.id, !!cluster.stop_counting)}
+                          >
+                            {cluster.stop_counting ? <Play className="w-4 h-4 text-emerald-400" /> : <Square className="w-4 h-4 text-amber-400" />}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
-                  <div className="pt-2">
-                    <p className="text-[10px] text-muted-foreground leading-relaxed">
-                      * Status can be changed to "In Transit" only after all members have joined.
+                  <div className="w-full md:w-64 space-y-3 border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-6">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Admin Workflow</p>
+                    <Select 
+                      value={cluster.shipping_status || "shipping not started yet"} 
+                      onValueChange={(val) => handleStatusChange(cluster.id, val)}
+                    >
+                      <SelectTrigger className="bg-background/50 border-white/10 h-10">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background/95 backdrop-blur-xl border-white/10">
+                        <SelectItem value="shipping not started yet">Not Started</SelectItem>
+                        <SelectItem value="in transit" disabled={(cluster.current_members || cluster.cluster_members?.length || 0) < (cluster.max_members || 5)}>
+                          In Transit {((cluster.current_members || cluster.cluster_members?.length || 0) < (cluster.max_members || 5)) && " (Need members)"}
+                        </SelectItem>
+                        <SelectItem value="in warehouse">In Warehouse</SelectItem>
+                        <SelectItem value="delivered">Delivered</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <p className="text-[9px] text-muted-foreground italic leading-relaxed">
+                      "In Transit" triggers the automatic countdown timer based on shipping method.
                     </p>
                   </div>
                 </div>
-              </div>
-            </GlassCard>
-          ))
+              </GlassCard>
+            ))}
+          </div>
         )}
       </main>
-
-      <FooterNav dashboardType="admin" />
-    </div>
+    </AdminLayout>
   );
 };
 
