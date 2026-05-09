@@ -1,67 +1,114 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getCurrentUser } from "@/utils/mockAuth";
+import { useAuth } from "@/hooks/useAuth";
+import { useCluster, useUpdateClusterMutation } from "@/hooks/useData";
 import { Button } from "@/components/ui/button";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import ThreeBackground from "@/components/ThreeBackground";
-import { ArrowLeft, Users, TrendingUp, Target, Clock, Copy, Check, BarChart3, Settings, MessageCircle, Truck } from "lucide-react";
+import { ArrowLeft, Users, TrendingUp, Target, Clock, Copy, Check, BarChart3, Settings, MessageCircle, Truck, ShieldCheck } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { getSafeAvatarUrl } from "@/utils/imageOptimization";
-
-import type { Cluster } from "@/types/models";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const ClusterDetails = () => {
   const navigate = useNavigate();
   const { clusterId } = useParams<{ clusterId: string }>();
-  const user = getCurrentUser();
+  const { user } = useAuth();
+  const { data: cluster, isLoading } = useCluster(clusterId);
+  const updateClusterMutation = useUpdateClusterMutation();
   
   const [copied, setCopied] = useState(false);
   const [showMoreMembers, setShowMoreMembers] = useState(false);
+  const [countdown, setCountdown] = useState<string>("");
 
-  const [clusterData, setClusterData] = useState<Cluster>({
-    id: clusterId || "cluster-1",
-    name: "Cluster",
-    description: "A group pooling orders together",
-    targetProductId: "prod-1",
-    targetProductName: "Target Product",
-    targetPrice: 0,
-    currentFunded: 0,
-    minOrderAmount: 100,
-    quantity: 100,
-    maxMembers: 50,
-    currentMembers: 0,
-    preferredShippingMethod: "Standard",
-    deadline: new Date().toISOString(),
-    creatorId: "user1",
-    creatorName: "Creator",
-    members: [],
-    status: "active",
-    createdDate: new Date().toISOString(),
-  });
+  useEffect(() => {
+    if (!cluster) return;
+
+    let timer: NodeJS.Timeout;
+    if (cluster.shipping_status === "in transit" && cluster.shipping_started_at) {
+      const startedAt = new Date(cluster.shipping_started_at).getTime();
+      let durationDays = 0;
+      switch (cluster.preferredShippingMethod) {
+        case "Sea Freight": durationDays = 60; break;
+        case "FedEx": durationDays = 5; break;
+        case "Air Freight": durationDays = 18; break;
+        case "Express": durationDays = 12; break;
+        default: durationDays = 14;
+      }
+
+      const endAt = startedAt + (durationDays * 24 * 60 * 60 * 1000);
+      
+      const updateCountdown = () => {
+        const now = new Date().getTime();
+        const distance = endAt - now;
+        
+        if (distance < 0) {
+          setCountdown("Delivered");
+          return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      };
+
+      if (!cluster.stop_counting) {
+        updateCountdown();
+        timer = setInterval(updateCountdown, 1000);
+      } else {
+        setCountdown("Paused");
+      }
+    } else {
+      setCountdown("");
+    }
+
+    return () => clearInterval(timer);
+  }, [cluster]);
+
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center"><ThreeBackground /><p>Loading...</p></div>;
+  if (!cluster) return <div className="min-h-screen flex items-center justify-center"><ThreeBackground /><p>Cluster not found</p></div>;
 
   const handleCopyInvite = () => {
-    const inviteText = `Join my cluster: "${clusterData.name}" - Let's order together! Code: ${clusterData.id}`;
+    const inviteText = `Join my cluster: "${cluster.name}" - Let's order together! Code: ${cluster.id}`;
     navigator.clipboard.writeText(inviteText);
     setCopied(true);
     toast.success("Invite link copied!");
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const getProgressPercentage = () => {
-    return Math.min(100, Math.round((clusterData.currentFunded / clusterData.targetPrice) * 100));
+  const handleStatusChange = async (newStatus: string) => {
+    try {
+      const updateData: any = { shipping_status: newStatus };
+      if (newStatus === "in transit") {
+        updateData.shipping_started_at = new Date().toISOString();
+      }
+      await updateClusterMutation.mutateAsync({ id: cluster.id, data: updateData });
+      toast.success(`Status updated to ${newStatus}`);
+    } catch (error) {
+      toast.error("Failed to update status");
+    }
   };
 
-  const getDaysRemaining = () => {
-    const now = new Date();
-    const deadlineDate = new Date(clusterData.deadline);
-    const diffTime = deadlineDate.getTime() - now.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays > 0 ? diffDays : 0;
+  const handleToggleCounting = async () => {
+    try {
+      await updateClusterMutation.mutateAsync({ 
+        id: cluster.id, 
+        data: { stop_counting: !cluster.stop_counting } 
+      });
+      toast.success(cluster.stop_counting ? "Timer resumed" : "Timer paused");
+    } catch (error) {
+      toast.error("Failed to toggle timer");
+    }
   };
 
-  const progress = getProgressPercentage();
-  const daysLeft = getDaysRemaining();
+  const isCreator = user?.id === cluster.creatorId;
+  const isAdmin = user?.role === "admin";
+
+  const progress = Math.min(100, Math.round(((cluster.current_funded || 0) / (cluster.targetPrice || 1)) * 100));
 
   return (
     <div className="min-h-screen pb-24 relative">
@@ -74,8 +121,8 @@ const ClusterDetails = () => {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="min-w-0">
-              <h1 className="text-lg font-bold truncate">{clusterData.name}</h1>
-              <p className="text-xs text-muted-foreground">{clusterData.currentMembers || clusterData.members.length} members</p>
+              <h1 className="text-lg font-bold truncate">{cluster.name}</h1>
+              <p className="text-xs text-muted-foreground">{cluster.current_members || cluster.cluster_members?.length || 0} members</p>
             </div>
           </div>
         </div>
@@ -85,76 +132,104 @@ const ClusterDetails = () => {
         {/* Cluster Info Card */}
         <GlassCard className="p-6 bg-gradient-to-br from-accent/10 via-transparent to-primary/10 border-accent/20">
           <div className="space-y-4">
-            {/* Target Product */}
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Target className="w-5 h-5 text-accent" />
-                <p className="text-sm font-semibold text-muted-foreground">Target Product</p>
-              </div>
-              <p className="text-lg font-bold">{clusterData.targetProductName}</p>
-            </div>
-
-            {/* Quantity Progress */}
-            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-primary" />
-                <p className="text-sm font-semibold">Quantity Ordered</p>
-              </div>
-              <p className="font-bold text-primary">{clusterData.quantity} units</p>
-            </div>
-
-            {/* Shipping Method */}
-            <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10 border border-primary/20">
-              <div className="flex items-center gap-2">
-                <Truck className="w-5 h-5 text-primary" />
-                <p className="text-sm font-semibold">Shipping Method</p>
-              </div>
-              <p className="font-bold text-primary uppercase tracking-wider">{clusterData.preferredShippingMethod || "Standard"}</p>
-            </div>
-
-            {/* Progress */}
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <p className="text-sm text-muted-foreground">Progress</p>
-                <p className="text-sm font-semibold">
-                  ${clusterData.currentFunded.toLocaleString()} / ${clusterData.targetPrice.toLocaleString()}
-                </p>
-              </div>
-              <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-accent to-primary rounded-full transition-all duration-300"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">{progress}% funded</p>
-            </div>
-
-            {/* Time Remaining */}
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
-              <Clock className="w-5 h-5 text-primary" />
+            <div className="flex justify-between items-start">
               <div>
-                <p className="text-xs text-muted-foreground">Time Remaining</p>
-                <p className="font-semibold">{daysLeft} days left</p>
+                <p className="text-sm font-semibold text-muted-foreground mb-1">Creator</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-lg font-bold">{cluster.creatorName}</p>
+                  {isCreator && (
+                    <span className="flex items-center gap-1 px-2 py-0.5 bg-accent/20 text-accent text-[10px] font-bold rounded-full uppercase">
+                      <ShieldCheck className="w-3 h-3" />
+                      Cluster Admin
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-semibold text-muted-foreground mb-1">Status</p>
+                <span className="px-2 py-1 bg-primary/20 text-primary text-[10px] font-bold rounded uppercase">
+                  {cluster.shipping_status || "shipping not started yet"}
+                </span>
               </div>
             </div>
 
-            {/* Copy Invite */}
-            <Button
-              onClick={handleCopyInvite}
-              variant="outline"
-              className="w-full"
-            >
-              {copied ? (
-                <>
-                  <Check className="w-4 h-4 mr-2" />
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4 mr-2" />
-                  Copy Invite Link
-                </>
-              )}
+            {countdown && (
+              <div className="p-3 rounded-lg bg-black/40 border border-accent/30 text-center">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Estimated Delivery</p>
+                <p className="text-2xl font-mono font-bold text-accent">{countdown}</p>
+                {isAdmin && (
+                  <Button variant="link" size="sm" onClick={handleToggleCounting} className="text-xs text-accent/70 hover:text-accent">
+                    {cluster.stop_counting ? "Resume Timer" : "Pause Timer"}
+                  </Button>
+                )}
+              </div>
+            )}
+
+            {isAdmin && (
+              <div className="p-3 rounded-lg bg-card/50 border border-border/50">
+                <p className="text-sm font-semibold mb-2">Admin: Change Shipping Status</p>
+                <Select onValueChange={handleStatusChange} defaultValue={cluster.shipping_status}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="shipping not started yet">Shipping Not Started</SelectItem>
+                    <SelectItem value="in transit">In Transit</SelectItem>
+                    <SelectItem value="in warehouse">In Warehouse</SelectItem>
+                    <SelectItem value="delivered">Delivered</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {cluster.targetProductName && (
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Target className="w-5 h-5 text-accent" />
+                  <p className="text-sm font-semibold text-muted-foreground">Target Product</p>
+                </div>
+                <p className="text-lg font-bold">{cluster.targetProductName}</p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                  <p className="text-xs font-semibold">Quantity</p>
+                </div>
+                <p className="font-bold text-primary">{cluster.quantity || 0}</p>
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10 border border-primary/20">
+                <div className="flex items-center gap-2">
+                  <Truck className="w-5 h-5 text-primary" />
+                  <p className="text-xs font-semibold">Method</p>
+                </div>
+                <p className="font-bold text-primary text-[10px] uppercase">{cluster.preferredShippingMethod || "Standard"}</p>
+              </div>
+            </div>
+
+            {cluster.targetPrice > 0 && (
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <p className="text-sm text-muted-foreground">Progress</p>
+                  <p className="text-sm font-semibold">
+                    ${(cluster.current_funded || 0).toLocaleString()} / ${(cluster.targetPrice || 0).toLocaleString()}
+                  </p>
+                </div>
+                <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-accent to-primary rounded-full transition-all duration-300"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">{progress}% funded</p>
+              </div>
+            )}
+
+            <Button onClick={handleCopyInvite} variant="outline" className="w-full">
+              {copied ? <><Check className="w-4 h-4 mr-2" />Copied!</> : <><Copy className="w-4 h-4 mr-2" />Copy Invite Link</>}
             </Button>
           </div>
         </GlassCard>
@@ -163,101 +238,33 @@ const ClusterDetails = () => {
         <div>
           <div className="flex items-center gap-2 mb-4">
             <Users className="w-5 h-5 text-primary" />
-            <h2 className="text-2xl font-bold">Members ({clusterData.members.length})</h2>
+            <h2 className="text-2xl font-bold">Members ({(cluster.cluster_members || []).length})</h2>
           </div>
           <div className="space-y-3">
-            {(showMoreMembers ? clusterData.members : clusterData.members.slice(0, 3)).map((member) => (
+            {(showMoreMembers ? (cluster.cluster_members || []) : (cluster.cluster_members || []).slice(0, 5)).map((member: any) => (
               <GlassCard key={member.id} className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <img
-                    src={getSafeAvatarUrl(member.username)}
-                    alt={member.username}
+                    src={getSafeAvatarUrl(member.profiles?.name || "User")}
+                    alt={member.profiles?.name}
                     className="w-10 h-10 rounded-full"
-                    onError={(e) => {
-                      const img = e.currentTarget;
-                      img.src = "/placeholder.svg";
-                    }}
                   />
                   <div>
-                    <p className="font-semibold">{member.username}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold">{member.profiles?.name || "Unknown User"}</p>
+                      {member.user_id === cluster.creatorId && (
+                        <span className="text-[8px] bg-accent/20 text-accent px-1.5 py-0.5 rounded-full font-bold uppercase">Cluster Admin</span>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground">
-                      Joined {new Date(member.joinedDate).toLocaleDateString()}
+                      Joined {new Date(member.joined_at).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-accent">{member.joinedQuantity || 0} units</p>
+                  <p className="font-semibold text-accent">{member.joined_quantity || 0} units</p>
                   <p className="text-xs text-muted-foreground">
-                    ${(member.joinedAmount || 0).toLocaleString()}
-                  </p>
-                </div>
-              </GlassCard>
-            ))}
-            {clusterData.members.length > 3 && !showMoreMembers && (
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => setShowMoreMembers(true)}
-              >
-                View More Members ({clusterData.members.length - 3} more)
-              </Button>
-            )}
-            {showMoreMembers && clusterData.members.length > 3 && (
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={() => setShowMoreMembers(false)}
-              >
-                Show Less
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Chat Section */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Cluster Chat</h2>
-          <GlassCard className="p-6 text-center bg-gradient-to-br from-primary/10 via-transparent to-accent/10 border-primary/20 h-64 flex flex-col items-center justify-center">
-            <div className="space-y-4">
-              <MessageCircle className="w-12 h-12 text-primary mx-auto opacity-50" />
-              <h3 className="text-lg font-semibold">Join the Cluster Chat</h3>
-              <p className="text-muted-foreground max-w-sm">
-                Discuss orders, share updates, and coordinate with {clusterData.members.length} other members.
-              </p>
-              <Button
-                onClick={() => navigate(`/cluster/${clusterData.id}/chat`)}
-                className="bg-accent hover:bg-accent/90 text-black font-semibold mt-4"
-              >
-                Open Chat
-              </Button>
-            </div>
-          </GlassCard>
-        </div>
-
-        {/* Contribution History */}
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              <h2 className="text-2xl font-bold">Recent Orders</h2>
-            </div>
-            <Button variant="outline" size="sm">
-              View All
-            </Button>
-          </div>
-          <div className="space-y-2">
-            {clusterData.members.map((member, idx) => (
-              <GlassCard key={idx} className="p-3 flex items-center justify-between bg-card/50 border-border/50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent to-primary flex items-center justify-center text-sm font-bold text-white">
-                    {idx + 1}
-                  </div>
-                  <p className="text-sm font-semibold">{member.username}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-bold text-accent">{member.joinedQuantity || 0} units</p>
-                  <p className="text-xs text-muted-foreground">
-                    ${(member.joinedAmount || 0).toLocaleString()}
+                    ${(member.joined_amount || 0).toLocaleString()}
                   </p>
                 </div>
               </GlassCard>
@@ -265,23 +272,22 @@ const ClusterDetails = () => {
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <Button
             variant="outline"
-            className="h-12 flex items-center justify-center gap-2"
-            onClick={() => navigate(`/cluster/${clusterData.id}/analytics`)}
+            className="h-12"
+            onClick={() => navigate(`/cluster/${cluster.id}/chat`)}
           >
-            <BarChart3 className="w-4 h-4" />
-            View Analytics
+            <MessageCircle className="w-4 h-4 mr-2" />
+            Cluster Chat
           </Button>
           <Button
             variant="outline"
-            className="h-12 flex items-center justify-center gap-2"
-            onClick={() => navigate(`/cluster/${clusterData.id}/settings`)}
+            className="h-12"
+            onClick={() => navigate(`/cluster/${cluster.id}/analytics`)}
           >
-            <Settings className="w-4 h-4" />
-            Cluster Settings
+            <BarChart3 className="w-4 h-4 mr-2" />
+            Analytics
           </Button>
         </div>
       </main>

@@ -17,10 +17,17 @@ import { getSafeImageUrl, createImageErrorHandler } from "@/utils/imageOptimizat
 
 const CATEGORIES = [
   "All",
+  "Inverters",
+  "Iphone",
+  "Samsung ultra",
+  "Clothes",
+  "Electric bike",
+  "Cars",
   "Electronics",
+  "Home appliances",
+  "Fashion",
   "Furniture",
   "Shoes",
-  "Clothes",
   "Textiles",
   "Appliances",
   "Automotive",
@@ -44,10 +51,14 @@ const BuyerProducts = () => {
   const [qtyTier, setQtyTier] = useState<"none" | "large" | "small">("none");
   const [minRating, setMinRating] = useState<number>(0);
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
+  const [shippingMethod, setShippingMethod] = useState<string>("Any");
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const { data: products = [] } = useProducts();
+  const { data: clusters = [] } = useClusters();
+  const createClusterMutation = useCreateClusterMutation();
 
   const median = (arr: number[]) => {
+    if (arr.length === 0) return 0;
     const a = [...arr].sort((x, y) => x - y);
     const mid = Math.floor(a.length / 2);
     return a.length % 2 ? a[mid] : (a[mid - 1] + a[mid]) / 2;
@@ -59,7 +70,7 @@ const BuyerProducts = () => {
     let list = products;
 
     // category
-    if (active !== "All") list = list.filter((p) => p.category.toLowerCase() === active.toLowerCase());
+    if (active !== "All") list = list.filter((p) => p.category?.toLowerCase() === active.toLowerCase());
 
     // search
     const q = query.trim().toLowerCase();
@@ -87,16 +98,41 @@ const BuyerProducts = () => {
   }, [products, active, query, priceTier, qtyTier, minRating, inStockOnly, priceMedian, qtyMedian]);
 
   useEffect(() => {
-    if (!user || user.role !== "buyer") {
+    if (!user || (user.role !== "buyer" && user.role !== "admin")) {
       navigate("/login");
     }
   }, [user, navigate]);
 
   const scrollBy = (delta: number) => scrollerRef.current?.scrollBy({ left: delta, behavior: "smooth" });
 
-  const handleJoinCluster = (productId: string, productName: string) => {
-    toast.success(`Joining cluster for ${productName}`);
-    navigate("/cluster");
+  const handleJoinCluster = async (productId: string, productName: string) => {
+    // Check if cluster exists
+    const existingCluster = clusters.find((c: { targetProductId: string, id: string }) => c.targetProductId === productId);
+    if (existingCluster) {
+      toast.success(`Joining cluster for ${productName}`);
+      navigate(`/cluster/${existingCluster.id}`);
+    } else {
+      // Auto-create cluster
+      toast.info(`No cluster found for ${productName}. Creating one...`);
+      try {
+        const newCluster = await createClusterMutation.mutateAsync({
+          name: `Cluster for ${productName}`,
+          description: `Automatically created cluster for ${productName}`,
+          targetProductId: productId,
+          targetProductName: productName,
+          targetPrice: 0, 
+          minOrderAmount: 0,
+          quantity: 1,
+          maxMembers: 5,
+          preferredShippingMethod: "Standard",
+          creatorId: user?.id,
+          creatorName: user?.name || "Buyer",
+        });
+        navigate(`/cluster/${newCluster.id}`);
+      } catch (error) {
+        toast.error("Failed to auto-create cluster");
+      }
+    }
   };
 
   return (
@@ -160,7 +196,13 @@ const BuyerProducts = () => {
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-4">
         {filtered.length === 0 && (
-          <GlassCard className="p-6 text-center text-sm text-muted-foreground">No products found in "{active}".</GlassCard>
+          <GlassCard className="p-6 text-center">
+            <p className="text-sm text-muted-foreground mb-4">No cluster yet for this search.</p>
+            <Button variant="gradient" onClick={() => navigate("/cluster")}>
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Create One
+            </Button>
+          </GlassCard>
         )}
         {filtered.map((product) => (
           <GlassCard key={product.id}>
@@ -270,9 +312,20 @@ const BuyerProducts = () => {
               <Label htmlFor="stock" className="text-sm">In stock only</Label>
             </div>
 
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Shipping Method</p>
+              <RadioGroup value={shippingMethod} onValueChange={setShippingMethod}>
+                <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="Any" /> <span>Any</span></label>
+                <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="FedEx" /> <span>FedEx</span></label>
+                <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="Sea Freight" /> <span>Sea Freight</span></label>
+                <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="Air Freight" /> <span>Air Freight</span></label>
+                <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="Express" /> <span>Express</span></label>
+              </RadioGroup>
+            </div>
+
             <div className="flex gap-2 pt-2">
               <Button className="flex-1" onClick={() => setFilterOpen(false)}>Apply</Button>
-              <Button variant="outline" className="flex-1" onClick={() => { setPriceTier("none"); setQtyTier("none"); setMinRating(0); setInStockOnly(false); }}>Clear</Button>
+              <Button variant="outline" className="flex-1" onClick={() => { setPriceTier("none"); setQtyTier("none"); setMinRating(0); setInStockOnly(false); setShippingMethod("Any"); }}>Clear</Button>
             </div>
           </div>
         </SheetContent>

@@ -1,6 +1,39 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getProducts, getProductById, getOrders, getSocialPosts, updateProduct, createProduct, deleteProduct, getClusters, getClusterById, createCluster, joinCluster, leaveCluster, getWalletBalance } from "@/lib/db";
+import { 
+  getProducts, 
+  getProductById, 
+  getOrders, 
+  getSocialPosts, 
+  updateProduct, 
+  createProduct, 
+  deleteProduct, 
+  getClusters, 
+  getClusterById, 
+  createCluster, 
+  joinCluster, 
+  getWalletBalance,
+  getAllUsers,
+  getAllOrders
+} from "@/lib/db";
 import type { Product, Cluster } from "@/types/models";
+
+// Fetch all users (Admin only)
+export const useAllUsers = () => {
+  return useQuery({
+    queryKey: ["allUsers"],
+    queryFn: () => getAllUsers(),
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+// Fetch all orders (Admin only)
+export const useAllOrders = () => {
+  return useQuery({
+    queryKey: ["allOrders"],
+    queryFn: () => getAllOrders(),
+    staleTime: 5 * 60 * 1000,
+  });
+};
 
 // Fetch all products
 export const useProducts = (limit = 20, offset = 0) => {
@@ -120,12 +153,12 @@ export const useJoinClusterMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ clusterId, userId, username, quantity, amount }: { clusterId: string; userId: string; username: string; quantity: number; amount?: number }) =>
-      joinCluster(clusterId, userId, username, quantity, amount),
+    mutationFn: ({ clusterId, userId, quantity, amount }: { clusterId: string; userId: string; quantity: number; amount: number }) =>
+      joinCluster(clusterId, userId, quantity, amount),
     onSuccess: (data) => {
       if (data) {
         queryClient.invalidateQueries({ queryKey: ["clusters"] });
-        queryClient.invalidateQueries({ queryKey: ["cluster", data.id] });
+        queryClient.invalidateQueries({ queryKey: ["cluster", data.cluster_id] });
       }
     },
   });
@@ -145,6 +178,25 @@ export const useLeaveClusterMutation = () => {
     },
   });
 };
+
+export const useUpdateClusterMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: unknown }) =>
+      updateCluster(id, data),
+    onSuccess: (data: any) => {
+      if (data) {
+        queryClient.invalidateQueries({ queryKey: ["clusters"] });
+        queryClient.invalidateQueries({ queryKey: ["cluster", data.id] });
+      }
+    },
+  });
+};
+
+import { updateCluster } from "@/lib/db";
+
+
 
 // Fetch wallet balance for a user
 export const useWalletBalance = (userId: string | undefined, currency = "USD") => {

@@ -1,47 +1,63 @@
 import { useMemo } from "react";
-import { useProducts, useOrders } from "@/hooks/useData";
-import { getCurrentUser } from "@/utils/mockAuth";
+import { useProducts, useAllOrders, useAllUsers } from "@/hooks/useData";
+import { useAuth } from "@/hooks/useAuth";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
 import ThreeBackground from "@/components/ThreeBackground";
-import { ArrowLeft, BarChart3 } from "lucide-react";
+import { ArrowLeft, BarChart3, Users, Package, DollarSign, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, Legend } from "recharts";
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, Legend, PieChart, Pie, Cell } from "recharts";
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 const Analytics = () => {
   const navigate = useNavigate();
-  const user = getCurrentUser();
-  const { data: products = [] } = useProducts();
-  const { data: orders = [] } = useOrders(user?.id);
-  const totals = useMemo(() => {
-    const totalProducts = products.length;
-    const totalOrders = orders.length;
-    const totalRevenue = orders.reduce((acc, o) => acc + (o.total || 0), 0);
-    const avgRating = products.reduce((a, p) => a + (p.rating || 0), 0) / (totalProducts || 1);
-    return { totalProducts, totalOrders, totalRevenue, avgRating: Number(avgRating.toFixed(2)) };
-  }, [products, orders]);
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  
+  const { data: products = [] } = useProducts(100, 0);
+  const { data: allOrders = [] } = useAllOrders();
+  const { data: allUsers = [] } = useAllUsers();
+
+  const stats = useMemo(() => {
+    const totalRevenue = allOrders.reduce((acc: number, o: { total?: number }) => acc + (o.total || 0), 0);
+    
+    return [
+      { label: "Total Users", value: allUsers.length, icon: Users, color: "text-blue-500" },
+      { label: "Total Products", value: products.length, icon: Package, color: "text-green-500" },
+      { label: "Total Revenue", value: `${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-yellow-500" },
+      { label: "Total Orders", value: allOrders.length, icon: TrendingUp, color: "text-purple-500" },
+    ];
+  }, [allUsers, products, allOrders]);
 
   const revenueByMonth = useMemo(() => {
     const map = new Map<string, number>();
-    orders.forEach((o: any) => {
-      const d = new Date((o as any).created_at || (o as any).date);
+    allOrders.forEach((o: { created_at: string, total?: number }) => {
+      const d = new Date(o.created_at);
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
       map.set(key, (map.get(key) || 0) + (o.total || 0));
     });
-    return Array.from(map.entries()).sort((a,b)=>a[0].localeCompare(b[0])).map(([month, revenue]) => ({ month, revenue }));
-  }, [orders]);
+    return Array.from(map.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([month, revenue]) => ({ month, revenue }));
+  }, [allOrders]);
 
-  const ordersByProduct = useMemo(() => {
+  const userRolesData = useMemo(() => {
     const counts: Record<string, number> = {};
-    const nameById = new Map(products.map((p: any) => [String(p.id), p.name]));
-    orders.forEach((o: any) => {
-      const pid = String((o as any).product_id || (o as any).productId || "");
-      const name = nameById.get(pid) || pid || "Unknown";
-      counts[name] = (counts[name] || 0) + 1;
+    allUsers.forEach((u: { role: string }) => {
+      counts[u.role] = (counts[u.role] || 0) + 1;
     });
-    return Object.entries(counts).map(([product, count]) => ({ product, count }));
-  }, [orders]);
+    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+  }, [allUsers]);
+
+  const ordersByStatus = useMemo(() => {
+    const counts: Record<string, number> = {};
+    allOrders.forEach((o: { status: string }) => {
+      counts[o.status] = (counts[o.status] || 0) + 1;
+    });
+    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+  }, [allOrders]);
 
   return (
     <div className="min-h-screen pb-24 relative">
@@ -53,68 +69,90 @@ const Analytics = () => {
           </Button>
           <div className="flex items-center gap-2">
             <BarChart3 className="w-5 h-5" />
-            <h1 className="text-xl font-bold">Analytics</h1>
+            <h1 className="text-xl font-bold">Admin Analytics</h1>
           </div>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-          <GlassCard className="text-center p-4"><p className="text-xs text-muted-foreground">Products</p><p className="text-xl font-bold text-primary">{totals.totalProducts}</p></GlassCard>
-          <GlassCard className="text-center p-4"><p className="text-xs text-muted-foreground">Orders</p><p className="text-xl font-bold text-primary">{totals.totalOrders}</p></GlassCard>
-          <GlassCard className="text-center p-4"><p className="text-xs text-muted-foreground">Revenue</p><p className="text-xl font-bold text-primary">${totals.totalRevenue.toLocaleString()}</p></GlassCard>
-          <GlassCard className="text-center p-4"><p className="text-xs text-muted-foreground">Avg Rating</p><p className="text-xl font-bold text-primary">{totals.avgRating}</p></GlassCard>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {stats.map((s, i) => (
+            <GlassCard key={i} className="p-4 flex flex-col items-center text-center">
+              <s.icon className={`w-8 h-8 mb-2 ${s.color}`} />
+              <p className="text-2xl font-bold">{s.value}</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">{s.label}</p>
+            </GlassCard>
+          ))}
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <GlassCard className="p-4">
+            <h2 className="font-semibold mb-4">Revenue Trend</h2>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={revenueByMonth}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: 'none', borderRadius: '8px' }}
+                  />
+                  <Area type="monotone" dataKey="revenue" stroke="#8884d8" fill="#8884d8" fillOpacity={0.3} />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </GlassCard>
+
+          <GlassCard className="p-4">
+            <h2 className="font-semibold mb-4">User Roles Distribution</h2>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={userRolesData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {userRolesData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </GlassCard>
         </div>
 
         <GlassCard className="p-4">
-          <h2 className="font-semibold mb-3">Revenue Over Time</h2>
+          <h2 className="font-semibold mb-4">Order Status Summary</h2>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={revenueByMonth} margin={{ left: 0, right: 8, top: 10, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorAllRev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.6} />
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fill="url(#colorAllRev)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </GlassCard>
-
-        <GlassCard className="p-4">
-          <h2 className="font-semibold mb-3">Orders per Product</h2>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={ordersByProduct} margin={{ left: 0, right: 8, top: 10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="product" tick={{ fontSize: 12 }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="count" fill="hsl(var(--secondary))" />
+              <BarChart data={ordersByStatus}>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: 'none', borderRadius: '8px' }}
+                />
+                <Bar dataKey="value" fill="#82ca9d">
+                  {ordersByStatus.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
         </GlassCard>
-
-        <GlassCard className="p-4">
-          <div className="flex flex-wrap gap-2">
-            {products.slice(0, 8).map((p: any) => (
-              <Button key={p.id} variant="outline" size="sm" onClick={() => navigate(`/industry/products/${p.id}/stats`)}>
-                {p.name}
-              </Button>
-            ))}
-          </div>
-        </GlassCard>
       </main>
 
-      <FooterNav dashboardType="industry" />
+      <FooterNav dashboardType="admin" />
     </div>
   );
 };

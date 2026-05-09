@@ -64,30 +64,14 @@ const Login = () => {
           navigate("/buyer");
         }
       } else {
-        // Fallback to mock authentication when backend is unavailable
-        const mockUser = autoLoginWithMockData();
-        toast({
-          title: "Welcome",
-          description: `Signed in as ${mockUser.name}!`,
+        setErrors({
+          form: loginResult.error || "Login failed. Please check your credentials.",
         });
-        if (mockUser.isAdmin) {
-          navigate("/admin");
-        } else {
-          navigate("/buyer");
-        }
       }
     } catch (error) {
-      // Network or server error – use mock authentication fallback
-      const mockUser = autoLoginWithMockData();
-      toast({
-        title: "Welcome",
-        description: `Signed in as ${mockUser.name}!`,
+      setErrors({
+        form: "An error occurred during login. Please try again.",
       });
-      if (mockUser.isAdmin) {
-        navigate("/admin");
-      } else {
-        navigate("/buyer");
-      }
     } finally {
       setIsLoading(false);
     }
@@ -130,30 +114,14 @@ const Login = () => {
                   navigate("/buyer");
                 }
               } else {
-                // Fallback to mock authentication if OAuth fails
-                const mockUser = autoLoginWithMockData();
-                toast({
-                  title: "Welcome",
-                  description: `Signed in as ${mockUser.name}!`,
+                setErrors({
+                  form: oauthResult.error || "Google sign-in failed",
                 });
-                if (mockUser.isAdmin) {
-                  navigate("/admin");
-                } else {
-                  navigate("/buyer");
-                }
               }
             } catch (err) {
-              // Fallback to mock authentication on OAuth error
-              const mockUser = autoLoginWithMockData();
-              toast({
-                title: "Welcome",
-                description: `Signed in as ${mockUser.name}!`,
+              setErrors({
+                form: "An error occurred during Google sign-in",
               });
-              if (mockUser.isAdmin) {
-                navigate("/admin");
-              } else {
-                navigate("/buyer");
-              }
             } finally {
               setIsLoading(false);
             }
@@ -167,17 +135,9 @@ const Login = () => {
 
         google.accounts.id.prompt();
       } else {
-        // Fallback if Google API is not loaded – use mock authentication
-        const mockUser = autoLoginWithMockData();
-        toast({
-          title: "Welcome",
-          description: `Signed in as ${mockUser.name}!`,
+        setErrors({
+          form: "Google Sign-In is not available",
         });
-        if (mockUser.isAdmin) {
-          navigate("/admin");
-        } else {
-          navigate("/buyer");
-        }
         setIsLoading(false);
       }
     } catch (error) {
