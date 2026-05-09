@@ -267,7 +267,8 @@ export const createCluster = async (clusterData: unknown): Promise<unknown> => {
       current_funded: 0,
       current_members: 0,
       created_at: new Date().toISOString(),
-      shipping_status: 'shipping not started yet'
+      shipping_status: 'shipping not started yet',
+      stop_counting: false
     }])
     .select()
     .single();

@@ -27,6 +27,7 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { toast } from "@/components/ui/sonner";
+import { supabase } from "@/lib/supabase";
 
 const ProductDetails = () => {
   const navigate = useNavigate();
@@ -89,9 +90,50 @@ const ProductDetails = () => {
     api?.scrollTo(idx);
   };
 
-  const handleJoinCluster = () => {
-    toast.success(`Joining cluster for ${product.name} - Qty: ${qty}`);
-    navigate("/cluster");
+  const handleJoinCluster = async () => {
+    try {
+      // Check if a cluster already exists for this product
+      const { data: existingClusters } = await supabase
+        .from('clusters')
+        .select('*')
+        .eq('target_product_id', product.id)
+        .eq('status', 'active')
+        .limit(1);
+
+      let clusterId;
+
+      if (existingClusters && existingClusters.length > 0) {
+        clusterId = existingClusters[0].id;
+      } else {
+        // Create a new cluster automatically
+        const { data: newCluster, error: createError } = await supabase
+          .from('clusters')
+          .insert([{
+            name: `${product.name} Cluster`,
+            description: `Automatic cluster for ${product.name}`,
+            target_product_id: product.id,
+            target_product_name: product.name,
+            target_price: product.price * 10, // Default target
+            quantity: 10, // Default target
+            max_members: 5,
+            creator_id: user.id,
+            status: 'active',
+            shipping_status: 'shipping not started yet',
+            created_at: new Date().toISOString()
+          }])
+          .select()
+          .single();
+
+        if (createError) throw createError;
+        clusterId = newCluster.id;
+        toast.success("New cluster created for this product!");
+      }
+
+      navigate(`/cluster/${clusterId}`);
+    } catch (error) {
+      console.error("Error joining/creating cluster:", error);
+      toast.error("Failed to process cluster request");
+    }
   };
 
   return (

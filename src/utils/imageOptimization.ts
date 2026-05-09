@@ -35,7 +35,7 @@ export const getSafeAvatarUrl = (
     return fallback;
   }
   try {
-    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}`;
+    return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed)}`;
   } catch {
     return fallback;
   }

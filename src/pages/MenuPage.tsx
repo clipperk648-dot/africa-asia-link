@@ -19,6 +19,7 @@ import ThreeBackground from "@/components/ThreeBackground";
 import { useTheme } from "next-themes";
 import GlassCard from "@/components/GlassCard";
 import { toast } from "@/components/ui/sonner";
+import { getSafeAvatarUrl } from "@/utils/imageOptimization";
 
 const MenuPage = () => {
   const navigate = useNavigate();
@@ -73,7 +74,7 @@ const MenuPage = () => {
             <div className="relative z-10 flex items-center gap-3">
               <div className="relative">
                 <img
-                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.email || 'default'}`}
+                  src={getSafeAvatarUrl(user?.name || user?.email || 'default')}
                   alt="Profile"
                   className="w-16 h-16 rounded-full border-2 border-white/40 shadow-lg"
                 />

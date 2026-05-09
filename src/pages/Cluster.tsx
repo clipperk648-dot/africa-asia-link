@@ -220,14 +220,16 @@ const Cluster = () => {
                       {/* Cluster Header */}
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-xl sm:text-2xl font-bold">{cluster.name}</h3>
-                            {cluster.preferredShippingMethod && (
-                              <span className="px-2 py-1 rounded-md bg-primary/20 text-primary text-[10px] font-bold uppercase tracking-wider">
-                                {cluster.preferredShippingMethod}
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-xl sm:text-2xl font-bold">{cluster.name}</h3>
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                                cluster.shipping_status === 'delivered' ? 'bg-green-500/20 text-green-500' :
+                                cluster.shipping_status === 'in transit' ? 'bg-blue-500/20 text-blue-500' :
+                                'bg-amber-500/20 text-amber-500'
+                              }`}>
+                                {cluster.shipping_status || 'not started'}
                               </span>
-                            )}
-                          </div>
+                            </div>
                           <div className="flex flex-wrap gap-4 mt-2 text-sm text-muted-foreground">
                             <div className="flex items-center gap-1">
                               <Users className="w-4 h-4" />

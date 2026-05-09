@@ -102,6 +102,10 @@ export interface Cluster {
   createdDate: string;
   icon?: string;
   preferredShippingMethod?: string;
+  shippingStatus?: "shipping not started yet" | "in transit" | "in warehouse" | "delivered";
+  shippingCountdown?: number;
+  shippingStartedAt?: string;
+  stopCounting?: boolean;
 }
 
 export interface User {
@@ -112,6 +116,9 @@ export interface User {
   role: "admin" | "buyer" | "industry" | string;
   isAdmin?: boolean;
   createdAt: string;
+  created_at?: string;
+  suspended?: boolean;
+  avatar?: string;
 }
 
 export interface Transaction {
