@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/lib/supabase";
 import {
   getProducts,
   getProductById,
@@ -28,32 +30,122 @@ import {
 } from "@/lib/db";
 import type { Product, Cluster } from "@/types/models";
 
-// Fetch all users (Admin only)
+// Fetch all users (Admin only) with realtime updates
 export const useAllUsers = () => {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ["allUsers"],
     queryFn: () => getAllUsers(),
     staleTime: 5 * 60 * 1000,
   });
+
+  // Subscribe to realtime changes on the profiles table
+  useEffect(() => {
+    const channel = supabase
+      .channel('profiles-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles'
+        },
+        (payload) => {
+          // Invalidate the query to refetch fresh data
+          queryClient.invalidateQueries({ queryKey: ["allUsers"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  return query;
 };
 
-// Fetch all orders (Admin only)
+// Fetch all orders (Admin only) with realtime updates
 export const useAllOrders = () => {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ["allOrders"],
     queryFn: () => getAllOrders(),
     staleTime: 5 * 60 * 1000,
   });
+
+  // Subscribe to realtime changes on the orders table
+  useEffect(() => {
+    const channel = supabase
+      .channel('orders-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'orders'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["allOrders"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  return query;
 };
 
-// Fetch all products
+// Fetch all products with realtime updates
 export const useProducts = (limit = 20, offset = 0) => {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ["products", limit, offset],
     queryFn: () => getProducts(limit, offset),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
   });
+
+  // Subscribe to realtime changes on products tables
+  useEffect(() => {
+    const channel = supabase
+      .channel('products-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'products'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["products"] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'supplier_products'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["products"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  return query;
 };
 
 // Fetch a single product by ID
@@ -78,14 +170,40 @@ export const useOrders = (userId: string | undefined) => {
   });
 };
 
-// Fetch social posts
+// Fetch social posts with realtime updates
 export const useSocialPosts = (limit = 20) => {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ["socialPosts", limit],
     queryFn: () => getSocialPosts(limit),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
+
+  // Subscribe to realtime changes on social posts
+  useEffect(() => {
+    const channel = supabase
+      .channel('social-posts-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'social_posts'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["socialPosts"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  return query;
 };
 
 // Mutations for product management
@@ -129,24 +247,89 @@ export const useDeleteProductMutation = () => {
   });
 };
 
-// Cluster queries and mutations
+// Cluster queries and mutations with realtime updates
 export const useClusters = (limit = 20, offset = 0) => {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ["clusters", limit, offset],
     queryFn: () => getClusters(limit, offset),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
+
+  // Subscribe to realtime changes on clusters tables
+  useEffect(() => {
+    const channel = supabase
+      .channel('clusters-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'clusters'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["clusters"] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'cluster_members'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["clusters"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  return query;
 };
 
 export const useCluster = (id: string | undefined) => {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ["cluster", id],
     queryFn: () => (id ? getClusterById(id) : null),
     enabled: !!id,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
+
+  // Subscribe to realtime changes for this specific cluster
+  useEffect(() => {
+    if (!id) return;
+
+    const channel = supabase
+      .channel(`cluster-${id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'cluster_members'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["cluster", id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [id, queryClient]);
+
+  return query;
 };
 
 export const useCreateClusterMutation = () => {
@@ -229,33 +412,114 @@ export const useWalletBalance = (userId: string | undefined, currency = "USD") =
   });
 };
 
-// Supplier Products hooks
+// Supplier Products hooks with realtime updates
 export const useSupplierProducts = (limit = 20, offset = 0, filters = {}) => {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ["supplierProducts", limit, offset, filters],
     queryFn: () => getSupplierProducts(limit, offset, filters),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
+
+  // Subscribe to realtime changes on supplier_products
+  useEffect(() => {
+    const channel = supabase
+      .channel('supplier-products-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'supplier_products'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["supplierProducts"] });
+          queryClient.invalidateQueries({ queryKey: ["allSupplierProducts"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  return query;
 };
 
 export const useSupplierProduct = (id: string | undefined) => {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ["supplierProduct", id],
     queryFn: () => (id ? getSupplierProductById(id) : null),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
+
+  // Subscribe to realtime changes for this specific product
+  useEffect(() => {
+    if (!id) return;
+
+    const channel = supabase
+      .channel(`supplier-product-${id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'supplier_products'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["supplierProduct", id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [id, queryClient]);
+
+  return query;
 };
 
 export const useAllSupplierProducts = () => {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ["allSupplierProducts"],
     queryFn: () => getAllSupplierProducts(),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
+
+  // Subscribe to realtime changes on supplier_products
+  useEffect(() => {
+    const channel = supabase
+      .channel('all-supplier-products-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'supplier_products'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["allSupplierProducts"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  return query;
 };
 
 export const useCreateSupplierProductMutation = () => {
