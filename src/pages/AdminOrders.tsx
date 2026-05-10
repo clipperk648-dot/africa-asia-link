@@ -31,6 +31,8 @@ interface Order {
   buyer_id?: string;
   seller_id?: string;
   productName?: string;
+  product_name?: string;
+  product_link?: string;
   quantity?: number;
   date?: string;
 }
@@ -88,6 +90,8 @@ const AdminOrders = () => {
       case "processing":
       case "shipped":
         return "bg-blue-500/10 text-blue-400 border-blue-500/20";
+      case "Pending Manual Purchase":
+        return "bg-purple-500/10 text-purple-400 border-purple-500/20";
       default:
         return "bg-white/5 text-muted-foreground border-white/10";
     }
@@ -168,7 +172,7 @@ const AdminOrders = () => {
                     </div>
                     <div className="min-w-0">
                       <h3 className="font-bold text-white text-base truncate">
-                        {order.productName || `Order #${order.id.slice(0,8)}`}
+                        {order.productName || order.product_name || `Order #${order.id.slice(0,8)}`}
                       </h3>
                       <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mt-1">
                         <div className="flex items-center gap-1.5">
@@ -180,6 +184,18 @@ const AdminOrders = () => {
                         <div className="flex items-center gap-1.5">
                           <span className="font-bold">QTY:</span> {order.quantity || 1}
                         </div>
+                        {order.product_link && (
+                          <div className="flex items-center gap-1.5">
+                            <a 
+                              href={order.product_link} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline flex items-center gap-1"
+                            >
+                              Alibaba Link <ShoppingCart className="w-3 h-3" />
+                            </a>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useCluster, useUpdateClusterMutation } from "@/hooks/useData";
+import { useCluster, useUpdateClusterMutation, useCheckoutClusterMutation } from "@/hooks/useData";
 import { Button } from "@/components/ui/button";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import ThreeBackground from "@/components/ThreeBackground";
-import { ArrowLeft, Users, TrendingUp, Target, Clock, Copy, Check, BarChart3, Settings, MessageCircle, Truck, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Users, TrendingUp, Target, Clock, Copy, Check, BarChart3, Settings, MessageCircle, Truck, ShieldCheck, ShoppingBag } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { getSafeAvatarUrl } from "@/utils/imageOptimization";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -17,10 +18,12 @@ const ClusterDetails = () => {
   const { user } = useAuth();
   const { data: cluster, isLoading } = useCluster(clusterId);
   const updateClusterMutation = useUpdateClusterMutation();
+  const checkoutMutation = useCheckoutClusterMutation();
   
   const [copied, setCopied] = useState(false);
   const [showMoreMembers, setShowMoreMembers] = useState(false);
   const [countdown, setCountdown] = useState<string>("");
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   useEffect(() => {
     if (!cluster) return;
@@ -71,6 +74,19 @@ const ClusterDetails = () => {
 
   if (isLoading) return <div className="min-h-screen flex items-center justify-center"><ThreeBackground /><p>Loading...</p></div>;
   if (!cluster) return <div className="min-h-screen flex items-center justify-center"><ThreeBackground /><p>Cluster not found</p></div>;
+
+  const handleCheckout = async () => {
+    if (!clusterId) return;
+    setIsCheckingOut(true);
+    try {
+      await checkoutMutation.mutateAsync(clusterId);
+      toast.success("Checkout successful! Admin has been notified.");
+    } catch (error) {
+      toast.error("Checkout failed. Please try again.");
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
 
   const handleCopyInvite = () => {
     const inviteText = `Join my cluster: "${cluster.name}" - Let's order together! Code: ${cluster.id}`;
@@ -231,6 +247,23 @@ const ClusterDetails = () => {
             <Button onClick={handleCopyInvite} variant="outline" className="w-full">
               {copied ? <><Check className="w-4 h-4 mr-2" />Copied!</> : <><Copy className="w-4 h-4 mr-2" />Copy Invite Link</>}
             </Button>
+
+            {((cluster.current_members || 0) >= (cluster.max_members || 5)) && cluster.status !== 'locked' && (
+              <Button 
+                onClick={handleCheckout} 
+                className="w-full gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg shadow-green-500/20"
+                disabled={isCheckingOut}
+              >
+                <ShoppingBag className="w-4 h-4" />
+                {isCheckingOut ? "Processing..." : "Activate Checkout"}
+              </Button>
+            )}
+
+            {cluster.status === 'locked' && (
+              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-center">
+                <p className="text-sm font-bold text-emerald-400">Cluster Locked - Order Pending</p>
+              </div>
+            )}
           </div>
         </GlassCard>
 

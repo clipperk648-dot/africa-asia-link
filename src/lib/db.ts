@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { supabase } from './supabase';
 
 export const isDatabaseConfigured = (): boolean => {
@@ -200,7 +201,7 @@ export const createSupplierProduct = async (productData: unknown): Promise<unkno
 };
 
 export const createSupplierProducts = async (products: unknown[]): Promise<unknown[]> => {
-  const productsWithTimestamps = (products as any[]).map(p => ({
+  const productsWithTimestamps = (products as { [key: string]: any }[]).map(p => ({
     ...p,
     status: 'active',
     created_at: new Date().toISOString()
@@ -375,6 +376,24 @@ export const joinCluster = async (
   quantity: number,
   amount: number
 ): Promise<unknown> => {
+  // Check if cluster is locked or full
+  const { data: clusterData, error: clusterFetchError } = await supabase
+    .from('clusters')
+    .select('status, current_members, max_members')
+    .eq('id', clusterId)
+    .single();
+  
+  if (clusterFetchError) throw clusterFetchError;
+  const cluster = clusterData as { status: string, current_members: number, max_members: number };
+
+  if (cluster.status === 'locked') {
+    throw new Error("This cluster is locked and cannot be joined.");
+  }
+  
+  if (cluster.current_members >= cluster.max_members) {
+    throw new Error("This cluster is already full.");
+  }
+
   const { data: member, error: memberError } = await supabase
     .from('cluster_members')
     .insert([{
@@ -445,6 +464,68 @@ export const updateCluster = async (id: string, data: unknown): Promise<unknown>
   
   if (error) throw error;
   return updated;
+};
+
+export const checkoutCluster = async (clusterId: string): Promise<boolean> => {
+  // 1. Get cluster details
+  const { data: clusterData, error: clusterError } = await supabase
+    .from('clusters')
+    .select('*, cluster_members(*)')
+    .eq('id', clusterId)
+    .single();
+
+  if (clusterError || !clusterData) throw clusterError || new Error("Cluster not found");
+  const cluster = clusterData as any;
+
+  // Fetch product info (could be from products or supplier_products)
+  let productLink = "";
+  const { data: sProduct } = await supabase.from('supplier_products').select('alibaba_link').eq('id', cluster.target_product_id).single();
+  if (sProduct) {
+    productLink = (sProduct as any).alibaba_link;
+  } else {
+    const { data: pProduct } = await supabase.from('products').select('image').eq('id', cluster.target_product_id).single();
+    if (pProduct) {
+      // If it's a regular product, maybe it doesn't have an alibaba link
+      productLink = ""; 
+    }
+  }
+
+  // 2. Lock the cluster
+  await supabase
+    .from('clusters')
+    .update({ status: 'locked' })
+    .eq('id', clusterId);
+
+  // 3. Create order record
+  const { error: orderError } = await supabase
+    .from('orders')
+    .insert([{
+      cluster_id: clusterId,
+      product_id: cluster.target_product_id,
+      product_name: cluster.target_product_name,
+      product_link: productLink,
+      quantity: cluster.quantity,
+      total: cluster.current_funded,
+      status: 'Pending Manual Purchase',
+      created_at: new Date().toISOString()
+    }]);
+
+  if (orderError) throw orderError;
+
+  // 4. Send notification to admin (simulated here by creating a notification in the table)
+  const { data: admins } = await supabase.from('profiles').select('id').eq('role', 'admin');
+  if (admins) {
+    for (const admin of admins) {
+      await createNotification(
+        admin.id,
+        "Cluster Ready for Purchase",
+        `Cluster "${cluster.name}" is complete and ready for manual purchase on Alibaba.`,
+        "info"
+      );
+    }
+  }
+
+  return true;
 };
 
 // ============ WALLET ============
