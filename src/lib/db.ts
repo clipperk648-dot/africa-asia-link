@@ -150,8 +150,100 @@ export const deleteProduct = async (id: string): Promise<boolean> => {
     .from('products')
     .delete()
     .eq('id', id);
-  
+
   return !error;
+};
+
+// ============ SUPPLIER PRODUCTS ============
+
+export const getSupplierProducts = async (limit = 20, offset = 0, filters: { category?: string; status?: string; search?: string } = {}): Promise<unknown[]> => {
+  let query = supabase
+    .from('supplier_products')
+    .select('*')
+    .eq('status', filters.status || 'active')
+    .range(offset, offset + limit - 1);
+
+  if (filters.category) {
+    query = query.eq('category', filters.category);
+  }
+
+  if (filters.search) {
+    query = query.ilike('title', `%${filters.search}%`);
+  }
+
+  const { data, error } = await query;
+
+  if (error) return [];
+  return data;
+};
+
+export const getSupplierProductById = async (id: string): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('supplier_products')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) return null;
+  return data;
+};
+
+export const createSupplierProduct = async (productData: unknown): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('supplier_products')
+    .insert([{ ...(productData as object), status: 'active', created_at: new Date().toISOString() }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+export const createSupplierProducts = async (products: unknown[]): Promise<unknown[]> => {
+  const productsWithTimestamps = (products as any[]).map(p => ({
+    ...p,
+    status: 'active',
+    created_at: new Date().toISOString()
+  }));
+
+  const { data, error } = await supabase
+    .from('supplier_products')
+    .insert(productsWithTimestamps)
+    .select();
+
+  if (error) throw error;
+  return data || [];
+};
+
+export const updateSupplierProduct = async (id: string, productData: unknown): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('supplier_products')
+    .update(productData as object)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) return null;
+  return data;
+};
+
+export const deleteSupplierProduct = async (id: string): Promise<boolean> => {
+  const { error } = await supabase
+    .from('supplier_products')
+    .delete()
+    .eq('id', id);
+
+  return !error;
+};
+
+export const getAllSupplierProducts = async (): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('supplier_products')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) return [];
+  return data;
 };
 
 // ============ ORDERS ============
@@ -702,4 +794,3 @@ export const createSupportMessage = async (senderId: string, recipientId: string
   if (error) throw error;
   return data;
 };
-

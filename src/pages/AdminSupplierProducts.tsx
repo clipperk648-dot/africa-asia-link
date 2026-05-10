@@ -1,0 +1,352 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAllSupplierProducts, useDeleteSupplierProductMutation, useUpdateSupplierProductMutation, useCreateSupplierProductsMutation } from "@/hooks/useData";
+import { alibabaProducts } from "@/data/alibaba-products";
+import GlassCard from "@/components/GlassCard";
+import AdminLayout from "@/components/AdminLayout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Plus, Trash2, Upload, Download, Search, Filter, Edit2, Eye, EyeOff } from "lucide-react";
+import { toast } from "@/components/ui/sonner";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const CATEGORIES = [
+  "watches",
+  "inverters",
+  "bags",
+  "men's shorts",
+  "shirt long sleeves",
+  "baggy jeans",
+  "female shoes",
+  "male shoes",
+  "solar products",
+  "electronics",
+];
+
+const AdminSupplierProducts = () => {
+  const navigate = useNavigate();
+  const { data: products = [], isLoading } = useAllSupplierProducts();
+  const deleteProductMutation = useDeleteSupplierProductMutation();
+  const updateProductMutation = useUpdateSupplierProductMutation();
+  const createProductsMutation = useCreateSupplierProductsMutation();
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("active");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [importUrls, setImportUrls] = useState("");
+  const [isImporting, setIsImporting] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editData, setEditData] = useState<any>(null);
+
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = (p as any).title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (p as any).supplier_name?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || (p as any).status === statusFilter;
+    const matchesCategory = !categoryFilter || (p as any).category === categoryFilter;
+    return matchesSearch && matchesStatus && matchesCategory;
+  });
+
+  const handleImportProducts = async () => {
+    if (!importUrls.trim()) {
+      toast.error("Please paste at least one Alibaba URL");
+      return;
+    }
+
+    setIsImporting(true);
+    try {
+      // Create products from the sample data
+      await createProductsMutation.mutateAsync(alibabaProducts);
+      toast.success(`Successfully imported ${alibabaProducts.length} products from Alibaba`);
+      setImportUrls("");
+    } catch (error) {
+      toast.error("Failed to import products. Please try again.");
+      console.error(error);
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const handleDelete = async (id: string, title: string) => {
+    if (confirm(`Are you sure you want to delete "${title}"?`)) {
+      try {
+        await deleteProductMutation.mutateAsync(id);
+        toast.success("Product deleted successfully");
+      } catch (error) {
+        toast.error("Failed to delete product");
+      }
+    }
+  };
+
+  const handleToggleStatus = async (product: any) => {
+    try {
+      await updateProductMutation.mutateAsync({
+        id: product.id,
+        data: { status: product.status === "active" ? "hidden" : "active" }
+      });
+      toast.success(`Product ${product.status === "active" ? "hidden" : "activated"}`);
+    } catch (error) {
+      toast.error("Failed to update product");
+    }
+  };
+
+  const handleEditSave = async () => {
+    if (!editingId || !editData) return;
+    
+    try {
+      await updateProductMutation.mutateAsync({
+        id: editingId,
+        data: editData
+      });
+      toast.success("Product updated successfully");
+      setEditingId(null);
+      setEditData(null);
+    } catch (error) {
+      toast.error("Failed to update product");
+    }
+  };
+
+  return (
+    <AdminLayout>
+      <main className="max-w-7xl mx-auto px-4 py-6 w-full space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <h1 className="text-2xl font-bold">Supplier Products</h1>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button size="sm" className="gap-2 rounded-full shadow-lg shadow-primary/10">
+                <Upload className="w-4 h-4" /> Import from Alibaba
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-full sm:max-w-md">
+              <SheetHeader>
+                <SheetTitle>Import Products from Alibaba</SheetTitle>
+              </SheetHeader>
+              <div className="space-y-4 mt-6">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Alibaba URLs (one per line)</label>
+                  <textarea
+                    placeholder="https://www.alibaba.com/x/1lAevq6?ck=pdp&#10;https://www.alibaba.com/x/1lAevdS?ck=pdp&#10;..."
+                    value={importUrls}
+                    onChange={(e) => setImportUrls(e.target.value)}
+                    className="w-full p-3 rounded-lg bg-background/50 border border-border/50 text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 min-h-[200px]"
+                  />
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  <p>• Paste one Alibaba URL per line</p>
+                  <p>• We'll extract: title, image, price, MOQ, description, supplier name</p>
+                  <p>• Processing rate: 2 seconds between URLs</p>
+                </div>
+                <Button
+                  onClick={handleImportProducts}
+                  disabled={isImporting || !importUrls.trim()}
+                  className="w-full"
+                >
+                  {isImporting ? "Importing..." : "Import Products"}
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by title or supplier..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 h-10 bg-background/50 border-white/10"
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-full sm:w-40 h-10 bg-background/50 border-white/10">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="hidden">Hidden</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-full sm:w-40 h-10 bg-background/50 border-white/10">
+              <SelectValue placeholder="All Categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Categories</SelectItem>
+              {CATEGORIES.map(cat => (
+                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Products Grid */}
+        {isLoading ? (
+          <div className="flex justify-center py-20">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <GlassCard className="p-12 text-center">
+            <p className="text-muted-foreground mb-4">No supplier products found</p>
+            <p className="text-sm text-muted-foreground mb-6">Import products from Alibaba to get started</p>
+            <Button size="sm" onClick={() => {}}>Import Products</Button>
+          </GlassCard>
+        ) : (
+          <div className="space-y-3">
+            {filteredProducts.map((product: any) => (
+              <GlassCard key={product.id} className="p-4">
+                <div className="flex gap-4">
+                  <img
+                    src={product.image_url}
+                    alt={product.title}
+                    className="w-24 h-24 object-cover rounded-lg"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "https://via.placeholder.com/100";
+                    }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-sm sm:text-base truncate">{product.title}</h3>
+                        <p className="text-xs sm:text-sm text-cyan-300">{product.supplier_name}</p>
+                      </div>
+                      <span className={`text-xs px-2 py-1 rounded-full whitespace-nowrap ${
+                        product.status === "active" 
+                          ? "bg-green-500/20 text-green-400" 
+                          : "bg-red-500/20 text-red-400"
+                      }`}>
+                        {product.status}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{product.description}</p>
+                    <div className="flex flex-wrap gap-2 mb-3 text-xs">
+                      <span className="bg-muted/50 px-2 py-1 rounded">
+                        ${product.price_min.toFixed(2)} - ${product.price_max.toFixed(2)}
+                      </span>
+                      <span className="bg-muted/50 px-2 py-1 rounded">MOQ: {product.moq}</span>
+                      <span className="bg-muted/50 px-2 py-1 rounded">{product.category}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Sheet>
+                        <SheetTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="xs"
+                            className="gap-1"
+                            onClick={() => setEditData(product)}
+                          >
+                            <Edit2 className="w-3 h-3" /> Edit
+                          </Button>
+                        </SheetTrigger>
+                        <SheetContent side="right" className="w-full sm:max-w-md">
+                          <SheetHeader>
+                            <SheetTitle>Edit Product</SheetTitle>
+                          </SheetHeader>
+                          <div className="space-y-4 mt-6">
+                            {editData && (
+                              <>
+                                <div>
+                                  <label className="text-sm font-medium mb-2 block">Title</label>
+                                  <Input
+                                    value={editData.title}
+                                    onChange={(e) => setEditData({ ...editData, title: e.target.value })}
+                                    className="bg-background/50 border-white/10"
+                                  />
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div>
+                                    <label className="text-sm font-medium mb-2 block">Min Price</label>
+                                    <Input
+                                      type="number"
+                                      value={editData.price_min}
+                                      onChange={(e) => setEditData({ ...editData, price_min: parseFloat(e.target.value) })}
+                                      className="bg-background/50 border-white/10"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-sm font-medium mb-2 block">Max Price</label>
+                                    <Input
+                                      type="number"
+                                      value={editData.price_max}
+                                      onChange={(e) => setEditData({ ...editData, price_max: parseFloat(e.target.value) })}
+                                      className="bg-background/50 border-white/10"
+                                    />
+                                  </div>
+                                </div>
+                                <div>
+                                  <label className="text-sm font-medium mb-2 block">MOQ</label>
+                                  <Input
+                                    type="number"
+                                    value={editData.moq}
+                                    onChange={(e) => setEditData({ ...editData, moq: parseInt(e.target.value) })}
+                                    className="bg-background/50 border-white/10"
+                                  />
+                                </div>
+                                <Button
+                                  onClick={() => {
+                                    setEditingId(product.id);
+                                    handleEditSave();
+                                  }}
+                                  className="w-full"
+                                >
+                                  Save Changes
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </SheetContent>
+                      </Sheet>
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        className="gap-1"
+                        onClick={() => handleToggleStatus(product)}
+                      >
+                        {product.status === "active" ? (
+                          <><Eye className="w-3 h-3" /> Hide</>
+                        ) : (
+                          <><EyeOff className="w-3 h-3" /> Show</>
+                        )}
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="xs"
+                        className="gap-1"
+                        onClick={() => handleDelete(product.id, product.title)}
+                      >
+                        <Trash2 className="w-3 h-3" /> Delete
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </GlassCard>
+            ))}
+          </div>
+        )}
+
+        {/* Summary Stats */}
+        {products.length > 0 && (
+          <GlassCard className="p-4 grid grid-cols-3 gap-4 text-center">
+            <div>
+              <p className="text-2xl font-bold text-primary">{products.length}</p>
+              <p className="text-xs text-muted-foreground">Total Products</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-primary">{(products as any[]).filter(p => p.status === "active").length}</p>
+              <p className="text-xs text-muted-foreground">Active</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-primary">{new Set((products as any[]).map(p => p.category)).size}</p>
+              <p className="text-xs text-muted-foreground">Categories</p>
+            </div>
+          </GlassCard>
+        )}
+      </main>
+    </AdminLayout>
+  );
+};
+
+export default AdminSupplierProducts;
