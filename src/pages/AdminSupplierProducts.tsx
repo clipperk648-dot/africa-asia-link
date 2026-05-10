@@ -131,7 +131,7 @@ const AdminSupplierProducts = () => {
 
   const handleEditSave = async () => {
     if (!editingId || !editData) return;
-    
+
     try {
       await updateProductMutation.mutateAsync({
         id: editingId,
@@ -145,47 +145,74 @@ const AdminSupplierProducts = () => {
     }
   };
 
+  const handleSeedAlibabaProducts = async () => {
+    if (alibabaProducts.length === 0) {
+      toast.error("No Alibaba products to import");
+      return;
+    }
+
+    const loadingToast = toast.loading(`Importing ${alibabaProducts.length} Alibaba products...`);
+
+    try {
+      await createProductsMutation.mutateAsync(alibabaProducts);
+      toast.success(`Successfully imported ${alibabaProducts.length} Alibaba products!`, { id: loadingToast });
+    } catch (error) {
+      toast.error("Failed to import Alibaba products", { id: loadingToast });
+      console.error(error);
+    }
+  };
+
   return (
     <AdminLayout>
       <main className="max-w-7xl mx-auto px-4 py-6 w-full space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <h1 className="text-2xl font-bold">Supplier Products</h1>
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button size="sm" className="gap-2 rounded-full shadow-lg shadow-primary/10">
-                <Upload className="w-4 h-4" /> Import from Alibaba
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-full sm:max-w-md">
-              <SheetHeader>
-                <SheetTitle>Import Products from Alibaba</SheetTitle>
-              </SheetHeader>
-              <div className="space-y-4 mt-6">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Alibaba URLs (one per line)</label>
-                  <textarea
-                    placeholder="https://www.alibaba.com/x/1lAevq6?ck=pdp&#10;https://www.alibaba.com/x/1lAevdS?ck=pdp&#10;..."
-                    value={importUrls}
-                    onChange={(e) => setImportUrls(e.target.value)}
-                    className="w-full p-3 rounded-lg bg-background/50 border border-border/50 text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 min-h-[200px]"
-                  />
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  <p>• Paste one Alibaba URL per line</p>
-                  <p>• We'll extract: title, image, price, MOQ, description, supplier name</p>
-                  <p>• Processing rate: 2 seconds between URLs</p>
-                </div>
-                <Button
-                  onClick={handleImportProducts}
-                  disabled={isImporting || !importUrls.trim()}
-                  className="w-full"
-                >
-                  {isImporting ? "Importing..." : "Import Products"}
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2 rounded-full"
+              onClick={handleSeedAlibabaProducts}
+            >
+              <Download className="w-4 h-4" /> Seed Alibaba
+            </Button>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button size="sm" className="gap-2 rounded-full shadow-lg shadow-primary/10">
+                  <Upload className="w-4 h-4" /> Import from Alibaba
                 </Button>
-              </div>
-            </SheetContent>
-          </Sheet>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-full sm:max-w-md">
+                <SheetHeader>
+                  <SheetTitle>Import Products from Alibaba</SheetTitle>
+                </SheetHeader>
+                <div className="space-y-4 mt-6">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Alibaba URLs (one per line)</label>
+                    <textarea
+                      placeholder="https://www.alibaba.com/x/1lAevq6?ck=pdp&#10;https://www.alibaba.com/x/1lAevdS?ck=pdp&#10;..."
+                      value={importUrls}
+                      onChange={(e) => setImportUrls(e.target.value)}
+                      className="w-full p-3 rounded-lg bg-background/50 border border-border/50 text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 min-h-[200px]"
+                    />
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    <p>• Paste one Alibaba URL per line</p>
+                    <p>• We'll extract: title, image, price, MOQ, description, supplier name</p>
+                    <p>• Processing rate: 2 seconds between URLs</p>
+                  </div>
+                  <Button
+                    onClick={handleImportProducts}
+                    disabled={isImporting || !importUrls.trim()}
+                    className="w-full"
+                  >
+                    {isImporting ? "Importing..." : "Import Products"}
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
 
         {/* Filters */}

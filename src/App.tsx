@@ -8,6 +8,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { ThemeProvider } from "next-themes";
 import { initializeAuth } from "@/lib/auth";
 import LoadingProgress from "@/components/LoadingProgress";
+import { DatabaseInitializer } from "@/components/DatabaseInitializer";
 
 const Index = lazy(() => import("./pages/Index"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
@@ -137,6 +138,7 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
+        <DatabaseInitializer />
         <BrowserRouter>
           <LoadingProgress />
           <AppContent />
