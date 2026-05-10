@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getProducts,
@@ -11,6 +12,8 @@ import {
   getClusterById,
   createCluster,
   joinCluster,
+  leaveCluster,
+  updateCluster,
   getWalletBalance,
   getAllUsers,
   getAllOrders,
@@ -20,7 +23,8 @@ import {
   createSupplierProducts,
   updateSupplierProduct,
   deleteSupplierProduct,
-  getAllSupplierProducts
+  getAllSupplierProducts,
+  checkoutCluster
 } from "@/lib/db";
 import type { Product, Cluster } from "@/types/models";
 
@@ -107,7 +111,7 @@ export const useUpdateProductMutation = () => {
       if (data) {
         // Invalidate product-related queries
         queryClient.invalidateQueries({ queryKey: ["products"] });
-        queryClient.invalidateQueries({ queryKey: ["product", data.id] });
+        queryClient.invalidateQueries({ queryKey: ["product", (data as any).id] });
       }
     },
   });
@@ -162,7 +166,7 @@ export const useJoinClusterMutation = () => {
   return useMutation({
     mutationFn: ({ clusterId, userId, quantity, amount }: { clusterId: string; userId: string; quantity: number; amount: number }) =>
       joinCluster(clusterId, userId, quantity, amount),
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       if (data) {
         queryClient.invalidateQueries({ queryKey: ["clusters"] });
         queryClient.invalidateQueries({ queryKey: ["cluster", data.cluster_id] });
@@ -177,7 +181,7 @@ export const useLeaveClusterMutation = () => {
   return useMutation({
     mutationFn: ({ clusterId, userId }: { clusterId: string; userId: string }) =>
       leaveCluster(clusterId, userId),
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       if (data) {
         queryClient.invalidateQueries({ queryKey: ["clusters"] });
         queryClient.invalidateQueries({ queryKey: ["cluster", data.id] });
@@ -201,15 +205,24 @@ export const useUpdateClusterMutation = () => {
   });
 };
 
-import { updateCluster } from "@/lib/db";
+export const useCheckoutClusterMutation = () => {
+  const queryClient = useQueryClient();
 
-
+  return useMutation({
+    mutationFn: (clusterId: string) => checkoutCluster(clusterId),
+    onSuccess: (_, clusterId) => {
+      queryClient.invalidateQueries({ queryKey: ["clusters"] });
+      queryClient.invalidateQueries({ queryKey: ["cluster", clusterId] });
+      queryClient.invalidateQueries({ queryKey: ["allOrders"] });
+    },
+  });
+};
 
 // Fetch wallet balance for a user
 export const useWalletBalance = (userId: string | undefined, currency = "USD") => {
   return useQuery({
     queryKey: ["walletBalance", userId, currency],
-    queryFn: () => (userId ? getWalletBalance(userId, currency) : { balance: 0, currency }),
+    queryFn: () => (userId ? getWalletBalance(userId) : { balance: 0, currency }),
     enabled: !!userId,
     staleTime: 2 * 60 * 1000, // 2 minutes - more frequent for sensitive data
     gcTime: 5 * 60 * 1000, // 5 minutes
@@ -274,10 +287,10 @@ export const useUpdateSupplierProductMutation = () => {
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) => updateSupplierProduct(id, data),
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       if (data) {
         queryClient.invalidateQueries({ queryKey: ["supplierProducts"] });
-        queryClient.invalidateQueries({ queryKey: ["supplierProduct", (data as any).id] });
+        queryClient.invalidateQueries({ queryKey: ["supplierProduct", data.id] });
         queryClient.invalidateQueries({ queryKey: ["allSupplierProducts"] });
       }
     },

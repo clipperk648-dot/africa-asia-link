@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAllSupplierProducts, useDeleteSupplierProductMutation, useUpdateSupplierProductMutation, useCreateSupplierProductsMutation } from "@/hooks/useData";
+import { supabase } from "@/lib/supabase";
 import { alibabaProducts } from "@/data/alibaba-products";
 import GlassCard from "@/components/GlassCard";
 import AdminLayout from "@/components/AdminLayout";
@@ -24,9 +25,25 @@ const CATEGORIES = [
   "electronics",
 ];
 
+interface SupplierProduct {
+  id: string;
+  title: string;
+  image_url: string;
+  price_min: number;
+  price_max: number;
+  moq: number;
+  description: string;
+  supplier_name: string;
+  alibaba_link: string;
+  category: string;
+  status: 'active' | 'hidden';
+  created_at?: string;
+}
+
 const AdminSupplierProducts = () => {
   const navigate = useNavigate();
-  const { data: products = [], isLoading } = useAllSupplierProducts();
+  const { data: productsData = [], isLoading } = useAllSupplierProducts();
+  const products = productsData as SupplierProduct[];
   const deleteProductMutation = useDeleteSupplierProductMutation();
   const updateProductMutation = useUpdateSupplierProductMutation();
   const createProductsMutation = useCreateSupplierProductsMutation();
@@ -37,13 +54,13 @@ const AdminSupplierProducts = () => {
   const [importUrls, setImportUrls] = useState("");
   const [isImporting, setIsImporting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editData, setEditData] = useState<any>(null);
+  const [editData, setEditData] = useState<SupplierProduct | null>(null);
 
-  const filteredProducts = products.filter(p => {
-    const matchesSearch = (p as any).title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         (p as any).supplier_name?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === "all" || (p as any).status === statusFilter;
-    const matchesCategory = !categoryFilter || (p as any).category === categoryFilter;
+  const filteredProducts = (products as SupplierProduct[]).filter(p => {
+    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         p.supplier_name?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === "all" || p.status === statusFilter;
+    const matchesCategory = !categoryFilter || p.category === categoryFilter;
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
@@ -53,14 +70,36 @@ const AdminSupplierProducts = () => {
       return;
     }
 
+    const urls = importUrls.split("\n").filter(url => url.trim().startsWith("http"));
+    if (urls.length === 0) {
+      toast.error("Please provide valid URLs starting with http");
+      return;
+    }
+
     setIsImporting(true);
+    const loadingToast = toast.loading(`Scraping ${urls.length} products...`);
+    
     try {
-      // Create products from the sample data
-      await createProductsMutation.mutateAsync(alibabaProducts);
-      toast.success(`Successfully imported ${alibabaProducts.length} products from Alibaba`);
+      const { data: scrapeResult, error: scrapeError } = await supabase.functions.invoke('scrape-alibaba', {
+        body: { urls }
+      });
+
+      if (scrapeError) throw scrapeError;
+
+      const successfulProducts = (scrapeResult.results as { success: boolean, data: SupplierProduct }[])
+        .filter(r => r.success)
+        .map(r => r.data);
+
+      if (successfulProducts.length > 0) {
+        await createProductsMutation.mutateAsync(successfulProducts);
+        toast.success(`Successfully imported ${successfulProducts.length} products from Alibaba`, { id: loadingToast });
+      } else {
+        toast.error("Failed to extract data from provided URLs", { id: loadingToast });
+      }
+      
       setImportUrls("");
     } catch (error) {
-      toast.error("Failed to import products. Please try again.");
+      toast.error("Failed to import products. Check backend logs.", { id: loadingToast });
       console.error(error);
     } finally {
       setIsImporting(false);
@@ -78,7 +117,7 @@ const AdminSupplierProducts = () => {
     }
   };
 
-  const handleToggleStatus = async (product: any) => {
+  const handleToggleStatus = async (product: SupplierProduct) => {
     try {
       await updateProductMutation.mutateAsync({
         id: product.id,
@@ -196,7 +235,7 @@ const AdminSupplierProducts = () => {
           </GlassCard>
         ) : (
           <div className="space-y-3">
-            {filteredProducts.map((product: any) => (
+            {filteredProducts.map((product) => (
               <GlassCard key={product.id} className="p-4">
                 <div className="flex gap-4">
                   <img
@@ -335,11 +374,11 @@ const AdminSupplierProducts = () => {
               <p className="text-xs text-muted-foreground">Total Products</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-primary">{(products as any[]).filter(p => p.status === "active").length}</p>
+              <p className="text-2xl font-bold text-primary">{products.filter(p => p.status === "active").length}</p>
               <p className="text-xs text-muted-foreground">Active</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-primary">{new Set((products as any[]).map(p => p.category)).size}</p>
+              <p className="text-2xl font-bold text-primary">{new Set(products.map(p => p.category)).size}</p>
               <p className="text-xs text-muted-foreground">Categories</p>
             </div>
           </GlassCard>
