@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "@/utils/mockAuth";
@@ -115,8 +116,10 @@ const Cluster = () => {
   };
 
   const ClusterCard = ({ cluster }: { cluster: ClusterType }) => {
-    const progress = Math.min(100, Math.round(((cluster.current_funded || 0) / (cluster.targetPrice || 1000)) * 100));
-    const membersCount = cluster.current_members || (cluster.cluster_members?.length) || 0;
+    const targetPrice = cluster.targetPrice || cluster.target_price || 1000;
+    const currentFunded = cluster.current_funded || cluster.currentFunded || 0;
+    const progress = Math.min(100, Math.round((currentFunded / targetPrice) * 100));
+    const membersCount = cluster.current_members || cluster.currentMembers || (cluster.cluster_members?.length) || 0;
     const isMember = user && cluster.cluster_members?.some((m: any) => m.user_id === user.id);
 
     return (
@@ -129,15 +132,15 @@ const Cluster = () => {
                 {isMember && <span className="text-[8px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-bold uppercase">Member</span>}
               </div>
               <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
-                By {cluster.creatorName || "Anonymous"}
+                By {cluster.creatorName || cluster.creator_name || "Anonymous"}
               </p>
             </div>
             <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
-              cluster.shipping_status === 'delivered' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
-              cluster.shipping_status === 'in transit' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
+              (cluster.shipping_status || cluster.shippingStatus) === 'delivered' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+              (cluster.shipping_status || cluster.shippingStatus) === 'in transit' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
               'bg-amber-500/10 text-amber-400 border border-amber-500/20'
             }`}>
-              {cluster.shipping_status || 'not started'}
+              {cluster.shipping_status || cluster.shippingStatus || 'not started'}
             </span>
           </div>
 
@@ -146,14 +149,14 @@ const Cluster = () => {
                 <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-tighter mb-1">Members</p>
                 <div className="flex items-center gap-1.5 text-white">
                   <Users className="w-3.5 h-3.5 text-blue-400" />
-                  <span className="text-sm font-bold">{membersCount} / {cluster.maxMembers || 5}</span>
+                  <span className="text-sm font-bold">{membersCount} / {cluster.maxMembers || cluster.max_members || 5}</span>
                 </div>
              </div>
              <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">
                 <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-tighter mb-1">Shipping</p>
                 <div className="flex items-center gap-1.5 text-white">
                   <Clock className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="text-[10px] font-bold uppercase truncate">{cluster.preferredShippingMethod || "Standard"}</span>
+                  <span className="text-[10px] font-bold uppercase truncate">{cluster.preferredShippingMethod || cluster.preferred_shipping_method || "Standard"}</span>
                 </div>
              </div>
           </div>

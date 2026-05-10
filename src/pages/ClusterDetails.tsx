@@ -121,10 +121,12 @@ const ClusterDetails = () => {
     }
   };
 
-  const isCreator = user?.id === cluster.creatorId;
+  const isCreator = user?.id === (cluster.creatorId || cluster.creator_id);
   const isAdmin = user?.role === "admin";
 
-  const progress = Math.min(100, Math.round(((cluster.current_funded || 0) / (cluster.targetPrice || 1)) * 100));
+  const targetPrice = cluster.targetPrice || cluster.target_price || 1;
+  const currentFunded = cluster.currentFunded || cluster.current_funded || 0;
+  const progress = Math.min(100, Math.round((currentFunded / targetPrice) * 100));
 
   return (
     <div className="min-h-screen pb-24 relative">
@@ -138,7 +140,7 @@ const ClusterDetails = () => {
             </Button>
             <div className="min-w-0">
               <h1 className="text-lg font-bold truncate">{cluster.name}</h1>
-              <p className="text-xs text-muted-foreground">{cluster.current_members || cluster.cluster_members?.length || 0} members</p>
+              <p className="text-xs text-muted-foreground">{cluster.current_members || cluster.currentMembers || cluster.cluster_members?.length || 0} members</p>
             </div>
           </div>
         </div>
@@ -152,7 +154,7 @@ const ClusterDetails = () => {
               <div>
                 <p className="text-sm font-semibold text-muted-foreground mb-1">Creator</p>
                 <div className="flex items-center gap-2">
-                  <p className="text-lg font-bold">{cluster.creatorName}</p>
+                  <p className="text-lg font-bold">{cluster.creatorName || cluster.creator_name || "Anonymous"}</p>
                   {isCreator && (
                     <span className="flex items-center gap-1 px-2 py-0.5 bg-accent/20 text-accent text-[10px] font-bold rounded-full uppercase">
                       <ShieldCheck className="w-3 h-3" />
@@ -164,7 +166,7 @@ const ClusterDetails = () => {
               <div className="text-right">
                 <p className="text-sm font-semibold text-muted-foreground mb-1">Status</p>
                 <span className="px-2 py-1 bg-primary/20 text-primary text-[10px] font-bold rounded uppercase">
-                  {cluster.shipping_status || "shipping not started yet"}
+                  {cluster.shipping_status || cluster.shippingStatus || "shipping not started yet"}
                 </span>
               </div>
             </div>
@@ -175,7 +177,7 @@ const ClusterDetails = () => {
                 <p className="text-2xl font-mono font-bold text-accent">{countdown}</p>
                 {isAdmin && (
                   <Button variant="link" size="sm" onClick={handleToggleCounting} className="text-xs text-accent/70 hover:text-accent">
-                    {cluster.stop_counting ? "Resume Timer" : "Pause Timer"}
+                    {(cluster.stop_counting || cluster.stopCounting) ? "Resume Timer" : "Pause Timer"}
                   </Button>
                 )}
               </div>
@@ -184,7 +186,7 @@ const ClusterDetails = () => {
             {isAdmin && (
               <div className="p-3 rounded-lg bg-card/50 border border-border/50">
                 <p className="text-sm font-semibold mb-2">Admin: Change Shipping Status</p>
-                <Select onValueChange={handleStatusChange} defaultValue={cluster.shipping_status}>
+                <Select onValueChange={handleStatusChange} defaultValue={cluster.shipping_status || cluster.shippingStatus}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
@@ -198,13 +200,13 @@ const ClusterDetails = () => {
               </div>
             )}
 
-            {cluster.targetProductName && (
+            {(cluster.targetProductName || cluster.target_product_name) && (
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Target className="w-5 h-5 text-accent" />
                   <p className="text-sm font-semibold text-muted-foreground">Target Product</p>
                 </div>
-                <p className="text-lg font-bold">{cluster.targetProductName}</p>
+                <p className="text-lg font-bold">{cluster.targetProductName || cluster.target_product_name}</p>
               </div>
             )}
 
@@ -222,16 +224,16 @@ const ClusterDetails = () => {
                   <Truck className="w-5 h-5 text-primary" />
                   <p className="text-xs font-semibold">Method</p>
                 </div>
-                <p className="font-bold text-primary text-[10px] uppercase">{cluster.preferredShippingMethod || "Standard"}</p>
+                <p className="font-bold text-primary text-[10px] uppercase">{cluster.preferredShippingMethod || cluster.preferred_shipping_method || "Standard"}</p>
               </div>
             </div>
 
-            {cluster.targetPrice > 0 && (
+            {targetPrice > 0 && (
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <p className="text-sm text-muted-foreground">Progress</p>
                   <p className="text-sm font-semibold">
-                    ${(cluster.current_funded || 0).toLocaleString()} / ${(cluster.targetPrice || 0).toLocaleString()}
+                    ${(currentFunded).toLocaleString()} / ${(targetPrice).toLocaleString()}
                   </p>
                 </div>
                 <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
@@ -248,7 +250,7 @@ const ClusterDetails = () => {
               {copied ? <><Check className="w-4 h-4 mr-2" />Copied!</> : <><Copy className="w-4 h-4 mr-2" />Copy Invite Link</>}
             </Button>
 
-            {((cluster.current_members || 0) >= (cluster.max_members || 5)) && cluster.status !== 'locked' && (
+            {((cluster.current_members || cluster.currentMembers || 0) >= (cluster.max_members || cluster.maxMembers || 5)) && cluster.status !== 'locked' && (
               <Button 
                 onClick={handleCheckout} 
                 className="w-full gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg shadow-green-500/20"

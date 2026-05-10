@@ -47,6 +47,20 @@ CREATE TABLE IF NOT EXISTS orders (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Add columns to orders if they don't exist
+DO $$ 
+BEGIN 
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='orders' AND column_name='cluster_id') THEN
+    ALTER TABLE orders ADD COLUMN cluster_id UUID REFERENCES clusters(id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='orders' AND column_name='product_name') THEN
+    ALTER TABLE orders ADD COLUMN product_name TEXT;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='orders' AND column_name='product_link') THEN
+    ALTER TABLE orders ADD COLUMN product_link TEXT;
+  END IF;
+END $$;
+
 -- Update categories table with new categories
 INSERT INTO categories (name, description, created_at)
 VALUES 

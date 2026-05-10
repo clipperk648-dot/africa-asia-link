@@ -42,7 +42,8 @@ interface SupplierProduct {
 
 const AdminSupplierProducts = () => {
   const navigate = useNavigate();
-  const { data: products = [], isLoading } = useAllSupplierProducts() as { data: SupplierProduct[], isLoading: boolean };
+  const { data: productsData = [], isLoading } = useAllSupplierProducts();
+  const products = productsData as SupplierProduct[];
   const deleteProductMutation = useDeleteSupplierProductMutation();
   const updateProductMutation = useUpdateSupplierProductMutation();
   const createProductsMutation = useCreateSupplierProductsMutation();

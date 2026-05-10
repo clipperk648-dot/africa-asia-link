@@ -93,23 +93,57 @@ export const deleteUser = async (userId: string): Promise<boolean> => {
 // ============ PRODUCTS ============
 
 export const getProducts = async (limit = 20, offset = 0, filters: { category?: string, search?: string } = {}): Promise<unknown[]> => {
-  let query = supabase
+  // Fetch from regular products
+  let pQuery = supabase
     .from('products')
-    .select('*')
-    .range(offset, offset + limit - 1);
+    .select('*');
   
   if (filters.category) {
-    query = query.eq('category', filters.category);
+    pQuery = pQuery.eq('category', filters.category);
   }
 
   if (filters.search) {
-    query = query.ilike('name', `%${filters.search}%`);
+    pQuery = pQuery.ilike('name', `%${filters.search}%`);
   }
 
-  const { data, error } = await query;
+  const { data: pData } = await pQuery;
   
-  if (error) return [];
-  return data;
+  // Fetch from supplier products
+  let sQuery = supabase
+    .from('supplier_products')
+    .select('*')
+    .eq('status', 'active');
+
+  if (filters.category) {
+    sQuery = sQuery.eq('category', filters.category);
+  }
+
+  if (filters.search) {
+    sQuery = sQuery.ilike('title', `%${filters.search}%`);
+  }
+
+  const { data: sData } = await sQuery;
+
+  // Unify the data
+  const unifiedProducts = [
+    ...(pData || []),
+    ...(sData || []).map(s => ({
+      ...s,
+      name: s.title,
+      price: s.price_min, // Use min price as primary price
+      image: s.image_url,
+      company: s.supplier_name,
+      rating: 4.5, // Default rating for supplier products
+      location: "China", // Default location
+      is_supplier_product: true
+    }))
+  ];
+
+  // Sort by created_at descending
+  unifiedProducts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+  // Apply pagination
+  return unifiedProducts.slice(offset, offset + limit);
 };
 
 export const getProductById = async (id: string): Promise<unknown> => {
@@ -119,8 +153,29 @@ export const getProductById = async (id: string): Promise<unknown> => {
     .eq('id', id)
     .single();
   
-  if (error) return null;
-  return data;
+  if (!error && data) return data;
+
+  // Try supplier_products
+  const { data: sData, error: sError } = await supabase
+    .from('supplier_products')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (!sError && sData) {
+    return {
+      ...sData,
+      name: sData.title,
+      price: sData.price_min,
+      image: sData.image_url,
+      company: sData.supplier_name,
+      rating: 4.5,
+      location: "China",
+      is_supplier_product: true
+    };
+  }
+  
+  return null;
 };
 
 export const createProduct = async (productData: unknown): Promise<unknown> => {
@@ -409,12 +464,12 @@ export const joinCluster = async (
   if (memberError) throw memberError;
 
   // Update cluster stats (in a real app, this should be a trigger or RPC)
-  const { data: clusterData } = await supabase.from('clusters').select('current_funded, current_members').eq('id', clusterId).single();
-  if (clusterData) {
-    const cluster = clusterData as { current_funded: number, current_members: number };
+  const { data: latestClusterData } = await supabase.from('clusters').select('current_funded, current_members').eq('id', clusterId).single();
+  if (latestClusterData) {
+    const clusterStats = latestClusterData as { current_funded: number, current_members: number };
     await supabase.from('clusters').update({
-      current_funded: (cluster.current_funded || 0) + amount,
-      current_members: (cluster.current_members || 0) + 1
+      current_funded: (clusterStats.current_funded || 0) + amount,
+      current_members: (clusterStats.current_members || 0) + 1
     }).eq('id', clusterId);
   }
 
