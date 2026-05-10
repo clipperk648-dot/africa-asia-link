@@ -117,15 +117,15 @@ const BuyerDashboard = () => {
     const activeOrders = Array.isArray(orders) ? orders.filter((o: Order) => o.status === 'pending').length : 0;
     const pendingOrders = activeOrders;
     const completedOrders = Array.isArray(orders) ? orders.filter((o: Order) => o.status === 'completed').length : 0;
-    const walletBalance = walletData?.balance ?? 0;
+    const shippedOrders = Array.isArray(orders) ? orders.filter((o: Order) => o.status === 'shipped').length : 0;
 
     return [
       { label: "Active Orders", value: String(activeOrders), icon: ShoppingCart, color: "text-primary" },
       { label: "Pending", value: String(pendingOrders), icon: Clock, color: "text-accent" },
       { label: "Completed", value: String(completedOrders), icon: CheckCircle, color: "text-secondary" },
-      { label: "Wallet Balance", value: `$${walletBalance.toLocaleString()}`, icon: TrendingUp, color: "text-primary" },
+      { label: "In Transit", value: String(shippedOrders), icon: TrendingUp, color: "text-primary" },
     ];
-  }, [orders, walletData]);
+  }, [orders]);
 
   return (
     <div className="min-h-screen pb-24 relative">

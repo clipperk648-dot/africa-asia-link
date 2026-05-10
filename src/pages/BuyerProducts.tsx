@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "@/utils/mockAuth";
-import { useProducts } from "@/hooks/useData";
+import { useProducts, useClusters, useCreateClusterMutation } from "@/hooks/useData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
@@ -17,17 +17,24 @@ import { getSafeImageUrl, createImageErrorHandler } from "@/utils/imageOptimizat
 
 const CATEGORIES = [
   "All",
+  "Watches",
   "Inverters",
-  "Iphone",
-  "Samsung ultra",
-  "Clothes",
-  "Electric bike",
-  "Cars",
+  "Bags",
+  "Men's Shorts",
+  "Shirt Long Sleeves",
+  "Baggy Jeans",
+  "Female Shoes",
+  "Male Shoes",
+  "Solar Products",
   "Electronics",
-  "Home appliances",
+  "Iphone",
+  "Samsung Ultra",
+  "Clothes",
+  "Electric Bike",
+  "Cars",
+  "Home Appliances",
   "Fashion",
   "Furniture",
-  "Shoes",
   "Textiles",
   "Appliances",
   "Automotive",

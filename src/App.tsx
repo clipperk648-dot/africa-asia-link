@@ -55,6 +55,7 @@ const Theme = lazy(() => import("./pages/Theme"));
 const UtilitiesAirtime = lazy(() => import("./pages/UtilitiesAirtime"));
 const UtilitiesData = lazy(() => import("./pages/UtilitiesData"));
 const UtilitiesTV = lazy(() => import("./pages/UtilitiesTV"));
+const AdminSupplierProducts = lazy(() => import("./pages/AdminSupplierProducts"));
 
 const queryClient = new QueryClient();
 
@@ -85,6 +86,7 @@ const AppContent = () => {
         <Route path="/admin/reports" element={<ProtectedRoute element={<AdminReports />} requiredRole="admin" />} />
         <Route path="/admin/content" element={<ProtectedRoute element={<AdminContent />} requiredRole="admin" />} />
         <Route path="/admin/notifications" element={<ProtectedRoute element={<AdminNotifications />} requiredRole="admin" />} />
+        <Route path="/admin/supplier-products" element={<ProtectedRoute element={<AdminSupplierProducts />} requiredRole="admin" />} />
         
         {/* Buyer Routes */}
         <Route path="/buyer" element={<ProtectedRoute element={<BuyerDashboard />} requiredRole="buyer" />} />

@@ -56,16 +56,7 @@ const renderProviderLogo = (provider: (typeof tvProviders)[number]) => {
 
 
 
-const tvPlans = [
-  { provider: "dstv", name: "DStv Padi", duration: "30 Days", price: 2500, naira: "₦2,500" },
-  { provider: "dstv", name: "DStv Yanga", duration: "30 Days", price: 5000, naira: "₦5,000" },
-  { provider: "dstv", name: "DStv Compact", duration: "30 Days", price: 10000, naira: "₦10,000" },
-  { provider: "gotv", name: "GOtv Plus", duration: "30 Days", price: 2900, naira: "₦2,900" },
-  { provider: "gotv", name: "GOtv Max", duration: "30 Days", price: 5900, naira: "₦5,900" },
-  { provider: "startimes", name: "STARTIMES Classic", duration: "30 Days", price: 1500, naira: "₦1,500" },
-  { provider: "startimes", name: "STARTIMES Smart", duration: "30 Days", price: 3500, naira: "₦3,500" },
-  { provider: "showmax", name: "SHOWMAX Standard", duration: "30 Days", price: 3600, naira: "₦3,600" },
-];
+const tvPlans: { provider: string; name: string; duration: string; price: number; naira: string }[] = [];
 
 const UtilitiesTV = () => {
   const navigate = useNavigate();

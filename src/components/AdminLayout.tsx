@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { getCurrentUser, logout } from "@/utils/mockAuth";
-import { 
-  LogOut, Users, Settings, Bell, BarChart3, Bot, Menu, Box, 
+import {
+  LogOut, Users, Settings, Bell, BarChart3, Bot, Menu, Box,
   LayoutDashboard, ShoppingCart, User as UserIcon, Plus, Truck, Package,
-  MessageSquare
+  MessageSquare, Store
 } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -58,6 +59,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { label: "Dashboard", icon: LayoutDashboard, path: "/admin" },
     { label: "Users", icon: Users, path: "/admin/users" },
     { label: "Products", icon: Package, path: "/admin/products" },
+    { label: "Supplier Products", icon: Store, path: "/admin/supplier-products" },
     { label: "Clusters", icon: Truck, path: "/admin/clusters" },
     { label: "Orders", icon: ShoppingCart, path: "/admin/orders" },
     { label: "Categories", icon: Box, path: "/admin/categories" },

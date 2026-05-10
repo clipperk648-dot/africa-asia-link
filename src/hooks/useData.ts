@@ -1,19 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { 
-  getProducts, 
-  getProductById, 
-  getOrders, 
-  getSocialPosts, 
-  updateProduct, 
-  createProduct, 
-  deleteProduct, 
-  getClusters, 
-  getClusterById, 
-  createCluster, 
-  joinCluster, 
+import {
+  getProducts,
+  getProductById,
+  getOrders,
+  getSocialPosts,
+  updateProduct,
+  createProduct,
+  deleteProduct,
+  getClusters,
+  getClusterById,
+  createCluster,
+  joinCluster,
   getWalletBalance,
   getAllUsers,
-  getAllOrders
+  getAllOrders,
+  getSupplierProducts,
+  getSupplierProductById,
+  createSupplierProduct,
+  createSupplierProducts,
+  updateSupplierProduct,
+  deleteSupplierProduct,
+  getAllSupplierProducts
 } from "@/lib/db";
 import type { Product, Cluster } from "@/types/models";
 
@@ -206,5 +213,85 @@ export const useWalletBalance = (userId: string | undefined, currency = "USD") =
     enabled: !!userId,
     staleTime: 2 * 60 * 1000, // 2 minutes - more frequent for sensitive data
     gcTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+// Supplier Products hooks
+export const useSupplierProducts = (limit = 20, offset = 0, filters = {}) => {
+  return useQuery({
+    queryKey: ["supplierProducts", limit, offset, filters],
+    queryFn: () => getSupplierProducts(limit, offset, filters),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+};
+
+export const useSupplierProduct = (id: string | undefined) => {
+  return useQuery({
+    queryKey: ["supplierProduct", id],
+    queryFn: () => (id ? getSupplierProductById(id) : null),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+};
+
+export const useAllSupplierProducts = () => {
+  return useQuery({
+    queryKey: ["allSupplierProducts"],
+    queryFn: () => getAllSupplierProducts(),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+};
+
+export const useCreateSupplierProductMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (productData: any) => createSupplierProduct(productData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["supplierProducts"] });
+      queryClient.invalidateQueries({ queryKey: ["allSupplierProducts"] });
+    },
+  });
+};
+
+export const useCreateSupplierProductsMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (products: any[]) => createSupplierProducts(products),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["supplierProducts"] });
+      queryClient.invalidateQueries({ queryKey: ["allSupplierProducts"] });
+    },
+  });
+};
+
+export const useUpdateSupplierProductMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) => updateSupplierProduct(id, data),
+    onSuccess: (data) => {
+      if (data) {
+        queryClient.invalidateQueries({ queryKey: ["supplierProducts"] });
+        queryClient.invalidateQueries({ queryKey: ["supplierProduct", (data as any).id] });
+        queryClient.invalidateQueries({ queryKey: ["allSupplierProducts"] });
+      }
+    },
+  });
+};
+
+export const useDeleteSupplierProductMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteSupplierProduct(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["supplierProducts"] });
+      queryClient.invalidateQueries({ queryKey: ["allSupplierProducts"] });
+    },
   });
 };
