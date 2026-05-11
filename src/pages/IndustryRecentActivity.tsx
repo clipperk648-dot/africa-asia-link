@@ -27,13 +27,13 @@ const IndustryRecentActivity = () => {
   const [filteredOrders, setFilteredOrders] = useState(orders);
 
   useEffect(() => {
-    if (!user || user.role !== "industry") {
+    if (!user || (user.role !== "industry" && user.role !== "sourcing-agent")) {
       navigate("/login");
     }
   }, [user, navigate]);
 
   useEffect(() => {
-    let filtered = orders.filter((order) => {
+    const filtered = orders.filter((order) => {
       const matchesSearch =
         order.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.id.toString().includes(searchTerm);

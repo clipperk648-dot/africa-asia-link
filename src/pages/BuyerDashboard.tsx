@@ -1,4 +1,4 @@
-import { useEffect, useState, Fragment, useMemo } from "react";
+import { useEffect, useState, Fragment, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useProducts, useOrders, useWalletBalance } from "@/hooks/useData";
@@ -88,6 +88,7 @@ const BuyerDashboard = () => {
   }, [user, navigate]);
 
   useEffect(() => {
+    const ctaTexts = ["Hi there!", "Need help?", "Chat with us!", "Ask anything!", "We're here!"];
     const interval = setInterval(() => {
       setShowBotTooltip(true);
       setTooltipText(ctaTexts[tooltipIndexRef.current]);

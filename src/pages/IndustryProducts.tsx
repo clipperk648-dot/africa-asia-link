@@ -16,7 +16,7 @@ const IndustryProducts = () => {
   const { data: products = [] } = useProducts();
 
   useEffect(() => {
-    if (!user || user.role !== "industry") {
+    if (!user || (user.role !== "industry" && user.role !== "sourcing-agent")) {
       navigate("/login");
     }
   }, [user, navigate]);

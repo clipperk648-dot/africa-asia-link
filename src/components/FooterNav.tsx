@@ -4,12 +4,12 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 interface FooterNavProps {
-  dashboardType: "admin" | "buyer" | "industry";
+  dashboardType: "admin" | "buyer" | "industry" | "sourcing-agent";
 }
 
 const FooterNav = ({ dashboardType }: FooterNavProps) => {
   const location = useLocation();
-  const isAdmin = dashboardType === "admin" || dashboardType === "industry";
+  const isAdmin = dashboardType === "admin" || dashboardType === "industry" || dashboardType === "sourcing-agent";
   const basePath = isAdmin ? (dashboardType === "admin" ? "/admin" : "/industry") : "/buyer";
 
   const primaryAction = isAdmin

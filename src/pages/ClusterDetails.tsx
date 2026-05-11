@@ -308,7 +308,7 @@ const ClusterDetails = () => {
         </div>
       </main>
 
-      <FooterNav dashboardType="buyer" />
+      <FooterNav dashboardType={(user?.role as any) || 'buyer'} />
     </div>
   );
 };

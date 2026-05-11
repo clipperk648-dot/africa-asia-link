@@ -48,7 +48,7 @@ const IndustryKYC = () => {
           </div>
           <div>
             <h1 className="text-2xl font-bold">Business Verification (KYC)</h1>
-            <p className="text-sm text-muted-foreground">Complete verification to unlock all seller features</p>
+            <p className="text-sm text-muted-foreground">Complete verification to unlock all merchant features</p>
           </div>
         </div>
 

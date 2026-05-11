@@ -20,7 +20,10 @@ interface Message {
   content: string;
   created_at: string;
   type?: "text" | "poll";
-  poll_data?: any;
+  poll_data?: {
+    question: string;
+    options: { text: string; votes: number }[];
+  };
 }
 
 const ClusterChat = () => {
@@ -209,7 +212,7 @@ const ClusterChat = () => {
                 {msg.type === 'poll' ? (
                   <div className="space-y-2 mt-2">
                     <p className="font-semibold text-sm">{msg.content}</p>
-                    {msg.poll_data?.options.map((opt: any, idx: number) => (
+                    {msg.poll_data?.options.map((opt: { text: string; votes: number }, idx: number) => (
                       <Button key={idx} variant="outline" size="sm" className="w-full justify-start text-xs h-8" onClick={() => handleVote(msg.id, idx)}>
                         {opt.text}
                       </Button>
@@ -240,7 +243,7 @@ const ClusterChat = () => {
         </div>
       </div>
 
-      <FooterNav dashboardType={isAdmin ? "admin" : "buyer"} />
+      <FooterNav dashboardType={user?.role as "buyer" | "admin" | "industry" | "sourcing-agent" || "buyer"} />
     </div>
   );
 };

@@ -269,7 +269,7 @@ const SignUp = () => {
                   onClick={() => navigate("/seller/signup")}
                   className="text-[10px] sm:text-xs text-primary hover:underline"
                 >
-                  Are you a seller? Register your business
+                  Are you a merchant? Register your business
                 </button>
                 <button
                   type="button"

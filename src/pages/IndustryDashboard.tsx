@@ -1,4 +1,4 @@
-import { useEffect, useState, Fragment, useMemo } from "react";
+import { useEffect, useState, Fragment, useMemo, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useProducts, useOrders } from "@/hooks/useData";
@@ -76,12 +76,13 @@ const IndustryDashboard = () => {
   };
 
   useEffect(() => {
-    if (!user || user.role !== "industry") {
+    if (!user || (user.role !== "industry" && user.role !== "sourcing-agent")) {
       navigate("/login");
     }
   }, [user, navigate]);
 
   useEffect(() => {
+    const ctaTexts = ["Hi there!", "Need help?", "Chat with us!", "Ask anything!", "We're here!"];
     const interval = setInterval(() => {
       setShowBotTooltip(true);
       setTooltipText(ctaTexts[tooltipIndexRef.current]);
@@ -106,6 +107,8 @@ const IndustryDashboard = () => {
     navigate("/login");
   };
 
+  const roleName = user?.role === "sourcing-agent" ? "Sourcing Agent" : "Merchant";
+
   // Calculate stats from real data
   const stats = useMemo(() => {
     const activeOrders = Array.isArray(orders) ? orders.filter((o: Order) => o.status === 'pending').length : 0;
@@ -115,7 +118,7 @@ const IndustryDashboard = () => {
     return [
       { label: "Total Products", value: String(Array.isArray(products) ? products.length : 0), icon: Package, color: "text-primary" },
       { label: "Active Orders", value: String(activeOrders), icon: TrendingUp, color: "text-secondary" },
-      { label: "Revenue", value: `$${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-accent" },
+      { label: "Revenue", value: `¥${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-accent" },
       { label: "Buyers", value: String(uniqueBuyers), icon: Users, color: "text-primary" },
     ];
   }, [products, orders]);
@@ -130,7 +133,7 @@ const IndustryDashboard = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 bg-primary text-white rounded-md flex items-center justify-center font-bold text-sm">E</div>
-              <span className="text-lg font-bold -ml-1">china</span>
+              <span className="text-lg font-bold -ml-1">china {roleName}</span>
             </div>
             <Sheet>
               <SheetTrigger asChild>
@@ -154,6 +157,22 @@ const IndustryDashboard = () => {
                     <Link to="/industry/settings" className="block">
                       <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer">
                         <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Settings</span>
+                      </div>
+                    </Link>
+                    <Link to="/industry/orders" className="block">
+                      <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-2">
+                        <div className="p-1.5 rounded-md bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
+                          <Package className="w-3 h-3 text-primary" />
+                        </div>
+                        <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">Manage Orders</span>
+                      </div>
+                    </Link>
+                    <Link to="/industry/products" className="block">
+                      <div className="p-3 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all duration-300 group cursor-pointer flex items-center gap-2">
+                        <div className="p-1.5 rounded-md bg-white/10 border border-white/20 group-hover:bg-white/20 transition-colors">
+                          <Package className="w-3 h-3 text-primary" />
+                        </div>
+                        <span className="font-semibold text-xs text-white group-hover:translate-x-1 transition-transform duration-300">My Products</span>
                       </div>
                     </Link>
                     <Link to="/industry/collections" className="block">
@@ -210,11 +229,11 @@ const IndustryDashboard = () => {
           <div className="mt-1 flex items-center justify-between">
             {getThemeBgVideoUrl() && (
               <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-1.5 py-0.5 rounded-lg shadow-lg shadow-blue-500/30">
-                <h1 className="text-sm font-bold text-white drop-shadow-lg">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Seller'}!</h1>
+                <h1 className="text-sm font-bold text-white drop-shadow-lg">Welcome back, {user?.name ? user.name.split(' ')[0] : roleName}!</h1>
               </div>
             )}
             {!getThemeBgVideoUrl() && (
-              <h1 className="text-sm font-bold">Welcome back, {user?.name ? user.name.split(' ')[0] : 'Seller'}!</h1>
+              <h1 className="text-sm font-bold">Welcome back, {user?.name ? user.name.split(' ')[0] : roleName}!</h1>
             )}
 
             <div className="flex items-center gap-3">
@@ -387,7 +406,7 @@ const IndustryDashboard = () => {
               <h2 className="text-sm sm:text-base font-bold">Recent Orders</h2>
             )}
             <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-1.5 py-0.5 rounded-lg shadow-lg shadow-blue-500/30">
-              <Link to="/industry/recent-activity" aria-label="View all orders">
+              <Link to="/industry/orders" aria-label="View all orders">
                 <Button variant="ghost" size="xs">View All</Button>
               </Link>
             </div>
