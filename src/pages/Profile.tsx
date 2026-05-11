@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUser } from "@/utils/mockAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import ThreeBackground from "@/components/ThreeBackground";
 import { ArrowLeft, Settings, Package, Wallet, User as UserIcon } from "lucide-react";
@@ -9,7 +9,7 @@ import { getSafeAvatarUrl } from "@/utils/imageOptimization";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const user = getCurrentUser();
+  const { user, logout } = useAuth();
   const username = user?.name || user?.email?.split("@")[0] || "user";
 
   return (
@@ -85,7 +85,7 @@ const Profile = () => {
             Edit Profile
           </Button>
           <Button variant="destructive" className="flex-1" onClick={() => {
-            localStorage.removeItem("currentUser");
+            logout();
             navigate("/login");
           }}>
             Log Out

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUser } from "@/utils/mockAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { useProducts, useClusters, useCreateClusterMutation } from "@/hooks/useData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
@@ -49,7 +49,7 @@ const CATEGORIES = [
 
 const BuyerProducts = () => {
   const navigate = useNavigate();
-  const user = getCurrentUser();
+  const { user } = useAuth();
 
   const [active, setActive] = useState<string>("All");
   const [query, setQuery] = useState("");
@@ -114,7 +114,7 @@ const BuyerProducts = () => {
 
   const handleJoinCluster = async (productId: string, productName: string) => {
     // Check if cluster exists
-    const existingCluster = clusters.find((c: { targetProductId: string, id: string }) => c.targetProductId === productId);
+    const existingCluster = clusters.find((c: any) => c.targetProductId === productId);
     if (existingCluster) {
       toast.success(`Joining cluster for ${productName}`);
       navigate(`/cluster/${existingCluster.id}`);
@@ -135,7 +135,7 @@ const BuyerProducts = () => {
           creatorId: user?.id,
           creatorName: user?.name || "Buyer",
         });
-        navigate(`/cluster/${newCluster.id}`);
+        navigate(`/cluster/${(newCluster as any).id}`);
       } catch (error) {
         toast.error("Failed to auto-create cluster");
       }

@@ -11,6 +11,7 @@ import { ArrowLeft, Users, TrendingUp, Target, Clock, Copy, Check, BarChart3, Se
 import { toast } from "@/components/ui/sonner";
 import { getSafeAvatarUrl } from "@/utils/imageOptimization";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { calculateExpectedDeliveryDate, formatCountdown } from "@/utils/shipping";
 
 const ClusterDetails = () => {
   const navigate = useNavigate();
@@ -29,37 +30,17 @@ const ClusterDetails = () => {
     if (!cluster) return;
 
     let timer: NodeJS.Timeout;
-    if (cluster.shipping_status === "in transit" && cluster.shipping_started_at) {
-      const startedAt = new Date(cluster.shipping_started_at).getTime();
-      let durationDays = 0;
-      switch (cluster.preferredShippingMethod) {
-        case "Sea Freight": durationDays = 60; break;
-        case "FedEx": durationDays = 5; break;
-        case "Air Freight": durationDays = 18; break;
-        case "Express": durationDays = 12; break;
-        default: durationDays = 14;
-      }
-
-      const endAt = startedAt + (durationDays * 24 * 60 * 60 * 1000);
+    if (cluster.shipping_status === "in transit" && (cluster.shipping_started_at || cluster.shippingStartedAt)) {
+      const startedAt = (cluster.shipping_started_at || cluster.shippingStartedAt) as string;
+      const methodName = cluster.preferredShippingMethod || cluster.preferred_shipping_method || "Standard";
+      const expectedDeliveryDate = calculateExpectedDeliveryDate(startedAt, methodName);
       
       const updateCountdown = () => {
-        const now = new Date().getTime();
-        const distance = endAt - now;
-        
-        if (distance < 0) {
-          setCountdown("Delivered");
-          return;
-        }
-
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+        const formatted = formatCountdown(expectedDeliveryDate);
+        setCountdown(formatted);
       };
 
-      if (!cluster.stop_counting) {
+      if (!(cluster.stop_counting || cluster.stopCounting)) {
         updateCountdown();
         timer = setInterval(updateCountdown, 1000);
       } else {

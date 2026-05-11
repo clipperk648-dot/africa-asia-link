@@ -1,6 +1,6 @@
 import { useEffect, useState, Fragment, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { getCurrentUser, logout } from "@/utils/mockAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { useProducts, useOrders } from "@/hooks/useData";
 import type { Product, Order } from "@/types/models";
 import GlassCard from "@/components/GlassCard";
@@ -58,7 +58,7 @@ const ProductCard = ({ product }: { product: Product }) => (
 
 const IndustryDashboard = () => {
   const navigate = useNavigate();
-  const user = getCurrentUser();
+  const { user, logout } = useAuth();
   const [showBotTooltip, setShowBotTooltip] = useState(false);
   const [tooltipText, setTooltipText] = useState("Hi there!");
 
@@ -66,12 +66,12 @@ const IndustryDashboard = () => {
   const { data: orders = [] } = useOrders(user?.id);
 
   const ctaTexts = ["Hi there!", "Need help?", "Chat with us!", "Ask anything!", "We're here!"];
-  let tooltipIndex = 0;
+  const tooltipIndexRef = useRef(0);
 
   const cycleBotTooltip = () => {
     setShowBotTooltip(true);
-    setTooltipText(ctaTexts[tooltipIndex]);
-    tooltipIndex = (tooltipIndex + 1) % ctaTexts.length;
+    setTooltipText(ctaTexts[tooltipIndexRef.current]);
+    tooltipIndexRef.current = (tooltipIndexRef.current + 1) % ctaTexts.length;
     setTimeout(() => setShowBotTooltip(false), 2000);
   };
 
@@ -84,12 +84,12 @@ const IndustryDashboard = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setShowBotTooltip(true);
-      setTooltipText(ctaTexts[tooltipIndex]);
-      tooltipIndex = (tooltipIndex + 1) % ctaTexts.length;
+      setTooltipText(ctaTexts[tooltipIndexRef.current]);
+      tooltipIndexRef.current = (tooltipIndexRef.current + 1) % ctaTexts.length;
       setTimeout(() => setShowBotTooltip(false), 2000);
     }, 5000);
     return () => clearInterval(interval);
-  }, [tooltipIndex]);
+  }, []);
 
   useEffect(() => {
     preloadVideo({

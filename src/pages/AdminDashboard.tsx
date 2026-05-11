@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useProducts, useOrders, useAllUsers } from "@/hooks/useData";
+import { useProducts, useAllOrders, useAllUsers } from "@/hooks/useData";
 import type { Product, Order, User } from "@/types/models";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const AdminDashboard = () => {
   const { data: products = [] } = useProducts(20, 0);
-  const { data: orders = [] } = useOrders('admin'); 
+  const { data: orders = [] } = useAllOrders(); 
   const { data: users = [] } = useAllUsers();
 
   const stats = useMemo(() => {

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUser } from "@/utils/mockAuth";
-import { useClusters, useCreateClusterMutation, useJoinClusterMutation } from "@/hooks/useData";
+import { useAuth } from "@/hooks/useAuth";
+import { useClusters, useCreateClusterMutation, useJoinClusterMutation, useShippingMethods } from "@/hooks/useData";
 import type { Cluster as ClusterType } from "@/types/models";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
@@ -17,8 +17,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Cluster = () => {
   const navigate = useNavigate();
-  const user = getCurrentUser();
+  const { user } = useAuth();
   const { data: clusters = [], isLoading } = useClusters(50, 0);
+  const { data: availableShippingMethods = [] } = useShippingMethods();
   const createClusterMutation = useCreateClusterMutation();
   const joinClusterMutation = useJoinClusterMutation();
 
@@ -33,6 +34,7 @@ const Cluster = () => {
     description: "",
     maxMembers: "5",
     preferredShippingMethod: "Standard",
+    productId: "",
   });
 
   const [joinFormData, setJoinFormData] = useState({
@@ -40,7 +42,12 @@ const Cluster = () => {
     amount: "",
   });
 
-  const shippingMethods = ["FedEx", "Sea Freight", "Air Freight", "Express", "Standard"];
+  const fallbackShippingMethods = ["FedEx", "Sea Freight", "Air Freight", "Express", "Standard"];
+  const shippingMethods = availableShippingMethods.length > 0 
+    ? (availableShippingMethods as any[]).map(m => m.name) 
+    : fallbackShippingMethods;
+
+  const { data: allProducts = [] } = useProducts(100, 0);
 
   useEffect(() => {
     if (!user) {
@@ -70,12 +77,17 @@ const Cluster = () => {
       return;
     }
     
+    const selectedProduct = allProducts.find((p: any) => p.id === createFormData.productId);
+    
     try {
       await createClusterMutation.mutateAsync({
         name: createFormData.name,
         description: createFormData.description,
         maxMembers: parseInt(createFormData.maxMembers) || 5,
         preferredShippingMethod: createFormData.preferredShippingMethod,
+        targetProductId: createFormData.productId,
+        targetProductName: selectedProduct?.name || "",
+        targetPrice: selectedProduct?.price || 0,
         creatorId: user?.id,
         creatorName: user?.name || "Creator",
       });
@@ -85,6 +97,7 @@ const Cluster = () => {
         description: "",
         maxMembers: "5",
         preferredShippingMethod: "Standard",
+        productId: "",
       });
       setCreateDialogOpen(false);
       toast.success("Cluster created successfully!");
@@ -291,6 +304,21 @@ const Cluster = () => {
                 onChange={(e) => setCreateFormData({ ...createFormData, name: e.target.value })}
                 className="h-12 bg-white/5 border-white/10"
               />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Select Product</Label>
+              <select
+                value={createFormData.productId}
+                onChange={(e) => setCreateFormData({ ...createFormData, productId: e.target.value })}
+                className="w-full h-12 bg-white/5 border border-white/10 rounded-md px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <option value="" className="bg-background">Choose a product</option>
+                {allProducts.map((product: any) => (
+                  <option key={product.id} value={product.id} className="bg-background">
+                    {product.name} (${product.price})
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Shipping Method</Label>

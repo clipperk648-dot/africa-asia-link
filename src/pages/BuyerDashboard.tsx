@@ -1,6 +1,6 @@
 import { useEffect, useState, Fragment, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUser, logout } from "@/utils/mockAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { useProducts, useOrders, useWalletBalance } from "@/hooks/useData";
 import type { Product, Order } from "@/types/models";
 import GlassCard from "@/components/GlassCard";
@@ -63,7 +63,7 @@ const ProductCard = ({ product, navigate }: { product: Product; navigate: (path:
 
 const BuyerDashboard = () => {
   const navigate = useNavigate();
-  const user = getCurrentUser();
+  const { user, logout } = useAuth();
   const [showBotTooltip, setShowBotTooltip] = useState(false);
   const [tooltipText, setTooltipText] = useState("Hi there!");
 
@@ -72,12 +72,12 @@ const BuyerDashboard = () => {
   const { data: walletData = { balance: 0, currency: "USD" } } = useWalletBalance(user?.id);
 
   const ctaTexts = ["Hi there!", "Need help?", "Chat with us!", "Ask anything!", "We're here!"];
-  let tooltipIndex = 0;
+  const tooltipIndexRef = useRef(0);
 
   const cycleBotTooltip = () => {
     setShowBotTooltip(true);
-    setTooltipText(ctaTexts[tooltipIndex]);
-    tooltipIndex = (tooltipIndex + 1) % ctaTexts.length;
+    setTooltipText(ctaTexts[tooltipIndexRef.current]);
+    tooltipIndexRef.current = (tooltipIndexRef.current + 1) % ctaTexts.length;
     setTimeout(() => setShowBotTooltip(false), 2000);
   };
 
@@ -90,12 +90,12 @@ const BuyerDashboard = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setShowBotTooltip(true);
-      setTooltipText(ctaTexts[tooltipIndex]);
-      tooltipIndex = (tooltipIndex + 1) % ctaTexts.length;
+      setTooltipText(ctaTexts[tooltipIndexRef.current]);
+      tooltipIndexRef.current = (tooltipIndexRef.current + 1) % ctaTexts.length;
       setTimeout(() => setShowBotTooltip(false), 2000);
     }, 5000);
     return () => clearInterval(interval);
-  }, [tooltipIndex]);
+  }, []);
 
   useEffect(() => {
     preloadVideo({

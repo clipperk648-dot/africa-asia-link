@@ -119,22 +119,26 @@ export const googleOAuthLogin = async (
 };
 
 /**
- * Get current user data via Supabase
+ * Get current user data from profiles table
  */
 export const getCurrentUserData = async (userId: string): Promise<AuthUser | null> => {
-  const { data: { user }, error } = await supabase.auth.getUser();
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single();
   
-  if (error || !user) return null;
+  if (error || !profile) return null;
 
-  const isAdmin = user.email === ADMIN_EMAIL || user.user_metadata.role === 'admin';
+  const isAdmin = profile.email === ADMIN_EMAIL || profile.role === 'admin';
   return {
-    id: user.id,
-    email: user.email!,
-    name: user.user_metadata.full_name || user.email!.split('@')[0],
-    phone: user.user_metadata.phone,
-    role: isAdmin ? 'admin' : (user.user_metadata.role || 'buyer'),
+    id: profile.id,
+    email: profile.email!,
+    name: profile.name || profile.email!.split('@')[0],
+    phone: profile.phone,
+    role: (isAdmin ? 'admin' : profile.role) || 'buyer',
     isAdmin: isAdmin,
-    createdAt: user.created_at,
+    createdAt: profile.created_at,
   };
 };
 

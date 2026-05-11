@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
-import { getCurrentUser, logout } from "@/utils/mockAuth";
+import { useAuth } from "@/hooks/useAuth";
 import {
   LogOut, Users, Settings, Bell, BarChart3, Bot, Menu, Box,
   LayoutDashboard, ShoppingCart, User as UserIcon, Plus, Truck, Package,
@@ -18,7 +18,7 @@ interface AdminLayoutProps {
 const AdminLayout = ({ children }: AdminLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const user = getCurrentUser();
+  const { user, logout } = useAuth();
   const [showBotTooltip, setShowBotTooltip] = useState(false);
   const [tooltipText, setTooltipText] = useState("Hi there!");
 
