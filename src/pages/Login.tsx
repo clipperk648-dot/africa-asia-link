@@ -14,14 +14,12 @@ import "../styles/auth.css";
 const loginSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }),
   password: z.string().min(1, { message: "Password is required" }),
-  name: z.string().trim().min(2, { message: "Name must be at least 2 characters" }),
 });
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +28,7 @@ const Login = () => {
     e.preventDefault();
 
     // Validate inputs
-    const result = loginSchema.safeParse({ email, password, name });
+    const result = loginSchema.safeParse({ email, password });
 
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
@@ -96,7 +94,7 @@ const Login = () => {
 
         google.accounts.id.initialize({
           client_id: clientId,
-          callback: async (response: any) => {
+          callback: async (response: { credential: string }) => {
             try {
               const oauthResult = await googleOAuthLogin(response.credential);
 
@@ -204,22 +202,6 @@ const Login = () => {
 
             <div className="space-y-3">
               <div className="space-y-1">
-                <Label htmlFor="name" className="text-xs">Full Name / Company Name</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="Enter your name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  className="h-10 bg-background/50 text-sm"
-                />
-                {errors.name && (
-                  <p className="text-xs text-destructive">{errors.name}</p>
-                )}
-              </div>
-
-              <div className="space-y-1">
                 <Label htmlFor="email" className="text-xs">Email</Label>
                 <Input
                   id="email"
@@ -309,7 +291,7 @@ const Login = () => {
               </Button>
             </div>
 
-            <div className="text-center space-y-1">
+            <div className="text-center space-y-2">
               <p className="text-[10px] sm:text-xs text-muted-foreground">
                 Don't have an account?{" "}
                 <button
@@ -320,6 +302,15 @@ const Login = () => {
                   Sign Up
                 </button>
               </p>
+              <div className="border-t border-muted/30 pt-2">
+                <button
+                  type="button"
+                  onClick={() => navigate("/seller/login")}
+                  className="text-[10px] sm:text-xs text-primary hover:underline font-medium"
+                >
+                  Merchant? Login to business portal
+                </button>
+              </div>
               <p className="text-[10px] text-muted-foreground opacity-75">
                 All credentials accepted for demo
               </p>

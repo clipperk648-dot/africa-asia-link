@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth";
 
 interface ProtectedRouteProps {
   element: React.ReactElement;
-  requiredRole?: "buyer" | "admin";
+  requiredRole?: "buyer" | "admin" | "industry" | "sourcing-agent" | ("buyer" | "admin" | "industry" | "sourcing-agent")[];
 }
 
 const ProtectedRoute = ({ element, requiredRole }: ProtectedRouteProps) => {
@@ -14,8 +14,11 @@ const ProtectedRoute = ({ element, requiredRole }: ProtectedRouteProps) => {
     return <Navigate to="/login" replace />;
   }
 
-  if (requiredRole && user.role !== requiredRole && !user.isAdmin) {
-    return <Navigate to="/" replace />;
+  if (requiredRole) {
+    const roles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+    if (!roles.includes(user.role as any) && !user.isAdmin) {
+      return <Navigate to="/" replace />;
+    }
   }
 
   return element;

@@ -26,7 +26,23 @@ import {
   updateSupplierProduct,
   deleteSupplierProduct,
   getAllSupplierProducts,
-  checkoutCluster
+  checkoutCluster,
+  getShippingMethods,
+  getClustersByProduct,
+  autoCreateClusterForProduct,
+  getClusterMembers,
+  getClusterMemberRole,
+  getClustersForAdmin,
+  updateClusterShippingStatus,
+  createSupportTicket,
+  getSupportTickets,
+  getAllSupportTickets,
+  updateSupportTicketStatus,
+  sendClusterMessage,
+  getClusterMessages,
+  createClusterPoll,
+  getClusterPolls,
+  voteOnPoll
 } from "@/lib/db";
 import type { Product, Cluster } from "@/types/models";
 
@@ -569,6 +585,95 @@ export const useDeleteSupplierProductMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["supplierProducts"] });
       queryClient.invalidateQueries({ queryKey: ["allSupplierProducts"] });
+    },
+  });
+};
+
+export const useShippingMethods = () => {
+  return useQuery({
+    queryKey: ["shippingMethods"],
+    queryFn: () => getShippingMethods(),
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours
+  });
+};
+
+export const useSupportTickets = (userId: string | undefined) => {
+  return useQuery({
+    queryKey: ["supportTickets", userId],
+    queryFn: () => (userId ? getSupportTickets(userId) : []),
+    enabled: !!userId,
+  });
+};
+
+export const useAllSupportTickets = () => {
+  return useQuery({
+    queryKey: ["allSupportTickets"],
+    queryFn: () => getAllSupportTickets(),
+  });
+};
+
+export const useClusterMessages = (clusterId: string | undefined) => {
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
+    queryKey: ["clusterMessages", clusterId],
+    queryFn: () => (clusterId ? getClusterMessages(clusterId) : []),
+    enabled: !!clusterId,
+  });
+
+  useEffect(() => {
+    if (!clusterId) return;
+
+    const channel = supabase
+      .channel(`cluster-messages-${clusterId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'cluster_messages',
+          filter: `cluster_id=eq.${clusterId}`
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["clusterMessages", clusterId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [clusterId, queryClient]);
+
+  return query;
+};
+
+export const useClusterPolls = (clusterId: string | undefined) => {
+  return useQuery({
+    queryKey: ["clusterPolls", clusterId],
+    queryFn: () => (clusterId ? getClusterPolls(clusterId) : []),
+    enabled: !!clusterId,
+  });
+};
+
+export const useSendClusterMessageMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ clusterId, userId, message }: { clusterId: string; userId: string; message: string }) =>
+      sendClusterMessage(clusterId, userId, message),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["clusterMessages", variables.clusterId] });
+    },
+  });
+};
+
+export const useVoteOnPollMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ pollId, optionId, userId, clusterId }: { pollId: string; optionId: string; userId: string; clusterId: string }) =>
+      voteOnPoll(pollId, optionId, userId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["clusterPolls", variables.clusterId] });
     },
   });
 };

@@ -92,7 +92,7 @@ export const deleteUser = async (userId: string): Promise<boolean> => {
 
 // ============ PRODUCTS ============
 
-export const getProducts = async (limit = 20, offset = 0, filters: { category?: string, search?: string } = {}): Promise<unknown[]> => {
+export const getProducts = async (limit = 20, offset = 0, filters: { category?: string, search?: string, shippingMethod?: string } = {}): Promise<unknown[]> => {
   // Fetch from regular products
   let pQuery = supabase
     .from('products')
@@ -106,6 +106,8 @@ export const getProducts = async (limit = 20, offset = 0, filters: { category?: 
     pQuery = pQuery.ilike('name', `%${filters.search}%`);
   }
 
+  // Regular products might not have shipping_method yet in this schema
+  
   const { data: pData } = await pQuery;
   
   // Fetch from supplier products
@@ -144,6 +146,14 @@ export const getProducts = async (limit = 20, offset = 0, filters: { category?: 
 
   // Apply pagination
   return unifiedProducts.slice(offset, offset + limit);
+};
+
+export const searchProducts = async (query: string, filters: any = {}): Promise<unknown[]> => {
+  return getProducts(20, 0, { search: query, ...filters });
+};
+
+export const getProductsByCategory = async (categoryId: string): Promise<unknown[]> => {
+  return getProducts(20, 0, { category: categoryId });
 };
 
 export const getProductById = async (id: string): Promise<unknown> => {
@@ -383,6 +393,19 @@ export const createSocialPost = async (
   return data;
 };
 
+// ============ SHIPPING METHODS ============
+
+export const getShippingMethods = async (): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('shipping_methods')
+    .select('*')
+    .eq('is_active', true)
+    .order('name', { ascending: true });
+
+  if (error) return [];
+  return data;
+};
+
 // ============ CLUSTERS ============
 
 export const getClusters = async (limit = 20, offset = 0): Promise<unknown[]> => {
@@ -390,6 +413,67 @@ export const getClusters = async (limit = 20, offset = 0): Promise<unknown[]> =>
     .from('clusters')
     .select('*, products(*)')
     .range(offset, offset + limit - 1);
+  
+  if (error) return [];
+  return data;
+};
+
+export const getClustersByProduct = async (productId: string): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('clusters')
+    .select('*, products(*)')
+    .eq('target_product_id', productId)
+    .eq('status', 'active');
+  
+  if (error) return [];
+  return data;
+};
+
+export const autoCreateClusterForProduct = async (productId: string, userId: string, userName: string): Promise<unknown> => {
+  const product = await getProductById(productId) as any;
+  if (!product) throw new Error("Product not found");
+
+  return createCluster({
+    name: `${product.name} Buying Group`,
+    description: `A new cluster for ${product.name}`,
+    targetProductId: productId,
+    targetProductName: product.name,
+    targetPrice: product.price,
+    quantity: product.moq || 1,
+    maxMembers: 5,
+    preferredShippingMethod: 'Standard',
+    creatorId: userId,
+    creatorName: userName
+  });
+};
+
+export const getClusterMembers = async (clusterId: string): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('cluster_members')
+    .select('*, profiles(name, avatar)')
+    .eq('cluster_id', clusterId);
+  
+  if (error) return [];
+  return data;
+};
+
+export const getClusterMemberRole = async (clusterId: string, userId: string): Promise<string | null> => {
+  const { data, error } = await supabase
+    .from('cluster_members')
+    .select('role')
+    .eq('cluster_id', clusterId)
+    .eq('user_id', userId)
+    .single();
+  
+  if (error) return null;
+  return (data as any).role;
+};
+
+export const getClustersForAdmin = async (): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('clusters')
+    .select('*, products(*), profiles!creator_id(name)')
+    .order('created_at', { ascending: false });
   
   if (error) return [];
   return data;
@@ -406,22 +490,44 @@ export const getClusterById = async (id: string): Promise<unknown> => {
   return data;
 };
 
-export const createCluster = async (clusterData: unknown): Promise<unknown> => {
+export const createCluster = async (clusterData: any): Promise<unknown> => {
+  const mappedData = {
+    name: clusterData.name,
+    description: clusterData.description,
+    creator_id: clusterData.creatorId || clusterData.creator_id,
+    target_product_id: clusterData.targetProductId || clusterData.target_product_id,
+    target_product_name: clusterData.targetProductName || clusterData.target_product_name,
+    target_price: clusterData.targetPrice || clusterData.target_price || 0,
+    quantity: clusterData.quantity || 0,
+    max_members: clusterData.maxMembers || clusterData.max_members || 5,
+    preferred_shipping_method: clusterData.preferredShippingMethod || clusterData.preferred_shipping_method,
+    status: 'active',
+    current_funded: 0,
+    current_members: 1, // Creator is the first member
+    created_at: new Date().toISOString(),
+    shipping_status: 'shipping not started yet',
+    stop_counting: false
+  };
+
   const { data, error } = await supabase
     .from('clusters')
-    .insert([{
-      ...(clusterData as object),
-      status: 'active',
-      current_funded: 0,
-      current_members: 0,
-      created_at: new Date().toISOString(),
-      shipping_status: 'shipping not started yet',
-      stop_counting: false
-    }])
+    .insert([mappedData])
     .select()
     .single();
   
   if (error) throw error;
+
+  // Also add the creator as a member in cluster_members table
+  if (data) {
+    await supabase.from('cluster_members').insert([{
+      cluster_id: data.id,
+      user_id: mappedData.creator_id,
+      joined_quantity: 0, // Creator might not have specified quantity yet
+      joined_amount: 0,
+      joined_at: new Date().toISOString()
+    }]);
+  }
+
   return data;
 };
 
@@ -859,7 +965,163 @@ export const generateProductReport = async (): Promise<unknown> => {
   return data;
 };
 
-// ============ NOTIFICATIONS ============
+// ============ SHIPPING MANAGEMENT ============
+
+export const updateClusterShippingStatus = async (clusterId: string, status: string): Promise<unknown> => {
+  const updateData: any = { 
+    shipping_status: status,
+    updated_at: new Date().toISOString()
+  };
+  
+  if (status === 'in_transit') {
+    updateData.shipping_started_at = new Date().toISOString();
+  }
+  
+  return updateCluster(clusterId, updateData);
+};
+
+// ============ CUSTOMER SERVICE / SUPPORT ============
+
+export const createSupportTicket = async (userId: string, subject: string, description: string, priority: string = 'normal'): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('support_tickets')
+    .insert([{
+      user_id: userId,
+      subject,
+      description,
+      status: 'open',
+      priority,
+      created_at: new Date().toISOString()
+    }])
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data;
+};
+
+export const getSupportTickets = async (userId: string): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('support_tickets')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+  
+  if (error) return [];
+  return data;
+};
+
+export const getAllSupportTickets = async (): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('support_tickets')
+    .select('*, profiles(name, email)')
+    .order('created_at', { ascending: false });
+  
+  if (error) return [];
+  return data;
+};
+
+export const updateSupportTicketStatus = async (ticketId: string, status: string): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('support_tickets')
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq('id', ticketId)
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data;
+};
+
+// ============ CLUSTER MESSAGING & POLLS ============
+
+export const sendClusterMessage = async (clusterId: string, userId: string, message: string, type: string = 'text'): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('cluster_messages')
+    .insert([{
+      cluster_id: clusterId,
+      user_id: userId,
+      content: message,
+      type,
+      created_at: new Date().toISOString()
+    }])
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data;
+};
+
+export const getClusterMessages = async (clusterId: string): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('cluster_messages')
+    .select('*, profiles(name, avatar)')
+    .eq('cluster_id', clusterId)
+    .order('created_at', { ascending: true });
+  
+  if (error) return [];
+  return data;
+};
+
+export const createClusterPoll = async (clusterId: string, userId: string, question: string, options: string[]): Promise<unknown> => {
+  const { data: poll, error: pollError } = await supabase
+    .from('cluster_polls')
+    .insert([{
+      cluster_id: clusterId,
+      created_by: userId,
+      question,
+      is_active: true,
+      created_at: new Date().toISOString()
+    }])
+    .select()
+    .single();
+  
+  if (pollError) throw pollError;
+
+  if (poll && options.length > 0) {
+    const pollOptions = options.map(opt => ({
+      poll_id: poll.id,
+      option_text: opt
+    }));
+    await supabase.from('cluster_poll_options').insert(pollOptions);
+  }
+
+  return poll;
+};
+
+export const getClusterPolls = async (clusterId: string): Promise<unknown[]> => {
+  const { data, error } = await supabase
+    .from('cluster_polls')
+    .select('*, cluster_poll_options(*)')
+    .eq('cluster_id', clusterId)
+    .eq('is_active', true);
+  
+  if (error) return [];
+  return data;
+};
+
+export const voteOnPoll = async (pollId: string, optionId: string, userId: string): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('cluster_poll_votes')
+    .insert([{
+      poll_id: pollId,
+      option_id: optionId,
+      voter_id: userId,
+      created_at: new Date().toISOString()
+    }])
+    .select()
+    .single();
+  
+  if (error) throw error;
+
+  // Increment vote count on option (trigger would be better but let's do it here for simplicity)
+  const { data: option } = await supabase.from('cluster_poll_options').select('vote_count').eq('id', optionId).single();
+  if (option) {
+    await supabase.from('cluster_poll_options').update({ vote_count: (option.vote_count || 0) + 1 }).eq('id', optionId);
+  }
+
+  return data;
+};
 
 export const getNotifications = async (userId: string): Promise<unknown[]> => {
   const { data, error } = await supabase
@@ -899,6 +1161,15 @@ export const markNotificationAsRead = async (id: string): Promise<unknown> => {
 
   if (error) throw error;
   return data;
+};
+
+export const deleteNotification = async (id: string): Promise<boolean> => {
+  const { error } = await supabase
+    .from('notifications')
+    .delete()
+    .eq('id', id);
+
+  return !error;
 };
 
 // ============ SUPPORT MESSAGES ============

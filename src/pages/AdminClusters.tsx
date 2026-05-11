@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import AdminLayout from "@/components/AdminLayout";
+import { calculateExpectedDeliveryDate, formatCountdown } from "@/utils/shipping";
 
 const AdminClusters = () => {
   const navigate = useNavigate();
@@ -66,36 +66,8 @@ const AdminClusters = () => {
 
   const getCountdown = (startedAt: string, method: string) => {
     if (!startedAt) return null;
-    
-    let days = 0;
-    switch (method?.toLowerCase()) {
-      case "sea":
-      case "sea freight":
-        days = 60;
-        break;
-      case "fedex":
-        days = 5;
-        break;
-      case "air freight":
-        days = 18;
-        break;
-      case "express":
-        days = 12;
-        break;
-      default:
-        days = 10;
-    }
-
-    const start = new Date(startedAt).getTime();
-    const now = new Date().getTime();
-    const end = start + days * 24 * 60 * 60 * 1000;
-    const diff = end - now;
-
-    if (diff <= 0) return "Expired";
-
-    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    return `${d}d ${h}h remaining`;
+    const expectedDeliveryDate = calculateExpectedDeliveryDate(startedAt, method);
+    return formatCountdown(expectedDeliveryDate);
   };
 
   const filteredClusters = (clusters as Cluster[]).filter(c => 

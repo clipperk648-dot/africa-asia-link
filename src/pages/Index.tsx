@@ -1,4 +1,6 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import GlassCard from "@/components/GlassCard";
 import ThreeBackground from "@/components/ThreeBackground";
@@ -6,6 +8,21 @@ import { ArrowRight, Globe, TrendingUp, Shield, Zap } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      if (user.role === "admin" || user.isAdmin) {
+        navigate("/admin");
+      } else if (user.role === "industry") {
+        navigate("/industry");
+      } else if (user.role === "sourcing-agent") {
+        navigate("/profile");
+      } else {
+        navigate("/buyer");
+      }
+    }
+  }, [user, navigate]);
 
   const features = [
     {
