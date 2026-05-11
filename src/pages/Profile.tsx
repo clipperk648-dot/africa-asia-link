@@ -48,14 +48,14 @@ const Profile = () => {
             <h2 className="text-2xl font-bold">{username}</h2>
             <p className="text-muted-foreground">{user?.email}</p>
             <div className="mt-2 inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">
-              {user?.role}
+              {user?.role === 'sourcing-agent' ? 'Sourcing Agent' : user?.role === 'industry' ? 'Merchant' : user?.role}
             </div>
           </div>
         </div>
 
         {/* Quick Links */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <GlassCard className="p-6 hover:bg-primary/5 transition-colors cursor-pointer" onClick={() => navigate(user?.role === 'buyer' ? '/buyer/orders' : '/industry/recent-activity')}>
+          <GlassCard className="p-6 hover:bg-primary/5 transition-colors cursor-pointer" onClick={() => navigate(user?.role === 'buyer' ? '/buyer/orders' : '/industry/orders')}>
             <div className="flex items-center gap-4">
               <div className="p-3 bg-primary/10 rounded-xl">
                 <Package className="w-6 h-6 text-primary" />

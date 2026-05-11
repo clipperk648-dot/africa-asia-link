@@ -104,7 +104,7 @@ const SellerSignUp = () => {
       <div className="w-full max-w-md animate-fade-in">
         <div className="space-y-1 mb-6 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            Echina Seller
+            Echina Merchant
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground">
             Empower your industrial business globally
@@ -119,8 +119,8 @@ const SellerSignUp = () => {
                   <Building2 className="w-6 h-6" />
                 </div>
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold">Business Registration</h2>
-              <p className="text-xs sm:text-sm text-muted-foreground">Join our network of industrial suppliers</p>
+              <h2 className="text-xl sm:text-2xl font-bold">Merchant Registration</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground">Join our network of industrial merchants and agents</p>
             </div>
 
             {errors.form && (

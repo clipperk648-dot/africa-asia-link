@@ -82,8 +82,8 @@ const SourcingAgentSignUp = () => {
           description: `Welcome to Echina, ${registerResult.user.name}!`,
         });
 
-        // Redirect to a dashboard or profile (currently redirects to buyer as a fallback)
-        navigate("/profile");
+        // Redirect to merchant dashboard
+        navigate("/industry");
       } else {
         setErrors({
           form: registerResult.error || "Registration failed. Please try again.",

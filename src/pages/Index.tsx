@@ -14,10 +14,8 @@ const Index = () => {
     if (user) {
       if (user.role === "admin" || user.isAdmin) {
         navigate("/admin");
-      } else if (user.role === "industry") {
+      } else if (user.role === "industry" || user.role === "sourcing-agent") {
         navigate("/industry");
-      } else if (user.role === "sourcing-agent") {
-        navigate("/profile");
       } else {
         navigate("/buyer");
       }
@@ -76,10 +74,10 @@ const Index = () => {
               </span>
             </h1>
             <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-white drop-shadow-lg">
-              Bridging China Industries & Nigerian Markets
+              Bridging China Merchants & Nigerian Markets
             </p>
             <p className="text-base sm:text-lg md:text-xl text-gray-100 max-w-2xl mx-auto px-4 drop-shadow-lg">
-              The premier platform connecting Chinese manufacturers with Nigerian buyers.
+              The premier platform connecting Chinese merchants and agents with Nigerian buyers.
               Streamline your international trade with powerful tools and verified partners.
             </p>
           </div>

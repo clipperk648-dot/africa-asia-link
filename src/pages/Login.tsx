@@ -58,6 +58,8 @@ const Login = () => {
         // Check if admin
         if (loginResult.user.isAdmin || loginResult.user.role === "admin") {
           navigate("/admin");
+        } else if (loginResult.user.role === "industry" || loginResult.user.role === "sourcing-agent") {
+          navigate("/industry");
         } else {
           navigate("/buyer");
         }
@@ -108,6 +110,8 @@ const Login = () => {
 
                 if (oauthResult.user.isAdmin || oauthResult.user.role === "admin") {
                   navigate("/admin");
+                } else if (oauthResult.user.role === "industry" || oauthResult.user.role === "sourcing-agent") {
+                  navigate("/industry");
                 } else {
                   navigate("/buyer");
                 }

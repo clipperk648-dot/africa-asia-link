@@ -47,9 +47,9 @@ const SellerLogin = () => {
       const loginResult = await loginUser(email.trim(), password);
 
       if (loginResult.success && loginResult.user) {
-        if (loginResult.user.role !== "industry" && !loginResult.user.isAdmin) {
+        if (loginResult.user.role !== "industry" && loginResult.user.role !== "sourcing-agent" && !loginResult.user.isAdmin) {
           setErrors({
-            form: "This account is not a seller account. Please use the buyer login.",
+            form: "This account is not a merchant or agent account. Please use the buyer login.",
           });
           setIsLoading(false);
           return;
@@ -88,7 +88,7 @@ const SellerLogin = () => {
       <div className="w-full max-w-md animate-fade-in">
         <div className="space-y-1 mb-6 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            Echina Seller
+            Echina Merchant
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground">
             Manage your industrial products and reach global buyers
@@ -104,7 +104,7 @@ const SellerLogin = () => {
                 </div>
               </div>
               <h2 className="text-xl sm:text-2xl font-bold">Business Portal</h2>
-              <p className="text-xs sm:text-sm text-muted-foreground">Sign in to your merchant account</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">Sign in to your merchant or agent account</p>
             </div>
 
             {errors.form && (

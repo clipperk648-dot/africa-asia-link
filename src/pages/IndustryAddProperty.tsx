@@ -46,6 +46,7 @@ type ProductFormState = {
   wechat: string;
   whatsapp: string;
   warrantyMonths: string;
+  quantityAvailable: string;
 };
 
 const initialFormState = (userName = "", userEmail = "", company = ""): ProductFormState => ({
@@ -75,6 +76,7 @@ const initialFormState = (userName = "", userEmail = "", company = ""): ProductF
   wechat: "",
   whatsapp: "",
   warrantyMonths: "12",
+  quantityAvailable: "",
 });
 
 const IndustryAddProperty = () => {
@@ -94,7 +96,7 @@ const IndustryAddProperty = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!user || user.role !== "industry") {
+    if (!user || (user.role !== "industry" && user.role !== "sourcing-agent")) {
       navigate("/login");
     }
   }, [user, navigate]);
@@ -309,7 +311,7 @@ const IndustryAddProperty = () => {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="quantityAvailable">Quantity available</Label>
-                  <Input id="quantityAvailable" value={(formData as any).quantityAvailable || ''} onChange={(e: any) => setFormData((p: any) => ({ ...p, quantityAvailable: e.target.value }))} className="h-11 bg-background/60" type="number" min="0" />
+                  <Input id="quantityAvailable" value={formData.quantityAvailable} onChange={handleChange("quantityAvailable")} className="h-11 bg-background/60" type="number" min="0" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="leadTimeDays">Lead time (days)</Label>

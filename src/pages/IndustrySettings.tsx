@@ -21,7 +21,7 @@ const IndustrySettings = () => {
   const [prefs, setPrefs] = useState(() => getUserPrefs(user?.id));
 
   useEffect(() => {
-    if (!user || user.role !== "industry") {
+    if (!user || (user.role !== "industry" && user.role !== "sourcing-agent")) {
       navigate("/login");
     }
   }, [user, navigate]);

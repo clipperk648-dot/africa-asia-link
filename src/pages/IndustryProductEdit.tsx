@@ -22,7 +22,7 @@ const IndustryProductEdit = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!user || user.role !== "industry") navigate("/login");
+    if (!user || (user.role !== "industry" && user.role !== "sourcing-agent")) navigate("/login");
   }, [user, navigate]);
 
   const { data: product } = useProduct(id!);

@@ -389,7 +389,7 @@ const Cluster = () => {
         </DialogContent>
       </Dialog>
 
-      <FooterNav dashboardType={user?.role === 'admin' ? 'admin' : 'buyer'} />
+      <FooterNav dashboardType={(user?.role as any) || 'buyer'} />
       <style>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 4px;

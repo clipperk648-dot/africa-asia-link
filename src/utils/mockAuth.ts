@@ -3,7 +3,7 @@ import { getSession, clearSession, type AuthUser } from "@/lib/auth";
 export interface User extends AuthUser {
   id: string;
   email: string;
-  role: "buyer" | "admin";
+  role: "buyer" | "admin" | "industry" | "sourcing-agent";
   name: string;
   phone?: string;
   isAdmin?: boolean;
