@@ -7,7 +7,7 @@ import GlassCard from "@/components/GlassCard";
 import ThreeBackground from "@/components/ThreeBackground";
 import { registerUser, saveSession } from "@/lib/auth";
 import { toast } from "@/hooks/use-toast";
-import { ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
+import { ArrowRight, Eye, EyeOff, Loader2, UserCheck, Search } from "lucide-react";
 import { z } from "zod";
 import "../styles/auth.css";
 
@@ -16,8 +16,7 @@ const signupSchema = z.object({
   email: z.string().trim().email({ message: "Invalid email address" }),
   phone: z.string()
     .trim()
-    .min(10, { message: "Phone number must be at least 10 digits" })
-    .regex(/^[+]?[\d\s\-()]+$/, { message: "Invalid phone number format" }),
+    .min(10, { message: "Phone number must be at least 10 digits" }),
   password: z.string().min(8, { message: "Password must be at least 8 characters" }),
   confirmPassword: z.string().min(8, { message: "Password confirmation required" }),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -25,7 +24,7 @@ const signupSchema = z.object({
   path: ["confirmPassword"],
 });
 
-const SignUp = () => {
+const SourcingAgentSignUp = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
@@ -42,7 +41,6 @@ const SignUp = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    // Clear error for this field when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: "" }));
     }
@@ -72,18 +70,20 @@ const SignUp = () => {
         formData.email.trim(),
         formData.password,
         formData.name.trim(),
-        formData.phone.trim()
+        formData.phone.trim(),
+        "sourcing-agent"
       );
 
       if (registerResult.success && registerResult.user) {
         saveSession(registerResult.user);
 
         toast({
-          title: "Account Created Successfully",
+          title: "Sourcing Agent Account Created",
           description: `Welcome to Echina, ${registerResult.user.name}!`,
         });
 
-        navigate("/buyer");
+        // Redirect to a dashboard or profile (currently redirects to buyer as a fallback)
+        navigate("/profile");
       } else {
         setErrors({
           form: registerResult.error || "Registration failed. Please try again.",
@@ -93,7 +93,6 @@ const SignUp = () => {
       setErrors({
         form: "An error occurred during registration. Please try again.",
       });
-      console.error("Sign up error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -106,18 +105,23 @@ const SignUp = () => {
       <div className="w-full max-w-md animate-fade-in">
         <div className="space-y-1 mb-6 text-center">
           <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-            Echina
+            Echina Agent
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground">
-            Join the thriving trade network
+            Connect buyers with the best industrial sources
           </p>
         </div>
         
         <GlassCard className="p-4 sm:p-6 slide-up">
           <form onSubmit={handleSignUp} className="space-y-4">
             <div className="space-y-1 text-center">
-              <h2 className="text-xl sm:text-2xl font-bold">Create Account</h2>
-              <p className="text-xs sm:text-sm text-muted-foreground">Fill in your details to get started</p>
+              <div className="flex justify-center mb-2">
+                <div className="p-3 rounded-full bg-primary/20 text-primary">
+                  <Search className="w-6 h-6" />
+                </div>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-bold">Agent Registration</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground">Join as a verified sourcing agent</p>
             </div>
 
             {errors.form && (
@@ -128,7 +132,7 @@ const SignUp = () => {
 
             <div className="space-y-3">
               <div className="space-y-1">
-                <Label htmlFor="name" className="text-xs">Full Name / Company Name</Label>
+                <Label htmlFor="name" className="text-xs">Full Name</Label>
                 <Input
                   id="name"
                   name="name"
@@ -137,11 +141,9 @@ const SignUp = () => {
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className={`h-10 bg-background/50 transition-all text-sm ${errors.name ? 'border-destructive' : ''}`}
+                  className="h-10 bg-background/50 text-sm"
                 />
-                {errors.name && (
-                  <p className="text-xs text-destructive animate-pulse">{errors.name}</p>
-                )}
+                {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
               </div>
 
               <div className="space-y-1">
@@ -150,15 +152,13 @@ const SignUp = () => {
                   id="email"
                   name="email"
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder="name@example.com"
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className={`h-10 bg-background/50 transition-all text-sm ${errors.email ? 'border-destructive' : ''}`}
+                  className="h-10 bg-background/50 text-sm"
                 />
-                {errors.email && (
-                  <p className="text-xs text-destructive animate-pulse">{errors.email}</p>
-                )}
+                {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
               </div>
 
               <div className="space-y-1">
@@ -167,15 +167,13 @@ const SignUp = () => {
                   id="phone"
                   name="phone"
                   type="tel"
-                  placeholder="+234 (0) 000 000 0000"
+                  placeholder="+234..."
                   value={formData.phone}
                   onChange={handleChange}
                   required
-                  className={`h-10 bg-background/50 transition-all text-sm ${errors.phone ? 'border-destructive' : ''}`}
+                  className="h-10 bg-background/50 text-sm"
                 />
-                {errors.phone && (
-                  <p className="text-xs text-destructive animate-pulse">{errors.phone}</p>
-                )}
+                {errors.phone && <p className="text-xs text-destructive">{errors.phone}</p>}
               </div>
 
               <div className="space-y-1">
@@ -185,23 +183,21 @@ const SignUp = () => {
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Minimum 8 characters"
+                    placeholder="Min 8 characters"
                     value={formData.password}
                     onChange={handleChange}
                     required
-                    className={`h-10 bg-background/50 pr-10 transition-all text-sm ${errors.password ? 'border-destructive' : ''}`}
+                    className="h-10 bg-background/50 pr-10 text-sm"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                {errors.password && (
-                  <p className="text-xs text-destructive animate-pulse">{errors.password}</p>
-                )}
+                {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
               </div>
 
               <div className="space-y-1">
@@ -211,23 +207,21 @@ const SignUp = () => {
                     id="confirmPassword"
                     name="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Confirm your password"
+                    placeholder="Repeat password"
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     required
-                    className={`h-10 bg-background/50 pr-10 transition-all text-sm ${errors.confirmPassword ? 'border-destructive' : ''}`}
+                    className="h-10 bg-background/50 pr-10 text-sm"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
                   >
                     {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
-                {errors.confirmPassword && (
-                  <p className="text-xs text-destructive animate-pulse">{errors.confirmPassword}</p>
-                )}
+                {errors.confirmPassword && <p className="text-xs text-destructive">{errors.confirmPassword}</p>}
               </div>
             </div>
             
@@ -241,17 +235,17 @@ const SignUp = () => {
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Creating account...</span>
+                  <span>Creating Account...</span>
                 </>
               ) : (
                 <>
-                  <span>Create Account</span>
+                  <span>Join as Sourcing Agent</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </Button>
 
-            <div className="text-center space-y-2 mt-4">
+            <div className="text-center space-y-1 mt-4">
               <p className="text-[10px] sm:text-xs text-muted-foreground">
                 Already have an account?{" "}
                 <button
@@ -262,27 +256,6 @@ const SignUp = () => {
                   Sign In
                 </button>
               </p>
-              
-              <div className="flex flex-col gap-1 border-t border-muted/30 pt-3">
-                <button
-                  type="button"
-                  onClick={() => navigate("/seller/signup")}
-                  className="text-[10px] sm:text-xs text-primary hover:underline"
-                >
-                  Are you a seller? Register your business
-                </button>
-                <button
-                  type="button"
-                  onClick={() => navigate("/agent/signup")}
-                  className="text-[10px] sm:text-xs text-secondary hover:underline"
-                >
-                  Want to be a Sourcing Agent? Sign up here
-                </button>
-              </div>
-            </div>
-
-            <div className="text-center text-[10px] sm:text-xs text-muted-foreground">
-              By signing up, you agree to our terms of service
             </div>
           </form>
         </GlassCard>
@@ -291,4 +264,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default SourcingAgentSignUp;

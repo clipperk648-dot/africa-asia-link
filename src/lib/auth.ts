@@ -5,7 +5,7 @@ export interface AuthUser {
   email: string;
   name: string;
   phone?: string;
-  role: "buyer" | "admin" | "industry";
+  role: "buyer" | "admin" | "industry" | "sourcing-agent";
   isAdmin?: boolean;
   createdAt?: string;
   oauthId?: string;
@@ -21,7 +21,8 @@ export const registerUser = async (
   email: string,
   password: string,
   name: string,
-  phone: string
+  phone: string,
+  role: "buyer" | "industry" | "sourcing-agent" = "buyer"
 ): Promise<{ success: boolean; user?: AuthUser; error?: string; token?: string }> => {
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -30,7 +31,7 @@ export const registerUser = async (
       data: {
         full_name: name,
         phone: phone,
-        role: email === ADMIN_EMAIL ? 'admin' : 'buyer',
+        role: email === ADMIN_EMAIL ? 'admin' : role,
       }
     }
   });

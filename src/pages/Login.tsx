@@ -309,7 +309,7 @@ const Login = () => {
               </Button>
             </div>
 
-            <div className="text-center space-y-1">
+            <div className="text-center space-y-2">
               <p className="text-[10px] sm:text-xs text-muted-foreground">
                 Don't have an account?{" "}
                 <button
@@ -320,6 +320,15 @@ const Login = () => {
                   Sign Up
                 </button>
               </p>
+              <div className="border-t border-muted/30 pt-2">
+                <button
+                  type="button"
+                  onClick={() => navigate("/seller/login")}
+                  className="text-[10px] sm:text-xs text-primary hover:underline font-medium"
+                >
+                  Merchant? Login to business portal
+                </button>
+              </div>
               <p className="text-[10px] text-muted-foreground opacity-75">
                 All credentials accepted for demo
               </p>

@@ -14,6 +14,19 @@ const Index = lazy(() => import("./pages/Index"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const Login = lazy(() => import("./pages/Login"));
 const SignUp = lazy(() => import("./pages/SignUp"));
+const SellerLogin = lazy(() => import("./pages/SellerLogin"));
+const SellerSignUp = lazy(() => import("./pages/SellerSignUp"));
+const SourcingAgentSignUp = lazy(() => import("./pages/SourcingAgentSignUp"));
+const IndustryDashboard = lazy(() => import("./pages/IndustryDashboard"));
+const IndustryProducts = lazy(() => import("./pages/IndustryProducts"));
+const IndustryProductEdit = lazy(() => import("./pages/IndustryProductEdit"));
+const IndustryProductStats = lazy(() => import("./pages/IndustryProductStats"));
+const IndustrySettings = lazy(() => import("./pages/IndustrySettings"));
+const IndustryCollections = lazy(() => import("./pages/IndustryCollections"));
+const IndustryShowroom = lazy(() => import("./pages/IndustryShowroom"));
+const IndustryRecentActivity = lazy(() => import("./pages/IndustryRecentActivity"));
+const IndustryAddProperty = lazy(() => import("./pages/IndustryAddProperty"));
+const IndustryKYC = lazy(() => import("./pages/IndustryKYC"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AdminClusters = lazy(() => import("./pages/AdminClusters"));
 const AdminProducts = lazy(() => import("./pages/AdminProducts"));
@@ -72,6 +85,9 @@ const AppContent = () => {
         <Route path="/" element={<Index />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/seller/login" element={<SellerLogin />} />
+        <Route path="/seller/signup" element={<SellerSignUp />} />
+        <Route path="/agent/signup" element={<SourcingAgentSignUp />} />
         
         {/* Admin Routes */}
         <Route path="/admin" element={<ProtectedRoute element={<AdminDashboard />} requiredRole="admin" />} />
@@ -99,12 +115,24 @@ const AppContent = () => {
         <Route path="/buyer/collections" element={<ProtectedRoute element={<BuyerCollections />} requiredRole="buyer" />} />
         <Route path="/buyer/orders" element={<ProtectedRoute element={<BuyerOrders />} requiredRole="buyer" />} />
         
+        {/* Industry/Seller Routes */}
+        <Route path="/industry" element={<ProtectedRoute element={<IndustryDashboard />} requiredRole="industry" />} />
+        <Route path="/industry/products" element={<ProtectedRoute element={<IndustryProducts />} requiredRole="industry" />} />
+        <Route path="/industry/products/add" element={<ProtectedRoute element={<IndustryAddProperty />} requiredRole="industry" />} />
+        <Route path="/industry/products/:id/edit" element={<ProtectedRoute element={<IndustryProductEdit />} requiredRole="industry" />} />
+        <Route path="/industry/products/:id/stats" element={<ProtectedRoute element={<IndustryProductStats />} requiredRole="industry" />} />
+        <Route path="/industry/settings" element={<ProtectedRoute element={<IndustrySettings />} requiredRole="industry" />} />
+        <Route path="/industry/collections" element={<ProtectedRoute element={<IndustryCollections />} requiredRole="industry" />} />
+        <Route path="/industry/showroom" element={<ProtectedRoute element={<IndustryShowroom />} requiredRole="industry" />} />
+        <Route path="/industry/recent-activity" element={<ProtectedRoute element={<IndustryRecentActivity />} requiredRole="industry" />} />
+        <Route path="/industry/kyc" element={<ProtectedRoute element={<IndustryKYC />} requiredRole="industry" />} />
+        
         {/* Cluster Routes */}
-        <Route path="/cluster" element={<ProtectedRoute element={<Cluster />} requiredRole="buyer" />} />
-        <Route path="/cluster/:clusterId" element={<ProtectedRoute element={<ClusterDetails />} requiredRole="buyer" />} />
-        <Route path="/cluster/:clusterId/chat" element={<ProtectedRoute element={<ClusterChat />} requiredRole="buyer" />} />
-        <Route path="/cluster/:clusterId/analytics" element={<ProtectedRoute element={<ClusterAnalytics />} requiredRole="buyer" />} />
-        <Route path="/cluster/:clusterId/settings" element={<ProtectedRoute element={<ClusterSettings />} requiredRole="buyer" />} />
+        <Route path="/cluster" element={<ProtectedRoute element={<Cluster />} requiredRole={["buyer", "industry"]} />} />
+        <Route path="/cluster/:clusterId" element={<ProtectedRoute element={<ClusterDetails />} requiredRole={["buyer", "industry"]} />} />
+        <Route path="/cluster/:clusterId/chat" element={<ProtectedRoute element={<ClusterChat />} requiredRole={["buyer", "industry"]} />} />
+        <Route path="/cluster/:clusterId/analytics" element={<ProtectedRoute element={<ClusterAnalytics />} requiredRole={["buyer", "industry"]} />} />
+        <Route path="/cluster/:clusterId/settings" element={<ProtectedRoute element={<ClusterSettings />} requiredRole={["buyer", "industry"]} />} />
         
         {/* Shared Routes */}
         <Route path="/notifications" element={<ProtectedRoute element={<Notifications />} />} />
