@@ -1,30 +1,57 @@
 import { useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 export const DatabaseInitializer = () => {
   useEffect(() => {
     const initializeDB = async () => {
       try {
-        // Check if products table exists by trying to fetch from it
-        const { error: checkError } = await supabase
-          .from('products')
-          .select('id')
-          .limit(1);
+        // List of critical tables to check
+        const criticalTables = [
+          'profiles', 
+          'products', 
+          'clusters', 
+          'cluster_members', 
+          'orders',
+          'supplier_products'
+        ];
+        
+        const missingTables = [];
 
-        if (checkError?.code === 'PGRST205') {
-          // Table doesn't exist
-          console.log('Database tables not initialized. Please create them using the Supabase dashboard or migration tools.');
-          console.log('Required tables: products, profiles, clusters, cluster_members, cluster_messages, support_messages, notifications, wallets, orders, supplier_products');
+        for (const table of criticalTables) {
+          const { error } = await supabase
+            .from(table)
+            .select('id')
+            .limit(1);
+
+          if (error && (error.code === 'PGRST204' || error.code === 'PGRST205' || error.message.includes('does not exist'))) {
+            missingTables.push(table);
+          }
+        }
+
+        if (missingTables.length > 0) {
+          console.error('Database schema incomplete. Missing tables:', missingTables.join(', '));
+          toast.error(`Database incomplete. Missing: ${missingTables.join(', ')}`, {
+            description: 'Please run the SQL migrations in the Supabase dashboard.',
+            duration: 10000,
+          });
           return;
         }
 
-        // Check for other potential errors
-        if (checkError && checkError.code !== 'PGRST116') {
-          // PGRST116 is "not found" error, which is ok if empty
-          console.warn('Database check error:', checkError);
-        }
+        // Check if realtime is enabled by trying to subscribe
+        const channel = supabase.channel('schema-check')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {})
+          .subscribe((status) => {
+            if (status === 'CHANNEL_ERROR') {
+              console.warn('Realtime subscription failed. Ensure Realtime is enabled for the profiles table.');
+            }
+          });
 
-        console.log('Database initialized successfully');
+        console.log('Database connection and schema verified successfully');
+        
+        return () => {
+          supabase.removeChannel(channel);
+        };
       } catch (error) {
         console.error('Database initialization check failed:', error);
       }

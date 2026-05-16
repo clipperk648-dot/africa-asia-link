@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useClusters, useCreateClusterMutation, useJoinClusterMutation, useShippingMethods } from "@/hooks/useData";
+import { useClusters, useProducts, useCreateClusterMutation, useJoinClusterMutation, useShippingMethods } from "@/hooks/useData";
 import type { Cluster as ClusterType } from "@/types/models";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
