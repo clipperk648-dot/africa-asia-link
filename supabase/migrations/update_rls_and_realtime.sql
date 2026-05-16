@@ -42,14 +42,14 @@ DROP POLICY IF EXISTS "Admins can view all profiles" ON public.profiles;
 CREATE POLICY "Admins can view all profiles"
   ON public.profiles
   FOR SELECT
-  USING (is_admin());
+  USING (auth.uid() = id OR is_admin());
 
 DROP POLICY IF EXISTS "Admins can update all profiles" ON public.profiles;
 CREATE POLICY "Admins can update all profiles"
   ON public.profiles
   FOR UPDATE
-  USING (is_admin())
-  WITH CHECK (is_admin());
+  USING (auth.uid() = id OR is_admin())
+  WITH CHECK (auth.uid() = id OR is_admin());
 
 -- 4. Enable Realtime for critical tables (if not already enabled)
 -- Note: In Supabase, this is usually managed via the 'supabase_realtime' publication.
