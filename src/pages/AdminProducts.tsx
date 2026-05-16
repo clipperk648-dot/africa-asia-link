@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { useProducts, useDeleteProductMutation } from "@/hooks/useData";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,14 @@ import { Input } from "@/components/ui/input";
 
 const AdminProducts = () => {
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
   const { data: products = [], isLoading } = useProducts();
+
+  useEffect(() => {
+    if (!currentUser || currentUser.role !== "admin") {
+      navigate("/login");
+    }
+  }, [currentUser, navigate]);
   const deleteProductMutation = useDeleteProductMutation();
   const [searchQuery, setSearchQuery] = useState("");
 
