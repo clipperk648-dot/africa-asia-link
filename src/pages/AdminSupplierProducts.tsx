@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { useAllSupplierProducts, useDeleteSupplierProductMutation, useUpdateSupplierProductMutation, useCreateSupplierProductsMutation } from "@/hooks/useData";
 import { supabase } from "@/lib/supabase";
 import { alibabaProducts } from "@/data/alibaba-products";
@@ -7,7 +8,7 @@ import GlassCard from "@/components/GlassCard";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Upload, Download, Search, Filter, Edit2, Eye, EyeOff } from "lucide-react";
+import { Plus, Trash2, Upload, Download, Search, Filter, Pencil, Eye, EyeOff } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -42,7 +43,14 @@ interface SupplierProduct {
 
 const AdminSupplierProducts = () => {
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
   const { data: productsData = [], isLoading } = useAllSupplierProducts();
+
+  useEffect(() => {
+    if (!currentUser || currentUser.role !== "admin") {
+      navigate("/login");
+    }
+  }, [currentUser, navigate]);
   const products = productsData as SupplierProduct[];
   const deleteProductMutation = useDeleteSupplierProductMutation();
   const updateProductMutation = useUpdateSupplierProductMutation();
@@ -304,7 +312,7 @@ const AdminSupplierProducts = () => {
                             className="gap-1"
                             onClick={() => setEditData(product)}
                           >
-                            <Edit2 className="w-3 h-3" /> Edit
+                            <Pencil className="w-3 h-3" /> Edit
                           </Button>
                         </SheetTrigger>
                         <SheetContent side="right" className="w-full sm:max-w-md">
