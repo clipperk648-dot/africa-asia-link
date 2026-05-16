@@ -1,5 +1,7 @@
-import { useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useMemo } from "react";
 import { generateSalesReport, generateUserReport, generateProductReport } from "@/lib/db";
+import { useAllOrders, useAllUsers, useProducts } from "@/hooks/useData";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
 import { BarChart3, Download, Users, Package, DollarSign, Calendar, Filter, FileSpreadsheet } from "lucide-react";
@@ -14,14 +16,58 @@ const AdminReports = () => {
   const [loading, setLoading] = useState(false);
   const [reportType, setReportType] = useState<"sales" | "users" | "products">("sales");
 
-  const mockData = [
-    { name: "Jan", sales: 4000, users: 2400 },
-    { name: "Feb", sales: 3000, users: 1398 },
-    { name: "Mar", sales: 2000, users: 9800 },
-    { name: "Apr", sales: 2780, users: 3908 },
-    { name: "May", sales: 1890, users: 4800 },
-    { name: "Jun", sales: 2390, users: 3800 },
-  ];
+  const { data: allOrders = [] } = useAllOrders();
+  const { data: allUsers = [] } = useAllUsers();
+  const { data: allProducts = [] } = useProducts(1000, 0);
+
+  const stats = useMemo(() => {
+    const totalRevenue = (allOrders as any[]).reduce((acc: number, order: any) => acc + (order.total || 0), 0);
+    const activeUsers = allUsers.length;
+    const totalProducts = allProducts.length;
+    
+    return [
+      { label: "Total Revenue", value: `${totalRevenue.toLocaleString()}`, change: "+12.5%", icon: DollarSign, color: "text-emerald-400" },
+      { label: "Active Users", value: activeUsers.toLocaleString(), change: "+5.2%", icon: Users, color: "text-blue-400" },
+      { label: "Products Listed", value: totalProducts.toLocaleString(), change: "+2.1%", icon: Package, color: "text-purple-400" },
+      { label: "Total Orders", value: allOrders.length.toLocaleString(), change: "+3.4%", icon: BarChart3, color: "text-amber-400" },
+    ];
+  }, [allOrders, allUsers, allProducts]);
+
+  const chartData = useMemo(() => {
+    // Group orders by month for the last 6 months
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const now = new Date();
+    const last6Months = [];
+    
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      last6Months.push({
+        name: months[d.getMonth()],
+        sales: 0,
+        users: 0,
+        monthNum: d.getMonth(),
+        year: d.getFullYear()
+      });
+    }
+
+    (allOrders as any[]).forEach((order: any) => {
+      const orderDate = new Date(order.created_at);
+      const monthIndex = last6Months.findIndex(m => m.monthNum === orderDate.getMonth() && m.year === orderDate.getFullYear());
+      if (monthIndex !== -1) {
+        last6Months[monthIndex].sales += (order.total || 0);
+      }
+    });
+
+    (allUsers as any[]).forEach((user: any) => {
+      const userDate = new Date(user.created_at);
+      const monthIndex = last6Months.findIndex(m => m.monthNum === userDate.getMonth() && m.year === userDate.getFullYear());
+      if (monthIndex !== -1) {
+        last6Months[monthIndex].users += 1;
+      }
+    });
+
+    return last6Months;
+  }, [allOrders, allUsers]);
 
   const handleExport = async (type: string) => {
     setLoading(true);
@@ -60,12 +106,7 @@ const AdminReports = () => {
 
         {/* Quick Stats Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { label: "Total Revenue", value: "$124,592", change: "+12.5%", icon: DollarSign, color: "text-emerald-400" },
-            { label: "Active Users", value: "1,284", change: "+5.2%", icon: Users, color: "text-blue-400" },
-            { label: "Products Listed", value: "482", change: "+2.1%", icon: Package, color: "text-purple-400" },
-            { label: "Conversion Rate", value: "3.24%", change: "-0.4%", icon: BarChart3, color: "text-amber-400" },
-          ].map((stat, i) => (
+          {stats.map((stat, i) => (
             <GlassCard key={i} className="p-6 border-white/5 relative overflow-hidden group">
                <div className="absolute right-0 bottom-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                 <stat.icon size={60} />
@@ -112,7 +153,7 @@ const AdminReports = () => {
               <div className="flex-1 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   {reportType === "sales" ? (
-                    <AreaChart data={mockData}>
+                    <AreaChart data={chartData}>
                       <defs>
                         <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
                           <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
@@ -129,7 +170,7 @@ const AdminReports = () => {
                       <Area type="monotone" dataKey="sales" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
                     </AreaChart>
                   ) : (
-                    <BarChart data={mockData}>
+                    <BarChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
                       <XAxis dataKey="name" stroke="#ffffff40" fontSize={12} tickLine={false} axisLine={false} />
                       <YAxis stroke="#ffffff40" fontSize={12} tickLine={false} axisLine={false} />
