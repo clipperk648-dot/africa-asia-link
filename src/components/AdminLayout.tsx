@@ -61,6 +61,7 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
     { label: "Supplier Products", icon: Store, path: "/admin/supplier-products" },
     { label: "Clusters", icon: Truck, path: "/admin/clusters" },
     { label: "Orders", icon: ShoppingCart, path: "/admin/orders" },
+    { label: "Tracking", icon: Truck, path: "/admin/tracking" },
     { label: "Categories", icon: Box, path: "/admin/categories" },
     { label: "Reports", icon: BarChart3, path: "/admin/reports" },
     { label: "Content", icon: Box, path: "/admin/content" },
