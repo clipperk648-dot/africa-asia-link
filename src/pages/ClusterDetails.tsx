@@ -7,17 +7,23 @@ import { Button } from "@/components/ui/button";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import ThreeBackground from "@/components/ThreeBackground";
-import { ArrowLeft, Users, TrendingUp, Target, Clock, Copy, Check, BarChart3, Settings, MessageCircle, Truck, ShieldCheck, ShoppingBag } from "lucide-react";
+import { ArrowLeft, Users, TrendingUp, Target, Clock, Copy, Check, BarChart3, Settings, MessageCircle, Truck, ShieldCheck, ShoppingBag, Ruler, Lock, Unlock, AlertTriangle } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { getSafeAvatarUrl } from "@/utils/imageOptimization";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { calculateExpectedDeliveryDate, formatCountdown } from "@/utils/shipping";
+import { calculateUnitCBM, calculateTotalCBM } from "@/utils/cbm";
+import { Progress } from "@/components/ui/progress";
+import { useProduct } from "@/hooks/useData";
 
 const ClusterDetails = () => {
   const navigate = useNavigate();
   const { clusterId } = useParams<{ clusterId: string }>();
   const { user } = useAuth();
   const { data: cluster, isLoading } = useCluster(clusterId);
+  const { data: product } = useProduct(cluster?.targetProductId || "");
   const updateClusterMutation = useUpdateClusterMutation();
   const checkoutMutation = useCheckoutClusterMutation();
   
@@ -25,6 +31,72 @@ const ClusterDetails = () => {
   const [showMoreMembers, setShowMoreMembers] = useState(false);
   const [countdown, setCountdown] = useState<string>("");
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [proposedQty, setProposedQty] = useState("");
+  const [showPoll, setShowPoll] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [votes, setVotes] = useState({ yes: 0, no: 0 });
+
+  const currentTargetQty = cluster?.target_qty || 100;
+  
+  const handleProposeChange = () => {
+    if (!proposedQty || parseInt(proposedQty) <= 0) {
+      toast.error("Please enter a valid quantity");
+      return;
+    }
+    setShowPoll(true);
+    setVotes({ yes: 1, no: 0 }); // Proposer automatically votes yes
+    setHasVoted(true);
+    toast.success(`Poll started to change target quantity to ${proposedQty}`);
+  };
+
+  const handleVote = (vote: 'yes' | 'no') => {
+    setVotes(prev => ({ ...prev, [vote]: prev[vote] + 1 }));
+    setHasVoted(true);
+    toast.success(`Vote cast: ${vote.toUpperCase()}`);
+  };
+
+  const totalVotes = votes.yes + votes.no;
+  const membersCount = cluster?.cluster_members?.length || 0;
+  const pollPassed = votes.yes > membersCount / 2;
+  
+  useEffect(() => {
+    if (pollPassed && showPoll) {
+      const updateTarget = async () => {
+        try {
+          await updateClusterMutation.mutateAsync({
+            id: cluster.id,
+            data: { target_qty: parseInt(proposedQty) }
+          });
+          toast.success(`Poll passed! Target quantity updated to ${proposedQty}`);
+          setShowPoll(false);
+        } catch (error) {
+          toast.error("Failed to update target quantity");
+        }
+      };
+      updateTarget();
+    }
+  }, [pollPassed, showPoll]);
+
+  const totalCBM = cluster?.total_cbm || 0;
+  const minLockCBM = 0.1;
+  const cbmProgress = Math.min(100, (totalCBM / minLockCBM) * 100);
+  const isLockable = totalCBM >= minLockCBM;
+
+  const handleLockCluster = async () => {
+    if (!isLockable) {
+      toast.error(`Minimum ${minLockCBM} m³ required to lock`);
+      return;
+    }
+    try {
+      await updateClusterMutation.mutateAsync({ 
+        id: cluster.id, 
+        data: { status: 'locked' } 
+      });
+      toast.success("Cluster locked successfully!");
+    } catch (error) {
+      toast.error("Failed to lock cluster");
+    }
+  };
 
   useEffect(() => {
     if (!cluster) return;
@@ -197,7 +269,9 @@ const ClusterDetails = () => {
                   <TrendingUp className="w-5 h-5 text-primary" />
                   <p className="text-xs font-semibold">Quantity</p>
                 </div>
-                <p className="font-bold text-primary">{cluster.quantity || 0}</p>
+                <div className="text-right">
+                  <p className="font-bold text-primary">{cluster.quantity || 0} / {cluster.target_qty || cluster.targetQty || 100}</p>
+                </div>
               </div>
 
               <div className="flex items-center justify-between p-3 rounded-lg bg-primary/10 border border-primary/20">
@@ -205,8 +279,116 @@ const ClusterDetails = () => {
                   <Truck className="w-5 h-5 text-primary" />
                   <p className="text-xs font-semibold">Method</p>
                 </div>
-                <p className="font-bold text-primary text-[10px] uppercase">{cluster.preferredShippingMethod || cluster.preferred_shipping_method || "Standard"}</p>
+                <p className="font-bold text-primary text-[10px] uppercase">
+                  {cluster.shipping_mode === 'air' ? 'Air' : 'Sea'}
+                </p>
               </div>
+            </div>
+
+            {/* Poll System */}
+            {!showPoll ? (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="w-full gap-2 border-primary/30 hover:border-primary text-xs h-9">
+                    <BarChart3 className="w-3.5 h-3.5" />
+                    Propose Target Quantity Change
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="bg-background/95 backdrop-blur-xl border-white/10 text-white max-w-sm">
+                  <DialogHeader>
+                    <DialogTitle>Propose New Target</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label>Proposed Quantity</Label>
+                      <Input 
+                        type="number" 
+                        value={proposedQty} 
+                        onChange={(e) => setProposedQty(e.target.value)}
+                        placeholder={`Current: ${currentTargetQty}`}
+                        className="bg-white/5 border-white/10"
+                      />
+                      <p className="text-[10px] text-muted-foreground italic">A poll will be started. Requires majority vote to pass.</p>
+                    </div>
+                    <Button onClick={handleProposeChange} className="w-full">Start Poll</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            ) : (
+              <GlassCard className="p-4 bg-primary/5 border-primary/20 space-y-3">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4 text-primary" />
+                    <p className="text-xs font-bold uppercase tracking-wider">Active Poll: Target Qty → {proposedQty}</p>
+                  </div>
+                  <span className="text-[10px] bg-primary text-white px-2 py-0.5 rounded-full font-bold">VOTING</span>
+                </div>
+                
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-[10px] font-bold">
+                    <span>YES ({votes.yes})</span>
+                    <span>NO ({votes.no})</span>
+                  </div>
+                  <div className="w-full h-2 bg-black/20 rounded-full flex overflow-hidden">
+                    <div 
+                      className="h-full bg-green-500 transition-all duration-500" 
+                      style={{ width: `${totalVotes > 0 ? (votes.yes / totalVotes) * 100 : 0}%` }}
+                    />
+                    <div 
+                      className="h-full bg-red-500 transition-all duration-500" 
+                      style={{ width: `${totalVotes > 0 ? (votes.no / totalVotes) * 100 : 0}%` }}
+                    />
+                  </div>
+                  <p className="text-[9px] text-center text-muted-foreground">
+                    {totalVotes} of {membersCount} members voted • Need {Math.floor(membersCount/2) + 1} YES to pass
+                  </p>
+                </div>
+
+                {!hasVoted && (
+                  <div className="flex gap-2">
+                    <Button onClick={() => handleVote('yes')} size="sm" className="flex-1 bg-green-600/20 text-green-400 hover:bg-green-600/40 border-green-500/20">YES</Button>
+                    <Button onClick={() => handleVote('no')} size="sm" className="flex-1 bg-red-600/20 text-red-400 hover:bg-red-600/40 border-red-500/20">NO</Button>
+                  </div>
+                )}
+                {hasVoted && !pollPassed && (
+                  <p className="text-[10px] text-center italic text-primary animate-pulse">Waiting for more votes...</p>
+                )}
+              </GlassCard>
+            )}
+
+            {/* CBM Progress Bar */}
+            <div className="p-4 rounded-lg bg-black/20 border border-white/5 space-y-3">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <Ruler className="w-4 h-4 text-accent" />
+                  <p className="text-xs font-bold uppercase tracking-wider">Total Volume (CBM)</p>
+                </div>
+                <span className="text-xs font-bold">{totalCBM.toFixed(4)} / {minLockCBM} m³</span>
+              </div>
+              <Progress value={cbmProgress} className="h-2" />
+              
+              {isLockable ? (
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center gap-2 text-green-400">
+                    <Check className="w-4 h-4" />
+                    <p className="text-[10px] font-medium italic">✅ Minimum volume reached! You can lock the cluster and start the order, or wait for more members to join.</p>
+                  </div>
+                  {(isCreator || isAdmin) && cluster.status !== 'locked' && (
+                    <Button 
+                      onClick={handleLockCluster}
+                      className="w-full bg-green-600 hover:bg-green-700 text-white gap-2 h-9 text-xs uppercase font-bold tracking-widest"
+                    >
+                      <Lock className="w-4 h-4" />
+                      Lock & Start Order
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-amber-400">
+                  <AlertTriangle className="w-4 h-4" />
+                  <p className="text-[10px] font-medium italic">⏳ Need at least {minLockCBM} m³ total to lock. Currently at {Math.round(cbmProgress)}%. Invite more members.</p>
+                </div>
+              )}
             </div>
 
             {targetPrice > 0 && (

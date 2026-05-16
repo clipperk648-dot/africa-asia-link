@@ -1,16 +1,14 @@
-import { getClusterById } from "@/lib/db";
 
 export const getShippingCountdownDays = (methodName: string): number => {
-  switch (methodName) {
-    case "Sea Shipping":
-    case "Sea Freight":
+  switch (methodName.toLowerCase()) {
+    case "sea":
+    case "sea shipping":
+    case "sea freight":
       return 60;
-    case "FedEx":
-      return 5;
-    case "Air Freight":
-      return 18;
-    case "Express":
-      return 12;
+    case "air":
+    case "air shipping":
+    case "air freight":
+      return 7;
     default:
       return 14;
   }

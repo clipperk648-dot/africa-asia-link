@@ -113,13 +113,16 @@ const ProductDetails = () => {
             description: `Automatic cluster for ${product.name}`,
             target_product_id: product.id,
             target_product_name: product.name,
-            target_price: (product.unitPrice || product.price || 100) * 10, // Default target
-            quantity: 10, // Default target
+            target_price: (product.moq_price || product.unitPrice || product.price || 100) * (product.cluster_target_qty || 100),
+            quantity: qty,
+            target_qty: product.cluster_target_qty || 100,
             max_members: 5,
             creator_id: user.id,
             creator_name: user.name || "System",
             status: 'active',
             shipping_status: 'shipping not started yet',
+            shipping_mode: 'sea', // Default to recommended
+            destination: 'lagos', // Default
             created_at: new Date().toISOString()
           }])
           .select()

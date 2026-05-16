@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentUser } from "@/utils/mockAuth";
 import GlassCard from "@/components/GlassCard";
@@ -17,7 +17,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ClipboardCheck, UploadCloud, X, Image as ImageIcon, Video as VideoIcon, Upload } from "lucide-react";
+import { ArrowLeft, ClipboardCheck, UploadCloud, X, Image as ImageIcon, Video as VideoIcon, Upload, Package, Ruler, Scale } from "lucide-react";
+import { calculateUnitCBM } from "@/utils/cbm";
 
 type ProductFormState = {
   nameEN: string;
@@ -47,6 +48,14 @@ type ProductFormState = {
   whatsapp: string;
   warrantyMonths: string;
   quantityAvailable: string;
+  weight_kg: string;
+  length_cm: string;
+  width_cm: string;
+  height_cm: string;
+  has_battery: boolean;
+  requires_nafdac: boolean;
+  moq_price: string;
+  cluster_target_qty: string;
 };
 
 const initialFormState = (userName = "", userEmail = "", company = ""): ProductFormState => ({
@@ -77,6 +86,14 @@ const initialFormState = (userName = "", userEmail = "", company = ""): ProductF
   whatsapp: "",
   warrantyMonths: "12",
   quantityAvailable: "",
+  weight_kg: "",
+  length_cm: "",
+  width_cm: "",
+  height_cm: "",
+  has_battery: false,
+  requires_nafdac: false,
+  moq_price: "",
+  cluster_target_qty: "100",
 });
 
 const IndustryAddProperty = () => {
@@ -94,6 +111,13 @@ const IndustryAddProperty = () => {
   const [brochureFile, setBrochureFile] = useState<File | null>(null);
   const [options, setOptions] = useState({ oem: true, odm: true, customPackaging: true, sampleAvailable: true, certifications: { ce: true, rohs: true, iso9001: true, fcc: false, ccc: false } });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const unitCBM = useMemo(() => {
+    const l = parseFloat(formData.length_cm) || 0;
+    const w = parseFloat(formData.width_cm) || 0;
+    const h = parseFloat(formData.height_cm) || 0;
+    return calculateUnitCBM(l, w, h);
+  }, [formData.length_cm, formData.width_cm, formData.height_cm]);
 
   useEffect(() => {
     if (!user || (user.role !== "industry" && user.role !== "sourcing-agent")) {
@@ -270,13 +294,71 @@ const IndustryAddProperty = () => {
             </section>
           </GlassCard>
 
+          {/* Physical dimensions */}
+          <GlassCard className="p-4 sm:p-6 space-y-6">
+            <section className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg sm:text-xl font-semibold">Physical dimensions</h2>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Ruler className="w-4 h-4" /> Size and weight per unit
+                </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-4">
+                <div className="space-y-2">
+                  <Label htmlFor="weight_kg">Weight (kg)</Label>
+                  <div className="relative">
+                    <Scale className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input id="weight_kg" value={formData.weight_kg} onChange={handleChange("weight_kg")} required className="h-11 bg-background/60 pl-10" type="number" step="0.001" min="0" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="length_cm">Length (cm)</Label>
+                  <Input id="length_cm" value={formData.length_cm} onChange={handleChange("length_cm")} required className="h-11 bg-background/60" type="number" step="0.1" min="0" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="width_cm">Width (cm)</Label>
+                  <Input id="width_cm" value={formData.width_cm} onChange={handleChange("width_cm")} required className="h-11 bg-background/60" type="number" step="0.1" min="0" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="height_cm">Height (cm)</Label>
+                  <Input id="height_cm" value={formData.height_cm} onChange={handleChange("height_cm")} required className="h-11 bg-background/60" type="number" step="0.1" min="0" />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-6 items-end">
+                <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 flex flex-col justify-center min-w-[200px]">
+                  <span className="text-xs font-medium text-primary uppercase tracking-wider">CBM per unit</span>
+                  <span className="text-2xl font-bold text-primary">{unitCBM.toFixed(4)} m³</span>
+                </div>
+
+                <div className="flex items-center space-x-2 pb-2">
+                  <Switch 
+                    id="has_battery" 
+                    checked={formData.has_battery} 
+                    onCheckedChange={(v) => setFormData(p => ({ ...p, has_battery: v }))} 
+                  />
+                  <Label htmlFor="has_battery" className="cursor-pointer">Contains Battery</Label>
+                </div>
+
+                <div className="flex items-center space-x-2 pb-2">
+                  <Switch 
+                    id="requires_nafdac" 
+                    checked={formData.requires_nafdac} 
+                    onCheckedChange={(v) => setFormData(p => ({ ...p, requires_nafdac: v }))} 
+                  />
+                  <Label htmlFor="requires_nafdac" className="cursor-pointer">Requires NAFDAC</Label>
+                </div>
+              </div>
+            </section>
+          </GlassCard>
+
           {/* Trade info */}
           <GlassCard className="p-4 sm:p-6 space-y-6">
             <section className="space-y-4">
               <h2 className="text-lg sm:text-xl font-semibold">Trade information</h2>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label>Unit price</Label>
+                  <Label>Retail Unit price (Below MOQ)</Label>
                   <div className="grid grid-cols-3 gap-2">
                     <Select value={formData.currency} onValueChange={(v: ProductFormState["currency"]) => setFormData((p) => ({ ...p, currency: v }))}>
                       <SelectTrigger className="h-11 bg-background/60"><SelectValue /></SelectTrigger>
@@ -286,11 +368,11 @@ const IndustryAddProperty = () => {
                         <SelectItem value="NGN">NGN (₦)</SelectItem>
                       </SelectContent>
                     </Select>
-                    <Input value={formData.unitPrice} onChange={handleChange("unitPrice")} className="col-span-2 h-11 bg-background/60" type="number" min="0" />
+                    <Input value={formData.unitPrice} onChange={handleChange("unitPrice")} required className="col-span-2 h-11 bg-background/60" type="number" min="0" />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Unit</Label>
+                  <Label>Unit Type</Label>
                   <Select value={formData.unit} onValueChange={(v) => setFormData((p) => ({ ...p, unit: v }))}>
                     <SelectTrigger className="h-11 bg-background/60"><SelectValue /></SelectTrigger>
                     <SelectContent>
@@ -302,8 +384,23 @@ const IndustryAddProperty = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="moq">MOQ</Label>
-                  <Input id="moq" value={formData.moq} onChange={handleChange("moq")} className="h-11 bg-background/60" type="number" min="1" />
+                  <Label htmlFor="moq">MOQ (Minimum Order Quantity)</Label>
+                  <Input id="moq" value={formData.moq} onChange={handleChange("moq")} required className="h-11 bg-background/60" type="number" min="1" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="moq_price">MOQ Price (Per unit when ≥ MOQ)</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-3 text-muted-foreground font-medium">
+                      {formData.currency === 'USD' ? '$' : formData.currency === 'CNY' ? '¥' : '₦'}
+                    </span>
+                    <Input id="moq_price" value={formData.moq_price} onChange={handleChange("moq_price")} required className="h-11 bg-background/60 pl-8" type="number" min="0" />
+                  </div>
+                  <p className="text-xs text-muted-foreground italic">MOQ price activates when the cluster's combined order reaches your MOQ.</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cluster_target_qty">Cluster Target Quantity</Label>
+                  <Input id="cluster_target_qty" value={formData.cluster_target_qty} onChange={handleChange("cluster_target_qty")} required className="h-11 bg-background/60" type="number" min="1" />
+                  <p className="text-xs text-muted-foreground italic">Suggested target quantity for clusters to reach.</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="supplyAbilityPerMonth">Supply ability (per month)</Label>

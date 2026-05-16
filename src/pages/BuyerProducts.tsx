@@ -320,13 +320,11 @@ const BuyerProducts = () => {
             </div>
 
             <div className="space-y-2">
-              <p className="text-sm font-medium">Shipping Method</p>
+              <p className="text-sm font-medium">Shipping Mode</p>
               <RadioGroup value={shippingMethod} onValueChange={setShippingMethod}>
                 <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="Any" /> <span>Any</span></label>
-                <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="FedEx" /> <span>FedEx</span></label>
-                <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="Sea Freight" /> <span>Sea Freight</span></label>
-                <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="Air Freight" /> <span>Air Freight</span></label>
-                <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="Express" /> <span>Express</span></label>
+                <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="Sea" /> <span>Sea Shipping</span></label>
+                <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="Air" /> <span>Air Shipping</span></label>
               </RadioGroup>
             </div>
 

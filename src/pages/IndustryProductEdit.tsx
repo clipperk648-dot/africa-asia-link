@@ -11,8 +11,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, PencilLine, BarChart3, UploadCloud, X, Image as ImageIcon, Video as VideoIcon, Upload } from "lucide-react";
+import { ArrowLeft, PencilLine, BarChart3, UploadCloud, X, Image as ImageIcon, Video as VideoIcon, Upload, Ruler, Scale } from "lucide-react";
 import ThreeBackground from "@/components/ThreeBackground";
+import { calculateUnitCBM } from "@/utils/cbm";
 
 
 const IndustryProductEdit = () => {
@@ -66,13 +67,81 @@ const IndustryProductEdit = () => {
       fcc: product?.certifications?.includes("FCC") || false,
       ccc: product?.certifications?.includes("CCC") || false,
     },
+    weight_kg: String(product?.weight_kg ?? ""),
+    length_cm: String(product?.length_cm ?? ""),
+    width_cm: String(product?.width_cm ?? ""),
+    height_cm: String(product?.height_cm ?? ""),
+    has_battery: !!product?.has_battery,
+    requires_nafdac: !!product?.requires_nafdac,
+    moq_price: String(product?.moq_price ?? ""),
+    cluster_target_qty: String(product?.cluster_target_qty ?? "100"),
   }));
+
+  useEffect(() => {
+    if (product) {
+      setForm({
+        nameEN: product.name || "",
+        nameZH: product.nameZH || "",
+        category: product.category?.toLowerCase() || "machinery",
+        hsCode: product.hsCode || "",
+        brand: product.brand || "",
+        model: product.model || "",
+        originCountry: product.originCountry || "China",
+        province: product.province || "",
+        city: product.city || "",
+        unit: product.unit || "piece",
+        unitPrice: String(product.unitPrice ?? product.price ?? ""),
+        currency: (product.currency as any) || "USD",
+        moq: String(product.moq ?? ""),
+        supplyAbilityPerMonth: String(product.supplyAbilityPerMonth ?? ""),
+        quantityAvailable: String(product.quantityAvailable ?? ""),
+        leadTimeDays: String(product.leadTimeDays ?? ""),
+        incoterm: product.incoterm || "FOB",
+        portOfShipment: product.portOfShipment || "",
+        description: product.description || "",
+        specifications: (product.specifications || []).join("\n"),
+        companyName: product.company || "",
+        contactName: product.contactName || "",
+        contactEmail: product.contactEmail || "",
+        contactPhone: product.contactPhone || "",
+        wechat: product.wechat || "",
+        whatsapp: product.whatsapp || "",
+        warrantyMonths: String(product.warrantyMonths ?? ""),
+        oem: !!product.oemAvailable,
+        odm: !!product.odmAvailable,
+        customPackaging: !!product.customPackaging,
+        sampleAvailable: !!product.sampleAvailable,
+        certifications: {
+          ce: product.certifications?.includes("CE") || false,
+          rohs: product.certifications?.includes("RoHS") || false,
+          iso9001: product.certifications?.includes("ISO9001") || false,
+          fcc: product.certifications?.includes("FCC") || false,
+          ccc: product.certifications?.includes("CCC") || false,
+        },
+        weight_kg: String(product.weight_kg ?? ""),
+        length_cm: String(product.length_cm ?? ""),
+        width_cm: String(product.width_cm ?? ""),
+        height_cm: String(product.height_cm ?? ""),
+        has_battery: !!product.has_battery,
+        requires_nafdac: !!product.requires_nafdac,
+        moq_price: String(product.moq_price ?? ""),
+        cluster_target_qty: String(product.cluster_target_qty ?? "100"),
+      });
+    }
+  }, [product]);
 
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>(() => (product?.images || (product?.image ? [product.image] : [])) as string[]);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [brochureFile, setBrochureFile] = useState<File | null>(null);
+
+  const unitCBM = useMemo(() => {
+    const l = parseFloat(form.length_cm) || 0;
+    const w = parseFloat(form.width_cm) || 0;
+    const h = parseFloat(form.height_cm) || 0;
+    return calculateUnitCBM(l, w, h);
+  }, [form.length_cm, form.width_cm, form.height_cm]);
 
   const handle = (key: keyof typeof form) => (e: any) => setForm((p) => ({ ...p, [key]: e.target ? e.target.value : e }));
 
@@ -222,12 +291,71 @@ const IndustryProductEdit = () => {
           </section>
         </GlassCard>
 
+        {/* Physical dimensions */}
+        <GlassCard className="p-4 sm:p-6 space-y-6">
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg sm:text-xl font-semibold">Physical dimensions</h2>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Ruler className="w-4 h-4" /> Size and weight per unit
+              </div>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-4">
+              <div className="space-y-2">
+                <Label htmlFor="weight_kg">Weight (kg)</Label>
+                <div className="relative">
+                  <Scale className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input id="weight_kg" value={form.weight_kg} onChange={handle("weight_kg")} required className="h-11 bg-background/60 pl-10" type="number" step="0.001" min="0" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="length_cm">Length (cm)</Label>
+                <Input id="length_cm" value={form.length_cm} onChange={handle("length_cm")} required className="h-11 bg-background/60" type="number" step="0.1" min="0" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="width_cm">Width (cm)</Label>
+                <Input id="width_cm" value={form.width_cm} onChange={handle("width_cm")} required className="h-11 bg-background/60" type="number" step="0.1" min="0" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="height_cm">Height (cm)</Label>
+                <Input id="height_cm" value={form.height_cm} onChange={handle("height_cm")} required className="h-11 bg-background/60" type="number" step="0.1" min="0" />
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-6 items-end">
+              <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 flex flex-col justify-center min-w-[200px]">
+                <span className="text-xs font-medium text-primary uppercase tracking-wider">CBM per unit</span>
+                <span className="text-2xl font-bold text-primary">{unitCBM.toFixed(4)} m³</span>
+              </div>
+
+              <div className="flex items-center space-x-2 pb-2">
+                <Switch 
+                  id="has_battery" 
+                  checked={form.has_battery} 
+                  onCheckedChange={(v) => setForm(p => ({ ...p, has_battery: v }))} 
+                />
+                <Label htmlFor="has_battery" className="cursor-pointer">Contains Battery</Label>
+              </div>
+
+              <div className="flex items-center space-x-2 pb-2">
+                <Switch 
+                  id="requires_nafdac" 
+                  checked={form.requires_nafdac} 
+                  onCheckedChange={(v) => setForm(p => ({ ...p, requires_nafdac: v }))} 
+                />
+                <Label htmlFor="requires_nafdac" className="cursor-pointer">Requires NAFDAC</Label>
+              </div>
+            </div>
+          </section>
+        </GlassCard>
+
         {/* Trade information */}
         <GlassCard className="p-4 sm:p-6 space-y-6">
           <section className="space-y-4">
+            <h2 className="text-lg sm:text-xl font-semibold">Trade information</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Unit price</Label>
+                <Label>Retail Unit price (Below MOQ)</Label>
                 <div className="grid grid-cols-3 gap-2">
                   <Select value={form.currency as any} onValueChange={(v) => setForm((p) => ({ ...p, currency: v as any }))}>
                     <SelectTrigger className="h-11 bg-background/50"><SelectValue /></SelectTrigger>
@@ -241,7 +369,7 @@ const IndustryProductEdit = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Unit</Label>
+                <Label>Unit Type</Label>
                 <Select value={form.unit} onValueChange={(v) => setForm((p) => ({ ...p, unit: v }))}>
                   <SelectTrigger className="h-11 bg-background/50"><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -253,8 +381,23 @@ const IndustryProductEdit = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="moq">MOQ</Label>
+                <Label htmlFor="moq">MOQ (Minimum Order Quantity)</Label>
                 <Input id="moq" value={form.moq} onChange={handle("moq")} className="h-11 bg-background/50" type="number" min="1" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="moq_price">MOQ Price (Per unit when ≥ MOQ)</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-3 text-muted-foreground font-medium">
+                    {form.currency === 'USD' ? '$' : form.currency === 'CNY' ? '¥' : '₦'}
+                  </span>
+                  <Input id="moq_price" value={form.moq_price} onChange={handle("moq_price")} required className="h-11 bg-background/60 pl-8" type="number" min="0" />
+                </div>
+                <p className="text-xs text-muted-foreground italic">MOQ price activates when the cluster's combined order reaches your MOQ.</p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cluster_target_qty">Cluster Target Quantity</Label>
+                <Input id="cluster_target_qty" value={form.cluster_target_qty} onChange={handle("cluster_target_qty")} required className="h-11 bg-background/60" type="number" min="1" />
+                <p className="text-xs text-muted-foreground italic">Suggested target quantity for clusters to reach.</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="supplyAbilityPerMonth">Supply ability (per month)</Label>
