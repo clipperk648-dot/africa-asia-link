@@ -16,12 +16,14 @@ import {
   Phone, 
   User,
   Trash2,
+  Info
+} from "lucide-react";
+import { 
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-  Info
-} from "lucide-react";
+} from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import {
   Table,

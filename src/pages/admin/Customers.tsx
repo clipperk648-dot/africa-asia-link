@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useClusters, useUsers } from "@/hooks/useData";
+import { useClusters, useAllUsers as useUsers } from "@/hooks/useData";
 import GlassCard from "@/components/GlassCard";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -12,13 +12,15 @@ import {
   Phone, 
   User,
   Trash2,
+  Info,
+  Filter
+} from "lucide-react";
+import { 
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-  Info,
-  Filter
-} from "lucide-react";
+} from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import {
   Table,
