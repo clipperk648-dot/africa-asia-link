@@ -15,6 +15,8 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { getSafeImageUrl, createImageErrorHandler } from "@/utils/imageOptimization";
 
+import { Cluster } from "@/types/models";
+
 const CATEGORIES = [
   "All",
   "Watches",
@@ -114,7 +116,7 @@ const BuyerProducts = () => {
 
   const handleJoinCluster = async (productId: string, productName: string) => {
     // Check if cluster exists
-    const existingCluster = clusters.find((c: any) => c.targetProductId === productId);
+    const existingCluster = clusters.find((c: Cluster) => c.targetProductId === productId);
     if (existingCluster) {
       toast.success(`Joining cluster for ${productName}`);
       navigate(`/cluster/${existingCluster.id}`);
@@ -135,7 +137,10 @@ const BuyerProducts = () => {
           creatorId: user?.id,
           creatorName: user?.name || "Buyer",
         });
-        navigate(`/cluster/${(newCluster as any).id}`);
+        
+        if (newCluster && typeof newCluster === 'object' && 'id' in newCluster) {
+          navigate(`/cluster/${(newCluster as { id: string }).id}`);
+        }
       } catch (error) {
         toast.error("Failed to auto-create cluster");
       }
@@ -245,11 +250,17 @@ const BuyerProducts = () => {
                     <span className="text-xs px-2 py-1 rounded-full bg-muted/60">Incoterm: {product.incoterm}</span>
                   )}
                 </div>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-4 gap-3">
-                  <p className="text-2xl font-bold text-primary">
-                    {product.currency || "USD"} {product.price.toLocaleString()}
-                  </p>
-                  <div className="flex gap-2 w-full sm:w-auto">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-4 gap-3">
+                    <div className="space-y-1">
+                      <p className="text-2xl font-bold text-primary">
+                        {product.currency || "USD"} {product.price.toLocaleString()}
+                      </p>
+                      <div className="flex gap-2">
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-500 border border-green-500/20 font-bold uppercase">Sea (Recommended)</span>
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500 border border-blue-500/20 font-bold uppercase">Air</span>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 w-full sm:w-auto">
                     <Button
                       variant="outline"
                       size="xs"
@@ -288,7 +299,7 @@ const BuyerProducts = () => {
 
             <div className="space-y-2">
               <p className="text-sm font-medium">Price</p>
-              <RadioGroup value={priceTier} onValueChange={(v) => setPriceTier(v as any)}>
+              <RadioGroup value={priceTier} onValueChange={(v) => setPriceTier(v as "none" | "cheap" | "expensive")}>
                 <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="none" /> <span>Any</span></label>
                 <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="cheap" /> <span>Cheap (≤ median)</span></label>
                 <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="expensive" /> <span>Expensive (≥ median)</span></label>
@@ -298,7 +309,7 @@ const BuyerProducts = () => {
 
             <div className="space-y-2">
               <p className="text-sm font-medium">Quantity</p>
-              <RadioGroup value={qtyTier} onValueChange={(v) => setQtyTier(v as any)}>
+              <RadioGroup value={qtyTier} onValueChange={(v) => setQtyTier(v as "none" | "large" | "small")}>
                 <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="none" /> <span>Any</span></label>
                 <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="large" /> <span>Large (≥ median)</span></label>
                 <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="small" /> <span>Small (&lt; median)</span></label>

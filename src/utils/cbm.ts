@@ -1,5 +1,5 @@
 
-export const EXCHANGE_RATE = 1450;
+export const EXCHANGE_RATE = 1650;
 export const CONSOLIDATION_FEE_USD = 30;
 export const BATTERY_SURCHARGE_USD = 80;
 export const NAFDAC_SURCHARGE_USD = 35;
@@ -7,9 +7,9 @@ export const BULK_DISCOUNT_THRESHOLD_CBM = 10;
 export const BULK_DISCOUNT_AMOUNT_NGN = 5000;
 
 export const DESTINATION_RATES: Record<string, number> = {
-  aba_port_harcourt: 465000,
-  lagos: 450000,
-  onitsha: 475000,
+  aba_port_harcourt: 245 * 1650, // 404,250 NGN
+  lagos: 210 * 1650,           // 346,500 NGN
+  onitsha: 245 * 1650,         // 404,250 NGN
 };
 
 export const calculateUnitCBM = (lengthCm: number, widthCm: number, heightCm: number): number => {
@@ -28,6 +28,10 @@ export interface ShippingCostBreakdown {
   bulkDiscount: number;
   totalShippingCost: number;
 }
+
+export const calculateAirShippingCost = (weightKg: number): number => {
+  return (weightKg * 5.5 * EXCHANGE_RATE) + (weightKg * 1200);
+};
 
 export const calculateSeaShippingCost = (
   cbm: number,
