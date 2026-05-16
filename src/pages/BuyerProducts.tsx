@@ -114,9 +114,13 @@ const BuyerProducts = () => {
 
   const scrollBy = (delta: number) => scrollerRef.current?.scrollBy({ left: delta, behavior: "smooth" });
 
-  const handleJoinCluster = async (productId: string, productName: string) => {
+  const handleJoinCluster = async (productId: string, productName: string, productData?: Product) => {
     // Check if cluster exists
-    const existingCluster = clusters.find((c: Cluster) => c.targetProductId === productId);
+    const existingCluster = (clusters as Cluster[]).find((c) => 
+      (c.targetProductId === productId || c.target_product_id === productId) && 
+      (c.status === 'active' || (c.status as string) === 'open')
+    );
+    
     if (existingCluster) {
       toast.success(`Joining cluster for ${productName}`);
       navigate(`/cluster/${existingCluster.id}`);
@@ -124,24 +128,33 @@ const BuyerProducts = () => {
       // Auto-create cluster
       toast.info(`No cluster found for ${productName}. Creating one...`);
       try {
+        const targetPrice = productData ? 
+          (productData.moq_price || productData.unitPrice || productData.price || 0) * (productData.cluster_target_qty || 100) : 0;
+        
         const newCluster = await createClusterMutation.mutateAsync({
-          name: `Cluster for ${productName}`,
+          name: `${productName} Cluster`,
           description: `Automatically created cluster for ${productName}`,
           targetProductId: productId,
           targetProductName: productName,
-          targetPrice: 0, 
-          minOrderAmount: 0,
+          targetPrice: targetPrice, 
+          minOrderAmount: productData?.moq || 0,
           quantity: 1,
-          maxMembers: 5,
-          preferredShippingMethod: "Standard",
+          target_qty: productData?.cluster_target_qty || 100,
+          maxMembers: 10,
+          preferredShippingMethod: "Sea",
           creatorId: user?.id,
           creatorName: user?.name || "Buyer",
-        });
+          status: 'active',
+          shipping_status: 'shipping not started yet',
+          shipping_mode: 'sea',
+          destination: 'lagos'
+        } as Partial<Cluster>);
         
         if (newCluster && typeof newCluster === 'object' && 'id' in newCluster) {
           navigate(`/cluster/${(newCluster as { id: string }).id}`);
         }
       } catch (error) {
+        console.error("Failed to auto-create cluster:", error);
         toast.error("Failed to auto-create cluster");
       }
     }
@@ -216,74 +229,77 @@ const BuyerProducts = () => {
             </Button>
           </GlassCard>
         )}
-        {filtered.map((product) => (
-          <GlassCard key={product.id}>
-            <div className="flex flex-col md:flex-row gap-4">
-              <img
-                src={getSafeImageUrl(product.image)}
-                alt={product.name}
-                loading="lazy"
-                onError={createImageErrorHandler()}
-                className="w-full md:w-40 h-40 object-cover rounded-lg"
-              />
-              <div className="flex-1">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold text-xl">{product.name}</h3>
-                    <p className="text-sm text-muted-foreground">{product.company}</p>
-                    <p className="text-sm text-muted-foreground mt-1">{product.category}</p>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-accent text-accent" />
-                    <span className="font-medium">{product.rating}</span>
-                  </div>
+        {filtered.map((product) => {
+          const hasCluster = (clusters as Cluster[]).some((c) => (c.targetProductId === product.id || c.target_product_id === product.id) && (c.status === 'active' || (c.status as string) === 'open'));
+          
+          return (
+            <GlassCard key={product.id}>
+              <div className="flex flex-col sm:flex-row gap-4 p-2 sm:p-0">
+                <div className="w-full sm:w-40 h-48 sm:h-40 shrink-0">
+                  <img
+                    src={getSafeImageUrl(product.image)}
+                    alt={product.name}
+                    loading="lazy"
+                    onError={createImageErrorHandler()}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
                 </div>
-                <p className="text-sm text-muted-foreground mt-2">{product.location}</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {product.moq && (
-                    <span className="text-xs px-2 py-1 rounded-full bg-muted/60">MOQ: {product.moq} {product.unit || "pc"}</span>
-                  )}
-                  {typeof product.quantityAvailable === 'number' && (
-                    <span className="text-xs px-2 py-1 rounded-full bg-muted/60">Available: {product.quantityAvailable}</span>
-                  )}
-                  {product.incoterm && (
-                    <span className="text-xs px-2 py-1 rounded-full bg-muted/60">Incoterm: {product.incoterm}</span>
-                  )}
-                </div>
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-4 gap-3">
-                    <div className="space-y-1">
-                      <p className="text-2xl font-bold text-primary">
-                        {product.currency || "USD"} {product.price.toLocaleString()}
-                      </p>
-                      <div className="flex gap-2">
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-500 border border-green-500/20 font-bold uppercase">Sea (Recommended)</span>
-                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500 border border-blue-500/20 font-bold uppercase">Air</span>
-                      </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-lg sm:text-xl truncate">{product.name}</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground truncate">{product.company}</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">{product.category}</p>
                     </div>
-                    <div className="flex gap-2 w-full sm:w-auto">
-                    <Button
-                      variant="outline"
-                      size="xs"
-                      className="flex-1 sm:flex-none"
-                      onClick={() => navigate(`/buyer/products/${product.id}`)}
-                    >
-                      Details
-                    </Button>
-                    <Button
-                      variant="gradient"
-                      size="xs"
-                      className="flex-1 sm:flex-none"
-                      onClick={() => handleJoinCluster(product.id, product.name)}
-                    >
-                      <Users2 className="w-4 h-4 mr-1" />
-                      Join Cluster
-                    </Button>
+                    <div className="flex items-center gap-1 shrink-0 bg-accent/10 px-2 py-1 rounded-lg">
+                      <Star className="w-3.5 h-3.5 fill-accent text-accent" />
+                      <span className="font-medium text-sm">{product.rating}</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2 truncate">{product.location}</p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {product.moq && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted/60 border border-border/50">MOQ: {product.moq} {product.unit || "pc"}</span>
+                    )}
+                    {typeof product.quantityAvailable === 'number' && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted/60 border border-border/50">Available: {product.quantityAvailable}</span>
+                    )}
+                  </div>
+                    <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between mt-4 gap-3">
+                      <div className="space-y-1">
+                        <p className="text-xl sm:text-2xl font-bold text-primary">
+                          {product.currency || "USD"} {product.price.toLocaleString()}
+                        </p>
+                        <div className="flex gap-1.5">
+                          <span className="text-[8px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-500 border border-green-500/20 font-bold uppercase tracking-tight">Sea (Rec.)</span>
+                          <span className="text-[8px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-500 border border-blue-500/20 font-bold uppercase tracking-tight">Air</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 w-full xs:w-auto">
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        className="flex-1 xs:flex-none h-9 text-xs"
+                        onClick={() => navigate(`/buyer/products/${product.id}`)}
+                      >
+                        Details
+                      </Button>
+                      <Button
+                        variant="gradient"
+                        size="xs"
+                        className="flex-1 xs:flex-none h-9 text-xs"
+                        onClick={() => handleJoinCluster(product.id, product.name, product)}
+                      >
+                        <Users2 className="w-3.5 h-3.5 mr-1.5" />
+                        {hasCluster ? "Join Cluster" : "Create Cluster"}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </GlassCard>
-        ))}
+            </GlassCard>
+          );
+        })}
       </main>
 
       <FooterNav dashboardType="buyer" />

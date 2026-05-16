@@ -178,6 +178,11 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
             <Link to="/admin/settings" className="p-2 rounded-full hover:bg-white/10 transition-colors text-muted-foreground hover:text-white">
               <Settings className="w-5 h-5" />
             </Link>
+            <div className="h-8 w-px bg-border/50"></div>
+            <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300 hover:bg-red-400/10 gap-2 font-bold uppercase text-[10px] tracking-widest" onClick={handleLogout}>
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </Button>
           </div>
         </div>
 

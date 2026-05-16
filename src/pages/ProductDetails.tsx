@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getCurrentUser } from "@/utils/mockAuth";
-import { useProduct } from "@/hooks/useData";
+import { useAuth } from "@/hooks/useAuth";
+import { useProduct, useClusters, useCreateClusterMutation } from "@/hooks/useData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
 import { Button } from "@/components/ui/button";
@@ -36,8 +36,18 @@ import { Ruler, Weight, Battery, ShieldAlert, Zap } from "lucide-react";
 const ProductDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const user = getCurrentUser();
+  const { user } = useAuth();
   const { data: product } = useProduct(id);
+  const { data: clusters = [] } = useClusters();
+  const createClusterMutation = useCreateClusterMutation();
+
+  const hasActiveCluster = useMemo(() => {
+    if (!id) return false;
+    return (clusters as Cluster[]).some((c) => 
+      (c.targetProductId === id || c.target_product_id === id) && 
+      (c.status === 'active' || (c.status as string) === 'open')
+    );
+  }, [clusters, id]);
 
   const images = product?.images || [product?.image].filter(Boolean) as string[];
   const media = useMemo(() => {
@@ -94,47 +104,53 @@ const ProductDetails = () => {
     api?.scrollTo(idx);
   };
 
+  const createClusterMutation = useCreateClusterMutation();
+
   const handleJoinCluster = async () => {
+    if (!user) {
+      toast.error("Please login to join a cluster");
+      navigate("/login");
+      return;
+    }
     try {
       // Check if a cluster already exists for this product
-      const { data: existingClusters } = await supabase
-        .from('clusters')
-        .select('*')
-        .eq('target_product_id', product.id)
-        .eq('status', 'active')
-        .limit(1);
+      const existingCluster = (clusters as Cluster[]).find((c) => 
+        (c.targetProductId === id || c.target_product_id === id) && 
+        (c.status === 'active' || (c.status as string) === 'open')
+      );
 
       let clusterId;
 
-      if (existingClusters && existingClusters.length > 0) {
-        clusterId = existingClusters[0].id;
+      if (existingCluster) {
+        clusterId = existingCluster.id;
       } else {
         // Create a new cluster automatically
-        const { data: newCluster, error: createError } = await supabase
-          .from('clusters')
-          .insert([{
-            name: `${product.name} Cluster`,
-            description: `Automatic cluster for ${product.name}`,
-            target_product_id: product.id,
-            target_product_name: product.name,
-            target_price: (product.moq_price || product.unitPrice || product.price || 100) * (product.cluster_target_qty || 100),
-            quantity: qty,
-            target_qty: product.cluster_target_qty || 100,
-            max_members: 5,
-            creator_id: user.id,
-            creator_name: user.name || "System",
-            status: 'active',
-            shipping_status: 'shipping not started yet',
-            shipping_mode: 'sea', // Default to recommended
-            destination: 'lagos', // Default
-            created_at: new Date().toISOString()
-          }])
-          .select()
-          .single();
+        toast.info("No cluster found. Creating one for you...");
+        const targetPrice = (product.moq_price || product.unitPrice || product.price || 100) * (product.cluster_target_qty || 100);
+        
+        const newCluster = await createClusterMutation.mutateAsync({
+          name: `${product.name} Cluster`,
+          description: `Automatic cluster for ${product.name}`,
+          targetProductId: product.id,
+          targetProductName: product.name,
+          targetPrice: targetPrice,
+          quantity: qty,
+          target_qty: product.cluster_target_qty || 100,
+          maxMembers: 10,
+          creatorId: user.id,
+          creatorName: user.name || "System",
+          status: 'active',
+          shipping_status: 'shipping not started yet',
+          shipping_mode: 'sea',
+          destination: 'lagos'
+        });
 
-        if (createError) throw createError;
-        clusterId = newCluster.id;
-        toast.success("New cluster created for this product!");
+        if (newCluster && typeof newCluster === 'object' && 'id' in newCluster) {
+          clusterId = (newCluster as { id: string }).id;
+          toast.success("New cluster created for this product!");
+        } else {
+          throw new Error("Failed to create cluster");
+        }
       }
 
       navigate(`/cluster/${clusterId}`);
@@ -277,7 +293,7 @@ const ProductDetails = () => {
               </div>
               <div className="grid grid-cols-1 gap-2">
                 <Button className="w-full gap-2" onClick={handleJoinCluster}>
-                  <Users2 className="w-4 h-4" /> Join Cluster
+                  <Users2 className="w-4 h-4" /> {hasActiveCluster ? "Join Cluster" : "Create Cluster"}
                 </Button>
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -310,11 +326,11 @@ const ProductDetails = () => {
         </div>
 
         {/* Product Overview */}
-        <GlassCard className="p-6 lg:p-8">
+        <GlassCard className="p-4 sm:p-6 lg:p-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
             <div>
-              <h2 className="text-2xl font-bold mb-1">{product.name}</h2>
-              {product.nameZH && <p className="text-muted-foreground text-lg">{product.nameZH}</p>}
+              <h2 className="text-xl sm:text-2xl font-bold mb-1">{product.name}</h2>
+              {product.nameZH && <p className="text-muted-foreground text-base sm:text-lg">{product.nameZH}</p>}
             </div>
             {product.moq_price && (
               <div className="bg-primary/10 border border-primary/20 p-3 rounded-xl">
@@ -330,11 +346,11 @@ const ProductDetails = () => {
           <p className="text-muted-foreground mb-6 leading-relaxed">{product.description}</p>
 
           {/* Logistics Info */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
             <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Ruler className="w-4 h-4" />
-                <span className="text-xs font-bold uppercase tracking-widest">Dimensions & Volume</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest">Dimensions & Volume</span>
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-semibold">
@@ -378,7 +394,7 @@ const ProductDetails = () => {
           </div>
 
           {/* Key Trading Info */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {product.moq && (
               <div className="p-4 bg-muted/50 rounded-lg">
                 <p className="text-xs text-muted-foreground mb-1">MOQ</p>
@@ -408,9 +424,9 @@ const ProductDetails = () => {
 
         {/* Specifications */}
         {product.specifications && product.specifications.length > 0 && (
-          <GlassCard className="p-6 lg:p-8">
-            <h3 className="text-xl font-bold mb-4">Key Specifications</h3>
-            <div className="grid md:grid-cols-2 gap-3">
+          <GlassCard className="p-4 sm:p-6 lg:p-8">
+            <h3 className="text-lg sm:text-xl font-bold mb-4">Key Specifications</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {product.specifications.map((spec, idx) => (
                 <div key={idx} className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg">
                   <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
@@ -533,9 +549,9 @@ const ProductDetails = () => {
         </div>
 
         {/* Contact Information */}
-        <GlassCard className="p-6 lg:p-8">
-          <h3 className="text-xl font-bold mb-6">Contact Information</h3>
-          <div className="grid md:grid-cols-2 gap-8">
+        <GlassCard className="p-4 sm:p-6 lg:p-8">
+          <h3 className="text-lg sm:text-xl font-bold mb-6">Contact Information</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <h4 className="font-semibold mb-4">Seller Details</h4>
               <div className="space-y-4">
