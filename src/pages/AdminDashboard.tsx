@@ -21,11 +21,12 @@ const AdminDashboard = () => {
     const activeOrders = Array.isArray(ordersList) ? ordersList.filter((o) => o.status === 'pending').length : 0;
     const totalRevenue = Array.isArray(ordersList) ? ordersList.reduce((sum, o) => sum + (o.total || 0), 0) : 0;
     const totalUsers = Array.isArray(users) ? users.length : 0;
+    const totalBuyers = Array.isArray(users) ? users.filter(u => u.role === 'buyer').length : 0;
 
     return [
-      { label: "Products", value: String(Array.isArray(productsList) ? productsList.length : 0), icon: Package, color: "text-blue-400" },
+      { label: "Total Buyers", value: String(totalBuyers), icon: Users, color: "text-blue-400" },
       { label: "Active Orders", value: String(activeOrders), icon: ShoppingCart, color: "text-emerald-400" },
-      { label: "Revenue", value: `$${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-amber-400" },
+      { label: "Revenue", value: `${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-amber-400" },
       { label: "Total Users", value: String(totalUsers), icon: Users, color: "text-purple-400" },
     ];
   }, [products, orders, users]);
@@ -96,7 +97,7 @@ const AdminDashboard = () => {
                         <Package className="w-4 h-4" />
                       </div>
                       <div className="min-w-0">
-                        <p className="font-bold text-white text-sm truncate">{order.productName || `Order #${order.id.slice(0,8)}`}</p>
+                        <p className="font-bold text-white text-sm truncate">{order.product_name || `Order #${order.id.slice(0,8)}`}</p>
                         <p className="text-[10px] text-muted-foreground mt-0.5">Order ID: {order.id.slice(0,16)}...</p>
                       </div>
                     </div>
@@ -151,7 +152,7 @@ const AdminDashboard = () => {
                 </Link>
               </div>
               <div className="space-y-3">
-                {(users as User[]).slice(0, 4).map((u) => (
+                {(users as User[]).slice(0, 3).map((u) => (
                   <div key={u.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
                     <Avatar className="h-8 w-8 border border-white/10">
                       <AvatarFallback className="bg-purple-500/10 text-purple-400 text-[10px]">

@@ -65,8 +65,8 @@ const AdminSupplierProducts = () => {
   const [editData, setEditData] = useState<SupplierProduct | null>(null);
 
   const filteredProducts = (products as SupplierProduct[]).filter(p => {
-    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         p.supplier_name?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (p.title || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         (p.supplier_name || "").toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === "all" || p.status === statusFilter;
     const matchesCategory = !categoryFilter || p.category === categoryFilter;
     return matchesSearch && matchesStatus && matchesCategory;
