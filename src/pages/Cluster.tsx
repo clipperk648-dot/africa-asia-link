@@ -11,9 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ThreeBackground from "@/components/ThreeBackground";
-import { Crown, MessageCircle, Users, Clock, Search, Filter } from "lucide-react";
+import { ShippingModeSelector } from "@/components/ShippingModeSelector";
+import { Crown, MessageCircle, Users, Clock, Search, Filter, Ship, Plane, Ruler, Info } from "lucide-react";
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { calculateUnitCBM, calculateTotalCBM, calculateSeaShippingCost, EXCHANGE_RATE } from "@/utils/cbm";
 
 const Cluster = () => {
   const navigate = useNavigate();
@@ -33,14 +35,74 @@ const Cluster = () => {
     name: "",
     description: "",
     maxMembers: "5",
-    preferredShippingMethod: "Standard",
+    shipping_mode: "sea" as "sea" | "air",
+    destination: "lagos" as any,
     productId: "",
   });
 
   const [joinFormData, setJoinFormData] = useState({
-    quantity: "",
-    amount: "",
+    quantity: "1",
   });
+
+  const selectedCluster = useMemo(() => {
+    return clusters.find((c: any) => c.id === selectedClusterId);
+  }, [clusters, selectedClusterId]);
+
+  const selectedProduct = useMemo(() => {
+    if (!selectedCluster) return null;
+    return allProducts.find((p: any) => p.id === selectedCluster.targetProductId);
+  }, [allProducts, selectedCluster]);
+
+  const joinCalculation = useMemo(() => {
+    if (!selectedProduct || !selectedCluster) return null;
+    
+    const qty = parseInt(joinFormData.quantity) || 0;
+    const unitCBM = calculateUnitCBM(
+      selectedProduct.length_cm || 0,
+      selectedProduct.width_cm || 0,
+      selectedProduct.height_cm || 0
+    );
+    const totalCBM = calculateTotalCBM(unitCBM, qty);
+    
+    const clusterTotalCBM = (selectedCluster.total_cbm || 0) + totalCBM;
+    
+    // MOQ Price Logic
+    const currentClusterQty = (selectedCluster.quantity || 0) + qty;
+    const effectivePrice = selectedProduct.moq && currentClusterQty >= selectedProduct.moq
+      ? (selectedProduct.moq_price || selectedProduct.price)
+      : (selectedProduct.unitPrice || selectedProduct.price);
+    
+    const productCost = effectivePrice * qty;
+    
+    let shippingCost = 0;
+    let shippingBreakdown = null;
+    
+    if (selectedCluster.shipping_mode === 'sea') {
+      shippingBreakdown = calculateSeaShippingCost(
+        totalCBM,
+        selectedCluster.destination || 'lagos',
+        selectedProduct.has_battery,
+        selectedProduct.requires_nafdac,
+        clusterTotalCBM
+      );
+      shippingCost = shippingBreakdown.totalShippingCost;
+    } else {
+      // Air shipping - rate calculated at checkout
+      shippingCost = 0;
+    }
+    
+    return {
+      unitCBM,
+      totalCBM,
+      productCost,
+      shippingCost,
+      shippingBreakdown,
+      effectivePrice,
+      totalToPay: productCost + shippingCost,
+      isMOQReached: selectedProduct.moq && currentClusterQty >= selectedProduct.moq,
+      savingsPerUnit: (selectedProduct.unitPrice || selectedProduct.price) - effectivePrice
+    };
+  }, [selectedProduct, selectedCluster, joinFormData.quantity]);
 
   const fallbackShippingMethods = ["FedEx", "Sea Freight", "Air Freight", "Express", "Standard"];
   const shippingMethods = availableShippingMethods.length > 0 
@@ -84,19 +146,22 @@ const Cluster = () => {
         name: createFormData.name,
         description: createFormData.description,
         maxMembers: parseInt(createFormData.maxMembers) || 5,
-        preferredShippingMethod: createFormData.preferredShippingMethod,
+        shipping_mode: createFormData.shipping_mode,
+        destination: createFormData.destination,
         targetProductId: createFormData.productId,
         targetProductName: selectedProduct?.name || "",
         targetPrice: selectedProduct?.price || 0,
         creatorId: user?.id,
         creatorName: user?.name || "Creator",
+        target_qty: selectedProduct?.cluster_target_qty || 100,
       });
 
       setCreateFormData({
         name: "",
         description: "",
         maxMembers: "5",
-        preferredShippingMethod: "Standard",
+        shipping_mode: "sea",
+        destination: "lagos",
         productId: "",
       });
       setCreateDialogOpen(false);
@@ -117,10 +182,10 @@ const Cluster = () => {
         clusterId: selectedClusterId,
         userId: user?.id || '',
         quantity: parseInt(joinFormData.quantity),
-        amount: parseFloat(joinFormData.amount) || 0,
+        amount: joinCalculation?.totalToPay || 0,
       });
 
-      setJoinFormData({ quantity: "", amount: "" });
+      setJoinFormData({ quantity: "1" });
       setJoinDialogOpen(false);
       toast.success("Joined cluster successfully!");
     } catch (error) {
@@ -168,8 +233,15 @@ const Cluster = () => {
              <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">
                 <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-tighter mb-1">Shipping</p>
                 <div className="flex items-center gap-1.5 text-white">
-                  <Clock className="w-3.5 h-3.5 text-amber-400" />
-                  <span className="text-[10px] font-bold uppercase truncate">{cluster.preferredShippingMethod || cluster.preferred_shipping_method || "Standard"}</span>
+                  {cluster.shipping_mode === 'air' ? (
+                    <Plane className="w-3.5 h-3.5 text-blue-400" />
+                  ) : (
+                    <Ship className="w-3.5 h-3.5 text-green-400" />
+                  )}
+                  <span className="text-[10px] font-bold uppercase truncate">
+                    {cluster.shipping_mode === 'air' ? 'Air' : 'Sea'}
+                    {cluster.destination ? ` - ${cluster.destination.replace(/_/g, ' ')}` : ''}
+                  </span>
                 </div>
              </div>
           </div>
@@ -321,16 +393,12 @@ const Cluster = () => {
               </select>
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Shipping Method</Label>
-              <select
-                value={createFormData.preferredShippingMethod}
-                onChange={(e) => setCreateFormData({ ...createFormData, preferredShippingMethod: e.target.value })}
-                className="w-full h-12 bg-white/5 border border-white/10 rounded-md px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              >
-                {shippingMethods.map((method) => (
-                  <option key={method} value={method} className="bg-background">{method}</option>
-                ))}
-              </select>
+              <ShippingModeSelector
+                selectedMode={createFormData.shipping_mode}
+                onModeChange={(mode) => setCreateFormData({ ...createFormData, shipping_mode: mode })}
+                selectedDestination={createFormData.destination}
+                onDestinationChange={(dest) => setCreateFormData({ ...createFormData, destination: dest as any })}
+              />
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Max Members</Label>
@@ -366,23 +434,88 @@ const Cluster = () => {
                 value={joinFormData.quantity}
                 onChange={(e) => setJoinFormData({ ...joinFormData, quantity: e.target.value })}
                 className="h-12 bg-white/5 border-white/10"
+                min="1"
               />
+              {selectedProduct?.moq && (
+                <p className="text-[10px] text-muted-foreground">
+                  MOQ for discounted price: {selectedProduct.moq} units
+                </p>
+              )}
             </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Investment Amount ($)</Label>
-              <Input
-                type="number"
-                placeholder="Total budget for this trade"
-                value={joinFormData.amount}
-                onChange={(e) => setJoinFormData({ ...joinFormData, amount: e.target.value })}
-                className="h-12 bg-white/5 border-white/10"
-              />
-            </div>
+
+            {joinCalculation && (
+              <div className="space-y-3 p-4 rounded-xl bg-white/5 border border-white/10">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Your CBM</span>
+                  <span className="font-bold">{joinCalculation.totalCBM.toFixed(4)} m³</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Product Cost ({joinCalculation.effectivePrice.toLocaleString()}/unit)</span>
+                  <span className="font-bold">₦{joinCalculation.productCost.toLocaleString()}</span>
+                </div>
+                
+                {joinCalculation.savingsPerUnit > 0 && (
+                  <div className="text-[10px] text-green-400 font-bold uppercase tracking-tighter">
+                    ✅ MOQ Reached! Saving ₦{(joinCalculation.savingsPerUnit * parseInt(joinFormData.quantity)).toLocaleString()}
+                  </div>
+                )}
+
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    Shipping Share
+                    {selectedCluster?.shipping_mode === 'air' && (
+                      <Info className="w-3 h-3 text-blue-400" />
+                    )}
+                  </span>
+                  <span className="font-bold">
+                    {selectedCluster?.shipping_mode === 'air' 
+                      ? "Rate @ Checkout" 
+                      : `₦${joinCalculation.shippingCost.toLocaleString()}`}
+                  </span>
+                </div>
+
+                {joinCalculation.shippingBreakdown && (
+                  <div className="text-[10px] text-muted-foreground space-y-1 pl-2 border-l border-white/10">
+                    <div className="flex justify-between">
+                      <span>Base Freight:</span>
+                      <span>₦{joinCalculation.shippingBreakdown.baseCost.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Consolidation:</span>
+                      <span>₦{joinCalculation.shippingBreakdown.consolidationFee.toLocaleString()}</span>
+                    </div>
+                    {joinCalculation.shippingBreakdown.batterySurcharge > 0 && (
+                      <div className="flex justify-between">
+                        <span>Battery Surcharge:</span>
+                        <span>₦{joinCalculation.shippingBreakdown.batterySurcharge.toLocaleString()}</span>
+                      </div>
+                    )}
+                    {joinCalculation.shippingBreakdown.nafdacSurcharge > 0 && (
+                      <div className="flex justify-between">
+                        <span>NAFDAC Surcharge:</span>
+                        <span>₦{joinCalculation.shippingBreakdown.nafdacSurcharge.toLocaleString()}</span>
+                      </div>
+                    )}
+                    {joinCalculation.shippingBreakdown.bulkDiscount > 0 && (
+                      <div className="flex justify-between text-green-400">
+                        <span>Bulk Discount:</span>
+                        <span>-₦{joinCalculation.shippingBreakdown.bulkDiscount.toLocaleString()}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="pt-2 border-t border-white/10 flex justify-between items-center">
+                  <span className="font-bold text-white uppercase tracking-widest text-xs">Total Estimate</span>
+                  <span className="text-xl font-black text-primary">₦{joinCalculation.totalToPay.toLocaleString()}</span>
+                </div>
+              </div>
+            )}
           </div>
           <Button 
             className="w-full h-12 bg-primary font-bold uppercase tracking-widest text-sm shadow-lg shadow-primary/20"
             onClick={handleJoinCluster}
-            disabled={joinClusterMutation.isPending}
+            disabled={joinClusterMutation.isPending || !joinCalculation}
           >
             {joinClusterMutation.isPending ? "Joining..." : "Join this Cluster"}
           </Button>

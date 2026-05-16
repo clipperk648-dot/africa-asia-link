@@ -29,6 +29,10 @@ import { useToast } from "@/hooks/use-toast";
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/lib/supabase";
 
+import { calculateUnitCBM } from "@/utils/cbm";
+import { Badge } from "@/components/ui/badge";
+import { Ruler, Weight, Battery, ShieldAlert, Zap } from "lucide-react";
+
 const ProductDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -113,13 +117,16 @@ const ProductDetails = () => {
             description: `Automatic cluster for ${product.name}`,
             target_product_id: product.id,
             target_product_name: product.name,
-            target_price: (product.unitPrice || product.price || 100) * 10, // Default target
-            quantity: 10, // Default target
+            target_price: (product.moq_price || product.unitPrice || product.price || 100) * (product.cluster_target_qty || 100),
+            quantity: qty,
+            target_qty: product.cluster_target_qty || 100,
             max_members: 5,
             creator_id: user.id,
             creator_name: user.name || "System",
             status: 'active',
             shipping_status: 'shipping not started yet',
+            shipping_mode: 'sea', // Default to recommended
+            destination: 'lagos', // Default
             created_at: new Date().toISOString()
           }])
           .select()
@@ -304,9 +311,71 @@ const ProductDetails = () => {
 
         {/* Product Overview */}
         <GlassCard className="p-6 lg:p-8">
-          <h2 className="text-2xl font-bold mb-1">{product.name}</h2>
-          {product.nameZH && <p className="text-muted-foreground mb-4 text-lg">{product.nameZH}</p>}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+            <div>
+              <h2 className="text-2xl font-bold mb-1">{product.name}</h2>
+              {product.nameZH && <p className="text-muted-foreground text-lg">{product.nameZH}</p>}
+            </div>
+            {product.moq_price && (
+              <div className="bg-primary/10 border border-primary/20 p-3 rounded-xl">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-1">MOQ Price</p>
+                <p className="text-xl font-black text-primary">
+                  {product.currency} {product.moq_price.toLocaleString()}
+                  <span className="text-xs font-normal text-muted-foreground ml-1">/{product.unit || "pc"}</span>
+                </p>
+                <p className="text-[10px] text-muted-foreground italic">Applies when cluster reaches MOQ</p>
+              </div>
+            )}
+          </div>
           <p className="text-muted-foreground mb-6 leading-relaxed">{product.description}</p>
+
+          {/* Logistics Info */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Ruler className="w-4 h-4" />
+                <span className="text-xs font-bold uppercase tracking-widest">Dimensions & Volume</span>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-semibold">
+                  {product.length_cm || 0} x {product.width_cm || 0} x {product.height_cm || 0} cm
+                </p>
+                <p className="text-lg font-bold text-primary">
+                  {calculateUnitCBM(product.length_cm || 0, product.width_cm || 0, product.height_cm || 0).toFixed(4)} m³
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-3">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Weight className="w-4 h-4" />
+                <span className="text-xs font-bold uppercase tracking-widest">Weight</span>
+              </div>
+              <p className="text-lg font-bold">{product.weight_kg || 0} kg</p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Zap className="w-4 h-4" />
+                <span className="text-xs font-bold uppercase tracking-widest">Attributes</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {product.has_battery && (
+                  <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20 gap-1">
+                    <Battery className="w-3 h-3" /> Battery
+                  </Badge>
+                )}
+                {product.requires_nafdac && (
+                  <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20 gap-1">
+                    <ShieldAlert className="w-3 h-3" /> NAFDAC
+                  </Badge>
+                )}
+                {!product.has_battery && !product.requires_nafdac && (
+                  <span className="text-sm text-muted-foreground italic">Standard Goods</span>
+                )}
+              </div>
+            </div>
+          </div>
 
           {/* Key Trading Info */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

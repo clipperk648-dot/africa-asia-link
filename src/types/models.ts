@@ -41,6 +41,14 @@ export interface Product {
   certifications?: string[];
   warrantyMonths?: number;
   inquiries?: number;
+  weight_kg?: number;
+  length_cm?: number;
+  width_cm?: number;
+  height_cm?: number;
+  has_battery?: boolean;
+  requires_nafdac?: boolean;
+  moq_price?: number;
+  cluster_target_qty?: number;
 }
 
 export interface Order {
@@ -113,6 +121,10 @@ export interface Cluster {
   current_members?: number;
   max_members?: number;
   cluster_members?: ClusterMember[];
+  shipping_mode?: 'sea' | 'air';
+  destination?: 'aba_port_harcourt' | 'lagos' | 'onitsha';
+  target_qty?: number;
+  total_cbm?: number;
 }
 
 export interface User {

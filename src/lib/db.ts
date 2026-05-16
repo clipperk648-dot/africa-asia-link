@@ -501,6 +501,10 @@ export const createCluster = async (clusterData: any): Promise<unknown> => {
     quantity: clusterData.quantity || 0,
     max_members: clusterData.maxMembers || clusterData.max_members || 5,
     preferred_shipping_method: clusterData.preferredShippingMethod || clusterData.preferred_shipping_method,
+    shipping_mode: clusterData.shipping_mode || 'sea',
+    destination: clusterData.destination || 'lagos',
+    target_qty: clusterData.target_qty || 100,
+    total_cbm: 0,
     status: 'active',
     current_funded: 0,
     current_members: 1, // Creator is the first member
@@ -570,12 +574,40 @@ export const joinCluster = async (
   if (memberError) throw memberError;
 
   // Update cluster stats (in a real app, this should be a trigger or RPC)
-  const { data: latestClusterData } = await supabase.from('clusters').select('current_funded, current_members').eq('id', clusterId).single();
+  const { data: latestClusterData } = await supabase.from('clusters').select('current_funded, current_members, target_product_id').eq('id', clusterId).single();
   if (latestClusterData) {
-    const clusterStats = latestClusterData as { current_funded: number, current_members: number };
+    const clusterStats = latestClusterData as { current_funded: number, current_members: number, target_product_id: string };
+    
+    // Fetch product to calculate CBM
+    const { data: productData } = await supabase.from('products').select('length_cm, width_cm, height_cm, merchant_id').eq('id', clusterStats.target_product_id).single();
+    let newCbm = 0;
+    if (productData) {
+      const product = productData as any;
+      const unitCbm = (product.length_cm * product.width_cm * product.height_cm) / 1000000;
+      const addedCbm = unitCbm * quantity;
+      
+      const { data: currentCluster } = await supabase.from('clusters').select('total_cbm').eq('id', clusterId).single();
+      newCbm = ((currentCluster as any)?.total_cbm || 0) + addedCbm;
+      
+      // Feature 6: Upsert into merchant_customers
+      const { data: userData } = await supabase.from('profiles').select('email, phone, name').eq('id', userId).single();
+      if (userData && product.merchant_id) {
+        const user = userData as any;
+        await supabase.from("merchant_customers").upsert({
+          merchant_id: product.merchant_id,
+          cluster_id: clusterId,
+          buyer_id: userId,
+          email: user.email,
+          phone: user.phone,
+          username: user.name,
+        }, { onConflict: "merchant_id,cluster_id,buyer_id" });
+      }
+    }
+
     await supabase.from('clusters').update({
       current_funded: (clusterStats.current_funded || 0) + amount,
-      current_members: (clusterStats.current_members || 0) + 1
+      current_members: (clusterStats.current_members || 0) + 1,
+      total_cbm: newCbm
     }).eq('id', clusterId);
   }
 

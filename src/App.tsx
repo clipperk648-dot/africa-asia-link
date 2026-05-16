@@ -27,6 +27,7 @@ const IndustryShowroom = lazy(() => import("./pages/IndustryShowroom"));
 const IndustryRecentActivity = lazy(() => import("./pages/IndustryRecentActivity"));
 const IndustryOrders = lazy(() => import("./pages/IndustryOrders"));
 const IndustryAddProperty = lazy(() => import("./pages/IndustryAddProperty"));
+const IndustryCustomers = lazy(() => import("./pages/merchant/Customers"));
 const IndustryKYC = lazy(() => import("./pages/IndustryKYC"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const AdminClusters = lazy(() => import("./pages/AdminClusters"));
@@ -34,6 +35,7 @@ const AdminProducts = lazy(() => import("./pages/AdminProducts"));
 const AdminProductEdit = lazy(() => import("./pages/AdminProductEdit"));
 const AdminProductStats = lazy(() => import("./pages/AdminProductStats"));
 const AdminOrders = lazy(() => import("./pages/AdminOrders"));
+const AdminCustomers = lazy(() => import("./pages/admin/Customers"));
 const AdminSettings = lazy(() => import("./pages/AdminSettings"));
 const AdminCategories = lazy(() => import("./pages/AdminCategories"));
 const AdminReports = lazy(() => import("./pages/AdminReports"));
@@ -99,6 +101,7 @@ const AppContent = () => {
         <Route path="/admin/products/:id/edit" element={<ProtectedRoute element={<AdminProductEdit />} requiredRole="admin" />} />
         <Route path="/admin/products/:id/stats" element={<ProtectedRoute element={<AdminProductStats />} requiredRole="admin" />} />
         <Route path="/admin/orders" element={<ProtectedRoute element={<AdminOrders />} requiredRole="admin" />} />
+        <Route path="/admin/customers" element={<ProtectedRoute element={<AdminCustomers />} requiredRole="admin" />} />
         <Route path="/admin/settings" element={<ProtectedRoute element={<AdminSettings />} requiredRole="admin" />} />
         <Route path="/admin/categories" element={<ProtectedRoute element={<AdminCategories />} requiredRole="admin" />} />
         <Route path="/admin/reports" element={<ProtectedRoute element={<AdminReports />} requiredRole="admin" />} />
@@ -127,6 +130,7 @@ const AppContent = () => {
         <Route path="/industry/showroom" element={<ProtectedRoute element={<IndustryShowroom />} requiredRole={["industry", "sourcing-agent"]} />} />
         <Route path="/industry/recent-activity" element={<ProtectedRoute element={<IndustryRecentActivity />} requiredRole={["industry", "sourcing-agent"]} />} />
         <Route path="/industry/orders" element={<ProtectedRoute element={<IndustryOrders />} requiredRole={["industry", "sourcing-agent"]} />} />
+        <Route path="/industry/customers" element={<ProtectedRoute element={<IndustryCustomers />} requiredRole={["industry", "sourcing-agent"]} />} />
         <Route path="/industry/kyc" element={<ProtectedRoute element={<IndustryKYC />} requiredRole={["industry", "sourcing-agent"]} />} />
         
         {/* Cluster Routes */}
