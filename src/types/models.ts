@@ -97,8 +97,11 @@ export interface Cluster {
   creatorId: string;
   creatorName: string;
   targetProductId: string;
+  target_product_id?: string;
   targetProductName: string;
+  target_product_name?: string;
   targetPrice: number;
+  target_price?: number;
   currentFunded: number;
   minOrderAmount: number;
   quantity: number;

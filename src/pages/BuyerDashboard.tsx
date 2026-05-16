@@ -1,7 +1,7 @@
 import { useEffect, useState, Fragment, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useProducts, useOrders, useWalletBalance } from "@/hooks/useData";
+import { useProducts, useOrders, useWalletBalance, useClusters, useCreateClusterMutation } from "@/hooks/useData";
 import type { Product, Order } from "@/types/models";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
@@ -19,47 +19,61 @@ import { getSafeImageUrl, getSafeAvatarUrl, createImageErrorHandler } from "@/ut
 import { preloadVideo } from "@/utils/videoOptimization";
 import { getThemeBgVideoUrl } from "@/utils/theme";
 
-const ProductCard = ({ product, navigate }: { product: Product; navigate: (path: string) => void }) => (
-  <GlassCard className="p-4 sm:p-6 min-w-[280px] sm:min-w-0">
-    <img
-      src={getSafeImageUrl(product.image)}
-      alt={product.name}
-      className="w-full h-24 sm:h-32 object-cover rounded-lg mb-2"
-      loading="lazy"
-      onError={createImageErrorHandler()}
-    />
-    <div className="space-y-1">
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <h3 className="font-semibold text-xs sm:text-sm truncate">{product.name}</h3>
-          <p className="text-[10px] sm:text-xs text-cyan-300 truncate">{product.company}</p>
+const ProductCard = ({ 
+  product, 
+  navigate, 
+  clusters, 
+  handleJoinCluster 
+}: { 
+  product: Product; 
+  navigate: (path: string) => void;
+  clusters: any[];
+  handleJoinCluster: (productId: string, productName: string, productData: Product) => void;
+}) => {
+  const hasCluster = (clusters as any[]).some((c) => 
+    (c.targetProductId === product.id || c.target_product_id === product.id) && 
+    (c.status === 'active' || c.status === 'open')
+  );
+
+  return (
+    <GlassCard className="p-4 sm:p-6 min-w-[280px] sm:min-w-0">
+      <img
+        src={getSafeImageUrl(product.image)}
+        alt={product.name}
+        className="w-full h-24 sm:h-32 object-cover rounded-lg mb-2"
+        loading="lazy"
+        onError={createImageErrorHandler()}
+      />
+      <div className="space-y-1">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <h3 className="font-semibold text-xs sm:text-sm truncate">{product.name}</h3>
+            <p className="text-[10px] sm:text-xs text-cyan-300 truncate">{product.company}</p>
+          </div>
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <span className="text-accent">★</span>
+            <span className="text-[10px] sm:text-xs font-medium">{product.rating}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-1 flex-shrink-0">
-          <span className="text-accent">★</span>
-          <span className="text-[10px] sm:text-xs font-medium">{product.rating}</span>
+        <p className="text-[10px] sm:text-xs text-cyan-300 truncate">{product.location}</p>
+        <div className="flex items-center justify-between pt-1 gap-2">
+          <p className="text-base sm:text-lg font-bold text-primary">
+            ${product.price.toLocaleString()}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="xs" className="flex-shrink-0" onClick={() => navigate(`/buyer/products/${product.id}`)}>
+              Details
+            </Button>
+            <Button variant="accent" size="xs" className="flex-shrink-0" onClick={() => handleJoinCluster(product.id, product.name, product)}>
+              <Users2 className="w-3 h-3 mr-1" />
+              {hasCluster ? "Join Cluster" : "Create Cluster"}
+            </Button>
+          </div>
         </div>
       </div>
-      <p className="text-[10px] sm:text-xs text-cyan-300 truncate">{product.location}</p>
-      <div className="flex items-center justify-between pt-1 gap-2">
-        <p className="text-base sm:text-lg font-bold text-primary">
-          ${product.price.toLocaleString()}
-        </p>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="xs" className="flex-shrink-0" onClick={() => navigate(`/buyer/products/${product.id}`)}>
-            Details
-          </Button>
-          <Button variant="accent" size="xs" className="flex-shrink-0" onClick={() => {
-            toast.success(`Joining cluster for ${product.name}`);
-            navigate("/cluster");
-          }}>
-            <Users2 className="w-4 h-4 mr-1" />
-            Join Cluster
-          </Button>
-        </div>
-      </div>
-    </div>
-  </GlassCard>
-);
+    </GlassCard>
+  );
+};
 
 const BuyerDashboard = () => {
   const navigate = useNavigate();
@@ -70,6 +84,54 @@ const BuyerDashboard = () => {
   const { data: products = [] } = useProducts(20, 0);
   const { data: orders = [] } = useOrders(user?.id);
   const { data: walletData = { balance: 0, currency: "USD" } } = useWalletBalance(user?.id);
+  const { data: clusters = [] } = useClusters();
+  const createClusterMutation = useCreateClusterMutation();
+
+  const handleJoinCluster = async (productId: string, productName: string, productData?: Product) => {
+    // Check if cluster exists
+    const existingCluster = (clusters as any[]).find((c) => 
+      (c.targetProductId === productId || c.target_product_id === productId) && 
+      (c.status === 'active' || c.status === 'open')
+    );
+    
+    if (existingCluster) {
+      toast.success(`Joining cluster for ${productName}`);
+      navigate(`/cluster/${existingCluster.id}`);
+    } else {
+      // Auto-create cluster
+      toast.info(`No cluster found for ${productName}. Creating one...`);
+      try {
+        const targetPrice = productData ? 
+          (productData.moq_price || productData.unitPrice || productData.price || 0) * (productData.cluster_target_qty || 100) : 0;
+        
+        const newCluster = await createClusterMutation.mutateAsync({
+          name: `${productName} Cluster`,
+          description: `Automatically created cluster for ${productName}`,
+          targetProductId: productId,
+          targetProductName: productName,
+          targetPrice: targetPrice, 
+          minOrderAmount: productData?.moq || 0,
+          quantity: 1,
+          target_qty: productData?.cluster_target_qty || 100,
+          maxMembers: 10,
+          preferredShippingMethod: "Sea",
+          creatorId: user?.id,
+          creatorName: user?.name || "Buyer",
+          status: 'active',
+          shipping_status: 'shipping not started yet',
+          shipping_mode: 'sea',
+          destination: 'lagos'
+        } as Partial<Cluster>);
+        
+        if (newCluster && typeof newCluster === 'object' && 'id' in newCluster) {
+          navigate(`/cluster/${(newCluster as { id: string }).id}`);
+        }
+      } catch (error) {
+        console.error("Failed to auto-create cluster:", error);
+        toast.error("Failed to auto-create cluster");
+      }
+    }
+  };
 
   const ctaTexts = ["Hi there!", "Need help?", "Chat with us!", "Ask anything!", "We're here!"];
   const tooltipIndexRef = useRef(0);
@@ -362,7 +424,7 @@ const BuyerDashboard = () => {
           <div className="md:hidden -mx-4 px-4 pb-2 overflow-x-auto snap-x snap-mandatory flex gap-3">
             {products.map((p) => (
               <div key={p.id} className="snap-start shrink-0">
-                <ProductCard product={p} navigate={navigate} />
+                <ProductCard product={p} navigate={navigate} clusters={clusters} handleJoinCluster={handleJoinCluster} />
               </div>
             ))}
           </div>
@@ -370,7 +432,7 @@ const BuyerDashboard = () => {
           <div className="hidden md:grid md:grid-cols-2 gap-4">
             {products.map((p) => (
               <Fragment key={p.id}>
-                <ProductCard product={p} navigate={navigate} />
+                <ProductCard product={p} navigate={navigate} clusters={clusters} handleJoinCluster={handleJoinCluster} />
               </Fragment>
             ))}
           </div>
