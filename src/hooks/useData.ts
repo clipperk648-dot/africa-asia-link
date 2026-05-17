@@ -122,7 +122,7 @@ export const useAllOrders = () => {
 };
 
 // Fetch all products with realtime updates
-export const useProducts = (limit = 100, offset = 0) => {
+export const useProducts = (limit = 500, offset = 0) => {
   const queryClient = useQueryClient();
 
   const query = useQuery({
