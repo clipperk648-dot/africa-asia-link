@@ -22,6 +22,7 @@ export default {
       padding: "2rem",
       screens: {
         "2xl": "1400px",
+        xs: "480px",
       },
     },
     extend: {
@@ -125,5 +126,6 @@ export default {
       },
     },
   },
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;

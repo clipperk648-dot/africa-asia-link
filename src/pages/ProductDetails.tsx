@@ -22,10 +22,10 @@ import {
 import ThreeBackground from "@/components/ThreeBackground";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
+import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/lib/supabase";
 
@@ -59,6 +59,8 @@ const ProductDetails = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [qty, setQty] = useState<number>(1);
+  const [joinDialogOpen, setJoinDialogOpen] = useState(false);
+  const [pendingClusterId, setPendingClusterId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) navigate("/login");
@@ -104,8 +106,6 @@ const ProductDetails = () => {
     api?.scrollTo(idx);
   };
 
-  const createClusterMutation = useCreateClusterMutation();
-
   const handleJoinCluster = async () => {
     if (!user) {
       toast.error("Please login to join a cluster");
@@ -119,10 +119,10 @@ const ProductDetails = () => {
         (c.status === 'active' || (c.status as string) === 'open')
       );
 
-      let clusterId;
-
       if (existingCluster) {
-        clusterId = existingCluster.id;
+        // Open join dialog for existing cluster
+        setPendingClusterId(existingCluster.id);
+        setJoinDialogOpen(true);
       } else {
         // Create a new cluster automatically
         toast.info("No cluster found. Creating one for you...");
@@ -146,17 +146,39 @@ const ProductDetails = () => {
         });
 
         if (newCluster && typeof newCluster === 'object' && 'id' in newCluster) {
-          clusterId = (newCluster as { id: string }).id;
-          toast.success("New cluster created for this product!");
+          setPendingClusterId((newCluster as { id: string }).id);
+          setJoinDialogOpen(true);
+          toast.success("New cluster created! Set your quantity below.");
         } else {
           throw new Error("Failed to create cluster");
         }
       }
-
-      navigate(`/cluster/${clusterId}`);
     } catch (error) {
       console.error("Error joining/creating cluster:", error);
       toast.error("Failed to process cluster request");
+    }
+  };
+
+  const handleConfirmJoin = async () => {
+    if (!pendingClusterId || !user) return;
+    
+    try {
+      // Join the cluster with the selected quantity
+      const { joinCluster } = await import("@/lib/db");
+      const unitCBM = calculateUnitCBM(product.length_cm || 0, product.width_cm || 0, product.height_cm || 0);
+      const totalCBM = calculateTotalCBM(unitCBM, qty);
+      const effectivePrice = product.moq && qty >= product.moq ? (product.moq_price || product.price) : (product.unitPrice || product.price);
+      const amount = effectivePrice * qty;
+      
+      await joinCluster(pendingClusterId, user.id, qty, amount);
+      
+      toast.success("Successfully joined the cluster!");
+      setJoinDialogOpen(false);
+      setPendingClusterId(null);
+      navigate(`/cluster/${pendingClusterId}`);
+    } catch (error) {
+      console.error("Error joining cluster:", error);
+      toast.error("Failed to join cluster");
     }
   };
 
@@ -175,7 +197,7 @@ const ProductDetails = () => {
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
         {/* Media Gallery + Sidebar */}
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Media Gallery */}
           <div className="lg:col-span-2 space-y-4">
             <GlassCard className="p-4 overflow-hidden">
@@ -227,12 +249,12 @@ const ProductDetails = () => {
               </div>
 
               {/* Thumbnails */}
-              <div className="mt-4 flex gap-2 overflow-x-auto">
+              <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
                 {images?.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => goTo(idx)}
-                    className={`flex-shrink-0 w-20 h-16 rounded-lg border-2 overflow-hidden transition-colors ${
+                    className={`flex-shrink-0 w-16 sm:w-20 h-12 sm:h-16 rounded-lg border-2 overflow-hidden transition-colors ${
                       activeIndex === idx ? "border-primary" : "border-muted hover:border-primary/50"
                     }`}
                   >
@@ -242,11 +264,11 @@ const ProductDetails = () => {
                 {product.videoUrl && (
                   <button
                     onClick={() => goTo(media.length - 1)}
-                    className={`flex-shrink-0 w-20 h-16 rounded-lg border-2 overflow-hidden transition-colors flex items-center justify-center bg-muted ${
+                    className={`flex-shrink-0 w-16 sm:w-20 h-12 sm:h-16 rounded-lg border-2 overflow-hidden transition-colors flex items-center justify-center bg-muted ${
                       isVideo(activeIndex) ? "border-primary" : "border-muted hover:border-primary/50"
                     }`}
                   >
-                    <span className="inline-flex items-center gap-1 text-xs font-semibold"><Play className="w-3 h-3" /> Video</span>
+                    <span className="inline-flex items-center gap-1 text-[10px] sm:text-xs font-semibold"><Play className="w-3 h-3" /> Video</span>
                   </button>
                 )}
               </div>
@@ -256,55 +278,55 @@ const ProductDetails = () => {
           {/* Sidebar */}
           <div className="space-y-4">
             {/* Price & Rating */}
-            <GlassCard className="p-6">
+            <GlassCard className="p-4 sm:p-6">
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Unit Price</p>
-                  <p className="text-3xl font-bold text-primary">
+                  <p className="text-xs sm:text-sm text-muted-foreground mb-1">Unit Price</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-primary">
                     {product.currency} {(product.unitPrice || product.price).toLocaleString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1">
                     <span className="text-yellow-500 text-lg">★</span>
-                    <span className="font-semibold">{product.rating}</span>
+                    <span className="font-semibold text-sm sm:text-base">{product.rating}</span>
                   </div>
-                  <span className="text-xs text-muted-foreground">({product.reviews || 0} reviews)</span>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground">({product.reviews || 0} reviews)</span>
                 </div>
 
                 <div className="pt-4 border-t space-y-2">
                   <p className="text-xs font-semibold text-muted-foreground">INQUIRIES</p>
-                  <p className="text-2xl font-bold">{inquiries}</p>
+                  <p className="text-xl sm:text-2xl font-bold">{inquiries}</p>
                 </div>
               </div>
             </GlassCard>
 
             {/* Actions */}
             <GlassCard className="p-4 space-y-3">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <Input
                   type="number"
                   min={1}
                   value={qty}
                   onChange={(e) => setQty(parseInt(e.target.value || "1", 10))}
-                  className="w-24"
+                  className="w-20 sm:w-24"
                 />
-                <span className="text-sm text-muted-foreground">{product.unit || "pc"}</span>
+                <span className="text-xs sm:text-sm text-muted-foreground">{product.unit || "pc"}</span>
               </div>
               <div className="grid grid-cols-1 gap-2">
-                <Button className="w-full gap-2" onClick={handleJoinCluster}>
+                <Button className="w-full gap-2 min-h-[44px]" onClick={handleJoinCluster}>
                   <Users2 className="w-4 h-4" /> {hasActiveCluster ? "Join Cluster" : "Create Cluster"}
                 </Button>
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" className="w-full gap-2" onClick={() => window.open(`tel:${product.contactPhone}`)}>
+                <Button variant="outline" className="w-full gap-2 min-h-[44px]" onClick={() => window.open(`tel:${product.contactPhone}`)}>
                   <Phone className="w-4 h-4" /> Call
                 </Button>
-                <Button variant="outline" className="w-full gap-2" onClick={() => window.open(`mailto:${product.contactEmail}`)}>
+                <Button variant="outline" className="w-full gap-2 min-h-[44px]" onClick={() => window.open(`mailto:${product.contactEmail}`)}>
                   <Mail className="w-4 h-4" /> Email
                 </Button>
               </div>
-              <Button variant="ghost" className="w-full" onClick={() => toast({ title: "Share link copied" })}>
+              <Button variant="ghost" className="w-full min-h-[44px]" onClick={() => toast({ title: "Share link copied" })}>
                 <Share2 className="w-4 h-4" /> Share
               </Button>
             </GlassCard>
@@ -312,12 +334,12 @@ const ProductDetails = () => {
             {/* Seller card */}
             <GlassCard className="p-4">
               <div className="flex items-center gap-3">
-                <Avatar>
+                <Avatar className="h-10 w-10 sm:h-12 sm:w-12">
                   <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(product.company)}`} />
                   <AvatarFallback>{product.company.slice(0, 2).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
-                  <p className="font-semibold truncate">{product.company}</p>
+                  <p className="font-semibold text-sm sm:text-base truncate">{product.company}</p>
                   <p className="text-xs text-muted-foreground truncate">{product.location}</p>
                 </div>
               </div>
@@ -636,6 +658,61 @@ const ProductDetails = () => {
       </main>
 
       <FooterNav dashboardType="buyer" />
+
+      {/* Join Cluster Dialog */}
+      <Dialog open={joinDialogOpen} onOpenChange={setJoinDialogOpen}>
+        <DialogContent className="bg-background/95 backdrop-blur-xl border-white/10 text-white max-w-md p-6">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Join Cluster</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Desired Quantity (Units)</Label>
+              <Input
+                type="number"
+                value={qty}
+                onChange={(e) => setQty(parseInt(e.target.value || "1", 10))}
+                className="h-12 bg-white/5 border-white/10"
+                min="1"
+              />
+              {product?.moq && (
+                <p className="text-[10px] text-muted-foreground">
+                  MOQ for discounted price: {product.moq} units
+                </p>
+              )}
+            </div>
+
+            <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Unit CBM</span>
+                <span className="font-bold">
+                  {calculateUnitCBM(product.length_cm || 0, product.width_cm || 0, product.height_cm || 0).toFixed(4)} m³
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Total CBM</span>
+                <span className="font-bold">
+                  {calculateTotalCBM(
+                    calculateUnitCBM(product.length_cm || 0, product.width_cm || 0, product.height_cm || 0),
+                    qty
+                  ).toFixed(4)} m³
+                </span>
+              </div>
+              {product?.moq && qty >= product.moq && (
+                <div className="text-xs text-green-400 font-bold">
+                  ✅ MOQ reached! You qualify for discounted price.
+                </div>
+              )}
+            </div>
+          </div>
+          <Button 
+            className="w-full h-12 bg-primary font-bold uppercase tracking-widest text-sm shadow-lg shadow-primary/20"
+            onClick={handleConfirmJoin}
+          >
+            Confirm Join
+          </Button>
+        </DialogContent>
+      </Dialog>
 
       {/* Lightbox */}
       <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>

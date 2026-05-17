@@ -8,7 +8,7 @@ import GlassCard from "@/components/GlassCard";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Upload, Download, Search, Filter, Pencil, Eye, EyeOff } from "lucide-react";
+import { Plus, Trash2, Upload, Download, Search, Filter, Pencil, Eye, EyeOff, ExternalLink } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -175,7 +175,12 @@ const AdminSupplierProducts = () => {
       <main className="max-w-7xl mx-auto px-4 py-6 w-full space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h1 className="text-2xl font-bold">Supplier Products</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold">Supplier Products</h1>
+            <span className="bg-primary/10 text-primary text-sm font-medium px-3 py-1 rounded-full">
+              {products.length} Products
+            </span>
+          </div>
           <div className="flex gap-2">
             <Button
               size="sm"
@@ -303,6 +308,18 @@ const AdminSupplierProducts = () => {
                       <span className="bg-muted/50 px-2 py-1 rounded">MOQ: {product.moq}</span>
                       <span className="bg-muted/50 px-2 py-1 rounded">{product.category}</span>
                     </div>
+                    {product.alibaba_link && (
+                      <div className="mb-3">
+                        <a
+                          href={product.alibaba_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-cyan-400 hover:text-cyan-300 underline inline-flex items-center gap-1"
+                        >
+                          <ExternalLink className="w-3 h-3" /> Alibaba Link
+                        </a>
+                      </div>
+                    )}
                     <div className="flex gap-2">
                       <Sheet>
                         <SheetTrigger asChild>

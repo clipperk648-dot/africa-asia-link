@@ -113,8 +113,12 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
               <p className="text-[10px] text-muted-foreground truncate">{user?.email}</p>
             </div>
           </div>
-          <Button variant="ghost" className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-400/10" onClick={handleLogout}>
-            <LogOut className="w-4 h-4 mr-2" />
+          <Button 
+            variant="destructive" 
+            className="w-full justify-start gap-2 font-semibold" 
+            onClick={handleLogout}
+          >
+            <LogOut className="w-4 h-4" />
             Sign Out
           </Button>
         </div>
@@ -179,7 +183,12 @@ const AdminLayout = ({ children }: AdminLayoutProps) => {
               <Settings className="w-5 h-5" />
             </Link>
             <div className="h-8 w-px bg-border/50"></div>
-            <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300 hover:bg-red-400/10 gap-2 font-bold uppercase text-[10px] tracking-widest" onClick={handleLogout}>
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              className="gap-2 font-bold uppercase text-[10px] tracking-widest" 
+              onClick={handleLogout}
+            >
               <LogOut className="w-4 h-4" />
               Sign Out
             </Button>
