@@ -85,22 +85,37 @@ const AdminSupplierProducts = () => {
     }
 
     setIsImporting(true);
-    const loadingToast = toast.loading(`Scraping ${urls.length} products...`);
+    const loadingToast = toast.loading(`Scraping ${urls.length} products in batches...`);
     
     try {
-      const { data: scrapeResult, error: scrapeError } = await supabase.functions.invoke('scrape-alibaba', {
-        body: { urls }
-      });
+      const batchSize = 5;
+      let totalSuccessful = 0;
+      
+      for (let i = 0; i < urls.length; i += batchSize) {
+        const batch = urls.slice(i, i + batchSize);
+        toast.loading(`Processing batch ${Math.floor(i / batchSize) + 1} of ${Math.ceil(urls.length / batchSize)}...`, { id: loadingToast });
+        
+        const { data: scrapeResult, error: scrapeError } = await supabase.functions.invoke('scrape-alibaba', {
+          body: { urls: batch }
+        });
+  
+        if (scrapeError) {
+          console.error(`Error in batch ${i}:`, scrapeError);
+          continue;
+        }
+  
+        const successfulProducts = (scrapeResult.results as { success: boolean, data: SupplierProduct }[])
+          .filter(r => r.success)
+          .map(r => r.data);
+  
+        if (successfulProducts.length > 0) {
+          await createProductsMutation.mutateAsync(successfulProducts);
+          totalSuccessful += successfulProducts.length;
+        }
+      }
 
-      if (scrapeError) throw scrapeError;
-
-      const successfulProducts = (scrapeResult.results as { success: boolean, data: SupplierProduct }[])
-        .filter(r => r.success)
-        .map(r => r.data);
-
-      if (successfulProducts.length > 0) {
-        await createProductsMutation.mutateAsync(successfulProducts);
-        toast.success(`Successfully imported ${successfulProducts.length} products from Alibaba`, { id: loadingToast });
+      if (totalSuccessful > 0) {
+        toast.success(`Successfully imported ${totalSuccessful} products from Alibaba`, { id: loadingToast });
       } else {
         toast.error("Failed to extract data from provided URLs", { id: loadingToast });
       }

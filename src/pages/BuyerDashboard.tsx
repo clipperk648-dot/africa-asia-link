@@ -90,7 +90,7 @@ const BuyerDashboard = () => {
   const [showBotTooltip, setShowBotTooltip] = useState(false);
   const [tooltipText, setTooltipText] = useState("Hi there!");
 
-  const { data: products = [] } = useProducts(20, 0);
+  const { data: products = [] } = useProducts(50, 0);
   const { data: orders = [] } = useOrders(user?.id);
   const { data: walletData = { balance: 0, currency: "USD" } } = useWalletBalance(user?.id);
   const { data: clusters = [] } = useClusters();

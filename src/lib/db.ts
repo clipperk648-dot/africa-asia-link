@@ -149,11 +149,11 @@ export const getProducts = async (limit = 20, offset = 0, filters: { category?: 
 };
 
 export const searchProducts = async (query: string, filters: any = {}): Promise<unknown[]> => {
-  return getProducts(20, 0, { search: query, ...filters });
+  return getProducts(500, 0, { search: query, ...filters });
 };
 
 export const getProductsByCategory = async (categoryId: string): Promise<unknown[]> => {
-  return getProducts(20, 0, { category: categoryId });
+  return getProducts(500, 0, { category: categoryId });
 };
 
 export const getProductById = async (id: string): Promise<unknown> => {
@@ -274,7 +274,7 @@ export const createSupplierProducts = async (products: unknown[]): Promise<unkno
 
   const { data, error } = await supabase
     .from('supplier_products')
-    .insert(productsWithTimestamps)
+    .upsert(productsWithTimestamps, { onConflict: 'alibaba_link' })
     .select();
 
   if (error) throw error;
