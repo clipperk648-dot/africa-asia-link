@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useProducts, useAllOrders, useAllUsers } from "@/hooks/useData";
-import type { Product, Order, User } from "@/types/models";
+import { useAdminDashboardStats, useAllOrders, useAllUsers } from "@/hooks/useData";
+import type { Order, User } from "@/types/models";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
 import { 
@@ -11,25 +11,29 @@ import AdminLayout from "@/components/AdminLayout";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const AdminDashboard = () => {
-  const { data: products = [] } = useProducts(20, 0);
+  const { data: adminStats, isLoading: statsLoading } = useAdminDashboardStats();
   const { data: orders = [] } = useAllOrders(); 
   const { data: users = [] } = useAllUsers();
 
   const stats = useMemo(() => {
+    if (!adminStats) return [
+      { label: "Total Buyers", value: "0", icon: Users, color: "text-blue-400" },
+      { label: "Active Orders", value: "0", icon: ShoppingCart, color: "text-emerald-400" },
+      { label: "Revenue", value: "0", icon: DollarSign, color: "text-amber-400" },
+      { label: "Total Products", value: "0", icon: Package, color: "text-purple-400" },
+    ];
+
     const ordersList = orders as Order[];
-    const productsList = products as Product[];
     const activeOrders = Array.isArray(ordersList) ? ordersList.filter((o) => o.status === 'pending').length : 0;
-    const totalRevenue = Array.isArray(ordersList) ? ordersList.reduce((sum, o) => sum + (o.total || 0), 0) : 0;
-    const totalUsers = Array.isArray(users) ? users.length : 0;
     const totalBuyers = Array.isArray(users) ? users.filter(u => u.role === 'buyer').length : 0;
 
     return [
       { label: "Total Buyers", value: String(totalBuyers), icon: Users, color: "text-blue-400" },
       { label: "Active Orders", value: String(activeOrders), icon: ShoppingCart, color: "text-emerald-400" },
-      { label: "Revenue", value: `${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-amber-400" },
-      { label: "Total Users", value: String(totalUsers), icon: Users, color: "text-purple-400" },
+      { label: "Revenue", value: `${adminStats.totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-amber-400" },
+      { label: "Total Products", value: String(adminStats.totalProducts), icon: Package, color: "text-purple-400" },
     ];
-  }, [products, orders, users]);
+  }, [adminStats, orders, users]);
 
   return (
     <AdminLayout>
@@ -56,22 +60,28 @@ const AdminDashboard = () => {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map((stat, i) => (
-            <GlassCard key={i} className="p-6 border-white/5 hover:border-white/10 transition-all duration-300 group overflow-hidden relative">
-              <div className="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                <stat.icon size={100} />
-              </div>
-              <div className="relative z-10 flex flex-col">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{stat.label}</span>
-                <div className="flex items-end justify-between">
-                  <span className="text-2xl font-bold text-white tracking-tight">{stat.value}</span>
-                  <div className={`p-2 rounded-lg bg-white/5 ${stat.color}`}>
-                    <stat.icon className="w-4 h-4" />
+          {statsLoading ? (
+            Array(4).fill(0).map((_, i) => (
+              <GlassCard key={i} className="p-6 border-white/5 animate-pulse h-24" />
+            ))
+          ) : (
+            stats.map((stat, i) => (
+              <GlassCard key={i} className="p-6 border-white/5 hover:border-white/10 transition-all duration-300 group overflow-hidden relative">
+                <div className="absolute -right-4 -top-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <stat.icon size={100} />
+                </div>
+                <div className="relative z-10 flex flex-col">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{stat.label}</span>
+                  <div className="flex items-end justify-between">
+                    <span className="text-2xl font-bold text-white tracking-tight">{stat.value}</span>
+                    <div className={`p-2 rounded-lg bg-white/5 ${stat.color}`}>
+                      <stat.icon className="w-4 h-4" />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </GlassCard>
-          ))}
+              </GlassCard>
+            ))
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
