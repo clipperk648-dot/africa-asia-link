@@ -183,6 +183,7 @@ const AdminUsers = () => {
                       <SelectContent>
                         <SelectItem value="admin">Admin</SelectItem>
                         <SelectItem value="industry">Industry</SelectItem>
+                        <SelectItem value="sourcing-agent">Sourcing Agent</SelectItem>
                         <SelectItem value="buyer">Buyer</SelectItem>
                       </SelectContent>
                     </Select>

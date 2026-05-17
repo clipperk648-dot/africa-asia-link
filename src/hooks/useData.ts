@@ -42,7 +42,11 @@ import {
   getClusterMessages,
   createClusterPoll,
   getClusterPolls,
-  voteOnPoll
+  voteOnPoll,
+  getAdminDashboardStats,
+  updateOrderStatus,
+  updateOrderTracking,
+  updateClusterTracking
 } from "@/lib/db";
 import type { Product, Cluster } from "@/types/models";
 
@@ -586,6 +590,48 @@ export const useDeleteSupplierProductMutation = () => {
       queryClient.invalidateQueries({ queryKey: ["supplierProducts"] });
       queryClient.invalidateQueries({ queryKey: ["allSupplierProducts"] });
     },
+  });
+};
+
+export const useUpdateOrderStatusMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ orderId, status }: { orderId: string; status: string }) =>
+      updateOrderStatus(orderId, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allOrders"] });
+    },
+  });
+};
+
+export const useUpdateOrderTrackingMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ orderId, trackingId, location }: { orderId: string; trackingId: string; location: string }) =>
+      updateOrderTracking(orderId, trackingId, location),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["allOrders"] });
+    },
+  });
+};
+
+export const useUpdateClusterTrackingMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ clusterId, trackingId, location }: { clusterId: string; trackingId: string; location: string }) =>
+      updateClusterTracking(clusterId, trackingId, location),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clusters"] });
+      queryClient.invalidateQueries({ queryKey: ["cluster"] });
+    },
+  });
+};
+
+export const useAdminDashboardStats = () => {
+  return useQuery({
+    queryKey: ["adminDashboardStats"],
+    queryFn: () => getAdminDashboardStats(),
+    staleTime: 5 * 60 * 1000,
   });
 };
 

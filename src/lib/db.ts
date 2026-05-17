@@ -358,6 +358,45 @@ export const createOrder = async (
   return data;
 };
 
+export const updateOrderStatus = async (orderId: string, status: string): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('orders')
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq('id', orderId)
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  // Create notification for buyer
+  if (data && (data as any).buyer_id) {
+    await createNotification(
+      (data as any).buyer_id,
+      "Order Update",
+      `Your order #${orderId.slice(0, 8)} status has been updated to ${status}.`,
+      "order"
+    );
+  }
+
+  return data;
+};
+
+export const updateOrderTracking = async (orderId: string, trackingId: string, location: string): Promise<unknown> => {
+  const { data, error } = await supabase
+    .from('orders')
+    .update({ 
+      tracking_id: trackingId, 
+      current_location: location,
+      updated_at: new Date().toISOString() 
+    })
+    .eq('id', orderId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
 // ============ SOCIAL POSTS ============
 
 export const getSocialPosts = async (limit = 20): Promise<unknown[]> => {
@@ -1014,6 +1053,31 @@ export const generateProductReport = async (): Promise<unknown> => {
   return data;
 };
 
+// ============ ADMIN DASHBOARD ============
+
+export const getAdminDashboardStats = async (): Promise<any> => {
+  const { count: usersCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+  const { count: clustersCount } = await supabase.from('clusters').select('*', { count: 'exact', head: true });
+  const { count: ordersCount } = await supabase.from('orders').select('*', { count: 'exact', head: true });
+  const { count: productsCount } = await supabase.from('supplier_products').select('*', { count: 'exact', head: true });
+  
+  const { data: recentOrders } = await supabase
+    .from('orders')
+    .select('total')
+    .order('created_at', { ascending: false })
+    .limit(100);
+    
+  const totalRevenue = recentOrders?.reduce((acc, order) => acc + (order.total || 0), 0) || 0;
+
+  return {
+    totalUsers: usersCount || 0,
+    totalClusters: clustersCount || 0,
+    totalOrders: ordersCount || 0,
+    totalProducts: productsCount || 0,
+    totalRevenue: totalRevenue
+  };
+};
+
 // ============ SHIPPING MANAGEMENT ============
 
 export const updateClusterShippingStatus = async (clusterId: string, status: string): Promise<unknown> => {
@@ -1026,7 +1090,30 @@ export const updateClusterShippingStatus = async (clusterId: string, status: str
     updateData.shipping_started_at = new Date().toISOString();
   }
   
-  return updateCluster(clusterId, updateData);
+  const updated = await updateCluster(clusterId, updateData);
+
+  // Create notifications for all cluster members
+  const members = await getClusterMembers(clusterId);
+  if (members && Array.isArray(members)) {
+    for (const member of members) {
+      await createNotification(
+        (member as any).user_id,
+        "Cluster Shipping Update",
+        `The shipping status for cluster "${(updated as any).name}" has been updated to ${status}.`,
+        "shipping"
+      );
+    }
+  }
+  
+  return updated;
+};
+
+export const updateClusterTracking = async (clusterId: string, trackingId: string, location: string): Promise<unknown> => {
+  return updateCluster(clusterId, { 
+    tracking_id: trackingId, 
+    current_location: location,
+    updated_at: new Date().toISOString()
+  });
 };
 
 // ============ CUSTOMER SERVICE / SUPPORT ============

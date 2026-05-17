@@ -1,11 +1,15 @@
 import { useState } from "react";
-import { useAllOrders, useClusters } from "@/hooks/useData";
+import { useAllOrders, useClusters, useUpdateOrderTrackingMutation, useUpdateClusterTrackingMutation } from "@/hooks/useData";
 import type { Order, Cluster } from "@/types/models";
 import GlassCard from "@/components/GlassCard";
 import { Input } from "@/components/ui/input";
-import { Search, Truck, Package, Clock, MapPin, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, Truck, Package, Clock, MapPin, CheckCircle2, Edit2 } from "lucide-react";
 import AdminLayout from "@/components/AdminLayout";
 import { calculateExpectedDeliveryDate, formatCountdown } from "@/utils/shipping";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 interface TrackingItem {
   id: string;
@@ -22,29 +26,40 @@ interface TrackingItem {
 // Extended types to include potential database fields not in model interfaces
 interface ExtendedOrder extends Order {
   product_name?: string;
+  current_location?: string;
+  tracking_id?: string;
 }
 
 interface ExtendedCluster extends Cluster {
   destination?: string;
+  current_location?: string;
+  tracking_id?: string;
 }
 
 const AdminTracking = () => {
   const { data: orders = [], isLoading: ordersLoading } = useAllOrders();
   const { data: clusters = [], isLoading: clustersLoading } = useClusters();
+  const updateOrderTracking = useUpdateOrderTrackingMutation();
+  const updateClusterTracking = useUpdateClusterTrackingMutation();
+  
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingItem, setEditingItem] = useState<TrackingItem | null>(null);
+  const [editTrackingId, setEditTrackingId] = useState("");
+  const [editLocation, setEditLocation] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const ordersList = orders as ExtendedOrder[];
   const clustersList = clusters as ExtendedCluster[];
 
   const activeTracking: TrackingItem[] = [
-    ...ordersList.filter(o => o.status === 'shipped' || o.status === 'processing').map(o => ({
+    ...ordersList.filter(o => o.status === 'shipped' || o.status === 'processing' || o.status === 'confirmed').map(o => ({
       id: o.id,
       type: 'Order' as const,
       name: o.product_name || o.productName || `Order #${o.id.slice(0,8)}`,
       status: o.status,
       date: o.created_at || "",
-      location: 'In Transit',
-      tracking_id: o.id.slice(0, 12).toUpperCase()
+      location: o.current_location || 'In Transit',
+      tracking_id: o.tracking_id || o.id.slice(0, 12).toUpperCase()
     })),
     ...clustersList.filter(c => (c.shipping_status || c.shippingStatus) && (c.shipping_status || c.shippingStatus) !== 'shipping not started yet').map(c => ({
       id: c.id,
@@ -52,12 +67,43 @@ const AdminTracking = () => {
       name: c.name,
       status: (c.shipping_status || c.shippingStatus)!,
       date: c.shipping_started_at || c.shippingStartedAt || c.created_at || c.createdDate || "",
-      location: c.destination || 'Global',
-      tracking_id: c.id.slice(0, 12).toUpperCase(),
+      location: c.current_location || c.destination || 'Global',
+      tracking_id: c.tracking_id || c.id.slice(0, 12).toUpperCase(),
       started_at: c.shipping_started_at || c.shippingStartedAt,
       method: c.preferred_shipping_method || c.preferredShippingMethod
     }))
   ];
+
+  const handleEditClick = (item: TrackingItem) => {
+    setEditingItem(item);
+    setEditTrackingId(item.tracking_id);
+    setEditLocation(item.location);
+    setIsDialogOpen(true);
+  };
+
+  const handleSaveTracking = async () => {
+    if (!editingItem) return;
+
+    try {
+      if (editingItem.type === 'Order') {
+        await updateOrderTracking.mutateAsync({
+          orderId: editingItem.id,
+          trackingId: editTrackingId,
+          location: editLocation
+        });
+      } else {
+        await updateClusterTracking.mutateAsync({
+          clusterId: editingItem.id,
+          trackingId: editTrackingId,
+          location: editLocation
+        });
+      }
+      toast.success("Tracking information updated successfully");
+      setIsDialogOpen(false);
+    } catch (error) {
+      toast.error("Failed to update tracking information");
+    }
+  };
 
   const filteredTracking = activeTracking.filter(t => 
     t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -138,8 +184,18 @@ const AdminTracking = () => {
                   </div>
 
                   <div className="flex flex-col sm:flex-row lg:flex-col justify-between items-end gap-4 lg:w-48 lg:border-l lg:border-white/10 lg:pl-6">
-                    <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${getStatusColor(item.status)}`}>
-                      {item.status}
+                    <div className="flex gap-2 items-center">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 text-muted-foreground hover:text-white"
+                        onClick={() => handleEditClick(item)}
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </Button>
+                      <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${getStatusColor(item.status)}`}>
+                        {item.status}
+                      </div>
                     </div>
                     
                     {item.type === 'Cluster' && item.started_at && (
@@ -186,6 +242,40 @@ const AdminTracking = () => {
           </GlassCard>
         </div>
       </main>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="bg-background/95 backdrop-blur-xl border-white/10 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle>Update Tracking Info</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="trackingId">Tracking ID</Label>
+              <Input 
+                id="trackingId"
+                value={editTrackingId}
+                onChange={(e) => setEditTrackingId(e.target.value)}
+                placeholder="Enter tracking number"
+                className="bg-white/5 border-white/10"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="location">Current Location</Label>
+              <Input 
+                id="location"
+                value={editLocation}
+                onChange={(e) => setEditLocation(e.target.value)}
+                placeholder="e.g. In Warehouse, On Ship, etc."
+                className="bg-white/5 border-white/10"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveTracking}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 };

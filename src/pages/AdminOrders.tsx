@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { useAllOrders } from "@/hooks/useData";
+import { useAllOrders, useUpdateOrderStatusMutation } from "@/hooks/useData";
 import GlassCard from "@/components/GlassCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Filter, ShoppingCart, Package, Calendar, User as UserIcon } from "lucide-react";
+import { Search, Filter, ShoppingCart, Package, Calendar, User as UserIcon, MoreVertical, Edit2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import AdminLayout from "@/components/AdminLayout";
+import { toast } from "sonner";
 
 type SortOption = "newest" | "oldest" | "price-high" | "price-low" | "status";
 
@@ -39,10 +40,20 @@ interface Order {
 
 const AdminOrders = () => {
   const { data: orders = [], isLoading } = useAllOrders();
+  const updateStatusMutation = useUpdateOrderStatusMutation();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+
+  const handleStatusChange = async (orderId: string, newStatus: string) => {
+    try {
+      await updateStatusMutation.mutateAsync({ orderId, status: newStatus });
+      toast.success(`Order status updated to ${newStatus}`);
+    } catch (error) {
+      toast.error("Failed to update order status");
+    }
+  };
 
   useEffect(() => {
     const filtered = (orders as Order[]).filter((order) => {
@@ -207,13 +218,25 @@ const AdminOrders = () => {
                       </p>
                       <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mt-0.5">Total Amount</p>
                     </div>
-                    <span
-                      className={`text-[10px] px-3 py-1.5 rounded-full font-bold uppercase tracking-widest border ${getStatusColor(
-                        order.status
-                      )}`}
-                    >
-                      {order.status}
-                    </span>
+                    
+                    <div className="flex flex-col gap-2">
+                      <Select
+                        defaultValue={order.status}
+                        onValueChange={(value) => handleStatusChange(order.id, value)}
+                      >
+                        <SelectTrigger className={`w-40 text-[10px] h-8 font-bold uppercase tracking-widest border ${getStatusColor(order.status)}`}>
+                          <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background/95 backdrop-blur-xl border-white/10">
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="processing">Processing</SelectItem>
+                          <SelectItem value="shipped">Shipped</SelectItem>
+                          <SelectItem value="delivered">Delivered</SelectItem>
+                          <SelectItem value="cancelled">Cancelled</SelectItem>
+                          <SelectItem value="Pending Manual Purchase">Manual Purchase</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
               </GlassCard>
