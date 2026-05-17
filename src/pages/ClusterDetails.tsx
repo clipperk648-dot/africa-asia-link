@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useCluster, useUpdateClusterMutation, useCheckoutClusterMutation } from "@/hooks/useData";
+import { useCluster, useUpdateClusterMutation, useCheckoutClusterMutation, useJoinClusterMutation } from "@/hooks/useData";
 import { Button } from "@/components/ui/button";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
@@ -13,6 +13,7 @@ import { getSafeAvatarUrl } from "@/utils/imageOptimization";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { calculateExpectedDeliveryDate, formatCountdown } from "@/utils/shipping";
 import { calculateUnitCBM, calculateTotalCBM } from "@/utils/cbm";
 import { Progress } from "@/components/ui/progress";
@@ -26,6 +27,7 @@ const ClusterDetails = () => {
   const { data: product } = useProduct(cluster?.targetProductId || "");
   const updateClusterMutation = useUpdateClusterMutation();
   const checkoutMutation = useCheckoutClusterMutation();
+  const joinClusterMutation = useJoinClusterMutation();
   
   const [copied, setCopied] = useState(false);
   const [showMoreMembers, setShowMoreMembers] = useState(false);
@@ -35,9 +37,13 @@ const ClusterDetails = () => {
   const [showPoll, setShowPoll] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
   const [votes, setVotes] = useState({ yes: 0, no: 0 });
+  const [joinDialogOpen, setJoinDialogOpen] = useState(false);
+  const [joinQty, setJoinQty] = useState("1");
 
   const currentTargetQty = cluster?.target_qty || 100;
   
+  const isMember = cluster?.cluster_members?.some((m: any) => m.user_id === user?.id);
+
   const handleProposeChange = () => {
     if (!proposedQty || parseInt(proposedQty) <= 0) {
       toast.error("Please enter a valid quantity");
@@ -75,6 +81,7 @@ const ClusterDetails = () => {
       };
       updateTarget();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pollPassed, showPoll]);
 
   const totalCBM = cluster?.total_cbm || 0;
@@ -174,6 +181,31 @@ const ClusterDetails = () => {
     }
   };
 
+  const handleJoinCluster = async () => {
+    if (!joinQty || parseInt(joinQty) <= 0) {
+      toast.error("Please enter a valid quantity");
+      return;
+    }
+
+    const qty = parseInt(joinQty);
+    const effectivePrice = product?.moq && qty >= product.moq ? (product.moq_price || product.price) : (product.unitPrice || product.price);
+    const amount = effectivePrice * qty;
+
+    try {
+      await joinClusterMutation.mutateAsync({
+        clusterId: cluster.id,
+        userId: user?.id || '',
+        quantity: qty,
+        amount: amount,
+      });
+      toast.success("Joined cluster successfully!");
+      setJoinDialogOpen(false);
+      setJoinQty("1");
+    } catch (error) {
+      toast.error("Failed to join cluster");
+    }
+  };
+
   const isCreator = user?.id === (cluster.creatorId || cluster.creator_id);
   const isAdmin = user?.role === "admin";
 
@@ -201,13 +233,13 @@ const ClusterDetails = () => {
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* Cluster Info Card */}
-        <GlassCard className="p-6 bg-gradient-to-br from-accent/10 via-transparent to-primary/10 border-accent/20">
+        <GlassCard className="p-4 sm:p-6 bg-gradient-to-br from-accent/10 via-transparent to-primary/10 border-accent/20">
           <div className="space-y-4">
-            <div className="flex justify-between items-start">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
               <div>
-                <p className="text-sm font-semibold text-muted-foreground mb-1">Creator</p>
+                <p className="text-xs sm:text-sm font-semibold text-muted-foreground mb-1">Creator</p>
                 <div className="flex items-center gap-2">
-                  <p className="text-lg font-bold">{cluster.creatorName || cluster.creator_name || "Anonymous"}</p>
+                  <p className="text-base sm:text-lg font-bold">{cluster.creatorName || cluster.creator_name || "Anonymous"}</p>
                   {isCreator && (
                     <span className="flex items-center gap-1 px-2 py-0.5 bg-accent/20 text-accent text-[10px] font-bold rounded-full uppercase">
                       <ShieldCheck className="w-3 h-3" />
@@ -217,12 +249,25 @@ const ClusterDetails = () => {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-sm font-semibold text-muted-foreground mb-1">Status</p>
+                <p className="text-xs sm:text-sm font-semibold text-muted-foreground mb-1">Status</p>
                 <span className="px-2 py-1 bg-primary/20 text-primary text-[10px] font-bold rounded uppercase">
                   {cluster.shipping_status || cluster.shippingStatus || "shipping not started yet"}
                 </span>
               </div>
             </div>
+
+            {/* Join Cluster Button for non-members */}
+            {!isMember && !isCreator && (
+              <div className="pt-2">
+                <Button 
+                  className="w-full gap-2 bg-primary hover:bg-primary/90 min-h-[44px]" 
+                  onClick={() => setJoinDialogOpen(true)}
+                >
+                  <Users className="w-4 h-4" />
+                  Join This Cluster
+                </Button>
+              </div>
+            )}
 
             {countdown && (
               <div className="p-3 rounded-lg bg-black/40 border border-accent/30 text-center">
@@ -238,9 +283,9 @@ const ClusterDetails = () => {
 
             {isAdmin && (
               <div className="p-3 rounded-lg bg-card/50 border border-border/50">
-                <p className="text-sm font-semibold mb-2">Admin: Change Shipping Status</p>
+                <p className="text-xs sm:text-sm font-semibold mb-2">Admin: Change Shipping Status</p>
                 <Select onValueChange={handleStatusChange} defaultValue={cluster.shipping_status || cluster.shippingStatus}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -257,9 +302,9 @@ const ClusterDetails = () => {
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Target className="w-5 h-5 text-accent" />
-                  <p className="text-sm font-semibold text-muted-foreground">Target Product</p>
+                  <p className="text-xs sm:text-sm font-semibold text-muted-foreground">Target Product</p>
                 </div>
-                <p className="text-lg font-bold">{cluster.targetProductName || cluster.target_product_name}</p>
+                <p className="text-base sm:text-lg font-bold">{cluster.targetProductName || cluster.target_product_name}</p>
               </div>
             )}
 
@@ -270,7 +315,7 @@ const ClusterDetails = () => {
                   <p className="text-xs font-semibold">Quantity</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-primary">{cluster.quantity || 0} / {cluster.target_qty || cluster.targetQty || 100}</p>
+                  <p className="font-bold text-primary text-sm sm:text-base">{cluster.quantity || 0} / {cluster.target_qty || cluster.targetQty || 100}</p>
                 </div>
               </div>
 
@@ -279,7 +324,7 @@ const ClusterDetails = () => {
                   <Truck className="w-5 h-5 text-primary" />
                   <p className="text-xs font-semibold">Method</p>
                 </div>
-                <p className="font-bold text-primary text-[10px] uppercase">
+                <p className="font-bold text-primary text-[10px] sm:text-xs uppercase">
                   {cluster.shipping_mode === 'air' ? 'Air' : 'Sea'}
                 </p>
               </div>
@@ -394,8 +439,8 @@ const ClusterDetails = () => {
             {targetPrice > 0 && (
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <p className="text-sm text-muted-foreground">Progress</p>
-                  <p className="text-sm font-semibold">
+                  <p className="text-xs sm:text-sm text-muted-foreground">Progress</p>
+                  <p className="text-xs sm:text-sm font-semibold">
                     ${(currentFunded).toLocaleString()} / ${(targetPrice).toLocaleString()}
                   </p>
                 </div>
@@ -409,14 +454,14 @@ const ClusterDetails = () => {
               </div>
             )}
 
-            <Button onClick={handleCopyInvite} variant="outline" className="w-full">
+            <Button onClick={handleCopyInvite} variant="outline" className="w-full min-h-[44px]">
               {copied ? <><Check className="w-4 h-4 mr-2" />Copied!</> : <><Copy className="w-4 h-4 mr-2" />Copy Invite Link</>}
             </Button>
 
             {((cluster.current_members || cluster.currentMembers || 0) >= (cluster.max_members || cluster.maxMembers || 5)) && cluster.status !== 'locked' && (
               <Button 
                 onClick={handleCheckout} 
-                className="w-full gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg shadow-green-500/20"
+                className="w-full gap-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg shadow-green-500/20 min-h-[44px]"
                 disabled={isCheckingOut}
               >
                 <ShoppingBag className="w-4 h-4" />
@@ -426,7 +471,7 @@ const ClusterDetails = () => {
 
             {cluster.status === 'locked' && (
               <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-center">
-                <p className="text-sm font-bold text-emerald-400">Cluster Locked - Order Pending</p>
+                <p className="text-xs sm:text-sm font-bold text-emerald-400">Cluster Locked - Order Pending</p>
               </div>
             )}
           </div>
@@ -436,22 +481,22 @@ const ClusterDetails = () => {
         <div>
           <div className="flex items-center gap-2 mb-4">
             <Users className="w-5 h-5 text-primary" />
-            <h2 className="text-2xl font-bold">Members ({(cluster.cluster_members || []).length})</h2>
+            <h2 className="text-xl sm:text-2xl font-bold">Members ({(cluster.cluster_members || []).length})</h2>
           </div>
           <div className="space-y-3">
             {(showMoreMembers ? (cluster.cluster_members || []) : (cluster.cluster_members || []).slice(0, 5)).map((member: any) => (
-              <GlassCard key={member.id} className="p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
+              <GlassCard key={member.id} className="p-4 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   <img
                     src={getSafeAvatarUrl(member.profiles?.name || "User")}
                     alt={member.profiles?.name}
-                    className="w-10 h-10 rounded-full"
+                    className="w-10 h-10 rounded-full shrink-0"
                   />
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-semibold">{member.profiles?.name || "Unknown User"}</p>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-semibold text-sm truncate">{member.profiles?.name || "Unknown User"}</p>
                       {member.user_id === cluster.creatorId && (
-                        <span className="text-[8px] bg-accent/20 text-accent px-1.5 py-0.5 rounded-full font-bold uppercase">Cluster Admin</span>
+                        <span className="text-[8px] bg-accent/20 text-accent px-1.5 py-0.5 rounded-full font-bold uppercase shrink-0">Cluster Admin</span>
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground">
@@ -459,7 +504,7 @@ const ClusterDetails = () => {
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right shrink-0">
                   <p className="font-semibold text-accent">{member.joined_quantity || 0} units</p>
                   <p className="text-xs text-muted-foreground">
                     ${(member.joined_amount || 0).toLocaleString()}
@@ -473,15 +518,15 @@ const ClusterDetails = () => {
         <div className="grid grid-cols-2 gap-4">
           <Button
             variant="outline"
-            className="h-12"
+            className="h-12 min-h-[44px]"
             onClick={() => navigate(`/cluster/${cluster.id}/chat`)}
           >
             <MessageCircle className="w-4 h-4 mr-2" />
-            Cluster Chat
+            <span className="hidden sm:inline">Cluster </span>Chat
           </Button>
           <Button
             variant="outline"
-            className="h-12"
+            className="h-12 min-h-[44px]"
             onClick={() => navigate(`/cluster/${cluster.id}/analytics`)}
           >
             <BarChart3 className="w-4 h-4 mr-2" />
@@ -491,6 +536,62 @@ const ClusterDetails = () => {
       </main>
 
       <FooterNav dashboardType={(user?.role as any) || 'buyer'} />
+
+      {/* Join Cluster Dialog */}
+      <Dialog open={joinDialogOpen} onOpenChange={setJoinDialogOpen}>
+        <DialogContent className="bg-background/95 backdrop-blur-xl border-white/10 text-white max-w-md p-6">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold">Join Cluster</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Desired Quantity (Units)</Label>
+              <Input
+                type="number"
+                value={joinQty}
+                onChange={(e) => setJoinQty(e.target.value)}
+                className="h-12 bg-white/5 border-white/10"
+                min="1"
+              />
+              {product?.moq && (
+                <p className="text-[10px] text-muted-foreground">
+                  MOQ for discounted price: {product.moq} units
+                </p>
+              )}
+            </div>
+
+            <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Unit CBM</span>
+                <span className="font-bold">
+                  {calculateUnitCBM(product?.length_cm || 0, product?.width_cm || 0, product?.height_cm || 0).toFixed(4)} m³
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Total CBM</span>
+                <span className="font-bold">
+                  {calculateTotalCBM(
+                    calculateUnitCBM(product?.length_cm || 0, product?.width_cm || 0, product?.height_cm || 0),
+                    parseInt(joinQty) || 0
+                  ).toFixed(4)} m³
+                </span>
+              </div>
+              {product?.moq && parseInt(joinQty) >= product.moq && (
+                <div className="text-xs text-green-400 font-bold">
+                  ✅ MOQ reached! You qualify for discounted price.
+                </div>
+              )}
+            </div>
+          </div>
+          <Button 
+            className="w-full h-12 bg-primary font-bold uppercase tracking-widest text-sm shadow-lg shadow-primary/20"
+            onClick={handleJoinCluster}
+            disabled={joinClusterMutation.isPending}
+          >
+            {joinClusterMutation.isPending ? "Joining..." : "Join Cluster"}
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

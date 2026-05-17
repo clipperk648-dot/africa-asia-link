@@ -19,6 +19,15 @@ import { getSafeImageUrl, getSafeAvatarUrl, createImageErrorHandler } from "@/ut
 import { preloadVideo } from "@/utils/videoOptimization";
 import { getThemeBgVideoUrl } from "@/utils/theme";
 
+// Supabase cluster response type with snake_case properties
+type ClusterResponse = {
+  id: string;
+  targetProductId?: string;
+  target_product_id?: string;
+  status?: string;
+  [key: string]: unknown;
+};
+
 const ProductCard = ({ 
   product, 
   navigate, 
@@ -27,16 +36,16 @@ const ProductCard = ({
 }: { 
   product: Product; 
   navigate: (path: string) => void;
-  clusters: any[];
+  clusters: ClusterResponse[];
   handleJoinCluster: (productId: string, productName: string, productData: Product) => void;
 }) => {
-  const hasCluster = (clusters as any[]).some((c) => 
+  const hasCluster = clusters.some((c) => 
     (c.targetProductId === product.id || c.target_product_id === product.id) && 
     (c.status === 'active' || c.status === 'open')
   );
 
   return (
-    <GlassCard className="p-4 sm:p-6 min-w-[280px] sm:min-w-0">
+    <GlassCard className="p-4 sm:p-6 w-full">
       <img
         src={getSafeImageUrl(product.image)}
         alt={product.name}
@@ -56,17 +65,17 @@ const ProductCard = ({
           </div>
         </div>
         <p className="text-[10px] sm:text-xs text-cyan-300 truncate">{product.location}</p>
-        <div className="flex items-center justify-between pt-1 gap-2">
+        <div className="flex items-center justify-between pt-1 gap-2 flex-wrap">
           <p className="text-base sm:text-lg font-bold text-primary">
             ${product.price.toLocaleString()}
           </p>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="xs" className="flex-shrink-0" onClick={() => navigate(`/buyer/products/${product.id}`)}>
+            <Button variant="outline" size="xs" className="flex-shrink-0 min-h-[32px]" onClick={() => navigate(`/buyer/products/${product.id}`)}>
               Details
             </Button>
-            <Button variant="accent" size="xs" className="flex-shrink-0" onClick={() => handleJoinCluster(product.id, product.name, product)}>
+            <Button variant="accent" size="xs" className="flex-shrink-0 min-h-[32px]" onClick={() => handleJoinCluster(product.id, product.name, product)}>
               <Users2 className="w-3 h-3 mr-1" />
-              {hasCluster ? "Join Cluster" : "Create Cluster"}
+              {hasCluster ? "Join" : "Create"}
             </Button>
           </div>
         </div>
@@ -89,7 +98,7 @@ const BuyerDashboard = () => {
 
   const handleJoinCluster = async (productId: string, productName: string, productData?: Product) => {
     // Check if cluster exists
-    const existingCluster = (clusters as any[]).find((c) => 
+    const existingCluster = clusters.find((c) => 
       (c.targetProductId === productId || c.target_product_id === productId) && 
       (c.status === 'active' || c.status === 'open')
     );
@@ -421,15 +430,15 @@ const BuyerDashboard = () => {
             </div>
           </div>
 
-          <div className="md:hidden -mx-4 px-4 pb-2 overflow-x-auto snap-x snap-mandatory flex gap-3">
+          <div className="xs:hidden -mx-4 px-4 pb-2 overflow-x-auto snap-x snap-mandatory flex gap-3">
             {products.map((p) => (
-              <div key={p.id} className="snap-start shrink-0">
+              <div key={p.id} className="snap-start shrink-0 w-[260px]">
                 <ProductCard product={p} navigate={navigate} clusters={clusters} handleJoinCluster={handleJoinCluster} />
               </div>
             ))}
           </div>
 
-          <div className="hidden md:grid md:grid-cols-2 gap-4">
+          <div className="hidden xs:block grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {products.map((p) => (
               <Fragment key={p.id}>
                 <ProductCard product={p} navigate={navigate} clusters={clusters} handleJoinCluster={handleJoinCluster} />

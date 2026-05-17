@@ -491,6 +491,23 @@ export const getClusterById = async (id: string): Promise<unknown> => {
 };
 
 export const createCluster = async (clusterData: any): Promise<unknown> => {
+  // Calculate initial CBM for creator's contribution if quantity is provided
+  let initialCBM = 0;
+  if (clusterData.targetProductId && clusterData.quantity > 0) {
+    const product = await getProductById(clusterData.targetProductId) as any;
+    if (product) {
+      const unitCBM = ((product.length_cm || 0) * (product.width_cm || 0) * (product.height_cm || 0)) / 1000000;
+      initialCBM = unitCBM * (clusterData.quantity || 0);
+    }
+  }
+
+  const effectivePrice = clusterData.targetProductId 
+    ? (() => {
+        const product = clusterData._productData;
+        return product ? (product.moq_price || product.unitPrice || product.price || 0) : 0;
+      })()
+    : 0;
+
   const mappedData = {
     name: clusterData.name,
     description: clusterData.description,
@@ -504,9 +521,9 @@ export const createCluster = async (clusterData: any): Promise<unknown> => {
     shipping_mode: clusterData.shipping_mode || 'sea',
     destination: clusterData.destination || 'lagos',
     target_qty: clusterData.target_qty || 100,
-    total_cbm: 0,
+    total_cbm: initialCBM,
     status: 'active',
-    current_funded: 0,
+    current_funded: clusterData.quantity > 0 ? effectivePrice * clusterData.quantity : 0,
     current_members: 1, // Creator is the first member
     created_at: new Date().toISOString(),
     shipping_status: 'shipping not started yet',
@@ -526,8 +543,8 @@ export const createCluster = async (clusterData: any): Promise<unknown> => {
     await supabase.from('cluster_members').insert([{
       cluster_id: data.id,
       user_id: mappedData.creator_id,
-      joined_quantity: 0, // Creator might not have specified quantity yet
-      joined_amount: 0,
+      joined_quantity: clusterData.quantity || 0,
+      joined_amount: clusterData.quantity > 0 ? effectivePrice * clusterData.quantity : 0,
       joined_at: new Date().toISOString()
     }]);
   }
