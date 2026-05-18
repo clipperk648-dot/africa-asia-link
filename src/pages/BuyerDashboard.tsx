@@ -536,7 +536,7 @@ const BuyerDashboard = () => {
         </section>
 
         <section className="pt-1 pb-4 text-xs text-cyan-300 text-center">
-          <span className="font-medium">Rates:</span> 1 USD ≈ ₦1,650 • 1 CNY ≈ ₦230
+          <span className="font-medium">Rates:</span> 1 USD ≈ ₦1,400 • 1 CNY ≈ ₦230
         </section>
       </main>
 
