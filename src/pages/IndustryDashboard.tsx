@@ -31,7 +31,7 @@ const ProductCard = ({ product }: { product: Product }) => (
         <h3 className="font-semibold text-xs sm:text-sm truncate">{product.name}</h3>
         <p className="text-[10px] sm:text-xs text-cyan-300 truncate">{product.category}</p>
         <div className="flex items-center justify-between mt-1 gap-2">
-          <p className="text-sm sm:text-base font-bold text-primary">¥{product.price.toLocaleString()}</p>
+          <p className="text-sm sm:text-base font-bold text-primary">₦{product.price.toLocaleString()}</p>
           <div className="flex items-center gap-1 flex-shrink-0">
             <span className="text-accent">★</span>
             <span className="text-[10px] sm:text-xs font-medium">{product.rating}</span>
@@ -118,7 +118,7 @@ const IndustryDashboard = () => {
     return [
       { label: "Total Products", value: String(Array.isArray(products) ? products.length : 0), icon: Package, color: "text-primary" },
       { label: "Active Orders", value: String(activeOrders), icon: TrendingUp, color: "text-secondary" },
-      { label: "Revenue", value: `¥${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-accent" },
+      { label: "Revenue", value: `₦${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-accent" },
       { label: "Buyers", value: String(uniqueBuyers), icon: Users, color: "text-primary" },
     ];
   }, [products, orders]);
@@ -426,7 +426,7 @@ const IndustryDashboard = () => {
                     </div>
                     <div className="flex items-center gap-2 sm:gap-3">
                       <div className="text-left sm:text-right">
-                        <p className="font-bold text-sm sm:text-base">¥{order.total.toLocaleString()}</p>
+                        <p className="font-bold text-sm sm:text-base">₦{order.total.toLocaleString()}</p>
                       </div>
                       <span
                         className={`text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium whitespace-nowrap ${
@@ -481,7 +481,7 @@ const IndustryDashboard = () => {
         </section>
 
         <section className="pt-1 pb-4 text-xs text-cyan-300 text-center">
-          <span className="font-medium">Rates:</span> 1 USD ≈ $7.1 • 1 CNY ≈ $220
+          <span className="font-medium">Rates:</span> 1 USD ≈ ₦1,650 • 1 CNY ≈ ₦230
         </section>
       </main>
 

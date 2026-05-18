@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS products (
   location text,
   unit text,
   unitPrice numeric,
-  currency text DEFAULT 'USD',
+  currency text DEFAULT 'NGN',
   moq integer,
   supplyAbilityPerMonth integer,
   quantityAvailable integer,

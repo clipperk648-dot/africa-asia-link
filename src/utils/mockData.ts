@@ -8,7 +8,7 @@ export const MOCK_CLUSTERS: Cluster[] = [];
 export const MOCK_WALLET = {
   user_id: '',
   balance: 0,
-  currency: 'USD',
+  currency: 'NGN',
   updated_at: new Date().toISOString(),
 };
 export const MOCK_TRANSACTIONS: Transaction[] = [];

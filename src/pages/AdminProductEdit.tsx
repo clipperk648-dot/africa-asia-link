@@ -75,7 +75,7 @@ const AdminProductEdit = () => {
     city: "",
     unit: "piece",
     unitPrice: "",
-    currency: "USD",
+    currency: "NGN",
     moq: "",
     supplyAbilityPerMonth: "",
     quantityAvailable: "",
@@ -121,7 +121,7 @@ const AdminProductEdit = () => {
         city: p.city || "",
         unit: p.unit || "piece",
         unitPrice: String(p.unitPrice ?? p.price ?? ""),
-        currency: (p.currency as string) || "USD",
+        currency: (p.currency as string) || "NGN",
         moq: String(p.moq ?? ""),
         supplyAbilityPerMonth: String(p.supplyAbilityPerMonth ?? ""),
         quantityAvailable: String(p.quantityAvailable ?? ""),
@@ -189,7 +189,7 @@ const AdminProductEdit = () => {
         unit: form.unit,
         price: parseFloat(form.unitPrice),
         unitPrice: parseFloat(form.unitPrice),
-        currency: form.currency as "USD" | "CNY" | "NGN",
+        currency: form.currency as "NGN" | "CNY" | "NGN",
         moq: parseInt(form.moq),
         supplyAbilityPerMonth: parseInt(form.supplyAbilityPerMonth),
         quantityAvailable: parseInt(form.quantityAvailable),
@@ -301,7 +301,7 @@ const AdminProductEdit = () => {
                     <Select value={form.currency} onValueChange={(v) => handleInput("currency", v)}>
                       <SelectTrigger className="w-24 bg-background/50 border-white/10 h-11"><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="USD">USD</SelectItem>
+                        <SelectItem value="NGN">USD</SelectItem>
                         <SelectItem value="CNY">CNY</SelectItem>
                         <SelectItem value="NGN">NGN</SelectItem>
                       </SelectContent>

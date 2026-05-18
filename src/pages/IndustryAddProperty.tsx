@@ -32,7 +32,7 @@ type ProductFormState = {
   city: string;
   unit: string;
   unitPrice: string;
-  currency: "CNY" | "USD" | "NGN";
+  currency: "CNY" | "NGN" | "NGN";
   moq: string;
   supplyAbilityPerMonth: string;
   leadTimeDays: string;
@@ -364,7 +364,7 @@ const IndustryAddProperty = () => {
                       <SelectTrigger className="h-11 bg-background/60"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="CNY">CNY (¥)</SelectItem>
-                        <SelectItem value="USD">USD ($)</SelectItem>
+                        <SelectItem value="NGN">NGN (₦)</SelectItem>
                         <SelectItem value="NGN">NGN (₦)</SelectItem>
                       </SelectContent>
                     </Select>
@@ -391,7 +391,7 @@ const IndustryAddProperty = () => {
                   <Label htmlFor="moq_price">MOQ Price (Per unit when ≥ MOQ)</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-3 text-muted-foreground font-medium">
-                      {formData.currency === 'USD' ? '$' : formData.currency === 'CNY' ? '¥' : '₦'}
+                      {formData.currency === 'NGN' ? '$' : formData.currency === 'CNY' ? '¥' : '₦'}
                     </span>
                     <Input id="moq_price" value={formData.moq_price} onChange={handleChange("moq_price")} required className="h-11 bg-background/60 pl-8" type="number" min="0" />
                   </div>

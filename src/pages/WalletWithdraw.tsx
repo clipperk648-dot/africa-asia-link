@@ -12,14 +12,14 @@ import { ArrowLeft, Building2, Smartphone, AlertCircle, CheckCircle2, Clock } fr
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 
-const currencies = ["USD", "NGN"] as const;
+const currencies = ["NGN", "NGN"] as const;
 type Currency = typeof currencies[number];
 
 const WalletWithdraw = () => {
   const user = getCurrentUser();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [currency, setCurrency] = useState<Currency>("USD");
+  const [currency, setCurrency] = useState<Currency>("NGN");
   const [amount, setAmount] = useState("");
   const [withdrawMethod, setWithdrawMethod] = useState<"bank" | "mobile" | null>(null);
   const [step, setStep] = useState<"amount" | "method" | "confirm">("amount");

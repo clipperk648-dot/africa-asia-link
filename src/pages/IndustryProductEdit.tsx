@@ -40,7 +40,7 @@ const IndustryProductEdit = () => {
     city: product?.city || "",
     unit: product?.unit || "piece",
     unitPrice: String(product?.unitPrice ?? product?.price ?? ""),
-    currency: (product?.currency as any) || "USD",
+    currency: (product?.currency as any) || "NGN",
     moq: String(product?.moq ?? ""),
     supplyAbilityPerMonth: String(product?.supplyAbilityPerMonth ?? ""),
     quantityAvailable: String(product?.quantityAvailable ?? ""),
@@ -91,7 +91,7 @@ const IndustryProductEdit = () => {
         city: product.city || "",
         unit: product.unit || "piece",
         unitPrice: String(product.unitPrice ?? product.price ?? ""),
-        currency: (product.currency as any) || "USD",
+        currency: (product.currency as any) || "NGN",
         moq: String(product.moq ?? ""),
         supplyAbilityPerMonth: String(product.supplyAbilityPerMonth ?? ""),
         quantityAvailable: String(product.quantityAvailable ?? ""),
@@ -361,7 +361,7 @@ const IndustryProductEdit = () => {
                     <SelectTrigger className="h-11 bg-background/50"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="CNY">CNY (¥)</SelectItem>
-                      <SelectItem value="USD">USD ($)</SelectItem>
+                      <SelectItem value="NGN">NGN (₦)</SelectItem>
                       <SelectItem value="NGN">NGN (₦)</SelectItem>
                     </SelectContent>
                   </Select>
@@ -388,7 +388,7 @@ const IndustryProductEdit = () => {
                 <Label htmlFor="moq_price">MOQ Price (Per unit when ≥ MOQ)</Label>
                 <div className="relative">
                   <span className="absolute left-3 top-3 text-muted-foreground font-medium">
-                    {form.currency === 'USD' ? '$' : form.currency === 'CNY' ? '¥' : '₦'}
+                    {form.currency === 'NGN' ? '$' : form.currency === 'CNY' ? '¥' : '₦'}
                   </span>
                   <Input id="moq_price" value={form.moq_price} onChange={handle("moq_price")} required className="h-11 bg-background/60 pl-8" type="number" min="0" />
                 </div>

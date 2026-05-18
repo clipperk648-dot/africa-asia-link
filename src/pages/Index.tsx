@@ -111,7 +111,7 @@ const Index = () => {
               <p className="text-xs sm:text-sm text-muted-foreground">Verified Buyers</p>
             </GlassCard>
             <GlassCard className="text-center p-4 animate-slide-up" style={{ animationDelay: '0.2s' }}>
-              <p className="text-2xl sm:text-3xl font-bold text-accent">$45M+</p>
+              <p className="text-2xl sm:text-3xl font-bold text-accent">₦45B+</p>
               <p className="text-xs sm:text-sm text-muted-foreground">Trade Volume</p>
             </GlassCard>
             <GlassCard className="text-center p-4 animate-slide-up" style={{ animationDelay: '0.25s' }}>

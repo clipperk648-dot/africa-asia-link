@@ -74,7 +74,7 @@ const IndustryProducts = () => {
                 <p className="text-xs sm:text-sm text-muted-foreground mt-2 truncate">{product.location}</p>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 sm:mt-4 gap-3">
                   <p className="text-xl sm:text-2xl font-bold text-primary">
-                    ${product.price.toLocaleString()}
+                    ₦{product.price.toLocaleString()}
                   </p>
                   <div className="flex gap-2 w-full sm:w-auto">
                     <Button variant="outline" size="sm" className="flex-1 sm:flex-none" onClick={() => navigate(`/industry/products/${product.id}/edit`)}>Edit</Button>

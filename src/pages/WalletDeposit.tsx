@@ -11,13 +11,13 @@ import ThreeBackground from "@/components/ThreeBackground";
 import { ArrowLeft, CreditCard, Building2, Smartphone, Lock, CheckCircle2, AlertCircle } from "lucide-react";
 import { useEffect } from "react";
 
-const currencies = ["USD", "NGN"] as const;
+const currencies = ["NGN", "NGN"] as const;
 type Currency = typeof currencies[number];
 
 const WalletDeposit = () => {
   const user = getCurrentUser();
   const navigate = useNavigate();
-  const [currency, setCurrency] = useState<Currency>("USD");
+  const [currency, setCurrency] = useState<Currency>("NGN");
   const [amount, setAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"card" | "bank" | "mobile" | null>(null);
   const [step, setStep] = useState<"amount" | "method" | "confirm">("amount");

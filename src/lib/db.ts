@@ -788,10 +788,10 @@ export const getWalletBalance = async (userId: string): Promise<{ balance: numbe
   
   if (error && error.code === 'PGRST116') {
     // Create wallet if not exists
-    const { data: newWallet } = await supabase.from('wallets').insert([{ user_id: userId, balance: 0, currency: 'USD' }]).select().single();
-    return (newWallet as { balance: number, currency: string }) || { balance: 0, currency: 'USD' };
+    const { data: newWallet } = await supabase.from('wallets').insert([{ user_id: userId, balance: 0, currency: 'NGN' }]).select().single();
+    return (newWallet as { balance: number, currency: string }) || { balance: 0, currency: 'NGN' };
   }
-  return (data as { balance: number, currency: string }) || { balance: 0, currency: 'USD' };
+  return (data as { balance: number, currency: string }) || { balance: 0, currency: 'NGN' };
 };
 
 export const addWalletTransaction = async (
@@ -804,7 +804,7 @@ export const addWalletTransaction = async (
       user_id: userId,
       type: tx.type,
       amount: tx.amount,
-      currency: tx.currency || 'USD',
+      currency: tx.currency || 'NGN',
       note: tx.note || '',
       created_at: new Date().toISOString()
     }])
@@ -835,7 +835,7 @@ export const getWalletTransactions = async (userId: string): Promise<unknown[]> 
   return data;
 };
 
-export const setWalletBalance = async (userId: string, amount: number, currency: string = 'USD'): Promise<unknown> => {
+export const setWalletBalance = async (userId: string, amount: number, currency: string = 'NGN'): Promise<unknown> => {
   const { data, error } = await supabase
     .from('wallets')
     .update({ balance: amount, currency })

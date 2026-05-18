@@ -8,7 +8,7 @@ import { Wallet as WalletIcon, ArrowDownCircle, Send, History, Grid2X2 } from "l
 import ThreeBackground from "@/components/ThreeBackground";
 import { useToast } from "@/hooks/use-toast";
 
-const currencies = ["USD", "NGN"] as const;
+const currencies = ["NGN", "USD"] as const;
 
 const BottomNav = ({ active }: { active: "wallet" | "pay" | "apps" }) => {
   const items = [
@@ -38,7 +38,7 @@ const WalletActions = () => {
   const { toast } = useToast();
   const location = useLocation();
 
-  const [currency, setCurrency] = useState<(typeof currencies)[number]>("USD");
+  const [currency, setCurrency] = useState<(typeof currencies)[number]>("NGN");
   const [amount, setAmount] = useState("");
   const [recipient, setRecipient] = useState("");
   const [note, setNote] = useState("");

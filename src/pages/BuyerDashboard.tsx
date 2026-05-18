@@ -67,7 +67,7 @@ const ProductCard = ({
         <p className="text-[10px] sm:text-xs text-cyan-300 truncate">{product.location}</p>
         <div className="flex items-center justify-between pt-1 gap-2 flex-wrap">
           <p className="text-base sm:text-lg font-bold text-primary">
-            ${product.price.toLocaleString()}
+            ₦{product.price.toLocaleString()}
           </p>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="xs" className="flex-shrink-0 min-h-[32px]" onClick={() => navigate(`/buyer/products/${product.id}`)}>
@@ -92,7 +92,7 @@ const BuyerDashboard = () => {
 
   const { data: products = [] } = useProducts(50, 0);
   const { data: orders = [] } = useOrders(user?.id);
-  const { data: walletData = { balance: 0, currency: "USD" } } = useWalletBalance(user?.id);
+  const { data: walletData = { balance: 0, currency: "NGN" } } = useWalletBalance(user?.id);
   const { data: clusters = [] } = useClusters();
   const createClusterMutation = useCreateClusterMutation();
 
@@ -481,7 +481,7 @@ const BuyerDashboard = () => {
                     </div>
                     <div className="flex items-center gap-3 sm:gap-4">
                       <div className="text-left sm:text-right">
-                        <p className="font-bold text-lg sm:text-xl">${order.total.toLocaleString()}</p>
+                        <p className="font-bold text-lg sm:text-xl">₦{order.total.toLocaleString()}</p>
                       </div>
                       <span
                         className={`text-xs px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium whitespace-nowrap ${
@@ -536,7 +536,7 @@ const BuyerDashboard = () => {
         </section>
 
         <section className="pt-1 pb-4 text-xs text-cyan-300 text-center">
-          <span className="font-medium">Rates:</span> 1 USD ≈ $1,600 • 1 CNY ≈ $220
+          <span className="font-medium">Rates:</span> 1 USD ≈ ₦1,650 • 1 CNY ≈ ₦230
         </section>
       </main>
 

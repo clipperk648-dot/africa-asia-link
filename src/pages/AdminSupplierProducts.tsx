@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAllSupplierProducts, useDeleteSupplierProductMutation, useUpdateSupplierProductMutation, useCreateSupplierProductsMutation } from "@/hooks/useData";
 import { supabase } from "@/lib/supabase";
-import { alibabaProducts } from "@/data/alibaba-products";
 import GlassCard from "@/components/GlassCard";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -168,23 +167,6 @@ const AdminSupplierProducts = () => {
     }
   };
 
-  const handleSeedAlibabaProducts = async () => {
-    if (alibabaProducts.length === 0) {
-      toast.error("No Alibaba products to import");
-      return;
-    }
-
-    const loadingToast = toast.loading(`Importing ${alibabaProducts.length} Alibaba products...`);
-
-    try {
-      await createProductsMutation.mutateAsync(alibabaProducts);
-      toast.success(`Successfully imported ${alibabaProducts.length} Alibaba products!`, { id: loadingToast });
-    } catch (error) {
-      toast.error("Failed to import Alibaba products", { id: loadingToast });
-      console.error(error);
-    }
-  };
-
   return (
     <AdminLayout>
       <main className="max-w-7xl mx-auto px-4 py-6 w-full space-y-6">
@@ -197,14 +179,6 @@ const AdminSupplierProducts = () => {
             </span>
           </div>
           <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-2 rounded-full"
-              onClick={handleSeedAlibabaProducts}
-            >
-              <Download className="w-4 h-4" /> Seed Alibaba
-            </Button>
             <Sheet>
               <SheetTrigger asChild>
                 <Button size="sm" className="gap-2 rounded-full shadow-lg shadow-primary/10">
@@ -318,7 +292,7 @@ const AdminSupplierProducts = () => {
                     <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{product.description}</p>
                     <div className="flex flex-wrap gap-2 mb-3 text-xs">
                       <span className="bg-muted/50 px-2 py-1 rounded">
-                        ${product.price_min.toFixed(2)} - ${product.price_max.toFixed(2)}
+                        ₦{product.price_min.toFixed(2)} - ₦{product.price_max.toFixed(2)}
                       </span>
                       <span className="bg-muted/50 px-2 py-1 rounded">MOQ: {product.moq}</span>
                       <span className="bg-muted/50 px-2 py-1 rounded">{product.category}</span>
