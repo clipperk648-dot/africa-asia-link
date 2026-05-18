@@ -19,7 +19,7 @@ export interface Product {
   city?: string;
   unit?: string;
   unitPrice?: number;
-  currency?: "CNY" | "NGN" | "NGN";
+  currency?: "CNY" | "NGN";
   moq?: number;
   supplyAbilityPerMonth?: number;
   quantityAvailable?: number;

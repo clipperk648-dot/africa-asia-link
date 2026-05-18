@@ -1,8 +1,8 @@
 
 export const EXCHANGE_RATE = 1400;
-export const CONSOLIDATION_FEE_USD = 30;
-export const BATTERY_SURCHARGE_USD = 80;
-export const NAFDAC_SURCHARGE_USD = 35;
+export const CONSOLIDATION_FEE_NGN = 30 * EXCHANGE_RATE;
+export const BATTERY_SURCHARGE_NGN = 80 * EXCHANGE_RATE;
+export const NAFDAC_SURCHARGE_NGN = 35 * EXCHANGE_RATE;
 export const BULK_DISCOUNT_THRESHOLD_CBM = 10;
 export const BULK_DISCOUNT_AMOUNT_NGN = 5000;
 
@@ -43,9 +43,9 @@ export const calculateSeaShippingCost = (
   const baseRate = DESTINATION_RATES[destination] || 0;
   const baseCost = cbm * baseRate;
   
-  const consolidationFee = cbm * CONSOLIDATION_FEE_USD * EXCHANGE_RATE;
-  const batterySurcharge = hasBattery ? cbm * BATTERY_SURCHARGE_USD * EXCHANGE_RATE : 0;
-  const nafdacSurcharge = requiresNafdac ? cbm * NAFDAC_SURCHARGE_USD * EXCHANGE_RATE : 0;
+  const consolidationFee = cbm * CONSOLIDATION_FEE_NGN;
+  const batterySurcharge = hasBattery ? cbm * BATTERY_SURCHARGE_NGN : 0;
+  const nafdacSurcharge = requiresNafdac ? cbm * NAFDAC_SURCHARGE_NGN : 0;
   
   const bulkDiscount = clusterTotalCBM > BULK_DISCOUNT_THRESHOLD_CBM 
     ? cbm * BULK_DISCOUNT_AMOUNT_NGN 

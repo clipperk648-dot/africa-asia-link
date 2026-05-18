@@ -9,7 +9,7 @@ import ThreeBackground from "@/components/ThreeBackground";
 import WalletBottomNav from "@/components/WalletBottomNav";
 import { APP_NAME } from "@/config/app";
 
-const currencies = ["NGN", "NGN"] as const;
+const currencies = ["NGN"] as const;
 
 type Currency = typeof currencies[number];
 

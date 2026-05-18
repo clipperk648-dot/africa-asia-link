@@ -12,7 +12,7 @@ import { ArrowLeft, Building2, Smartphone, AlertCircle, CheckCircle2, Clock } fr
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 
-const currencies = ["NGN", "NGN"] as const;
+const currencies = ["NGN"] as const;
 type Currency = typeof currencies[number];
 
 const WalletWithdraw = () => {
@@ -55,7 +55,7 @@ const WalletWithdraw = () => {
     },
   ];
 
-  const handleWithdraw = () => {
+  const handleWithdraw = async () => {
     const withdrawAmount = Number(amount);
     if (!user || !withdrawAmount || !withdrawMethod || withdrawAmount > balance) {
       toast({
@@ -66,8 +66,8 @@ const WalletWithdraw = () => {
       return;
     }
 
-    setBalance(user.id, balance - withdrawAmount, currency);
-    addTransaction(user.id, {
+    await setBalance(user.id, balance - withdrawAmount, currency);
+    await addTransaction(user.id, {
       id: crypto.randomUUID(),
       type: "withdrawal",
       amount: withdrawAmount,

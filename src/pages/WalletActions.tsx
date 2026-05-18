@@ -8,7 +8,7 @@ import { Wallet as WalletIcon, ArrowDownCircle, Send, History, Grid2X2 } from "l
 import ThreeBackground from "@/components/ThreeBackground";
 import { useToast } from "@/hooks/use-toast";
 
-const currencies = ["NGN", "USD"] as const;
+const currencies = ["NGN"] as const;
 
 const BottomNav = ({ active }: { active: "wallet" | "pay" | "apps" }) => {
   const items = [
@@ -53,21 +53,21 @@ const WalletActions = () => {
     if (hash) document.getElementById(hash)?.scrollIntoView({ behavior: 'smooth' });
   }, [location.hash]);
 
-  const deposit = () => {
+  const deposit = async () => {
     const amt = Number(amount);
     if (!user || !amt || amt <= 0) return;
-    setBalance(user.id, balance + amt, currency);
-    addTransaction(user.id, { id: crypto.randomUUID(), type: "deposit", amount: amt, currency, note: note || "Deposit", date: new Date().toISOString() });
+    await setBalance(user.id, balance + amt, currency);
+    await addTransaction(user.id, { id: crypto.randomUUID(), type: "deposit", amount: amt, currency, note: note || "Deposit", date: new Date().toISOString() });
     setAmount(""); setNote("");
     toast({ title: "Deposit successful", description: `${currency} ${amt.toLocaleString()} added.` });
   };
 
-  const transfer = () => {
+  const transfer = async () => {
     const amt = Number(amount);
     if (!user || !recipient.trim() || !amt || amt <= 0) return;
     if (amt > balance) { toast({ title: "Insufficient balance", description: "Add funds to complete this transfer.", variant: "destructive" }); return; }
-    setBalance(user.id, balance - amt, currency);
-    addTransaction(user.id, { id: crypto.randomUUID(), type: "payment", amount: amt, currency, note: note || `To ${recipient}`, date: new Date().toISOString() });
+    await setBalance(user.id, balance - amt, currency);
+    await addTransaction(user.id, { id: crypto.randomUUID(), type: "payment", amount: amt, currency, note: note || `To ${recipient}`, date: new Date().toISOString() });
     setAmount(""); setRecipient(""); setNote("");
     toast({ title: "Transfer sent", description: `${currency} ${amt.toLocaleString()} to ${recipient}.` });
   };
@@ -81,7 +81,7 @@ const WalletActions = () => {
             <WalletIcon className="w-5 h-5 text-primary" />
             <h1 className="text-base sm:text-lg font-bold">Wallet Actions</h1>
           </div>
-          <select value={currency} onChange={(e) => setCurrency(e.target.value as any)} className="rounded-md border bg-background px-2 py-1 text-xs">
+          <select value={currency} onChange={(e) => setCurrency(e.target.value as typeof currencies[number])} className="rounded-md border bg-background px-2 py-1 text-xs">
             {currencies.map((c) => (<option key={c} value={c}>{c}</option>))}
           </select>
         </div>
