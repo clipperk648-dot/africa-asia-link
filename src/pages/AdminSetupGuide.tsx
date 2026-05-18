@@ -171,9 +171,10 @@ CREATE TABLE IF NOT EXISTS supplier_products (
   description text,
   price_min numeric,
   price_max numeric,
+  moq integer,
   image_url text,
   supplier_name text,
-  supplier_email text,
+  alibaba_link text UNIQUE,
   category text,
   status text DEFAULT 'active',
   created_at timestamp with time zone DEFAULT now()

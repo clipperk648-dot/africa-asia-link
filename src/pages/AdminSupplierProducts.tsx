@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAllSupplierProducts, useDeleteSupplierProductMutation, useUpdateSupplierProductMutation, useCreateSupplierProductsMutation } from "@/hooks/useData";
 import { supabase } from "@/lib/supabase";
+import { alibabaProducts as preloadedProducts } from "@/data/alibaba-products";
 import GlassCard from "@/components/GlassCard";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -111,6 +112,11 @@ const AdminSupplierProducts = () => {
           await createProductsMutation.mutateAsync(successfulProducts);
           totalSuccessful += successfulProducts.length;
         }
+
+        // Add a delay between batches to be safe
+        if (i + batchSize < urls.length) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
       }
 
       if (totalSuccessful > 0) {
@@ -210,6 +216,28 @@ const AdminSupplierProducts = () => {
                     className="w-full"
                   >
                     {isImporting ? "Importing..." : "Import Products"}
+                  </Button>
+                  
+                  <div className="relative py-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">Or</span>
+                    </div>
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      const uniqueLinks = Array.from(new Set(preloadedProducts.map(p => p.alibaba_link)));
+                      const links = uniqueLinks.join("\n");
+                      setImportUrls(links);
+                      toast.success(`Loaded ${uniqueLinks.length} product links. Click "Import Products" to start.`);
+                    }}
+                    className="w-full gap-2"
+                  >
+                    <Download className="w-4 h-4" /> Load All {Array.from(new Set(preloadedProducts.map(p => p.alibaba_link))).length} Pre-loaded Links
                   </Button>
                 </div>
               </SheetContent>
