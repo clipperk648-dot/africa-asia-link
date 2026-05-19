@@ -74,6 +74,7 @@ export const useAllUsers = () => {
         (payload) => {
           // Invalidate the query to refetch fresh data
           queryClient.invalidateQueries({ queryKey: ["allUsers"] });
+          queryClient.invalidateQueries({ queryKey: ["adminDashboardStats"] });
         }
       )
       .subscribe();
@@ -109,6 +110,7 @@ export const useAllOrders = () => {
         },
         () => {
           queryClient.invalidateQueries({ queryKey: ["allOrders"] });
+          queryClient.invalidateQueries({ queryKey: ["adminDashboardStats"] });
         }
       )
       .subscribe();
@@ -145,6 +147,7 @@ export const useProducts = (limit = 500, offset = 0) => {
         },
         () => {
           queryClient.invalidateQueries({ queryKey: ["products"] });
+          queryClient.invalidateQueries({ queryKey: ["adminDashboardStats"] });
         }
       )
       .on(
@@ -156,6 +159,7 @@ export const useProducts = (limit = 500, offset = 0) => {
         },
         () => {
           queryClient.invalidateQueries({ queryKey: ["products"] });
+          queryClient.invalidateQueries({ queryKey: ["adminDashboardStats"] });
         }
       )
       .subscribe();

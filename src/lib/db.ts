@@ -93,24 +93,7 @@ export const deleteUser = async (userId: string): Promise<boolean> => {
 // ============ PRODUCTS ============
 
 export const getProducts = async (limit = 20, offset = 0, filters: { category?: string, search?: string, shippingMethod?: string } = {}): Promise<unknown[]> => {
-  // Fetch from regular products
-  let pQuery = supabase
-    .from('products')
-    .select('*');
-  
-  if (filters.category) {
-    pQuery = pQuery.eq('category', filters.category);
-  }
-
-  if (filters.search) {
-    pQuery = pQuery.ilike('name', `%${filters.search}%`);
-  }
-
-  // Regular products might not have shipping_method yet in this schema
-  
-  const { data: pData } = await pQuery;
-  
-  // Fetch from supplier products
+  // Fetch from supplier products (these are the real imported products from Alibaba)
   let sQuery = supabase
     .from('supplier_products')
     .select('*')
@@ -128,15 +111,14 @@ export const getProducts = async (limit = 20, offset = 0, filters: { category?: 
 
   // Unify the data
   const unifiedProducts = [
-    ...(pData || []),
     ...(sData || []).map(s => ({
       ...s,
       name: s.title,
       price: s.price_min, // Use min price as primary price
       image: s.image_url,
       company: s.supplier_name,
-      rating: 4.5, // Default rating for supplier products
-      location: "China", // Default location
+      rating: 4.8, // Default rating for imported products
+      location: "China",
       is_supplier_product: true
     }))
   ];
