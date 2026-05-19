@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 const AdminProducts = () => {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
-  const { data: products = [], isLoading } = useProducts();
+  const { data: products = [], isLoading } = useProducts(500, 0, { type: 'merchant' });
 
   useEffect(() => {
     if (!currentUser || currentUser.role !== "admin") {

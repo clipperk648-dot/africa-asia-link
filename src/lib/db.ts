@@ -92,39 +92,84 @@ export const deleteUser = async (userId: string): Promise<boolean> => {
 
 // ============ PRODUCTS ============
 
-export const getProducts = async (limit = 20, offset = 0, filters: { category?: string, search?: string, shippingMethod?: string } = {}): Promise<unknown[]> => {
-  // Fetch from supplier products (these are the real imported products from Alibaba)
-  let sQuery = supabase
-    .from('supplier_products')
-    .select('*')
-    .eq('status', 'active');
+export const getProducts = async (limit = 20, offset = 0, filters: { category?: string, search?: string, shippingMethod?: string, merchantId?: string, type?: 'supplier' | 'merchant' | 'all' } = {}): Promise<unknown[]> => {
+  const productsType = filters.type || (filters.merchantId ? 'merchant' : 'supplier');
+  
+  let unifiedProducts: any[] = [];
 
-  if (filters.category) {
-    sQuery = sQuery.eq('category', filters.category);
+  // Fetch from supplier products (real imported products)
+  if (productsType === 'supplier' || productsType === 'all') {
+    let sQuery = supabase
+      .from('supplier_products')
+      .select('*')
+      .eq('status', 'active');
+
+    if (filters.category) {
+      sQuery = sQuery.eq('category', filters.category);
+    }
+
+    if (filters.search) {
+      sQuery = sQuery.ilike('title', `%${filters.search}%`);
+    }
+
+    const { data: sData } = await sQuery;
+    
+    if (sData) {
+      unifiedProducts = [
+        ...unifiedProducts,
+        ...sData.map(s => ({
+          ...s,
+          name: s.title,
+          price: s.price_min,
+          image: s.image_url,
+          company: s.supplier_name,
+          rating: 4.8,
+          location: "China",
+          is_supplier_product: true
+        }))
+      ];
+    }
   }
 
-  if (filters.search) {
-    sQuery = sQuery.ilike('title', `%${filters.search}%`);
+  // Fetch from merchant products
+  if (productsType === 'merchant' || productsType === 'all') {
+    let pQuery = supabase
+      .from('products')
+      .select('*');
+
+    if (filters.merchantId) {
+      pQuery = pQuery.eq('merchant_id', filters.merchantId);
+    } else {
+      // Exclude mock data (products with no merchant_id)
+      pQuery = pQuery.not('merchant_id', 'is', null);
+    }
+
+    if (filters.category) {
+      pQuery = pQuery.eq('category', filters.category);
+    }
+
+    if (filters.search) {
+      pQuery = pQuery.ilike('name', `%${filters.search}%`);
+    }
+
+    const { data: pData } = await pQuery;
+    if (pData) {
+      unifiedProducts = [
+        ...unifiedProducts,
+        ...pData.map(p => ({
+          ...p,
+          is_supplier_product: false
+        }))
+      ];
+    }
   }
-
-  const { data: sData } = await sQuery;
-
-  // Unify the data
-  const unifiedProducts = [
-    ...(sData || []).map(s => ({
-      ...s,
-      name: s.title,
-      price: s.price_min, // Use min price as primary price
-      image: s.image_url,
-      company: s.supplier_name,
-      rating: 4.8, // Default rating for imported products
-      location: "China",
-      is_supplier_product: true
-    }))
-  ];
 
   // Sort by created_at descending
-  unifiedProducts.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  unifiedProducts.sort((a, b) => {
+    const dateA = new Date(a.created_at || 0).getTime();
+    const dateB = new Date(b.created_at || 0).getTime();
+    return dateB - dateA;
+  });
 
   // Apply pagination
   return unifiedProducts.slice(offset, offset + limit);
