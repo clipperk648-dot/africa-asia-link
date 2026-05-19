@@ -74,6 +74,7 @@ export const useAllUsers = () => {
         (payload) => {
           // Invalidate the query to refetch fresh data
           queryClient.invalidateQueries({ queryKey: ["allUsers"] });
+          queryClient.invalidateQueries({ queryKey: ["adminDashboardStats"] });
         }
       )
       .subscribe();
@@ -109,6 +110,7 @@ export const useAllOrders = () => {
         },
         () => {
           queryClient.invalidateQueries({ queryKey: ["allOrders"] });
+          queryClient.invalidateQueries({ queryKey: ["adminDashboardStats"] });
         }
       )
       .subscribe();
@@ -122,12 +124,12 @@ export const useAllOrders = () => {
 };
 
 // Fetch all products with realtime updates
-export const useProducts = (limit = 500, offset = 0) => {
+export const useProducts = (limit = 500, offset = 0, filters = {}) => {
   const queryClient = useQueryClient();
 
   const query = useQuery({
-    queryKey: ["products", limit, offset],
-    queryFn: () => getProducts(limit, offset),
+    queryKey: ["products", limit, offset, filters],
+    queryFn: () => getProducts(limit, offset, filters),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
   });
@@ -145,6 +147,7 @@ export const useProducts = (limit = 500, offset = 0) => {
         },
         () => {
           queryClient.invalidateQueries({ queryKey: ["products"] });
+          queryClient.invalidateQueries({ queryKey: ["adminDashboardStats"] });
         }
       )
       .on(
@@ -156,6 +159,7 @@ export const useProducts = (limit = 500, offset = 0) => {
         },
         () => {
           queryClient.invalidateQueries({ queryKey: ["products"] });
+          queryClient.invalidateQueries({ queryKey: ["adminDashboardStats"] });
         }
       )
       .subscribe();
@@ -170,24 +174,106 @@ export const useProducts = (limit = 500, offset = 0) => {
 
 // Fetch a single product by ID
 export const useProduct = (id: string | undefined) => {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ["product", id],
     queryFn: () => (id ? getProductById(id) : null),
     enabled: !!id,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
+
+  // Subscribe to realtime changes for this specific product
+  useEffect(() => {
+    if (!id) return;
+
+    const channel = supabase
+      .channel(`product-${id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'products',
+          filter: `id=eq.${id}`
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["product", id] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'supplier_products',
+          filter: `id=eq.${id}`
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["product", id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [id, queryClient]);
+
+  return query;
 };
 
 // Fetch orders for a user
 export const useOrders = (userId: string | undefined) => {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ["orders", userId],
     queryFn: () => (userId ? getOrders(userId) : []),
     enabled: !!userId,
     staleTime: 3 * 60 * 1000, // 3 minutes - more frequent for orders
     gcTime: 10 * 60 * 1000, // 10 minutes
   });
+
+  // Subscribe to realtime changes for this user's orders
+  useEffect(() => {
+    if (!userId) return;
+
+    const channel = supabase
+      .channel(`user-orders-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'orders',
+          filter: `buyer_id=eq.${userId}`
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["orders", userId] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'orders',
+          filter: `seller_id=eq.${userId}`
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["orders", userId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, queryClient]);
+
+  return query;
 };
 
 // Fetch social posts with realtime updates
@@ -423,13 +509,42 @@ export const useCheckoutClusterMutation = () => {
 
 // Fetch wallet balance for a user
 export const useWalletBalance = (userId: string | undefined, currency = "NGN") => {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ["walletBalance", userId, currency],
     queryFn: () => (userId ? getWalletBalance(userId) : { balance: 0, currency }),
     enabled: !!userId,
     staleTime: 2 * 60 * 1000, // 2 minutes - more frequent for sensitive data
     gcTime: 5 * 60 * 1000, // 5 minutes
   });
+
+  // Subscribe to realtime changes for this user's wallet
+  useEffect(() => {
+    if (!userId) return;
+
+    const channel = supabase
+      .channel(`user-wallet-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'wallets',
+          filter: `user_id=eq.${userId}`
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["walletBalance", userId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, queryClient]);
+
+  return query;
 };
 
 // Supplier Products hooks with realtime updates
@@ -644,18 +759,73 @@ export const useShippingMethods = () => {
 };
 
 export const useSupportTickets = (userId: string | undefined) => {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ["supportTickets", userId],
     queryFn: () => (userId ? getSupportTickets(userId) : []),
     enabled: !!userId,
   });
+
+  // Subscribe to realtime changes for this user's support tickets
+  useEffect(() => {
+    if (!userId) return;
+
+    const channel = supabase
+      .channel(`user-support-tickets-${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'support_tickets',
+          filter: `user_id=eq.${userId}`
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["supportTickets", userId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, queryClient]);
+
+  return query;
 };
 
 export const useAllSupportTickets = () => {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ["allSupportTickets"],
     queryFn: () => getAllSupportTickets(),
   });
+
+  // Subscribe to realtime changes on support tickets
+  useEffect(() => {
+    const channel = supabase
+      .channel('all-support-tickets-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'support_tickets'
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["allSupportTickets"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  return query;
 };
 
 export const useClusterMessages = (clusterId: string | undefined) => {

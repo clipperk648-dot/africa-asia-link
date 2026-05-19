@@ -62,7 +62,7 @@ const IndustryDashboard = () => {
   const [showBotTooltip, setShowBotTooltip] = useState(false);
   const [tooltipText, setTooltipText] = useState("Hi there!");
 
-  const { data: products = [] } = useProducts(20, 0);
+  const { data: products = [] } = useProducts(20, 0, { merchantId: user?.id });
   const { data: orders = [] } = useOrders(user?.id);
 
   const ctaTexts = ["Hi there!", "Need help?", "Chat with us!", "Ask anything!", "We're here!"];

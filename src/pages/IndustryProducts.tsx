@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUser, logout } from "@/utils/mockAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { useProducts } from "@/hooks/useData";
 import GlassCard from "@/components/GlassCard";
 import FooterNav from "@/components/FooterNav";
@@ -12,8 +12,8 @@ import { getSafeImageUrl, createImageErrorHandler } from "@/utils/imageOptimizat
 
 const IndustryProducts = () => {
   const navigate = useNavigate();
-  const user = getCurrentUser();
-  const { data: products = [] } = useProducts();
+  const { user } = useAuth();
+  const { data: products = [] } = useProducts(500, 0, { merchantId: user?.id });
 
   useEffect(() => {
     if (!user || (user.role !== "industry" && user.role !== "sourcing-agent")) {
