@@ -113,7 +113,7 @@ const AdminProducts = () => {
                 <div className="p-4 space-y-3">
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-muted-foreground">{product.company}</span>
-                    <span className="font-bold text-white">${product.price.toLocaleString()}</span>
+                    <span className="font-bold text-white">₦{product.price.toLocaleString()}</span>
                   </div>
                   <div className="flex gap-2">
                     <Button 

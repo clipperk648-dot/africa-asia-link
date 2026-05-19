@@ -27,12 +27,12 @@ const fileToDataURL = (file: File): Promise<string> =>
   });
 
 export const getUserPrefs = (userId: string | undefined | null): UserPrefs => {
-  if (!userId) return { language: "English", currency: "USD" };
+  if (!userId) return { language: "English", currency: "NGN" };
   try {
     const raw = localStorage.getItem(prefsKey(userId));
-    return raw ? (JSON.parse(raw) as UserPrefs) : { language: "English", currency: "USD" };
+    return raw ? (JSON.parse(raw) as UserPrefs) : { language: "English", currency: "NGN" };
   } catch {
-    return { language: "English", currency: "USD" };
+    return { language: "English", currency: "NGN" };
   }
 };
 

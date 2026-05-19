@@ -176,7 +176,6 @@ const BuyerSettings = () => {
               <Select value={prefs.currency} onValueChange={(v) => { const next = { ...prefs, currency: v }; setPrefs(next); setUserPrefs(user?.id, next); }}>
                 <SelectTrigger className="h-11 bg-background/50"><SelectValue placeholder="Select currency" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="USD">USD ($)</SelectItem>
                   <SelectItem value="NGN">NGN (₦)</SelectItem>
                   <SelectItem value="CNY">CNY (¥)</SelectItem>
                   <SelectItem value="EUR">EUR (€)</SelectItem>

@@ -422,7 +422,7 @@ export const useCheckoutClusterMutation = () => {
 };
 
 // Fetch wallet balance for a user
-export const useWalletBalance = (userId: string | undefined, currency = "USD") => {
+export const useWalletBalance = (userId: string | undefined, currency = "NGN") => {
   return useQuery({
     queryKey: ["walletBalance", userId, currency],
     queryFn: () => (userId ? getWalletBalance(userId) : { balance: 0, currency }),

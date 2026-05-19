@@ -6,13 +6,13 @@ export type WalletTx = { id: string; type: "deposit" | "payment"; amount: number
 const walletCache: Map<string, Map<string, number>> = new Map();
 const transactionsCache: Map<string, WalletTx[]> = new Map();
 
-export const getBalance = (userId: string | null | undefined, currency = "USD"): number => {
+export const getBalance = (userId: string | null | undefined, currency = "NGN"): number => {
   if (!userId) return 0;
   const userCache = walletCache.get(userId) || new Map();
   return userCache.get(currency) || 0;
 };
 
-export const getLiveBalance = async (userId: string, currency = "USD") => {
+export const getLiveBalance = async (userId: string, currency = "NGN") => {
   const res = await getWalletBalance(userId, currency);
   // Update cache
   if (!walletCache.has(userId)) walletCache.set(userId, new Map());
@@ -20,7 +20,7 @@ export const getLiveBalance = async (userId: string, currency = "USD") => {
   return res.balance;
 };
 
-export const setBalance = async (userId: string, amount: number, currency = "USD") => {
+export const setBalance = async (userId: string, amount: number, currency = "NGN") => {
   await setWalletBalance(userId, amount, currency);
   // Update cache
   if (!walletCache.has(userId)) walletCache.set(userId, new Map());

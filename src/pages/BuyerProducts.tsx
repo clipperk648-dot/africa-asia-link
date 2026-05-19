@@ -268,7 +268,7 @@ const BuyerProducts = () => {
                     <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between mt-4 gap-3">
                       <div className="space-y-1">
                         <p className="text-xl sm:text-2xl font-bold text-primary">
-                          {product.currency || "USD"} {product.price.toLocaleString()}
+                          ₦{product.price.toLocaleString()}
                         </p>
                         <div className="flex gap-1.5">
                           <span className="text-[8px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-500 border border-green-500/20 font-bold uppercase tracking-tight">Sea (Rec.)</span>

@@ -36,7 +36,7 @@ const UtilitiesServices = [
 const Utilities = () => {
   const user = getCurrentUser();
   const navigate = useNavigate();
-  const { data: walletData = { balance: 0, currency: "USD" } } = useWalletBalance(user?.id);
+  const { data: walletData = { balance: 0, currency: "NGN" } } = useWalletBalance(user?.id);
 
   useEffect(() => {
     if (!user) navigate("/login");
@@ -72,7 +72,7 @@ const Utilities = () => {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-white/80 text-xs">Wallet Balance</p>
-                <p className="mt-1 text-4xl font-extrabold tracking-tight">${walletData.balance.toFixed(2)}</p>
+                <p className="mt-1 text-4xl font-extrabold tracking-tight">₦{walletData.balance.toFixed(2)}</p>
               </div>
               <div className="text-4xl">💰</div>
             </div>

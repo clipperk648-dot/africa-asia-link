@@ -16,6 +16,56 @@ import ThreeBackground from "@/components/ThreeBackground";
 import { calculateUnitCBM } from "@/utils/cbm";
 
 
+interface ProductForm {
+  nameEN: string;
+  nameZH: string;
+  category: string;
+  hsCode: string;
+  brand: string;
+  model: string;
+  originCountry: string;
+  province: string;
+  city: string;
+  unit: string;
+  unitPrice: string;
+  currency: "NGN" | "CNY";
+  moq: string;
+  supplyAbilityPerMonth: string;
+  quantityAvailable: string;
+  leadTimeDays: string;
+  incoterm: string;
+  portOfShipment: string;
+  description: string;
+  specifications: string;
+  companyName: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone: string;
+  wechat: string;
+  whatsapp: string;
+  warrantyMonths: string;
+  oem: boolean;
+  odm: boolean;
+  customPackaging: boolean;
+  sampleAvailable: boolean;
+  certifications: {
+    ce: boolean;
+    rohs: boolean;
+    iso9001: boolean;
+    fcc: boolean;
+    ccc: boolean;
+    [key: string]: boolean;
+  };
+  weight_kg: string;
+  length_cm: string;
+  width_cm: string;
+  height_cm: string;
+  has_battery: boolean;
+  requires_nafdac: boolean;
+  moq_price: string;
+  cluster_target_qty: string;
+}
+
 const IndustryProductEdit = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -28,7 +78,7 @@ const IndustryProductEdit = () => {
 
   const { data: product } = useProduct(id!);
 
-  const [form, setForm] = useState(() => ({
+  const [form, setForm] = useState<ProductForm>(() => ({
     nameEN: product?.name || "",
     nameZH: product?.nameZH || "",
     category: product?.category?.toLowerCase() || "machinery",
@@ -40,7 +90,7 @@ const IndustryProductEdit = () => {
     city: product?.city || "",
     unit: product?.unit || "piece",
     unitPrice: String(product?.unitPrice ?? product?.price ?? ""),
-    currency: (product?.currency as any) || "USD",
+    currency: (product?.currency as "NGN" | "CNY") || "NGN",
     moq: String(product?.moq ?? ""),
     supplyAbilityPerMonth: String(product?.supplyAbilityPerMonth ?? ""),
     quantityAvailable: String(product?.quantityAvailable ?? ""),
@@ -91,7 +141,7 @@ const IndustryProductEdit = () => {
         city: product.city || "",
         unit: product.unit || "piece",
         unitPrice: String(product.unitPrice ?? product.price ?? ""),
-        currency: (product.currency as any) || "USD",
+        currency: (product.currency as "NGN" | "CNY") || "NGN",
         moq: String(product.moq ?? ""),
         supplyAbilityPerMonth: String(product.supplyAbilityPerMonth ?? ""),
         quantityAvailable: String(product.quantityAvailable ?? ""),
@@ -143,7 +193,10 @@ const IndustryProductEdit = () => {
     return calculateUnitCBM(l, w, h);
   }, [form.length_cm, form.width_cm, form.height_cm]);
 
-  const handle = (key: keyof typeof form) => (e: any) => setForm((p) => ({ ...p, [key]: e.target ? e.target.value : e }));
+  const handle = <K extends keyof ProductForm>(key: K) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | ProductForm[K]) => {
+    const value = (typeof e === 'object' && e !== null && 'target' in e) ? e.target.value : e;
+    setForm((p) => ({ ...p, [key]: value as ProductForm[K] }));
+  };
 
   const handleImageFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -357,11 +410,10 @@ const IndustryProductEdit = () => {
               <div className="space-y-2">
                 <Label>Retail Unit price (Below MOQ)</Label>
                 <div className="grid grid-cols-3 gap-2">
-                  <Select value={form.currency as any} onValueChange={(v) => setForm((p) => ({ ...p, currency: v as any }))}>
+                  <Select value={form.currency as string} onValueChange={(v) => setForm((p) => ({ ...p, currency: v as "NGN" | "CNY" }))}>
                     <SelectTrigger className="h-11 bg-background/50"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="CNY">CNY (¥)</SelectItem>
-                      <SelectItem value="USD">USD ($)</SelectItem>
                       <SelectItem value="NGN">NGN (₦)</SelectItem>
                     </SelectContent>
                   </Select>
@@ -388,7 +440,7 @@ const IndustryProductEdit = () => {
                 <Label htmlFor="moq_price">MOQ Price (Per unit when ≥ MOQ)</Label>
                 <div className="relative">
                   <span className="absolute left-3 top-3 text-muted-foreground font-medium">
-                    {form.currency === 'USD' ? '$' : form.currency === 'CNY' ? '¥' : '₦'}
+                    {form.currency === 'NGN' ? '₦' : '¥'}
                   </span>
                   <Input id="moq_price" value={form.moq_price} onChange={handle("moq_price")} required className="h-11 bg-background/60 pl-8" type="number" min="0" />
                 </div>
@@ -466,7 +518,7 @@ const IndustryProductEdit = () => {
                 <div className="grid grid-cols-5 gap-2 text-sm">
                   {(["CE","RoHS","ISO9001","FCC","CCC"] as const).map((c) => (
                     <label key={c} className="flex items-center gap-2">
-                      <input type="checkbox" checked={(form.certifications as any)[c.toLowerCase()]} onChange={(e) => setForm((p: any) => ({ ...p, certifications: { ...p.certifications, [c.toLowerCase()]: e.target.checked } }))} /> {c}
+                      <input type="checkbox" checked={(form.certifications as Record<string, boolean>)[c.toLowerCase()]} onChange={(e) => setForm((p) => ({ ...p, certifications: { ...p.certifications, [c.toLowerCase()]: e.target.checked } }))} /> {c}
                     </label>
                   ))}
                 </div>

@@ -10,27 +10,36 @@ const corsHeaders = {
 const CATEGORY_MAP: Record<string, string[]> = {
   "watches": ["watch", "time", "clock", "wrist"],
   "inverters": ["inverter", "power", "converter", "pure sine"],
-  "bags": ["bag", "backpack", "handbag", "purse", "luggage", "canvas"],
+  "bags": ["bag", "backpack", "handbag", "purse", "luggage", "canvas", "tote", "clutch", "wallet", "luggage"],
   "men's shorts": ["short", "cargo short", "swim short"],
   "shirt long sleeves": ["shirt", "sleeve", "formal shirt", "oxford"],
   "baggy jeans": ["jean", "denim", "baggy", "loose fit"],
   "female shoes": ["female shoe", "heels", "women sneaker", "women boot", "sandal", "slipper", "flat shoes"],
   "male shoes": ["male shoe", "men sneaker", "men boot", "business shoe", "loafers", "clogs", "sneakers"],
-  "solar products": ["solar", "panel", "pv", "mppt", "charge controller"],
-  "electronics": ["electronic", "phone", "iphone", "samsung", "charger", "cable", "headphone", "speaker", "lamp", "led", "assistant", "tracker"]
+  "solar products": ["solar", "panel", "pv", "mppt", "charge controller", "solar energy"],
+  "electronics": ["electronic", "phone", "iphone", "samsung", "charger", "cable", "headphone", "speaker", "lamp", "led", "assistant", "tracker", "hub", "power bank", "earbud"]
 };
 
 function extractMeta(html: string, property: string): string | null {
   const regex = new RegExp(`<meta[^>]+(?:property|name)=["']${property}["'][^>]+content=["']([^"']+)["']`, 'i');
   const match = html.match(regex);
-  if (match) return match[1];
+  if (match) return decodeEntity(match[1]);
   
   // Try reversed order of attributes
   const regexAlt = new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']${property}["']`, 'i');
   const matchAlt = html.match(regexAlt);
-  if (matchAlt) return matchAlt[1];
+  if (matchAlt) return decodeEntity(matchAlt[1]);
   
   return null;
+}
+
+function decodeEntity(str: string): string {
+  return str.replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(dec))
+            .replace(/&quot;/g, '"')
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&apos;/g, "'");
 }
 
 serve(async (req) => {
@@ -66,7 +75,7 @@ serve(async (req) => {
             method: 'GET',
             redirect: 'follow',
             headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
               'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
               'Accept-Language': 'en-US,en;q=0.9',
             }
@@ -130,7 +139,51 @@ serve(async (req) => {
           };
         }
 
-        // 2. Try extracting from HTML meta tags if no data yet or if it was poor
+        // 2. Try JSON-LD extraction
+        if (html && (!extractedData || extractedData.title === "Alibaba Premium Product")) {
+          const jsonldMatch = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+          if (jsonldMatch) {
+            try {
+              const jsonld = JSON.parse(jsonldMatch[1]);
+              console.log(`Extracted info from JSON-LD`);
+              
+              const title = jsonld.name;
+              const description = jsonld.description;
+              const image = Array.isArray(jsonld.image) ? jsonld.image[0] : jsonld.image;
+              const price = jsonld.offers?.price || jsonld.offers?.lowPrice;
+              const highPrice = jsonld.offers?.highPrice;
+              
+              if (title) {
+                let category = "electronics";
+                const titleLower = title.toLowerCase();
+                for (const [cat, keywords] of Object.entries(CATEGORY_MAP)) {
+                  if (keywords.some(kw => titleLower.includes(kw))) {
+                    category = cat;
+                    break;
+                  }
+                }
+
+                extractedData = {
+                  ...extractedData,
+                  title: decodeEntity(title.replace(" - Alibaba.com", "").replace(" | Alibaba.com", "")),
+                  image_url: image || extractedData?.image_url || `https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=800&fit=crop`,
+                  description: decodeEntity(description || extractedData?.description || `${title}. High-quality product sourced from top Alibaba suppliers.`),
+                  price_min: parseFloat(price) || extractedData?.price_min || parseFloat((Math.random() * 50 + 5).toFixed(2)),
+                  price_max: parseFloat(highPrice) || (parseFloat(price) ? parseFloat(price) * 1.2 : extractedData?.price_max || parseFloat((Math.random() * 100 + 50).toFixed(2))),
+                  moq: extractedData?.moq || [10, 20, 50, 100][Math.floor(Math.random() * 4)],
+                  supplier_name: extractedData?.supplier_name || "Alibaba Certified Supplier",
+                  alibaba_link: url,
+                  category: category,
+                  status: "active"
+                };
+              }
+            } catch (e) {
+              console.error("Error parsing JSON-LD:", e);
+            }
+          }
+        }
+
+        // 3. Try extracting from HTML meta tags if no data yet or if it was poor
         if (html && (!extractedData || extractedData.title === "Alibaba Premium Product")) {
           const ogTitle = extractMeta(html, "og:title");
           const ogImage = extractMeta(html, "og:image");
@@ -153,12 +206,20 @@ serve(async (req) => {
             let priceMax = extractedData?.price_max || 0;
             
             if (!priceMin) {
-              // Very rough price extraction from HTML
+              // Try standard price regex
               const priceRegex = /["']price["']\s*:\s*["']?([\d,.]+)["']?/i;
               const priceMatch = html.match(priceRegex);
               if (priceMatch) {
                 priceMin = parseFloat(priceMatch[1].replace(/,/g, ''));
                 priceMax = priceMin * 1.1;
+              } else {
+                // Try looking for currency + price pattern (e.g. US $12.34)
+                const priceCurrencyRegex = /(?:US\s*\$|₦|￥)\s*([\d,.]+)(?:\s*-\s*([\d,.]+))?/i;
+                const priceCurrencyMatch = html.match(priceCurrencyRegex);
+                if (priceCurrencyMatch) {
+                  priceMin = parseFloat(priceCurrencyMatch[1].replace(/,/g, ''));
+                  priceMax = priceCurrencyMatch[2] ? parseFloat(priceCurrencyMatch[2].replace(/,/g, '')) : priceMin * 1.1;
+                }
               }
             }
 
@@ -178,7 +239,7 @@ serve(async (req) => {
           }
         }
 
-        // 3. Fallback to URL slug if still nothing
+        // 4. Fallback to URL slug if still nothing
         if (!extractedData) {
           const pathParts = urlObj.pathname.split('/');
           let slug = pathParts[pathParts.length - 1] || "";

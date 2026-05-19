@@ -56,7 +56,7 @@ const AdminSettings = () => {
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Currency Code</label>
-                  <Input defaultValue="USD" className="bg-background/50 border-white/10 h-11" />
+                  <Input defaultValue="NGN" className="bg-background/50 border-white/10 h-11" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Timezone</label>

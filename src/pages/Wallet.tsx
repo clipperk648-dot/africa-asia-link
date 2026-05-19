@@ -9,7 +9,7 @@ import ThreeBackground from "@/components/ThreeBackground";
 import WalletBottomNav from "@/components/WalletBottomNav";
 import { APP_NAME } from "@/config/app";
 
-const currencies = ["USD", "NGN"] as const;
+const currencies = ["NGN"] as const;
 
 type Currency = typeof currencies[number];
 
@@ -40,7 +40,7 @@ const Wallet = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [currency, setCurrency] = useState<Currency>("USD");
+  const [currency, setCurrency] = useState<Currency>("NGN");
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const goBack = () => {
@@ -99,7 +99,7 @@ const Wallet = () => {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-white/80 text-xs">Total</p>
-                <p className="mt-1 text-4xl font-extrabold tracking-tight">{currency} {balance.toFixed(2)}</p>
+                <p className="mt-1 text-4xl font-extrabold tracking-tight">{currency === 'NGN' ? '₦' : '$'} {balance.toFixed(2)}</p>
               </div>
               <div className="bg-white/15 backdrop-blur-md rounded-full p-1 flex items-center gap-1">
                 {currencies.map((c) => (
@@ -179,7 +179,7 @@ const Wallet = () => {
                         </div>
                       </div>
                       <div className={`text-sm font-semibold ${positive ? "text-green-600" : "text-red-600"}`}>
-                        {positive ? "+" : "-"}{t.currency} {t.amount.toLocaleString()}
+                        {positive ? "+" : "-"}{t.currency === 'NGN' ? '₦' : '$'}{t.amount.toLocaleString()}
                       </div>
                     </div>
                   );

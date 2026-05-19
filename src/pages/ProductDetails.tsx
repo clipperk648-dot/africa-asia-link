@@ -283,7 +283,7 @@ const ProductDetails = () => {
                 <div>
                   <p className="text-xs sm:text-sm text-muted-foreground mb-1">Unit Price</p>
                   <p className="text-2xl sm:text-3xl font-bold text-primary">
-                    {product.currency} {(product.unitPrice || product.price).toLocaleString()}
+                    ₦{(product.unitPrice || product.price).toLocaleString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -358,7 +358,7 @@ const ProductDetails = () => {
               <div className="bg-primary/10 border border-primary/20 p-3 rounded-xl">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-1">MOQ Price</p>
                 <p className="text-xl font-black text-primary">
-                  {product.currency} {product.moq_price.toLocaleString()}
+                  ₦{product.moq_price.toLocaleString()}
                   <span className="text-xs font-normal text-muted-foreground ml-1">/{product.unit || "pc"}</span>
                 </p>
                 <p className="text-[10px] text-muted-foreground italic">Applies when cluster reaches MOQ</p>
