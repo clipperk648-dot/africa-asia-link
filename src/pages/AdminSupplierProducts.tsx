@@ -3,12 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAllSupplierProducts, useDeleteSupplierProductMutation, useUpdateSupplierProductMutation, useCreateSupplierProductsMutation } from "@/hooks/useData";
 import { supabase } from "@/lib/supabase";
-import { alibabaProducts as preloadedProducts } from "@/data/alibaba-products";
 import GlassCard from "@/components/GlassCard";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Upload, Download, Search, Filter, Pencil, Eye, EyeOff, ExternalLink } from "lucide-react";
+import { Trash2, Upload, Search, Pencil, Eye, EyeOff, ExternalLink } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -218,27 +217,7 @@ const AdminSupplierProducts = () => {
                     {isImporting ? "Importing..." : "Import Products"}
                   </Button>
                   
-                  <div className="relative py-4">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="w-full border-t" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-background px-2 text-muted-foreground">Or</span>
-                    </div>
-                  </div>
-                  
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      const uniqueLinks = Array.from(new Set(preloadedProducts.map(p => p.alibaba_link)));
-                      const links = uniqueLinks.join("\n");
-                      setImportUrls(links);
-                      toast.success(`Loaded ${uniqueLinks.length} product links. Click "Import Products" to start.`);
-                    }}
-                    className="w-full gap-2"
-                  >
-                    <Download className="w-4 h-4" /> Load All {Array.from(new Set(preloadedProducts.map(p => p.alibaba_link))).length} Pre-loaded Links
-                  </Button>
+
                 </div>
               </SheetContent>
             </Sheet>
