@@ -206,19 +206,35 @@ serve(async (req) => {
             let priceMax = extractedData?.price_max || 0;
             
             if (!priceMin) {
-              // Try standard price regex
-              const priceRegex = /["']price["']\s*:\s*["']?([\d,.]+)["']?/i;
-              const priceMatch = html.match(priceRegex);
-              if (priceMatch) {
-                priceMin = parseFloat(priceMatch[1].replace(/,/g, ''));
-                priceMax = priceMin * 1.1;
-              } else {
-                // Try looking for currency + price pattern (e.g. US $12.34)
-                const priceCurrencyRegex = /(?:US\s*\$|₦|￥)\s*([\d,.]+)(?:\s*-\s*([\d,.]+))?/i;
-                const priceCurrencyMatch = html.match(priceCurrencyRegex);
-                if (priceCurrencyMatch) {
-                  priceMin = parseFloat(priceCurrencyMatch[1].replace(/,/g, ''));
-                  priceMax = priceCurrencyMatch[2] ? parseFloat(priceCurrencyMatch[2].replace(/,/g, '')) : priceMin * 1.1;
+              // Try the PAGE_DATA price field first (handles unicode escapes like \u20A6 for ₦)
+              const pageDataPriceMatch = html.match(/"price"\s*:\s*"([^"]+)"/);
+              if (pageDataPriceMatch) {
+                // Remove unicode escapes and currency symbols
+                const cleaned = pageDataPriceMatch[1].replace(/\\u[0-9a-fA-F]{4}/g, '').replace(/[₦$€£¥,\\]/g, '');
+                const numbers = cleaned.match(/[\d.]+/g);
+                if (numbers && numbers.length >= 1) {
+                  const prices = numbers.map(n => parseFloat(n)).filter(n => !isNaN(n) && n > 0);
+                  if (prices.length >= 1) {
+                    priceMin = Math.min(...prices);
+                    priceMax = prices.length >= 2 ? Math.max(...prices) : priceMin * 1.1;
+                  }
+                }
+              }
+              if (!priceMin) {
+                // Try standard price regex
+                const priceRegex = /["']price["']\s*:\s*["']?([\d,.]+)["']?/i;
+                const priceMatch = html.match(priceRegex);
+                if (priceMatch) {
+                  priceMin = parseFloat(priceMatch[1].replace(/,/g, ''));
+                  priceMax = priceMin * 1.1;
+                } else {
+                  // Try looking for currency + price pattern (e.g. US $12.34)
+                  const priceCurrencyRegex = /(?:US\s*\$|₦|￥)\s*([\d,.]+)(?:\s*-\s*([\d,.]+))?/i;
+                  const priceCurrencyMatch = html.match(priceCurrencyRegex);
+                  if (priceCurrencyMatch) {
+                    priceMin = parseFloat(priceCurrencyMatch[1].replace(/,/g, ''));
+                    priceMax = priceCurrencyMatch[2] ? parseFloat(priceCurrencyMatch[2].replace(/,/g, '')) : priceMin * 1.1;
+                  }
                 }
               }
             }
